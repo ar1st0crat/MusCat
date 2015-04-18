@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="6e6d002da5454eb29e853ef420093429" Name="Diagram1">
+        <EntityTypeShape EntityType="MusCatModel.Albums" Width="1.5" PointX="3" PointY="4.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="MusCatModel.Lineups" Width="1.5" PointX="3" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MusCatModel.Musicians" Width="1.5" PointX="0.75" PointY="8.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="MusCatModel.Performers" Width="1.5" PointX="0.75" PointY="4.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="MusCatModel.Songs" Width="1.5" PointX="5.25" PointY="4.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="MusCatModel.AlbumsWithEmptySongsView" Width="1.5" PointX="2.75" PointY="8.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="MusCatModel.AlbumsWithoutTotalTimeView" Width="1.5" PointX="4.75" PointY="8.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="MusCatModel.EmptyAlbumsView" Width="1.5" PointX="6.75" PointY="8.625" IsExpanded="true" />
+        <AssociationConnector Association="MusCatModel.FK_Albums_Performers" ManuallyRouted="false" />
+        <AssociationConnector Association="MusCatModel.FK_Songs_Albums" ManuallyRouted="false" />
+        <AssociationConnector Association="MusCatModel.FK_Lineups_Musicians" ManuallyRouted="false" />
+        <AssociationConnector Association="MusCatModel.FK_Lineups_Performers" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
