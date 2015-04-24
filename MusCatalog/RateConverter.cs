@@ -17,15 +17,16 @@ namespace MusCatalog
             if (perf == null)
                 return "";
 
-            short ratedCount = 0;
-            byte rate = 0;
+            if (perf.Albums.Count == 0)
+                return "Not rated";
 
-            foreach (var a in perf.Albums)
-                if (a.ARate.HasValue)
-                {
-                    ratedCount++;
-                    rate += a.ARate.Value;
-                }
+            int ratedCount = perf.Albums.Count( t => t.ARate.HasValue );
+            int rate = perf.Albums.Sum( t => {
+                                                if (t.ARate.HasValue)
+                                                    return t.ARate.Value;
+                                                else
+                                                    return 0;
+                                        });
 
             if (ratedCount == 0)
                 return "Not rated";

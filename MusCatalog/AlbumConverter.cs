@@ -14,7 +14,7 @@ namespace MusCatalog
         {
             Performers perf = value as Performers;
 
-            if (perf != null)
+            if (perf != null && perf.Albums != null )
             {
                 switch (perf.Albums.Count)
                 {

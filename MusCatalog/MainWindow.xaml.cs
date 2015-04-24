@@ -21,7 +21,7 @@ namespace MusCatalog
     /// </summary>
     public partial class MainWindow : Window
     {
-        Button prevButton = null;
+        LetterButton prevButton = null;
 
         /// <summary>
         /// ...
@@ -31,13 +31,25 @@ namespace MusCatalog
         {
             using (var context = new MusCatEntities())
             {
-                var performers = from p in context.Performers.Include("Albums")
-                                 where p.Performer.StartsWith( letter )
-                                 orderby p.Performer
-                                 select p;
+                IQueryable<Performers> performers;
+
+                if (letter.Length == 1)
+                {
+                    performers = from p in context.Performers.Include("Albums")
+                                     where p.Performer.StartsWith(letter)
+                                     orderby p.Performer
+                                     select p;
+
+                }
+                else
+                {
+                    performers = from p in context.Performers.Include("Albums")
+                                     where (p.Performer.Substring(0, 1).CompareTo("A") < 0 || p.Performer.Substring(0, 1).CompareTo("Z") > 0)
+                                     orderby p.Performer
+                                     select p;
+                }
 
                 this.perflist.ItemsSource = performers.ToList();
-
                 this.perflist.SelectedIndex = -1;
             }
         }
@@ -45,47 +57,36 @@ namespace MusCatalog
         public MainWindow()
         {
             InitializeComponent();
-
-            // ===================================================================
-            Button bA = new Button();
-            bA.Content = "A";
-            bA.Click += LetterClick;
-            bA.Width = bA.Height = 50;
-            lettersPanel.Children.Add( bA );
-            prevButton = bA;
-
-            foreach (char c in "BCDEFGHIJKLMNOPQRSTUVWXYZ")
+            
+            foreach (char c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
             {
-                Button b = new Button();
-                b.Content = c;
+                LetterButton b = new LetterButton( c.ToString() );
                 b.Click += LetterClick;
-                b.Width = b.Height = 30;
 
                 lettersPanel.Children.Add( b );
             }
 
-            Button bOther = new Button();
-            bOther.Content = "Other";
+            LetterButton bOther = new LetterButton( "Other", 70 );
             bOther.Click += LetterClick;
-            bOther.Width = 70;
-            bOther.Height = 30;
             lettersPanel.Children.Add( bOther );
 
-            // Start with the A-list
+            // Start with the "A-letter"-list
+            prevButton = (LetterButton)lettersPanel.Children[0];
+            prevButton.Select();
             FillPerformersListByFirstLetter("A");
         }
 
 
         private void LetterClick(object sender, RoutedEventArgs e)
         {
-            Button pressedButton = ((Button)sender);
+            LetterButton pressedButton = (LetterButton)sender;
 
-            string letter = pressedButton.Content.ToString();
-            pressedButton.Width = pressedButton.Height = 50;
-            prevButton.Width = prevButton.Height = 30;
-
+            prevButton.DeSelect();
+            pressedButton.Select();
+            
             prevButton = pressedButton;
 
+            string letter = pressedButton.Content.ToString();
             FillPerformersListByFirstLetter( letter );
         }
                
@@ -124,6 +125,12 @@ namespace MusCatalog
                 MessageBox.Show(a.AID.ToString());
                 MessageBox.Show(a.Album);
             }
+        }
+
+        private void MusCatRadioClick(object sender, RoutedEventArgs e)
+        {
+            RadioPlayerWindow radio = new RadioPlayerWindow();
+            radio.Show();
         }
     }
 }

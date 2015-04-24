@@ -10,7 +10,7 @@
 namespace MusCatalog
 {
     using System;
-    
+     
     public partial class SelectOthers_Result
     {
         public long PID { get; set; }

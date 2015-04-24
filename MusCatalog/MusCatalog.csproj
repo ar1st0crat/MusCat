@@ -88,6 +88,7 @@
     <Compile Include="EmptyAlbumsView.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="LetterButton.cs" />
     <Compile Include="Lineups.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
     </Compile>
@@ -103,6 +104,9 @@
       <DependentUpon>MusCatModel.tt</DependentUpon>
     </Compile>
     <Compile Include="PhotoConverter.cs" />
+    <Compile Include="RadioPlayerWindow.xaml.cs">
+      <DependentUpon>RadioPlayerWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="RateConverter.cs" />
     <Compile Include="RateStarsConverter.cs" />
     <Compile Include="SelectBetweenTimes_Result.cs">
@@ -117,6 +121,8 @@
     <Compile Include="Songs.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="StarsVisibilityConverter.cs" />
+    <Compile Include="YearsConverter.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -129,6 +135,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="RadioPlayerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MusCatModel.Context.cs">
@@ -193,6 +203,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <DependentUpon>MusCat.mdf</DependentUpon>
     </Content>
+    <Resource Include="Images\pause.png" />
+    <Resource Include="Images\play.png" />
+    <Resource Include="Images\stop.png" />
     <Resource Include="Images\star.png" />
     <Resource Include="Images\star_empty.png" />
     <Resource Include="Images\star_half.png" />

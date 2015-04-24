@@ -17,21 +17,29 @@
         <local:RateConverter x:Key="rateConverter"/>
         <local:RateStarsConverter x:Key="rateStarsConverter"/>
         <local:AlbumConverter x:Key="albumConverter"/>
+        <local:YearsConverter x:Key="yearsConverter"/>
+        <local:StarsVisibilityConverter x:Key="starsVisibilityConverter"/>
 
         <DataTemplate x:Key="ItemTemplate">
             <StackPanel Orientation="Horizontal">
                 <Image Source="{Binding Converter={StaticResource photoConverter}}" Height="85" Width="125" Margin="15,10,15,25"/>
                 <StackPanel>
-                    <Label FontSize="20" Foreground="LightYellow" FontFamily="Sylfaen" Content="{Binding Performer}" />
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" Width="15"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}" Width="15"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star3}}" Width="15"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star4}}" Width="15"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star5}}" Width="15"/>
-                    </StackPanel>
-                    <Label FontSize="18" Foreground="White" FontFamily="Arial Narrow" Content="{Binding Converter={StaticResource rateConverter}}" Padding="1,1,10,1" />
+                    <Label FontSize="24" Foreground="LightYellow" FontFamily="Stencil" Content="{Binding Performer}" Padding="0,5,0,0" />
+                    <DockPanel>
+                        <StackPanel Margin="0,0,2,0">
+                            <Label FontSize="18" Foreground="White" FontFamily="Arial Narrow" Content="{Binding Converter={StaticResource rateConverter}}" Padding="1,1,10,1" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding Converter={StaticResource starsVisibilityConverter}}">
+                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" Width="15"/>
+                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}" Width="15"/>
+                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star3}}" Width="15"/>
+                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star4}}" Width="15"/>
+                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star5}}" Width="15"/>
+                        </StackPanel>
+                        
+                    </DockPanel>
                     <Label FontSize="16" Foreground="LightPink" FontFamily="Arial Narrow" Content="{Binding Converter={StaticResource albumConverter}}" Padding="1,1,1,1" />
+                    <Label FontSize="16" Foreground="LightGreen" FontFamily="Arial Narrow" Content="{Binding Converter={StaticResource yearsConverter}}" Padding="1,1,1,1" />
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
@@ -137,7 +145,7 @@
             <MenuItem Header="Performers"/>
             <MenuItem Header="Stats" Click="MenuStatsClick"/>
             <MenuItem Header="Find"/>
-            <MenuItem Header="MusCat Radio"/>
+            <MenuItem Header="MusCat Radio" Click="MusCatRadioClick"/>
         </Menu>
         
         <WrapPanel Margin="10,10,10,10" Name="lettersPanel" Grid.Row="1" HorizontalAlignment="Center"/>

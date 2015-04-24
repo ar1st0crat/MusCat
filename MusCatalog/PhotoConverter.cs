@@ -17,6 +17,7 @@ namespace MusCatalog
         {
             paths.Add( @"F:\" );
             paths.Add( @"G:\" );
+            paths.Add( @"G:\Other\" );
         }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -59,7 +60,7 @@ namespace MusCatalog
 
                 return @"Images\vinyl_blue.png";
             }
-
+            
             return "";
         }
 

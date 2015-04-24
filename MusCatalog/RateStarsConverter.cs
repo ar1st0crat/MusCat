@@ -24,26 +24,30 @@ namespace MusCatalog
                 return @"Images\star_empty.png";
         }
 
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             Performers perf = value as Performers;
 
             if (perf != null)
             {
-                short ratedCount = 0;
-                byte rate = 0;
-
-                foreach (var a in perf.Albums)
-                    if (a.ARate.HasValue)
-                    {
-                        ratedCount++;
-                        rate += a.ARate.Value;
-                    }
+                if (perf.Albums.Count == 0)
+                    return @"Images\star_empty.png";
+                
+                int ratedCount = perf.Albums.Count(t => t.ARate.HasValue);
+                int rate = perf.Albums.Sum(t =>
+                                                {
+                                                    if (t.ARate.HasValue)
+                                                        return t.ARate.Value;
+                                                    else
+                                                        return 0;
+                                                });
 
                 if (ratedCount == 0)
                     return @"Images\star_empty.png";
                 else
                     return getStar((byte)(rate / ratedCount), (int)parameter);
+                
             }
 
             Albums alb = value as Albums;
