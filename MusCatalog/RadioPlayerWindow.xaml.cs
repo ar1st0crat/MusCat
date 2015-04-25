@@ -155,6 +155,7 @@ namespace MusCatalog
             }
             else
             {
+                MessageBox.Show(songs[1].SN.ToString());
                 //MessageBox.Show( pathDir );
                 //MessageBox.Show(Directory.GetFiles(pathDir)[songs[1].SN - 1]);
 
