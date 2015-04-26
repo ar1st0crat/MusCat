@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NAudio.Wave;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -131,6 +132,10 @@ namespace MusCatalog
         {
             RadioPlayerWindow radio = new RadioPlayerWindow();
             radio.Show();
+        }
+
+        private void FindClick(object sender, RoutedEventArgs e)
+        {
         }
     }
 }

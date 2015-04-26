@@ -144,7 +144,7 @@
         <Menu HorizontalAlignment="Stretch" Height="28" VerticalAlignment="Top" Grid.Row="0">
             <MenuItem Header="Performers"/>
             <MenuItem Header="Stats" Click="MenuStatsClick"/>
-            <MenuItem Header="Find"/>
+            <MenuItem Header="Find" Click="FindClick"/>
             <MenuItem Header="MusCat Radio" Click="MusCatRadioClick"/>
         </Menu>
         
