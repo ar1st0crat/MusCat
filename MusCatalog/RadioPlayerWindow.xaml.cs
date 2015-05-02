@@ -68,6 +68,9 @@ namespace MusCatalog
 
             // Update MVVM GUI song elements
             UpdateGUISongs();
+
+            // start playing the first song right away
+            StartPlayingCurrentSong();
         }
 
 
@@ -93,8 +96,6 @@ namespace MusCatalog
 
             this.Archive.ItemsSource = songs;
             this.Archive.Items.Refresh();
-
-            StartPlayingCurrentSong();
         }
 
 
@@ -181,6 +182,10 @@ namespace MusCatalog
 
             // update GUI
             UpdateGUISongs();
+
+            // after we added new upcoming song we must play the current song
+            // (this song has been "upcoming" before we added new song to the playlist)
+            StartPlayingCurrentSong();
         }
 
 
@@ -189,10 +194,16 @@ namespace MusCatalog
         /// </summary>
         private void PrevSong()
         {
+            // if the current song isn't the first one in a songlist
+            // we can safely decrease the current position in the songlist
             if (nCurrentSong > 0)
                 nCurrentSong--;
 
+            // update GUI
             UpdateGUISongs();
+
+            // after switching to previous song we play it right away
+            StartPlayingCurrentSong();
         }
         
         
@@ -260,56 +271,49 @@ namespace MusCatalog
         /// </summary>
         private void StartPlayingCurrentSong()
         {
-            waveOut.Stop();
+            if ( waveOut.PlaybackState == NAudio.Wave.PlaybackState.Playing )
+            {
+                waveOut.Stop();
+            }
+
             waveOut.Dispose();
             waveOut = null;
+
+            waveOut = new WaveOut();
   
             string pathDir = FindSongPath( songs[nCurrentSong] );
-            
-            if ( pathDir == "" )
+
+            Mp3FileReader mp3Reader = null;
+
+            try
             {
-                NextSong();
+                // here we may face some problems depending on particular mp3 files or organization of user's file system
+                mp3Reader = new Mp3FileReader(Directory.GetFiles(pathDir)[songs[nCurrentSong].SN - 1]);
+                {
+                    waveOut.Init(mp3Reader);
+                    waveOut.Play();
+                    waveOut.PlaybackStopped += SongPlaybackStopped;
+
+                    playbackState = PlaybackState.PLAY;
+                    this.playback.Source = imagePause;
+                }   
             }
-            else
+            catch (Exception ex)
             {
-                Mp3FileReader mp3Reader = null;
-
-                try
+                //MessageBox.Show( ex.Message );
+                songs.RemoveAt(nCurrentSong--);
+                
+                // if the next song is the last one in the playlist
+                // then we should select new upcoming song and add it to the playlist
+                if (nCurrentSong == songs.Count - 1)
                 {
-                    mp3Reader = new Mp3FileReader(Directory.GetFiles(pathDir)[songs[nCurrentSong].SN - 1]);
-                    {
-                        waveOut = new WaveOut();
-
-                        waveOut.Init(mp3Reader);
-                        waveOut.Play();
-                        waveOut.PlaybackStopped += SongPlaybackStopped;
-
-                        playbackState = PlaybackState.PLAY;
-                    }
+                    var s = SelectRandomSong();
+                    this.nextImage.DataContext = s.Albums;
+                    this.nextSongPanel.DataContext = s;
+                    songs.Add(s);
                 }
-                catch (Exception ex)
-                {
-                    songs.RemoveAt(nCurrentSong--);
-                    waveOut = new WaveOut();
 
-                    // check if the archive ("songlist story") is full 
-                    if (songs.Count >= MAX_SONGS_IN_ARCHIVE)
-                        songs.RemoveAt(0);                      // if we remove the first element then we don't have to increase nCurrentSong
-                    else
-                        nCurrentSong++;                         // otherwise - increase nCurrentSong
-
-                    // if the next song is the last one in the playlist
-                    // then we should select new upcoming song and add it to the playlist
-                    if (nCurrentSong == songs.Count - 1)
-                    {
-                        var s = SelectRandomSong();
-                        this.nextImage.DataContext = s.Albums;
-                        this.nextSongPanel.DataContext = s;
-                        songs.Add(s);
-                    }
-
-                    NextSong();
-                }
+                NextSong();
             }
         }
 
@@ -344,8 +348,8 @@ namespace MusCatalog
             }
             else if (playbackState == PlaybackState.PAUSE)
             {
-                playbackState = PlaybackState.PLAY;
                 waveOut.Resume();
+                playbackState = PlaybackState.PLAY;
                 this.playback.Source = imagePause;
             }
             else
@@ -363,8 +367,8 @@ namespace MusCatalog
         /// <param name="e"></param>
         private void StopMouseDown(object sender, MouseButtonEventArgs e)
         {
-            playbackState = PlaybackState.STOP;
             waveOut.Stop();
+            playbackState = PlaybackState.STOP;
             this.playback.Source = imagePlay;
         }
 
@@ -408,9 +412,13 @@ namespace MusCatalog
         private void RadioPlayerKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Right)
+            {
                 NextSong();
+            }
             else if (e.Key == Key.Left)
+            {
                 PrevSong();
+            }
         }
     }
 }
