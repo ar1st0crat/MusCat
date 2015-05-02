@@ -124,7 +124,9 @@ namespace MusCatalog
             {
                 Albums a = lb.SelectedItem as Albums;
                 AlbumWindow albumWindow = new AlbumWindow( a );
-                albumWindow.Show();
+                albumWindow.ShowDialog();
+
+                this.perflist.InvalidateVisual();
             }
         }
 

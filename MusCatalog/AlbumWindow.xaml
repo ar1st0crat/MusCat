@@ -33,14 +33,24 @@
             <DockPanel>
                 <DockPanel HorizontalAlignment="Left" Margin="15,0,0,0">
                     <StackPanel>
-                        <Label FontSize="18" Foreground="Black" Background="Orange" FontFamily="Arial Narrow" Content="{Binding Converter={StaticResource rateConverter}}" />
+                        <Label Name="rate" FontSize="18" Foreground="Black" Background="Orange" FontFamily="Arial Narrow" Content="{Binding Converter={StaticResource rateConverter}}" />
                     </StackPanel>
                     <StackPanel Name="rateAlbum" Orientation="Horizontal" Margin="5,0,0,0">
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" Width="25"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}" Width="25"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star3}}" Width="25"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star4}}" Width="25"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star5}}" Width="25"/>
+                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" 
+                               Width="25"
+                               MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" MouseDown="StarMouseDown"/>
+                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}"
+                               Width="25"
+                               MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" MouseDown="StarMouseDown" />
+                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star3}}" 
+                               Width="25"
+                               MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" MouseDown="StarMouseDown" />
+                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star4}}"
+                               Width="25"
+                               MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" MouseDown="StarMouseDown" />
+                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star5}}"
+                               Width="25"
+                               MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" MouseDown="StarMouseDown" />
                     </StackPanel>
                 </DockPanel>
                 <Label Content="{Binding ATime}" Background="Maroon" Width="auto" HorizontalAlignment="Right" Margin="0,-15,40,0" 
