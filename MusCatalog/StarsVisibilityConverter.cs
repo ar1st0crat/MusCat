@@ -33,6 +33,17 @@ namespace MusCatalog
                 else
                     return "Visible";
             }
+
+            Albums albs = value as Albums;
+
+            if (albs != null)
+            {
+                if (albs.ARate.HasValue)
+                    return "Visible";
+                else
+                    return "Hidden";
+            }
+
             return "Hidden";
         }
 

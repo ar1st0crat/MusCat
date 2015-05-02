@@ -128,6 +128,9 @@
       <DependentUpon>MusCatModel.tt</DependentUpon>
     </Compile>
     <Compile Include="StarsVisibilityConverter.cs" />
+    <Compile Include="AlbumWindow.xaml.cs">
+      <DependentUpon>AlbumWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="YearsConverter.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -142,6 +145,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="RadioPlayerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AlbumWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

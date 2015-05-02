@@ -123,8 +123,8 @@ namespace MusCatalog
             if (lb.Name == "SelectedAlbums")
             {
                 Albums a = lb.SelectedItem as Albums;
-                MessageBox.Show(a.AID.ToString());
-                MessageBox.Show(a.Album);
+                AlbumWindow albumWindow = new AlbumWindow( a );
+                albumWindow.Show();
             }
         }
 
