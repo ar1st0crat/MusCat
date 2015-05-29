@@ -1,6 +1,8 @@
 # MusCat
 <i>Music Catalogizer + MP3 ID tag parser + Radio</i>
 
+![pic1](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/1.png)
+
 The <b>MusCat</b> app (short for <b>Mus</b>ic <b>Cat</b>alog) is intended for all users who prefer to store their audio files locally and want to organize their music collections. The app stores data in a local database and provides a rich GUI functionality for viewing and editing all sorts of information regarding performers and their discography.
 
 > Main features:
