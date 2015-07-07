@@ -81,58 +81,82 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AlbumConverter.cs" />
-    <Compile Include="Albums.cs">
+    <Compile Include="Converters\AlbumConverter.cs" />
+    <Compile Include="Logic\MusCatFileLocator.cs" />
+    <Compile Include="Model\Albums.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AlbumsWithEmptySongsView.cs">
+    <Compile Include="Model\AlbumsWithEmptySongsView.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AlbumsWithoutTotalTimeView.cs">
+    <Compile Include="Model\AlbumsWithoutTotalTimeView.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="EmptyAlbumsView.cs">
+    <Compile Include="Model\EmptyAlbumsView.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="LetterButton.cs" />
-    <Compile Include="Lineups.cs">
+    <Compile Include="Forms\LetterButton.cs" />
+    <Compile Include="Model\Lineups.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MusCatModel.cs">
-      <AutoGen>True</AutoGen>
+    <Compile Include="Model\MusCatModel.Context.cs">
+      <DependentUpon>MusCatModel.Context.tt</DependentUpon>
+      <SubType>Code</SubType>
       <DesignTime>True</DesignTime>
-      <DependentUpon>MusCatModel.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Musicians.cs">
+    <Compile Include="Model\MusCatModel.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Performers.cs">
+    <Compile Include="Model\MusCatModel.Designer.cs">
+      <DependentUpon>MusCatModel.edmx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Logic\MusCatPlayer.cs" />
+    <Compile Include="Model\Musicians.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PhotoConverter.cs" />
-    <Compile Include="RadioPlayerWindow.xaml.cs">
+    <Compile Include="Model\Performers.cs">
+      <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Converters\PhotoConverter.cs" />
+    <Compile Include="Forms\RadioPlayerWindow.xaml.cs">
       <DependentUpon>RadioPlayerWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RateConverter.cs" />
-    <Compile Include="RateStarsConverter.cs" />
-    <Compile Include="SelectBetweenTimes_Result.cs">
+    <Compile Include="Converters\RateConverter.cs" />
+    <Compile Include="Converters\RateStarsConverter.cs" />
+    <Compile Include="Model\SelectBetweenTimes_Result.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="SelectByLetter_Result.cs">
+    <Compile Include="Model\SelectByLetter_Result.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="SelectOthers_Result.cs">
+    <Compile Include="Model\SelectOthers_Result.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Songs.cs">
+    <Compile Include="Model\Songs.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="StarsVisibilityConverter.cs" />
-    <Compile Include="AlbumWindow.xaml.cs">
+    <Compile Include="Converters\StarsVisibilityConverter.cs" />
+    <Compile Include="Forms\AlbumWindow.xaml.cs">
       <DependentUpon>AlbumWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="YearsConverter.cs" />
-    <Page Include="MainWindow.xaml">
+    <Compile Include="Converters\YearsConverter.cs" />
+    <Page Include="Forms\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -140,30 +164,20 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Forms\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="RadioPlayerWindow.xaml">
+    <Page Include="Forms\RadioPlayerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AlbumWindow.xaml">
+    <Page Include="Forms\AlbumWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MusCatModel.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MusCatModel.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="MusCatModel.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MusCatModel.edmx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -181,21 +195,17 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EntityDeploy Include="MusCatModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>MusCatModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <None Include="MusCatModel.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
+    <None Include="Model\MusCatModel.Context.tt">
       <DependentUpon>MusCatModel.edmx</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MusCatModel.Context.cs</LastGenOutput>
     </None>
-    <None Include="MusCatModel.edmx.diagram">
+    <None Include="Model\MusCatModel.edmx.diagram">
       <DependentUpon>MusCatModel.edmx</DependentUpon>
     </None>
-    <None Include="MusCatModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
+    <None Include="Model\MusCatModel.tt">
       <DependentUpon>MusCatModel.edmx</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MusCatModel.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
@@ -246,6 +256,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EntityDeploy Include="Model\MusCatModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>MusCatModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
