@@ -7,14 +7,20 @@ using System.Linq;
 
 namespace MusCatalog
 {
+    /// <summary>
+    /// Class providing a static function for locating a song file in file system
+    /// 
+    /// TODO: Move pathlist (the list of filepath prefixes) to Settings
+    /// 
+    /// </summary>
     class MusCatFileLocator
     {
         /// <summary>
-        /// 
+        /// Normalize string
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
-        string postProcess(string s)
+        private static string postProcess(string s)
         {
             string res = "";
             foreach (char c in s)
@@ -26,7 +32,7 @@ namespace MusCatalog
 
 
         /// <summary>
-        /// 
+        /// A static function for locating a song file in file system
         /// </summary>
         /// <param name="song"></param>
         /// <returns>the actual path of the file with the song if it was found, an empty string otherwise</returns>
@@ -47,25 +53,33 @@ namespace MusCatalog
 
                 if (Directory.Exists(pathDir))
                 {
-                    // TODO:
-                    // 1) check if song name contains punctuation and eliminate it! Normalize string - remove spaces and punctuation!
-                    // 2) check if the album is double!
-
                     string[] dirs = Directory.GetDirectories(pathDir);
-                    var neededDirs = dirs.Where(d => d.Contains(song.Albums.AYear.ToString()));// && postProcess(song.Albums.Album) == postProcess(d));
+                    var neededDirs = dirs.Where( d => d.Contains(song.Albums.AYear.ToString()) );
 
-                    //if (neededDirs.Count() > 0)
-                    //{
-                    //    if (song.Albums.Songs.Count(s => s.SID == song.SID) > 1)
-                    //        return neededDirs.AsEnumerable().ElementAt(1);
-                    //    else
-                    //        return neededDirs.First();
-                    //}
+                    if (neededDirs.Count() > 0)
+                    {
+                        string songDir = neededDirs.First();
+                                                
+                        // Check if song name contains punctuation and eliminate it!
+                        // Normalize string - remove spaces and punctuation!
+                        foreach (string dir in neededDirs)
+                        {
+                            if ( postProcess(dir).Contains(postProcess(song.Albums.Album)) )
+                            {
+                                songDir = dir;
+                                break;
+                            }
+                        }
 
-                    if (Directory.GetFiles(neededDirs.First()).Length < song.SN)
-                        return "";
-                    else
-                        return Directory.GetFiles(neededDirs.First())[song.SN - 1];
+                        // TODO:
+                        // Check if the album is double (currently we simply return ""
+                        // if the album is broken into two folders (CD1 and CD2) and the song is in the second part of the album)
+                        // 
+                        if (Directory.GetFiles( songDir ).Length < song.SN)
+                            return "";
+                        else
+                            return Directory.GetFiles( songDir )[song.SN - 1];
+                    }
                 }
             }
 

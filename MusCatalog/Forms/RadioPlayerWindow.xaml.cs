@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
@@ -13,6 +12,9 @@ namespace MusCatalog
 {
     /// <summary>
     /// Class for interaction logic for RadioPlayerWindow.xaml
+    /// 
+    /// TODO: Refactor! Extract class RadioPlayer
+    /// 
     /// </summary>
     public partial class RadioPlayerWindow : Window
     {
@@ -87,7 +89,8 @@ namespace MusCatalog
 
 
         /// <summary>
-        /// The method selects random song from a local database. The song is guaranteed to be present in user's file system
+        /// The method selects random song from a local database.
+        /// The song is guaranteed to be present in user's file system
         /// </summary>
         /// <returns>Songs object selected randomly from the database</returns>
         private Songs SelectRandomSong()
@@ -111,7 +114,7 @@ namespace MusCatalog
                         // generate random song ID
                         var songNo = songSelector.Next() % maxSID;
 
-                        // the problem here is that our generated ID isn't necessarily present in the database$
+                        // the problem here is that our generated ID isn't necessarily present in the database
                         // however there will be at least one song with songID that is greater or equal than this ID
                         selectedsongs = (from s in context.Songs
                                              where s.SID >= songNo
