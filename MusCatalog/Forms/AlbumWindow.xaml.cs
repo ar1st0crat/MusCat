@@ -55,7 +55,7 @@ namespace MusCatalog
 
                 albumSongs = context.Songs.Where(s => s.Albums.AID == a.AID).ToList();
 
-                var AlbumID = albumSongs.First().AID;
+                var AlbumID = a.AID;// albumSongs.First().AID;
 
                 var curAlbum = (from albs in context.Albums
                                 where albs.AID == AlbumID

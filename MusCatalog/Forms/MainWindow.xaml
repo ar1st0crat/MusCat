@@ -108,7 +108,6 @@
             </Style.Resources>
         </Style>
 
-
         <DataTemplate x:Key="SelectedTemplate">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <StackPanel Margin="5,5,35,5" HorizontalAlignment="Center" MouseDown="perflist_MouseDoubleClick">
@@ -176,6 +175,5 @@
                  SelectedItem="{Binding Path=SelectedItem}"
                  IsSynchronizedWithCurrentItem="True"
                  PreviewKeyDown="perflist_PreviewKeyDown" />
-                 <!--MouseDoubleClick="perflist_MouseDoubleClick"/>-->
     </Grid>
 </Window>

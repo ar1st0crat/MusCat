@@ -9,7 +9,7 @@ namespace MusCatalog
 {
     public class RateStarsConverter: IValueConverter
     {
-        private string getStar( byte rate, int nStar )
+        private string getStar( int rate, int nStar )
         {
             if (rate >= 2 * nStar)
                 return @"../Images/star.png";
@@ -29,22 +29,36 @@ namespace MusCatalog
             if (perf != null)
             {
                 if (perf.Albums.Count == 0)
+                {
                     return @"../Images/star_empty.png";
+                }
                 
                 int ratedCount = perf.Albums.Count(t => t.ARate.HasValue);
-                int rate = perf.Albums.Sum(t =>
-                                                {
-                                                    if (t.ARate.HasValue)
-                                                        return t.ARate.Value;
-                                                    else
-                                                        return 0;
-                                                });
 
                 if (ratedCount == 0)
+                {
                     return @"../Images/star_empty.png";
-                else
-                    return getStar((byte)(rate / ratedCount), (int)parameter);
-                
+                }
+
+                int sumRate = perf.Albums.Sum(t =>
+                {
+                    if (t.ARate.HasValue)
+                        return t.ARate.Value;
+                    else
+                        return 0;
+                });
+
+                if (ratedCount > 2)
+                {
+                    int minRate = perf.Albums.Min(r => r.ARate).Value;
+                    int maxRate = perf.Albums.Max(r => r.ARate).Value;
+                    sumRate -= (minRate + maxRate);
+                    ratedCount -= 2;
+                }
+
+                int totalRate = (byte)Math.Ceiling((double)sumRate / ratedCount);
+
+                return getStar( totalRate, (int)parameter);
             }
 
             Albums alb = value as Albums;

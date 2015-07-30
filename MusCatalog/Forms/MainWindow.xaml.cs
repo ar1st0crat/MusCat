@@ -2,7 +2,9 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
+using System.Collections.ObjectModel;
 
 
 namespace MusCatalog
@@ -17,21 +19,21 @@ namespace MusCatalog
         string curLetter = "A";
 
         /// <summary>
-        /// ...
+        /// Populate the list of performers whose name starts with specific letter (or not a letter - "other" case)
         /// </summary>
-        /// <param name="letter"></param>
+        /// <param name="letter">The first letter of a performer's name ("A", "B", "C", ..., "Z") or "Other"</param>
         private void FillPerformersListByFirstLetter( string letter )
         {
             using (var context = new MusCatEntities())
             {
                 IQueryable<Performers> performers;
-
+                                                
                 if (letter.Length == 1)
                 {
                     performers = from p in context.Performers.Include("Albums")
-                                     where p.Performer.StartsWith(letter)
-                                     orderby p.Performer
-                                     select p;
+                                 where p.Performer.StartsWith(letter)
+                                 orderby p.Performer
+                                 select p;
                 }
                 else
                 {
@@ -41,6 +43,26 @@ namespace MusCatalog
                                      select p;
                 }
 
+                // ====================================================== here we sort each preformer's albums by the year of release
+                // ======================================================           Possible ways to write better code:
+                // ======================================================               1) DataLoadOptions (failed so far)
+                // ======================================================               2) select new { ... } - but will need to rewrite converters
+                // ======================================================               3) CollectionViewSource (failed so far)
+                foreach (var perf in performers)
+                {
+                    int albumCount = perf.Albums.Count;
+
+                    var albs = perf.Albums.OrderBy(a => a.AYear).ToList();
+
+                    perf.Albums.Clear();
+
+                    foreach (var alb in albs)
+                    {
+                        perf.Albums.Add(alb);
+                    }
+                }
+                // ====================================================================================================
+
                 this.perflist.ItemsSource = performers.ToList();
                 this.perflist.SelectedIndex = -1;
             }
@@ -48,7 +70,7 @@ namespace MusCatalog
 
         
         /// <summary>
-        /// 
+        /// TODO
         /// </summary>
         public MainWindow()
         {
@@ -74,7 +96,7 @@ namespace MusCatalog
 
 
         /// <summary>
-        /// 
+        /// TODO
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -93,7 +115,7 @@ namespace MusCatalog
                
 
         /// <summary>
-        /// 
+        /// TODO
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -104,7 +126,7 @@ namespace MusCatalog
 
         
         /// <summary>
-        /// 
+        /// TODO
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -129,7 +151,7 @@ namespace MusCatalog
 
     
         /// <summary>
-        /// 
+        /// TODO
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -145,7 +167,7 @@ namespace MusCatalog
         
 
         /// <summary>
-        /// 
+        /// TODO
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -157,7 +179,7 @@ namespace MusCatalog
             {
                 Albums a = lb.SelectedItem as Albums;
                 AlbumWindow albumWindow = new AlbumWindow( a );
-                albumWindow.ShowDialog();
+                albumWindow.Show();
 
                 this.perflist.InvalidateVisual();
             }
@@ -165,7 +187,7 @@ namespace MusCatalog
 
 
         /// <summary>
-        /// 
+        /// TODO
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -177,7 +199,7 @@ namespace MusCatalog
         
 
         /// <summary>
-        /// 
+        /// TODO
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -187,7 +209,7 @@ namespace MusCatalog
 
 
         /// <summary>
-        /// 
+        /// TODO
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

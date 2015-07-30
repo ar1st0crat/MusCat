@@ -16,7 +16,7 @@ namespace MusCatalog
     class MusCatFileLocator
     {
         /// <summary>
-        /// Normalize string
+        /// Normalize string: remove all spaces and punctuations, convert each letter to uppercase
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
@@ -24,9 +24,12 @@ namespace MusCatalog
         {
             string res = "";
             foreach (char c in s)
+            {
                 if (!Char.IsWhiteSpace(c) && !Char.IsPunctuation(c))
-                    res += c;
-
+                {
+                    res += Char.ToUpperInvariant(c);
+                }
+            }
             return res;
         }
 
@@ -39,9 +42,10 @@ namespace MusCatalog
         public static string FindSongPath(Songs song)
         {
             List<string> pathlist = new List<string>();
-            pathlist.Add(@"F:\");
-            pathlist.Add(@"G:\");
-            pathlist.Add(@"G:\Other\");
+            
+            pathlist.Add(@"F:\");                               // 
+            pathlist.Add(@"G:\");                               // TODO: move to settings
+            pathlist.Add(@"G:\Other\");                         //
 
             foreach (var rootpath in pathlist)
             {
