@@ -6,6 +6,9 @@ using System.Windows.Data;
 
 namespace MusCatalog
 {
+    /// <summary>
+    /// Converter:      Performer  =>  Brief signature indicating the number of performer's albums
+    /// </summary>
     class AlbumConverter:  IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

@@ -75,6 +75,8 @@ namespace MusCatalog
         public MainWindow()
         {
             InitializeComponent();
+
+            MusCatFileLocator.Initialize();
             
             foreach (char c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
             {
@@ -121,7 +123,6 @@ namespace MusCatalog
         /// <param name="e"></param>
         private void MenuStatsClick(object sender, RoutedEventArgs e)
         {
-
         }
 
         

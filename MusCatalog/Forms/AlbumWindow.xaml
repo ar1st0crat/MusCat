@@ -3,8 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:MusCatalog"
-        Title="Album Info" Height="600" Width="825"
-        BorderBrush="AliceBlue" Background="#001122">
+        Title="Album Info"
+        Height="600" Width="825"
+        BorderBrush="AliceBlue"
+        Background="#001122">
     
     <Window.Resources>
         <sys:Int32 x:Key="star1">1</sys:Int32>
@@ -62,8 +64,7 @@
                 <Label Content="{Binding Path=Album}" FontFamily="Arial Narrow" Foreground="AntiqueWhite" FontSize="20" HorizontalAlignment="Center" Margin="0,-5,0,0" />
                 <Label Content="{Binding Path=AYear}" FontFamily="Broadway" Foreground="AntiqueWhite" FontSize="18" HorizontalAlignment="Center" Margin="0,-5,0,0"/>
             </StackPanel>
-            <Button Width="200" Height="48" Margin="0,50,0,0" Foreground="White" Background="Indigo" FontSize="18" FontFamily="Arial Narrow"
-                    Click="EditAlbumButtonClick">
+            <Button Width="200" Height="48" Margin="0,50,0,0" Foreground="White" Background="Indigo" FontSize="18" FontFamily="Arial Narrow" Click="EditAlbumButtonClick">
                 <TextBlock>Edit Album</TextBlock>
             </Button>
         </StackPanel>
@@ -73,7 +74,7 @@
                     <WrapPanel>
                         <Button CommandParameter="{Binding Path=SN}" Click="PlaySongClick" Background="#001122"
                                 Margin="0,0,10,0">
-                            <Image Source="../Images/play.png" Name="playButton"/>
+                            <Image Name="playButton" Source="{StaticResource ImagePlayButton}" />
                         </Button>
                         <Label Content="{Binding Path=SN}" Foreground="Beige" FontSize="12"/>
                         <Label Content="{Binding Path=SName}" Foreground="Beige" FontSize="17"/>

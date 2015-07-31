@@ -9,12 +9,18 @@ namespace MusCatalog
 {
     /// <summary>
     /// Class providing a static function for locating a song file in file system
-    /// 
-    /// TODO: Move pathlist (the list of filepath prefixes) to Settings
-    /// 
     /// </summary>
     class MusCatFileLocator
     {
+        public static List<string> pathlist = new List<string>();
+
+        public static void Initialize()
+        {
+            pathlist.Add( @"F:\" );
+            pathlist.Add( @"G:\" );
+            pathlist.Add( @"G:\Other\" );
+        }
+
         /// <summary>
         /// Normalize string: remove all spaces and punctuations, convert each letter to uppercase
         /// </summary>
@@ -41,12 +47,6 @@ namespace MusCatalog
         /// <returns>the actual path of the file with the song if it was found, an empty string otherwise</returns>
         public static string FindSongPath(Songs song)
         {
-            List<string> pathlist = new List<string>();
-            
-            pathlist.Add(@"F:\");                               // 
-            pathlist.Add(@"G:\");                               // TODO: move to settings
-            pathlist.Add(@"G:\Other\");                         //
-
             foreach (var rootpath in pathlist)
             {
                 string pathDir = rootpath +
@@ -79,10 +79,14 @@ namespace MusCatalog
                         // Check if the album is double (currently we simply return ""
                         // if the album is broken into two folders (CD1 and CD2) and the song is in the second part of the album)
                         // 
-                        if (Directory.GetFiles( songDir ).Length < song.SN)
+                        if (Directory.GetFiles(songDir).Length < song.SN)
+                        {
                             return "";
+                        }
                         else
-                            return Directory.GetFiles( songDir )[song.SN - 1];
+                        {
+                            return Directory.GetFiles(songDir)[song.SN - 1];
+                        }
                     }
                 }
             }

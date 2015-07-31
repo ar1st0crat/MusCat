@@ -18,18 +18,17 @@ namespace MusCatalog
         // Current album displayed in the window
         Albums album;
         
-        //
+        // Song list
         List<Songs> albumSongs = new List<Songs>();
-
-                
+                        
         // bitmaps for playback buttons
-        BitmapImage imagePlay = new BitmapImage(new Uri(@"../Images/play.png", UriKind.Relative));
-        BitmapImage imagePause = new BitmapImage(new Uri(@"../Images/pause.png", UriKind.Relative));
+        BitmapImage imagePlay = App.Current.TryFindResource( "ImagePlayButton" ) as BitmapImage;
+        BitmapImage imagePause = App.Current.TryFindResource( "ImagePauseButton" ) as BitmapImage;
 
         // bitmaps for stars
-        BitmapImage imageStar = new BitmapImage(new Uri(@"../Images/star.png", UriKind.Relative));
-        BitmapImage imageHalfStar = new BitmapImage(new Uri(@"../Images/star_half.png", UriKind.Relative));
-        BitmapImage imageEmptyStar = new BitmapImage(new Uri(@"../Images/star_empty.png", UriKind.Relative));
+        BitmapImage imageStar = App.Current.TryFindResource( "ImageStar" ) as BitmapImage;
+        BitmapImage imageHalfStar = App.Current.TryFindResource( "ImageHalfStar" ) as BitmapImage;
+        BitmapImage imageEmptyStar = App.Current.TryFindResource( "ImageEmptyStar" ) as BitmapImage;
 
         // number of the star that was clicked
         byte starPos = 0;
@@ -37,7 +36,7 @@ namespace MusCatalog
         // indicator of album track playback
         bool bPlaying = false;
 
-        //
+        // Audio player
         MusCatPlayer player = new MusCatPlayer();
         
 
@@ -89,17 +88,15 @@ namespace MusCatalog
         {
             if (!bPlaying)
             {
-                bPlaying = true;
-
-                ((Image)((Button)sender).FindName( "playButton" )).Source = imagePause;
-
-                
                 string fileSong = MusCatFileLocator.FindSongPath( (Songs)this.songlist.SelectedItem );
-
-                
+                                
                 try
                 {
                     player.Play(fileSong, SongPlaybackStopped);
+
+                    bPlaying = true;
+
+                    ((Image)((Button)sender).FindName("playButton")).Source = imagePause;
                 }
                 catch (Exception)
                 {

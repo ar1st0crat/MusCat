@@ -26,10 +26,10 @@ namespace MusCatalog
         const int MAX_SONGS_IN_ARCHIVE = 25;
 
         // bitmaps for playback buttons
-        BitmapImage imagePlay = new BitmapImage(new Uri(@"../Images/play.png", UriKind.Relative));
-        BitmapImage imagePause = new BitmapImage(new Uri(@"../Images/pause.png", UriKind.Relative));
+        BitmapImage imagePlay = App.Current.Resources[ "ImagePlayButton" ] as BitmapImage;
+        BitmapImage imagePause = App.Current.Resources[ "ImagePauseButton" ] as BitmapImage;
 
-        //
+        // Audio player
         MusCatPlayer player = new MusCatPlayer();
 
 

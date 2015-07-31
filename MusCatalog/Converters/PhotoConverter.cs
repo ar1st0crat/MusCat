@@ -8,30 +8,26 @@ using System.Windows.Data;
 
 namespace MusCatalog
 {
+    /// <summary>
+    /// Converter:          Performer   =>  image path with performer's photo or default photo
+    ///                     Album       =>  image path with album cover or default photo
+    /// </summary>
     public class PhotoConverter: IValueConverter
     {
-        private List<string> paths = new List<string>();
-
-        public PhotoConverter()
-        {
-            paths.Add( @"F:\" );
-            paths.Add( @"G:\" );
-            paths.Add( @"G:\Other\" );
-        }
-
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             Performers perf = value as Performers;
 
             if (perf != null)
             {
-                foreach (var startingPath in paths)
+                foreach (var startingPath in MusCatFileLocator.pathlist )
                 {
                     string path = startingPath +
                                     perf.Performer[0] + 
                                     Path.DirectorySeparatorChar +
                                     perf.Performer +
                                     @"\Picture\foto.jpg";
+
                     if (File.Exists(path))
                         return path;
                 }
@@ -44,7 +40,7 @@ namespace MusCatalog
 
             if (alb != null)
             {
-                foreach (var startingPath in paths)
+                foreach (var startingPath in MusCatFileLocator.pathlist )
                 {
                     string path = startingPath + 
                                     alb.Performers.Performer[0] + 

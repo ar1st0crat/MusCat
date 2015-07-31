@@ -57,7 +57,7 @@ namespace MusCatalog
                     ratedCount -= 2;
                 }
                 
-                int totalRate = (int)Math.Ceiling( (double)sumRate / ratedCount );
+                int totalRate = (int)Math.Round( (double)sumRate / ratedCount, MidpointRounding.AwayFromZero );
 
                 return totalRate + "/10";
             }
