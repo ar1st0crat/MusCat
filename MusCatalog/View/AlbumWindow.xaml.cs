@@ -8,7 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 
-namespace MusCatalog
+namespace MusCatalog.View
 {
     /// <summary>
     /// Interaction logic for AlbumWindow.xaml
@@ -88,8 +88,10 @@ namespace MusCatalog
         {
             if (!bPlaying)
             {
-                string fileSong = MusCatFileLocator.FindSongPath( (Songs)this.songlist.SelectedItem );
-                                
+                Button btn = sender as Button;
+                
+                string fileSong = MusCatFileLocator.FindSongPath(
+                                            albumSongs[ Convert.ToInt32( btn.CommandParameter ) - 1 ] );
                 try
                 {
                     player.Play(fileSong, SongPlaybackStopped);
@@ -215,6 +217,12 @@ namespace MusCatalog
                 context.Entry(album).State = System.Data.EntityState.Modified;
                 context.SaveChanges( );
             }
+        }
+
+        
+        private void SeekPlaybackPosition(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            player.Seek( ((Slider)sender).Value / 10.0 );
         }
     }
 }

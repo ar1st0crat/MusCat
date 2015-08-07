@@ -1,4 +1,4 @@
-﻿<Window x:Class="MusCatalog.RadioPlayerWindow"
+﻿<Window x:Class="MusCatalog.View.RadioPlayerWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:MusCatalog"
@@ -36,9 +36,9 @@
             <StackPanel Grid.Column="1" Name="curSongPanel">
                 <Label FontSize="16" Foreground="AntiqueWhite" Content="Currently playing" HorizontalAlignment="Center"/>
                 <DockPanel HorizontalAlignment="Center">
-                    <Image Name="playback" Source="{StaticResource ImagePauseButton}" Width="20" Margin="0,0,0,10" MouseDown="PausePlayMouseDown"/>
-                    <Image Source="{StaticResource ImageStopButton}" Width="20" Margin="0,0,0,10" MouseDown="StopMouseDown"/>
-                    <Slider Name="VolumeSlider" Width="75" Margin="5,0,0,0" Value="5" ValueChanged="SliderVolumeChanged" />
+                    <Image Name="playback" Source="{StaticResource ImagePauseButton}" Width="32" Margin="0,0,0,10" MouseDown="PausePlayMouseDown"/>
+                    <Image Source="{StaticResource ImageStopButton}" Width="32" Margin="0,0,0,10" MouseDown="StopMouseDown"/>
+                    <Slider Name="VolumeSlider" Width="75" Value="5" ValueChanged="SliderVolumeChanged" VerticalAlignment="Center" />
                 </DockPanel>
                 <Image Name ="curImage" Source="{Binding Converter={StaticResource photoConverter}}" Height="170"/>
                 <Label Content="{Binding Path=Performers.Performer}" Foreground="White" FontSize="22" FontFamily="Stencil" HorizontalAlignment="Center" Margin="0,5,0,-1"/>

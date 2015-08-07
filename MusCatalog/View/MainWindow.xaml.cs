@@ -2,12 +2,10 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
-using System.Collections.ObjectModel;
 
 
-namespace MusCatalog
+namespace MusCatalog.View
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -100,8 +98,6 @@ namespace MusCatalog
         /// <summary>
         /// TODO
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void LetterClick(object sender, RoutedEventArgs e)
         {
             LetterButton pressedButton = (LetterButton)sender;
@@ -119,34 +115,31 @@ namespace MusCatalog
         /// <summary>
         /// TODO
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MenuStatsClick(object sender, RoutedEventArgs e)
-        {
-        }
-
-        
-        /// <summary>
-        /// TODO
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void perflist_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Delete)
+            switch ( e.Key )
             {
-                Performers perf = perflist.SelectedItem as Performers;
-
-                if (MessageBox.Show( string.Format( "Are you sure you want to delete '{0}'?", perf.Performer ), "Confirmation",
-                    MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                case Key.Delete:
                 {
-                    using (var context = new MusCatEntities())
+                    Performers perf = perflist.SelectedItem as Performers;
+
+                    if (MessageBox.Show( string.Format( "Are you sure you want to delete '{0}'?", perf.Performer ),
+                                            "Confirmation",
+                                            MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
-                        context.DeleteByPID( (int?)(perf.PID) );
-                        context.SaveChanges();
+                        using (var context = new MusCatEntities())
+                        {
+                            context.DeleteByPID( (int?)(perf.PID) );
+                            context.SaveChanges();
+                        }
+                        FillPerformersListByFirstLetter( curLetter );
                     }
-                    FillPerformersListByFirstLetter( curLetter );
+                    break;
                 }
+
+                case Key.Enter:
+                    perflist_MouseDoubleClick(sender, null);
+                    break;
             }
         }
 
@@ -154,15 +147,13 @@ namespace MusCatalog
         /// <summary>
         /// TODO
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void perflist_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount > 1)
             {
                 Performers p = perflist.SelectedItem as Performers;
-                MessageBox.Show(p.PID.ToString());
-                MessageBox.Show(p.Performer);
+                PerformerWindow performerWindow = new PerformerWindow( p );
+                performerWindow.Show();
             }
         }
         
@@ -170,8 +161,6 @@ namespace MusCatalog
         /// <summary>
         /// TODO
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void SelectedAlbums_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             ListBox lb = sender as ListBox;
@@ -186,12 +175,18 @@ namespace MusCatalog
             }
         }
 
+        /// <summary>
+        /// TODO
+        /// </summary>
+        private void SelectedAlbumKeyDown(object sender, KeyEventArgs e)
+        {
+            SelectedAlbums_MouseDoubleClick(sender, null);
+        }
+
 
         /// <summary>
         /// TODO
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void MusCatRadioClick(object sender, RoutedEventArgs e)
         {
             RadioPlayerWindow radio = new RadioPlayerWindow();
@@ -202,21 +197,18 @@ namespace MusCatalog
         /// <summary>
         /// TODO
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void FindClick(object sender, RoutedEventArgs e)
         {
         }
 
 
         /// <summary>
-        /// TODO
+        /// Show stats window
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SelectedAlbumKeyDown(object sender, KeyEventArgs e)
+        private void MenuStatsClick(object sender, RoutedEventArgs e)
         {
-            SelectedAlbums_MouseDoubleClick(sender, null);
+            //StatsWindow stats = new StatsWindow();
+            //stats.Show();
         }
     }
 }

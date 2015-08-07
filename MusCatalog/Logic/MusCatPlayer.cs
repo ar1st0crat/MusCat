@@ -23,6 +23,9 @@ namespace MusCatalog
         // NAudio component for a song playback
         WaveOut waveOut = new WaveOut();
         
+        // Attached mp3 file reader
+        Mp3FileReader mp3Reader = null;
+
         //
         public PlaybackState SongPlaybackState
         {
@@ -54,15 +57,21 @@ namespace MusCatalog
             {
                 waveOut.Stop();
             }
-
+            
             waveOut.Dispose();
             waveOut = null;
+
+            if (mp3Reader != null)
+            {
+                mp3Reader.Dispose();
+                mp3Reader = null;
+            }
 
             waveOut = new WaveOut();
 
             // here we may face some problems depending on particular mp3 files or organization of user's file system
             // (exception is possible)
-            Mp3FileReader mp3Reader = new Mp3FileReader( filename );        
+            mp3Reader = new Mp3FileReader( filename );        
             waveOut.Init( mp3Reader );
 
             waveOut.PlaybackStopped += PlaybackStopped;
@@ -87,6 +96,16 @@ namespace MusCatalog
         {
             waveOut.Resume();
             SongPlaybackState = PlaybackState.PLAY;
+        }
+
+        public void Seek( double percent )
+        {
+            if (mp3Reader == null)
+                return;
+
+            double totalSeconds = mp3Reader.TotalTime.TotalSeconds * percent;
+            TimeSpan seekPos = new TimeSpan( (int)totalSeconds / 3600, (int)totalSeconds / 60, (int)totalSeconds % 60 );
+            mp3Reader.CurrentTime = seekPos;
         }
     }
 }

@@ -8,7 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 
-namespace MusCatalog
+namespace MusCatalog.View
 {
     /// <summary>
     /// Class for interaction logic for RadioPlayerWindow.xaml

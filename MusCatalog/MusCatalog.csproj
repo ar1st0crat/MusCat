@@ -84,6 +84,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\AlbumConverter.cs" />
+    <Compile Include="View\PerformerWindow.xaml.cs">
+      <DependentUpon>PerformerWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Logic\MusCatFileLocator.cs" />
     <Compile Include="Model\Albums.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
@@ -101,7 +104,7 @@
       <DependentUpon>MusCatModel.tt</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Forms\LetterButton.cs" />
+    <Compile Include="View\LetterButton.cs" />
     <Compile Include="Model\Lineups.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
       <SubType>Code</SubType>
@@ -132,7 +135,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Converters\PhotoConverter.cs" />
-    <Compile Include="Forms\RadioPlayerWindow.xaml.cs">
+    <Compile Include="View\RadioPlayerWindow.xaml.cs">
       <DependentUpon>RadioPlayerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\RateConverter.cs" />
@@ -154,11 +157,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Converters\StarsVisibilityConverter.cs" />
-    <Compile Include="Forms\AlbumWindow.xaml.cs">
+    <Compile Include="View\AlbumWindow.xaml.cs">
       <DependentUpon>AlbumWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\YearsConverter.cs" />
-    <Page Include="Forms\MainWindow.xaml">
+    <Page Include="View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -166,15 +169,19 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Forms\MainWindow.xaml.cs">
+    <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Forms\RadioPlayerWindow.xaml">
+    <Page Include="View\PerformerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Forms\AlbumWindow.xaml">
+    <Page Include="View\RadioPlayerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\AlbumWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
