@@ -14,7 +14,7 @@ namespace MusCatalog
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Performers perf = value as Performers;
+            Performer perf = value as Performer;
 
             if (perf == null)
             {
@@ -26,8 +26,8 @@ namespace MusCatalog
                 return "";
             }
 
-            short yearStart = perf.Albums.Min( t => t.AYear );
-            short yearEnd = perf.Albums.Max( t => t.AYear );
+            short yearStart = perf.Albums.Min( t => t.ReleaseYear );
+            short yearEnd = perf.Albums.Max( t => t.ReleaseYear );
 
             if (yearEnd != yearStart)
             {

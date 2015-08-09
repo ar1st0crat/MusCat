@@ -11,7 +11,7 @@ namespace MusCatalog
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Performers perf = value as Performers;
+            Performer perf = value as Performer;
 
             if (perf != null)
             {
@@ -20,7 +20,7 @@ namespace MusCatalog
                     return "Hidden";
                 }
 
-                int ratedCount = perf.Albums.Count(t => t.ARate.HasValue);
+                int ratedCount = perf.Albums.Count(t => t.Rate.HasValue);
 
                 if (ratedCount == 0)
                 {
@@ -32,11 +32,11 @@ namespace MusCatalog
                 }
             }
 
-            Albums albs = value as Albums;
+            Album albs = value as Album;
 
             if (albs != null)
             {
-                if (albs.ARate.HasValue)
+                if (albs.Rate.HasValue)
                 {
                     return "Visible";
                 }

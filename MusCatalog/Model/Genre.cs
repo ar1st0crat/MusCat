@@ -10,11 +10,19 @@
 namespace MusCatalog.Model
 {
     using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     
-    public partial class SelectByLetter_Result
+    public partial class Genre
     {
-        public long PID { get; set; }
-        public string Performer { get; set; }
-        public string Info { get; set; }
+        public Genre()
+        {
+            this.Performers = new ObservableCollection<Performer>();
+        }
+    
+        public byte ID { get; set; }
+        public string Name { get; set; }
+
+        public virtual ObservableCollection<Performer> Performers { get; set; }
     }
 }

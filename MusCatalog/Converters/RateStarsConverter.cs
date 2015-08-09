@@ -47,7 +47,7 @@ namespace MusCatalog
         /// <param name="parameter">Star position (integer)</param>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Performers perf = value as Performers;
+            Performer perf = value as Performer;
 
             if (perf != null)
             {
@@ -56,7 +56,7 @@ namespace MusCatalog
                     return ImagePathEmptyStar;
                 }
                 
-                int ratedCount = perf.Albums.Count(t => t.ARate.HasValue);
+                int ratedCount = perf.Albums.Count(t => t.Rate.HasValue);
 
                 if (ratedCount == 0)
                 {
@@ -65,16 +65,16 @@ namespace MusCatalog
 
                 int sumRate = perf.Albums.Sum(t =>
                 {
-                    if (t.ARate.HasValue)
-                        return t.ARate.Value;
+                    if (t.Rate.HasValue)
+                        return t.Rate.Value;
                     else
                         return 0;
                 });
 
                 if (ratedCount > 2)
                 {
-                    int minRate = perf.Albums.Min(r => r.ARate).Value;
-                    int maxRate = perf.Albums.Max(r => r.ARate).Value;
+                    int minRate = perf.Albums.Min(r => r.Rate).Value;
+                    int maxRate = perf.Albums.Max(r => r.Rate).Value;
                     sumRate -= (minRate + maxRate);
                     ratedCount -= 2;
                 }
@@ -84,16 +84,16 @@ namespace MusCatalog
                 return getStar( totalRate, (int)parameter);
             }
 
-            Albums alb = value as Albums;
+            Album alb = value as Album;
 
             if (alb == null)
             {
                 return null;
             }
 
-            if (alb.ARate.HasValue)
+            if (alb.Rate.HasValue)
             {
-                return getStar(alb.ARate.Value, (int)parameter);
+                return getStar(alb.Rate.Value, (int)parameter);
             }
             else
             {

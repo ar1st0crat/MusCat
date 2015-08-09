@@ -19,7 +19,7 @@ namespace MusCatalog.View
     public partial class RadioPlayerWindow : Window
     {
         // the list of recently played songs
-        List<Songs> songs = new List<Songs>();
+        List<Song> songs = new List<Song>();
         int nCurrentSong = 0;
 
         // the number of recently played songs which we're tracking
@@ -47,11 +47,11 @@ namespace MusCatalog.View
             var currentSong = SelectRandomSong();
             ((DockPanel)this.curSongPanel.FindName("curSong")).DataContext = currentSong;
             this.curSongPanel.DataContext = currentSong;
-            this.curImage.DataContext = currentSong.Albums;
+            this.curImage.DataContext = currentSong.Album;
             songs.Add( currentSong );
 
             var nextSong = SelectRandomSong();
-            this.nextImage.DataContext = nextSong.Albums;
+            this.nextImage.DataContext = nextSong.Album;
             this.nextSongPanel.DataContext = nextSong;
             songs.Add( nextSong );
 
@@ -71,17 +71,17 @@ namespace MusCatalog.View
             if ( nCurrentSong > 0 )
             {
                 ((DockPanel)this.prevSongPanel.FindName("prevSong")).DataContext = songs[nCurrentSong - 1];
-                this.prevSongPanel.DataContext = songs[nCurrentSong - 1].Albums;
-                this.prevImage.DataContext = songs[nCurrentSong - 1].Albums;
+                this.prevSongPanel.DataContext = songs[nCurrentSong - 1].Album;
+                this.prevImage.DataContext = songs[nCurrentSong - 1].Album;
             }
 
             ((DockPanel)this.curSongPanel.FindName("curSong")).DataContext = songs[nCurrentSong];
-            this.curImage.DataContext = songs[nCurrentSong].Albums;
-            this.curSongPanel.DataContext = songs[nCurrentSong].Albums;
+            this.curImage.DataContext = songs[nCurrentSong].Album;
+            this.curSongPanel.DataContext = songs[nCurrentSong].Album;
 
             ((DockPanel)this.nextSongPanel.FindName("nextSong")).DataContext = songs[nCurrentSong + 1];
-            this.nextSongPanel.DataContext = songs[nCurrentSong + 1].Albums;
-            this.nextImage.DataContext = songs[nCurrentSong + 1].Albums;
+            this.nextSongPanel.DataContext = songs[nCurrentSong + 1].Album;
+            this.nextImage.DataContext = songs[nCurrentSong + 1].Album;
 
             this.Archive.ItemsSource = songs;
             this.Archive.Items.Refresh();
@@ -93,22 +93,22 @@ namespace MusCatalog.View
         /// The song is guaranteed to be present in user's file system
         /// </summary>
         /// <returns>Songs object selected randomly from the database</returns>
-        private Songs SelectRandomSong()
+        private Song SelectRandomSong()
         {
-            Songs song = null;
+            Song song = null;
 
             using (var context = new MusCatEntities())
             {
                 Random songSelector = new Random();
 
                 // find out the maximum song ID in the database
-                var maxSID = context.Songs.Max( s => s.SID );
+                var maxSID = context.Songs.Max( s => s.ID );
 
                 // we keep select a song randomly until the song file is actually present in our file system
                 // and while it isn't present in our archive of recently played songs
                 do
                 {
-                    IQueryable<Songs> selectedsongs;
+                    IQueryable<Song> selectedsongs;
                     do
                     {
                         // generate random song ID
@@ -117,13 +117,13 @@ namespace MusCatalog.View
                         // the problem here is that our generated ID isn't necessarily present in the database
                         // however there will be at least one song with songID that is greater or equal than this ID
                         selectedsongs = (from s in context.Songs
-                                             where s.SID >= songNo
+                                             where s.ID >= songNo
                                              select s).Take(1);
 
                         // if the filter "Short songs is 'on'" we do additional filtering
                         if (this.ShortSongs.IsChecked.Value)
                             selectedsongs = selectedsongs.Where(
-                                    s => s.STime.Length <= 4 && s.STime.CompareTo("3:00") < 0);
+                                    s => s.TimeLength.Length <= 4 && s.TimeLength.CompareTo("3:00") < 0);
                     }
                     while (selectedsongs.Count() < 1);
 
@@ -132,16 +132,16 @@ namespace MusCatalog.View
                     song = selectedsongs.First();
 
                     // include the corresponding album of our song
-                    song.Albums = (from a in context.Albums
-                                    where a.AID == song.AID
+                    song.Album = (from a in context.Albums
+                                    where a.ID == song.AlbumID
                                     select a).First();
 
                     // do the same thing with performer for included album
-                    song.Albums.Performers = (from p in context.Performers
-                                               where p.PID == song.Albums.Performers.PID
+                    song.Album.Performer = (from p in context.Performers
+                                               where p.ID == song.Album.PerformerID
                                                select p).First();
                 }
-                while (songs.Where(s => s.SID == song.SID).Count() > 0          // true, if the archive already contains this song
+                while (songs.Where(s => s.ID == song.ID).Count() > 0          // true, if the archive already contains this song
                     || MusCatFileLocator.FindSongPath(song) == "");             // true, if the file with this song doesn't exist
             }
 
@@ -165,7 +165,7 @@ namespace MusCatalog.View
             if (nCurrentSong == songs.Count - 1)
             {
                 var s = SelectRandomSong();
-                this.nextImage.DataContext = s.Albums;
+                this.nextImage.DataContext = s.Album;
                 this.nextSongPanel.DataContext = s;
                 songs.Add(s);
             }
@@ -219,7 +219,7 @@ namespace MusCatalog.View
                 if (nCurrentSong == songs.Count - 1)
                 {
                     var s = SelectRandomSong();
-                    this.nextImage.DataContext = s.Albums;
+                    this.nextImage.DataContext = s.Album;
                     this.nextSongPanel.DataContext = s;
                     songs.Add( s );
                 }

@@ -14,10 +14,10 @@ namespace MusCatalog.Model
     
     public partial class AlbumsWithoutTotalTimeView
     {
-        public short AYear { get; set; }
-        public string Album { get; set; }
-        public string ATime { get; set; }
-        public string Performer { get; set; }
-        public long AID { get; set; }
+        public short ReleaseYear { get; set; }
+        public string Name { get; set; }
+        public string TotalTime { get; set; }
+        public string PerformerName { get; set; }
+        public long ID { get; set; }
     }
 }

@@ -28,34 +28,49 @@ namespace MusCatalog.Model
             throw new UnintentionalCodeFirstException();
         }
     
-        public DbSet<Albums> Albums { get; set; }
-        public DbSet<Lineups> Lineups { get; set; }
-        public DbSet<Musicians> Musicians { get; set; }
-        public DbSet<Performers> Performers { get; set; }
-        public DbSet<Songs> Songs { get; set; }
-        public DbSet<AlbumsWithEmptySongsView> AlbumsWithEmptySongsView { get; set; }
-        public DbSet<AlbumsWithoutTotalTimeView> AlbumsWithoutTotalTimeView { get; set; }
-        public DbSet<EmptyAlbumsView> EmptyAlbumsView { get; set; }
+        public DbSet<Album> Albums { get; set; }
+        public DbSet<Genre> Genres { get; set; }
+        public DbSet<Lineup> Lineups { get; set; }
+        public DbSet<Musician> Musicians { get; set; }
+        public DbSet<Performer> Performers { get; set; }
+        public DbSet<Song> Songs { get; set; }
+        public DbSet<AlbumsWithEmptySongsView> AlbumsWithEmptySongsViews { get; set; }
+        public DbSet<AlbumsWithoutTotalTimeView> AlbumsWithoutTotalTimeViews { get; set; }
+        public DbSet<EmptyAlbumsView> EmptyAlbumsViews { get; set; }
     
-        public virtual int DeleteByAID(Nullable<int> original_AID)
+        public virtual int DeleteAlbumByID(Nullable<int> original_AID)
         {
             var original_AIDParameter = original_AID.HasValue ?
                 new ObjectParameter("Original_AID", original_AID) :
                 new ObjectParameter("Original_AID", typeof(int));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("DeleteByAID", original_AIDParameter);
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("DeleteAlbumByID", original_AIDParameter);
         }
     
-        public virtual int DeleteByPID(Nullable<int> original_PID)
+        public virtual int DeletePerformerByID(Nullable<int> original_PID)
         {
             var original_PIDParameter = original_PID.HasValue ?
                 new ObjectParameter("Original_PID", original_PID) :
                 new ObjectParameter("Original_PID", typeof(int));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("DeleteByPID", original_PIDParameter);
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("DeletePerformerByID", original_PIDParameter);
         }
     
-        public virtual ObjectResult<SelectBetweenTimes_Result> SelectBetweenTimes(string lOW_TIME, string hIGH_TIME)
+        public virtual ObjectResult<SelectPerformerByLetter_Result> SelectPerformerByLetter(string lETTER)
+        {
+            var lETTERParameter = lETTER != null ?
+                new ObjectParameter("LETTER", lETTER) :
+                new ObjectParameter("LETTER", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SelectPerformerByLetter_Result>("SelectPerformerByLetter", lETTERParameter);
+        }
+    
+        public virtual ObjectResult<SelectRestOfPerformers_Result> SelectRestOfPerformers()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SelectRestOfPerformers_Result>("SelectRestOfPerformers");
+        }
+    
+        public virtual ObjectResult<SelectSongsInTimeInterval_Result> SelectSongsInTimeInterval(string lOW_TIME, string hIGH_TIME)
         {
             var lOW_TIMEParameter = lOW_TIME != null ?
                 new ObjectParameter("LOW_TIME", lOW_TIME) :
@@ -65,26 +80,7 @@ namespace MusCatalog.Model
                 new ObjectParameter("HIGH_TIME", hIGH_TIME) :
                 new ObjectParameter("HIGH_TIME", typeof(string));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SelectBetweenTimes_Result>("SelectBetweenTimes", lOW_TIMEParameter, hIGH_TIMEParameter);
-        }
-    
-        public virtual ObjectResult<SelectByLetter_Result> SelectByLetter(string lETTER)
-        {
-            var lETTERParameter = lETTER != null ?
-                new ObjectParameter("LETTER", lETTER) :
-                new ObjectParameter("LETTER", typeof(string));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SelectByLetter_Result>("SelectByLetter", lETTERParameter);
-        }
-    
-        public virtual ObjectResult<SelectOthers_Result> SelectOthers()
-        {
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SelectOthers_Result>("SelectOthers");
-        }
-    
-        public virtual int UpdateAlbumsWithoutTime()
-        {
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("UpdateAlbumsWithoutTime");
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SelectSongsInTimeInterval_Result>("SelectSongsInTimeInterval", lOW_TIMEParameter, hIGH_TIMEParameter);
         }
     }
 }

@@ -10,23 +10,11 @@
 namespace MusCatalog.Model
 {
     using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     
-    public partial class Musicians
+    public partial class SelectPerformerByLetter_Result
     {
-        public Musicians()
-        {
-            this.Lineups = new ObservableCollection<Lineups>();
-        }
-    
         public long ID { get; set; }
         public string Name { get; set; }
         public string Info { get; set; }
-        public Nullable<short> YearBorn { get; set; }
-        public Nullable<short> YearDied { get; set; }
-        public Nullable<long> PID { get; set; }
-    
-        public virtual ObservableCollection<Lineups> Lineups { get; set; }
     }
 }

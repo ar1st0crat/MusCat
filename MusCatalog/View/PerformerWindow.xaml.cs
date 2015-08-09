@@ -8,7 +8,7 @@ namespace MusCatalog.View
     /// </summary>
     public partial class PerformerWindow : Window
     {
-        public PerformerWindow( Performers perf )
+        public PerformerWindow( Performer perf )
         {
             InitializeComponent();
 

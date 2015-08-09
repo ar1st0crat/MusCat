@@ -10,11 +10,16 @@
 namespace MusCatalog.Model
 {
     using System;
+    using System.Collections.Generic;
     
-    public partial class SelectOthers_Result
+    public partial class Lineup
     {
-        public long PID { get; set; }
-        public string Performer { get; set; }
-        public string Info { get; set; }
+        public long PerformerID { get; set; }
+        public long MusicianID { get; set; }
+        public Nullable<short> YearStart { get; set; }
+        public Nullable<short> YearEnd { get; set; }
+    
+        public virtual Musician Musician { get; set; }
+        public virtual Performer Performer { get; set; }
     }
 }

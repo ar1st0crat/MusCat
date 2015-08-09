@@ -7,31 +7,40 @@
       <Schema Namespace="MusCatModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityContainer Name="MusCatModelStoreContainer">
           <EntitySet Name="Albums" EntityType="MusCatModel.Store.Albums" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="Lineups" EntityType="MusCatModel.Store.Lineups" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="Genres" EntityType="MusCatModel.Store.Genres" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="Lineups" EntityType="MusCatModel.Store.Lineups" store:Type="Tables" store:Schema="dbo" store:Name="Lineups">
+            <DefiningQuery>SELECT 
+      [Lineups].[PerformerID] AS [PerformerID], 
+      [Lineups].[MusicianID] AS [MusicianID], 
+      [Lineups].[YearStart] AS [YearStart], 
+      [Lineups].[YearEnd] AS [YearEnd]
+      FROM [dbo].[Lineups] AS [Lineups]</DefiningQuery>
+          </EntitySet>
           <EntitySet Name="Musicians" EntityType="MusCatModel.Store.Musicians" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="PerformerGenres" EntityType="MusCatModel.Store.PerformerGenres" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="Performers" EntityType="MusCatModel.Store.Performers" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="Songs" EntityType="MusCatModel.Store.Songs" store:Type="Tables" Schema="dbo" />
           <EntitySet Name="AlbumsWithEmptySongsView" EntityType="MusCatModel.Store.AlbumsWithEmptySongsView" store:Type="Views" store:Schema="dbo" store:Name="AlbumsWithEmptySongsView">
             <DefiningQuery>SELECT 
-      [AlbumsWithEmptySongsView].[Performer] AS [Performer], 
-      [AlbumsWithEmptySongsView].[AYear] AS [AYear], 
-      [AlbumsWithEmptySongsView].[Album] AS [Album]
+      [AlbumsWithEmptySongsView].[Name] AS [Name], 
+      [AlbumsWithEmptySongsView].[ReleaseYear] AS [ReleaseYear], 
+      [AlbumsWithEmptySongsView].[AlbumName] AS [AlbumName]
       FROM [dbo].[AlbumsWithEmptySongsView] AS [AlbumsWithEmptySongsView]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="AlbumsWithoutTotalTimeView" EntityType="MusCatModel.Store.AlbumsWithoutTotalTimeView" store:Type="Views" store:Schema="dbo" store:Name="AlbumsWithoutTotalTimeView">
             <DefiningQuery>SELECT 
-      [AlbumsWithoutTotalTimeView].[AYear] AS [AYear], 
-      [AlbumsWithoutTotalTimeView].[Album] AS [Album], 
-      [AlbumsWithoutTotalTimeView].[ATime] AS [ATime], 
-      [AlbumsWithoutTotalTimeView].[Performer] AS [Performer], 
-      [AlbumsWithoutTotalTimeView].[AID] AS [AID]
+      [AlbumsWithoutTotalTimeView].[ReleaseYear] AS [ReleaseYear], 
+      [AlbumsWithoutTotalTimeView].[Name] AS [Name], 
+      [AlbumsWithoutTotalTimeView].[TotalTime] AS [TotalTime], 
+      [AlbumsWithoutTotalTimeView].[PerformerName] AS [PerformerName], 
+      [AlbumsWithoutTotalTimeView].[ID] AS [ID]
       FROM [dbo].[AlbumsWithoutTotalTimeView] AS [AlbumsWithoutTotalTimeView]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="EmptyAlbumsView" EntityType="MusCatModel.Store.EmptyAlbumsView" store:Type="Views" store:Schema="dbo" store:Name="EmptyAlbumsView">
             <DefiningQuery>SELECT 
-      [EmptyAlbumsView].[Performer] AS [Performer], 
-      [EmptyAlbumsView].[AYear] AS [AYear], 
-      [EmptyAlbumsView].[Album] AS [Album]
+      [EmptyAlbumsView].[Name] AS [Name], 
+      [EmptyAlbumsView].[ReleaseYear] AS [ReleaseYear], 
+      [EmptyAlbumsView].[AlbumName] AS [AlbumName]
       FROM [dbo].[EmptyAlbumsView] AS [EmptyAlbumsView]</DefiningQuery>
           </EntitySet>
           <AssociationSet Name="FK_Albums_Performers" Association="MusCatModel.Store.FK_Albums_Performers">
@@ -46,6 +55,14 @@
             <End Role="Performers" EntitySet="Performers" />
             <End Role="Lineups" EntitySet="Lineups" />
           </AssociationSet>
+          <AssociationSet Name="FK_PerformerGenres_ToGenres" Association="MusCatModel.Store.FK_PerformerGenres_ToGenres">
+            <End Role="Genres" EntitySet="Genres" />
+            <End Role="PerformerGenres" EntitySet="PerformerGenres" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PerformerGenres_ToPerformers" Association="MusCatModel.Store.FK_PerformerGenres_ToPerformers">
+            <End Role="Performers" EntitySet="Performers" />
+            <End Role="PerformerGenres" EntitySet="PerformerGenres" />
+          </AssociationSet>
           <AssociationSet Name="FK_Songs_Albums" Association="MusCatModel.Store.FK_Songs_Albums">
             <End Role="Albums" EntitySet="Albums" />
             <End Role="Songs" EntitySet="Songs" />
@@ -53,23 +70,35 @@
         </EntityContainer>
         <EntityType Name="Albums">
           <Key>
-            <PropertyRef Name="AID" />
+            <PropertyRef Name="ID" />
           </Key>
-          <Property Name="PID" Type="bigint" Nullable="false" />
-          <Property Name="AID" Type="bigint" Nullable="false" />
-          <Property Name="Album" Type="varchar" Nullable="false" MaxLength="40" />
-          <Property Name="AYear" Type="smallint" Nullable="false" />
-          <Property Name="ATime" Type="varchar" MaxLength="6" />
-          <Property Name="AInfo" Type="text" />
-          <Property Name="ARate" Type="tinyint" />
+          <Property Name="PerformerID" Type="bigint" Nullable="false" />
+          <Property Name="ID" Type="bigint" Nullable="false" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="40" />
+          <Property Name="ReleaseYear" Type="smallint" Nullable="false" />
+          <Property Name="TotalTime" Type="varchar" MaxLength="6" />
+          <Property Name="Info" Type="text" />
+          <Property Name="Rate" Type="tinyint" />
         </EntityType>
-        <EntityType Name="Lineups">
+        <EntityType Name="Genres">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="ID_Performer" Type="bigint" Nullable="false" />
-          <Property Name="ID_Musician" Type="bigint" Nullable="false" />
+          <Property Name="ID" Type="tinyint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="25" />
+        </EntityType>
+        <!--Errors Found During Generation:
+      warning 6002: The table/view 'D:\PROJECTS\GITHUB\MUSCAT\MUSCATALOG\DATABASE\MUSCAT.MDF.dbo.Lineups' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+      -->
+        <EntityType Name="Lineups">
+          <Key>
+            <PropertyRef Name="PerformerID" />
+            <PropertyRef Name="MusicianID" />
+          </Key>
+          <Property Name="PerformerID" Type="bigint" Nullable="false" />
+          <Property Name="MusicianID" Type="bigint" Nullable="false" />
+          <Property Name="YearStart" Type="smallint" />
+          <Property Name="YearEnd" Type="smallint" />
         </EntityType>
         <EntityType Name="Musicians">
           <Key>
@@ -80,71 +109,78 @@
           <Property Name="Info" Type="text" />
           <Property Name="YearBorn" Type="smallint" />
           <Property Name="YearDied" Type="smallint" />
-          <Property Name="PID" Type="bigint" />
+          <Property Name="PerformerID" Type="bigint" />
+        </EntityType>
+        <EntityType Name="PerformerGenres">
+          <Key>
+            <PropertyRef Name="PerformerID" />
+          </Key>
+          <Property Name="PerformerID" Type="bigint" Nullable="false" />
+          <Property Name="GenreID" Type="tinyint" Nullable="false" />
         </EntityType>
         <EntityType Name="Performers">
           <Key>
-            <PropertyRef Name="PID" />
+            <PropertyRef Name="ID" />
           </Key>
-          <Property Name="PID" Type="bigint" Nullable="false" />
-          <Property Name="Performer" Type="varchar" Nullable="false" MaxLength="30" />
+          <Property Name="ID" Type="bigint" Nullable="false" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="30" />
           <Property Name="Country" Type="varchar" MaxLength="30" />
           <Property Name="Info" Type="text" />
         </EntityType>
         <EntityType Name="Songs">
           <Key>
-            <PropertyRef Name="SID" />
+            <PropertyRef Name="ID" />
           </Key>
-          <Property Name="PID" Type="bigint" Nullable="false" />
-          <Property Name="AID" Type="bigint" Nullable="false" />
-          <Property Name="SID" Type="bigint" Nullable="false" />
-          <Property Name="SN" Type="tinyint" Nullable="false" />
-          <Property Name="SName" Type="varchar" Nullable="false" MaxLength="50" />
-          <Property Name="STime" Type="varchar" Nullable="false" MaxLength="6" />
-          <Property Name="SInfo" Type="text" />
-          <Property Name="SRate" Type="tinyint" />
+          <Property Name="PerformerID" Type="bigint" Nullable="false" />
+          <Property Name="AlbumID" Type="bigint" Nullable="false" />
+          <Property Name="ID" Type="bigint" Nullable="false" />
+          <Property Name="TrackNo" Type="tinyint" Nullable="false" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="TimeLength" Type="varchar" Nullable="false" MaxLength="6" />
+          <Property Name="Info" Type="text" />
+          <Property Name="Rate" Type="tinyint" />
         </EntityType>
         <!--Errors Found During Generation:
-      warning 6002: The table/view 'D:\PROJECTS\STUDENTS\MUSCATALOG\MUSCATALOG\MUSCAT.MDF.dbo.AlbumsWithEmptySongsView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+      warning 6002: The table/view 'D:\PROJECTS\GITHUB\MUSCAT\MUSCATALOG\DATABASE\MUSCAT.MDF.dbo.AlbumsWithEmptySongsView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
       -->
         <EntityType Name="AlbumsWithEmptySongsView">
           <Key>
-            <PropertyRef Name="Performer" />
-            <PropertyRef Name="AYear" />
-            <PropertyRef Name="Album" />
+            <PropertyRef Name="Name" />
+            <PropertyRef Name="ReleaseYear" />
+            <PropertyRef Name="AlbumName" />
           </Key>
-          <Property Name="Performer" Type="varchar" Nullable="false" MaxLength="30" />
-          <Property Name="AYear" Type="smallint" Nullable="false" />
-          <Property Name="Album" Type="varchar" Nullable="false" MaxLength="40" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="30" />
+          <Property Name="ReleaseYear" Type="smallint" Nullable="false" />
+          <Property Name="AlbumName" Type="varchar" Nullable="false" MaxLength="40" />
         </EntityType>
         <!--Errors Found During Generation:
-      warning 6002: The table/view 'D:\PROJECTS\STUDENTS\MUSCATALOG\MUSCATALOG\MUSCAT.MDF.dbo.AlbumsWithoutTotalTimeView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+      warning 6002: The table/view 'D:\PROJECTS\GITHUB\MUSCAT\MUSCATALOG\DATABASE\MUSCAT.MDF.dbo.AlbumsWithoutTotalTimeView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
       -->
         <EntityType Name="AlbumsWithoutTotalTimeView">
           <Key>
-            <PropertyRef Name="AYear" />
-            <PropertyRef Name="Album" />
-            <PropertyRef Name="Performer" />
-            <PropertyRef Name="AID" />
+            <PropertyRef Name="ReleaseYear" />
+            <PropertyRef Name="Name" />
+            <PropertyRef Name="PerformerName" />
+            <PropertyRef Name="ID" />
           </Key>
-          <Property Name="AYear" Type="smallint" Nullable="false" />
-          <Property Name="Album" Type="varchar" Nullable="false" MaxLength="40" />
-          <Property Name="ATime" Type="varchar" MaxLength="6" />
-          <Property Name="Performer" Type="varchar" Nullable="false" MaxLength="30" />
-          <Property Name="AID" Type="bigint" Nullable="false" />
+          <Property Name="ReleaseYear" Type="smallint" Nullable="false" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="40" />
+          <Property Name="TotalTime" Type="varchar" MaxLength="6" />
+          <Property Name="PerformerName" Type="varchar" Nullable="false" MaxLength="30" />
+          <Property Name="ID" Type="bigint" Nullable="false" />
         </EntityType>
         <!--Errors Found During Generation:
-      warning 6002: The table/view 'D:\PROJECTS\STUDENTS\MUSCATALOG\MUSCATALOG\MUSCAT.MDF.dbo.EmptyAlbumsView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+      warning 6002: The table/view 'D:\PROJECTS\GITHUB\MUSCAT\MUSCATALOG\DATABASE\MUSCAT.MDF.dbo.EmptyAlbumsView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
       -->
         <EntityType Name="EmptyAlbumsView">
           <Key>
-            <PropertyRef Name="Performer" />
-            <PropertyRef Name="AYear" />
-            <PropertyRef Name="Album" />
+            <PropertyRef Name="Name" />
+            <PropertyRef Name="ReleaseYear" />
+            <PropertyRef Name="AlbumName" />
           </Key>
-          <Property Name="Performer" Type="varchar" Nullable="false" MaxLength="30" />
-          <Property Name="AYear" Type="smallint" Nullable="false" />
-          <Property Name="Album" Type="varchar" Nullable="false" MaxLength="40" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="30" />
+          <Property Name="ReleaseYear" Type="smallint" Nullable="false" />
+          <Property Name="AlbumName" Type="varchar" Nullable="false" MaxLength="40" />
         </EntityType>
         <Association Name="FK_Albums_Performers">
           <End Role="Performers" Type="MusCatModel.Store.Performers" Multiplicity="1">
@@ -153,10 +189,10 @@
           <End Role="Albums" Type="MusCatModel.Store.Albums" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Performers">
-              <PropertyRef Name="PID" />
+              <PropertyRef Name="ID" />
             </Principal>
             <Dependent Role="Albums">
-              <PropertyRef Name="PID" />
+              <PropertyRef Name="PerformerID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -170,7 +206,7 @@
               <PropertyRef Name="ID" />
             </Principal>
             <Dependent Role="Lineups">
-              <PropertyRef Name="ID_Musician" />
+              <PropertyRef Name="MusicianID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -181,10 +217,38 @@
           <End Role="Lineups" Type="MusCatModel.Store.Lineups" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Performers">
-              <PropertyRef Name="PID" />
+              <PropertyRef Name="ID" />
             </Principal>
             <Dependent Role="Lineups">
-              <PropertyRef Name="ID_Performer" />
+              <PropertyRef Name="PerformerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PerformerGenres_ToGenres">
+          <End Role="Genres" Type="MusCatModel.Store.Genres" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="PerformerGenres" Type="MusCatModel.Store.PerformerGenres" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Genres">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="PerformerGenres">
+              <PropertyRef Name="GenreID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PerformerGenres_ToPerformers">
+          <End Role="Performers" Type="MusCatModel.Store.Performers" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="PerformerGenres" Type="MusCatModel.Store.PerformerGenres" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Performers">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="PerformerGenres">
+              <PropertyRef Name="PerformerID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -195,48 +259,42 @@
           <End Role="Songs" Type="MusCatModel.Store.Songs" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Albums">
-              <PropertyRef Name="AID" />
+              <PropertyRef Name="ID" />
             </Principal>
             <Dependent Role="Songs">
-              <PropertyRef Name="AID" />
+              <PropertyRef Name="AlbumID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Function Name="DeleteByAID" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+        <Function Name="DeleteAlbumByID" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="Original_AID" Type="int" Mode="In" />
         </Function>
-        <Function Name="DeleteByPID" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+        <Function Name="DeletePerformerByID" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="Original_PID" Type="int" Mode="In" />
         </Function>
-        <Function Name="SelectBetweenTimes" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+        <Function Name="SelectPerformerByLetter" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="LETTER" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="SelectRestOfPerformers" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="SelectSongsInTimeInterval" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="LOW_TIME" Type="varchar" Mode="In" />
           <Parameter Name="HIGH_TIME" Type="varchar" Mode="In" />
         </Function>
-        <Function Name="SelectByLetter" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="LETTER" Type="varchar" Mode="In" />
-        </Function>
-        <Function Name="SelectOthers" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
-        <Function Name="TimeLength" ReturnType="int" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="timeStr" Type="varchar" Mode="In" />
-        </Function>
-        <Function Name="TimeString" ReturnType="varchar" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="seconds" Type="int" Mode="In" />
-        </Function>
-        <Function Name="UpdateAlbumsWithoutTime" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
       </Schema>
     </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="MusCatModel" Alias="Self" p1:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:p1="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="MusCatEntities" p1:LazyLoadingEnabled="true">
-          <EntitySet Name="Albums" EntityType="MusCatModel.Albums" />
-          <EntitySet Name="Lineups" EntityType="MusCatModel.Lineups" />
-          <EntitySet Name="Musicians" EntityType="MusCatModel.Musicians" />
-          <EntitySet Name="Performers" EntityType="MusCatModel.Performers" />
-          <EntitySet Name="Songs" EntityType="MusCatModel.Songs" />
-          <EntitySet Name="AlbumsWithEmptySongsView" EntityType="MusCatModel.AlbumsWithEmptySongsView" />
-          <EntitySet Name="AlbumsWithoutTotalTimeView" EntityType="MusCatModel.AlbumsWithoutTotalTimeView" />
-          <EntitySet Name="EmptyAlbumsView" EntityType="MusCatModel.EmptyAlbumsView" />
+          <EntitySet Name="Albums" EntityType="MusCatModel.Album" />
+          <EntitySet Name="Genres" EntityType="MusCatModel.Genre" />
+          <EntitySet Name="Lineups" EntityType="MusCatModel.Lineup" />
+          <EntitySet Name="Musicians" EntityType="MusCatModel.Musician" />
+          <EntitySet Name="Performers" EntityType="MusCatModel.Performer" />
+          <EntitySet Name="Songs" EntityType="MusCatModel.Song" />
+          <EntitySet Name="AlbumsWithEmptySongsViews" EntityType="MusCatModel.AlbumsWithEmptySongsView" />
+          <EntitySet Name="AlbumsWithoutTotalTimeViews" EntityType="MusCatModel.AlbumsWithoutTotalTimeView" />
+          <EntitySet Name="EmptyAlbumsViews" EntityType="MusCatModel.EmptyAlbumsView" />
           <AssociationSet Name="FK_Albums_Performers" Association="MusCatModel.FK_Albums_Performers">
             <End Role="Performers" EntitySet="Performers" />
             <End Role="Albums" EntitySet="Albums" />
@@ -253,47 +311,60 @@
             <End Role="Performers" EntitySet="Performers" />
             <End Role="Lineups" EntitySet="Lineups" />
           </AssociationSet>
-          <FunctionImport Name="DeleteByAID">
+          <AssociationSet Name="PerformerGenres" Association="MusCatModel.PerformerGenres">
+            <End Role="Genres" EntitySet="Genres" />
+            <End Role="Performers" EntitySet="Performers" />
+          </AssociationSet>
+          <FunctionImport Name="DeleteAlbumByID">
             <Parameter Name="Original_AID" Mode="In" Type="Int32" />
           </FunctionImport>
-          <FunctionImport Name="DeleteByPID">
+          <FunctionImport Name="DeletePerformerByID">
             <Parameter Name="Original_PID" Mode="In" Type="Int32" />
           </FunctionImport>
-          <FunctionImport Name="SelectBetweenTimes" ReturnType="Collection(MusCatModel.SelectBetweenTimes_Result)">
+          <FunctionImport Name="SelectPerformerByLetter" ReturnType="Collection(MusCatModel.SelectPerformerByLetter_Result)">
+            <Parameter Name="LETTER" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SelectRestOfPerformers" ReturnType="Collection(MusCatModel.SelectRestOfPerformers_Result)" />
+          <FunctionImport Name="SelectSongsInTimeInterval" ReturnType="Collection(MusCatModel.SelectSongsInTimeInterval_Result)">
             <Parameter Name="LOW_TIME" Mode="In" Type="String" />
             <Parameter Name="HIGH_TIME" Mode="In" Type="String" />
           </FunctionImport>
-          <FunctionImport Name="SelectByLetter" ReturnType="Collection(MusCatModel.SelectByLetter_Result)">
-            <Parameter Name="LETTER" Mode="In" Type="String" />
-          </FunctionImport>
-          <FunctionImport Name="SelectOthers" ReturnType="Collection(MusCatModel.SelectOthers_Result)" />
-          <FunctionImport Name="UpdateAlbumsWithoutTime" />
         </EntityContainer>
-        <EntityType Name="Albums">
-          <Key>
-            <PropertyRef Name="AID" />
-          </Key>
-          <Property Name="PID" Type="Int64" Nullable="false" />
-          <Property Name="AID" Type="Int64" Nullable="false" />
-          <Property Name="Album" Type="String" Nullable="false" MaxLength="40" Unicode="false" FixedLength="false" />
-          <Property Name="AYear" Type="Int16" Nullable="false" />
-          <Property Name="ATime" Type="String" MaxLength="6" Unicode="false" FixedLength="false" />
-          <Property Name="AInfo" Type="String" MaxLength="Max" Unicode="false" FixedLength="false" />
-          <Property Name="ARate" Type="Byte" />
-          <NavigationProperty Name="Performers" Relationship="MusCatModel.FK_Albums_Performers" FromRole="Albums" ToRole="Performers" />
-          <NavigationProperty Name="Songs" Relationship="MusCatModel.FK_Songs_Albums" FromRole="Albums" ToRole="Songs" />
-        </EntityType>
-        <EntityType Name="Lineups">
+        <EntityType Name="Album">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
-          <Property Name="ID_Performer" Type="Int64" Nullable="false" />
-          <Property Name="ID_Musician" Type="Int64" Nullable="false" />
-          <NavigationProperty Name="Musicians" Relationship="MusCatModel.FK_Lineups_Musicians" FromRole="Lineups" ToRole="Musicians" />
-          <NavigationProperty Name="Performers" Relationship="MusCatModel.FK_Lineups_Performers" FromRole="Lineups" ToRole="Performers" />
+          <Property Name="PerformerID" Type="Int64" Nullable="false" />
+          <Property Name="ID" Type="Int64" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="40" Unicode="false" FixedLength="false" />
+          <Property Name="ReleaseYear" Type="Int16" Nullable="false" />
+          <Property Name="TotalTime" Type="String" MaxLength="6" Unicode="false" FixedLength="false" />
+          <Property Name="Info" Type="String" MaxLength="Max" Unicode="false" FixedLength="false" />
+          <Property Name="Rate" Type="Byte" />
+          <NavigationProperty Name="Performer" Relationship="MusCatModel.FK_Albums_Performers" FromRole="Albums" ToRole="Performers" />
+          <NavigationProperty Name="Songs" Relationship="MusCatModel.FK_Songs_Albums" FromRole="Albums" ToRole="Songs" />
         </EntityType>
-        <EntityType Name="Musicians">
+        <EntityType Name="Genre">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Byte" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="25" Unicode="false" FixedLength="false" />
+          <NavigationProperty Name="Performers" Relationship="MusCatModel.PerformerGenres" FromRole="Genres" ToRole="Performers" />
+        </EntityType>
+        <EntityType Name="Lineup">
+          <Key>
+            <PropertyRef Name="PerformerID" />
+            <PropertyRef Name="MusicianID" />
+          </Key>
+          <Property Name="PerformerID" Type="Int64" Nullable="false" />
+          <Property Name="MusicianID" Type="Int64" Nullable="false" />
+          <Property Name="YearStart" Type="Int16" />
+          <Property Name="YearEnd" Type="Int16" />
+          <NavigationProperty Name="Musician" Relationship="MusCatModel.FK_Lineups_Musicians" FromRole="Lineups" ToRole="Musicians" />
+          <NavigationProperty Name="Performer" Relationship="MusCatModel.FK_Lineups_Performers" FromRole="Lineups" ToRole="Performers" />
+        </EntityType>
+        <EntityType Name="Musician">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
@@ -302,140 +373,145 @@
           <Property Name="Info" Type="String" MaxLength="Max" Unicode="false" FixedLength="false" />
           <Property Name="YearBorn" Type="Int16" />
           <Property Name="YearDied" Type="Int16" />
-          <Property Name="PID" Type="Int64" />
+          <Property Name="PerformerID" Type="Int64" />
           <NavigationProperty Name="Lineups" Relationship="MusCatModel.FK_Lineups_Musicians" FromRole="Musicians" ToRole="Lineups" />
         </EntityType>
-        <EntityType Name="Performers">
+        <EntityType Name="Performer">
           <Key>
-            <PropertyRef Name="PID" />
+            <PropertyRef Name="ID" />
           </Key>
-          <Property Name="PID" Type="Int64" Nullable="false" />
-          <Property Name="Performer" Type="String" Nullable="false" MaxLength="30" Unicode="false" FixedLength="false" />
+          <Property Name="ID" Type="Int64" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="30" Unicode="false" FixedLength="false" />
           <Property Name="Country" Type="String" MaxLength="30" Unicode="false" FixedLength="false" />
           <Property Name="Info" Type="String" MaxLength="Max" Unicode="false" FixedLength="false" />
           <NavigationProperty Name="Albums" Relationship="MusCatModel.FK_Albums_Performers" FromRole="Performers" ToRole="Albums" />
           <NavigationProperty Name="Lineups" Relationship="MusCatModel.FK_Lineups_Performers" FromRole="Performers" ToRole="Lineups" />
+          <NavigationProperty Name="Genre" Relationship="MusCatModel.PerformerGenres" FromRole="Performers" ToRole="Genres" />
         </EntityType>
-        <EntityType Name="Songs">
+        <EntityType Name="Song">
           <Key>
-            <PropertyRef Name="SID" />
+            <PropertyRef Name="ID" />
           </Key>
-          <Property Name="PID" Type="Int64" Nullable="false" />
-          <Property Name="AID" Type="Int64" Nullable="false" />
-          <Property Name="SID" Type="Int64" Nullable="false" />
-          <Property Name="SN" Type="Byte" Nullable="false" />
-          <Property Name="SName" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
-          <Property Name="STime" Type="String" Nullable="false" MaxLength="6" Unicode="false" FixedLength="false" />
-          <Property Name="SInfo" Type="String" MaxLength="Max" Unicode="false" FixedLength="false" />
-          <Property Name="SRate" Type="Byte" />
-          <NavigationProperty Name="Albums" Relationship="MusCatModel.FK_Songs_Albums" FromRole="Songs" ToRole="Albums" />
+          <Property Name="PerformerID" Type="Int64" Nullable="false" />
+          <Property Name="AlbumID" Type="Int64" Nullable="false" />
+          <Property Name="ID" Type="Int64" Nullable="false" />
+          <Property Name="TrackNo" Type="Byte" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
+          <Property Name="TimeLength" Type="String" Nullable="false" MaxLength="6" Unicode="false" FixedLength="false" />
+          <Property Name="Info" Type="String" MaxLength="Max" Unicode="false" FixedLength="false" />
+          <Property Name="Rate" Type="Byte" />
+          <NavigationProperty Name="Album" Relationship="MusCatModel.FK_Songs_Albums" FromRole="Songs" ToRole="Albums" />
         </EntityType>
         <EntityType Name="AlbumsWithEmptySongsView">
           <Key>
-            <PropertyRef Name="Performer" />
-            <PropertyRef Name="AYear" />
-            <PropertyRef Name="Album" />
+            <PropertyRef Name="Name" />
+            <PropertyRef Name="ReleaseYear" />
+            <PropertyRef Name="AlbumName" />
           </Key>
-          <Property Name="Performer" Type="String" Nullable="false" MaxLength="30" Unicode="false" FixedLength="false" />
-          <Property Name="AYear" Type="Int16" Nullable="false" />
-          <Property Name="Album" Type="String" Nullable="false" MaxLength="40" Unicode="false" FixedLength="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="30" Unicode="false" FixedLength="false" />
+          <Property Name="ReleaseYear" Type="Int16" Nullable="false" />
+          <Property Name="AlbumName" Type="String" Nullable="false" MaxLength="40" Unicode="false" FixedLength="false" />
         </EntityType>
         <EntityType Name="AlbumsWithoutTotalTimeView">
           <Key>
-            <PropertyRef Name="AYear" />
-            <PropertyRef Name="Album" />
-            <PropertyRef Name="Performer" />
-            <PropertyRef Name="AID" />
+            <PropertyRef Name="ReleaseYear" />
+            <PropertyRef Name="Name" />
+            <PropertyRef Name="PerformerName" />
+            <PropertyRef Name="ID" />
           </Key>
-          <Property Name="AYear" Type="Int16" Nullable="false" />
-          <Property Name="Album" Type="String" Nullable="false" MaxLength="40" Unicode="false" FixedLength="false" />
-          <Property Name="ATime" Type="String" MaxLength="6" Unicode="false" FixedLength="false" />
-          <Property Name="Performer" Type="String" Nullable="false" MaxLength="30" Unicode="false" FixedLength="false" />
-          <Property Name="AID" Type="Int64" Nullable="false" />
+          <Property Name="ReleaseYear" Type="Int16" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="40" Unicode="false" FixedLength="false" />
+          <Property Name="TotalTime" Type="String" MaxLength="6" Unicode="false" FixedLength="false" />
+          <Property Name="PerformerName" Type="String" Nullable="false" MaxLength="30" Unicode="false" FixedLength="false" />
+          <Property Name="ID" Type="Int64" Nullable="false" />
         </EntityType>
         <EntityType Name="EmptyAlbumsView">
           <Key>
-            <PropertyRef Name="Performer" />
-            <PropertyRef Name="AYear" />
-            <PropertyRef Name="Album" />
+            <PropertyRef Name="Name" />
+            <PropertyRef Name="ReleaseYear" />
+            <PropertyRef Name="AlbumName" />
           </Key>
-          <Property Name="Performer" Type="String" Nullable="false" MaxLength="30" Unicode="false" FixedLength="false" />
-          <Property Name="AYear" Type="Int16" Nullable="false" />
-          <Property Name="Album" Type="String" Nullable="false" MaxLength="40" Unicode="false" FixedLength="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="30" Unicode="false" FixedLength="false" />
+          <Property Name="ReleaseYear" Type="Int16" Nullable="false" />
+          <Property Name="AlbumName" Type="String" Nullable="false" MaxLength="40" Unicode="false" FixedLength="false" />
         </EntityType>
         <Association Name="FK_Albums_Performers">
-          <End Role="Performers" Type="MusCatModel.Performers" Multiplicity="1">
+          <End Role="Performers" Type="MusCatModel.Performer" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="Albums" Type="MusCatModel.Albums" Multiplicity="*" />
+          <End Role="Albums" Type="MusCatModel.Album" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Performers">
-              <PropertyRef Name="PID" />
+              <PropertyRef Name="ID" />
             </Principal>
             <Dependent Role="Albums">
-              <PropertyRef Name="PID" />
+              <PropertyRef Name="PerformerID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Songs_Albums">
-          <End Role="Albums" Type="MusCatModel.Albums" Multiplicity="1">
+          <End Role="Albums" Type="MusCatModel.Album" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="Songs" Type="MusCatModel.Songs" Multiplicity="*" />
+          <End Role="Songs" Type="MusCatModel.Song" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Albums">
-              <PropertyRef Name="AID" />
+              <PropertyRef Name="ID" />
             </Principal>
             <Dependent Role="Songs">
-              <PropertyRef Name="AID" />
+              <PropertyRef Name="AlbumID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Lineups_Musicians">
-          <End Role="Musicians" Type="MusCatModel.Musicians" Multiplicity="1">
+          <End Role="Musicians" Type="MusCatModel.Musician" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="Lineups" Type="MusCatModel.Lineups" Multiplicity="*" />
+          <End Role="Lineups" Type="MusCatModel.Lineup" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Musicians">
               <PropertyRef Name="ID" />
             </Principal>
             <Dependent Role="Lineups">
-              <PropertyRef Name="ID_Musician" />
+              <PropertyRef Name="MusicianID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Lineups_Performers">
-          <End Role="Performers" Type="MusCatModel.Performers" Multiplicity="1">
+          <End Role="Performers" Type="MusCatModel.Performer" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="Lineups" Type="MusCatModel.Lineups" Multiplicity="*" />
+          <End Role="Lineups" Type="MusCatModel.Lineup" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Performers">
-              <PropertyRef Name="PID" />
+              <PropertyRef Name="ID" />
             </Principal>
             <Dependent Role="Lineups">
-              <PropertyRef Name="ID_Performer" />
+              <PropertyRef Name="PerformerID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <ComplexType Name="SelectBetweenTimes_Result">
-          <Property Type="Int64" Name="PID" Nullable="false" />
-          <Property Type="Int64" Name="AID" Nullable="false" />
-          <Property Type="Int64" Name="SID" Nullable="false" />
-          <Property Type="Byte" Name="SN" Nullable="false" />
-          <Property Type="String" Name="SName" Nullable="false" MaxLength="50" />
-          <Property Type="String" Name="STime" Nullable="false" MaxLength="6" />
-          <Property Type="String" Name="SInfo" Nullable="true" MaxLength="Max" />
-        </ComplexType>
-        <ComplexType Name="SelectByLetter_Result">
-          <Property Type="Int64" Name="PID" Nullable="false" />
-          <Property Type="String" Name="Performer" Nullable="false" MaxLength="30" />
+        <Association Name="PerformerGenres">
+          <End Role="Genres" Type="MusCatModel.Genre" Multiplicity="0..1" />
+          <End Role="Performers" Type="MusCatModel.Performer" Multiplicity="*" />
+        </Association>
+        <ComplexType Name="SelectPerformerByLetter_Result">
+          <Property Type="Int64" Name="ID" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="30" />
           <Property Type="String" Name="Info" Nullable="true" MaxLength="Max" />
         </ComplexType>
-        <ComplexType Name="SelectOthers_Result">
-          <Property Type="Int64" Name="PID" Nullable="false" />
-          <Property Type="String" Name="Performer" Nullable="false" MaxLength="30" />
+        <ComplexType Name="SelectRestOfPerformers_Result">
+          <Property Type="Int64" Name="ID" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="30" />
+          <Property Type="String" Name="Info" Nullable="true" MaxLength="Max" />
+        </ComplexType>
+        <ComplexType Name="SelectSongsInTimeInterval_Result">
+          <Property Type="Int64" Name="PerformerID" Nullable="false" />
+          <Property Type="Int64" Name="AlbumID" Nullable="false" />
+          <Property Type="Int64" Name="ID" Nullable="false" />
+          <Property Type="Byte" Name="TrackNo" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="50" />
+          <Property Type="String" Name="TimeLength" Nullable="false" MaxLength="6" />
           <Property Type="String" Name="Info" Nullable="true" MaxLength="Max" />
         </ComplexType>
       </Schema>
@@ -445,126 +521,142 @@
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="MusCatModelStoreContainer" CdmEntityContainer="MusCatEntities">
           <EntitySetMapping Name="Albums">
-            <EntityTypeMapping TypeName="MusCatModel.Albums">
+            <EntityTypeMapping TypeName="MusCatModel.Album">
               <MappingFragment StoreEntitySet="Albums">
-                <ScalarProperty Name="PID" ColumnName="PID" />
-                <ScalarProperty Name="AID" ColumnName="AID" />
-                <ScalarProperty Name="Album" ColumnName="Album" />
-                <ScalarProperty Name="AYear" ColumnName="AYear" />
-                <ScalarProperty Name="ATime" ColumnName="ATime" />
-                <ScalarProperty Name="AInfo" ColumnName="AInfo" />
-                <ScalarProperty Name="ARate" ColumnName="ARate" />
+                <ScalarProperty Name="PerformerID" ColumnName="PerformerID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ReleaseYear" ColumnName="ReleaseYear" />
+                <ScalarProperty Name="TotalTime" ColumnName="TotalTime" />
+                <ScalarProperty Name="Info" ColumnName="Info" />
+                <ScalarProperty Name="Rate" ColumnName="Rate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Genres">
+            <EntityTypeMapping TypeName="MusCatModel.Genre">
+              <MappingFragment StoreEntitySet="Genres">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Lineups">
-            <EntityTypeMapping TypeName="MusCatModel.Lineups">
+            <EntityTypeMapping TypeName="MusCatModel.Lineup">
               <MappingFragment StoreEntitySet="Lineups">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="ID_Performer" ColumnName="ID_Performer" />
-                <ScalarProperty Name="ID_Musician" ColumnName="ID_Musician" />
+                <ScalarProperty Name="PerformerID" ColumnName="PerformerID" />
+                <ScalarProperty Name="MusicianID" ColumnName="MusicianID" />
+                <ScalarProperty Name="YearStart" ColumnName="YearStart" />
+                <ScalarProperty Name="YearEnd" ColumnName="YearEnd" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Musicians">
-            <EntityTypeMapping TypeName="MusCatModel.Musicians">
+            <EntityTypeMapping TypeName="MusCatModel.Musician">
               <MappingFragment StoreEntitySet="Musicians">
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Info" ColumnName="Info" />
                 <ScalarProperty Name="YearBorn" ColumnName="YearBorn" />
                 <ScalarProperty Name="YearDied" ColumnName="YearDied" />
-                <ScalarProperty Name="PID" ColumnName="PID" />
+                <ScalarProperty Name="PerformerID" ColumnName="PerformerID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Performers">
-            <EntityTypeMapping TypeName="MusCatModel.Performers">
+            <EntityTypeMapping TypeName="MusCatModel.Performer">
               <MappingFragment StoreEntitySet="Performers">
-                <ScalarProperty Name="PID" ColumnName="PID" />
-                <ScalarProperty Name="Performer" ColumnName="Performer" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Country" ColumnName="Country" />
                 <ScalarProperty Name="Info" ColumnName="Info" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Songs">
-            <EntityTypeMapping TypeName="MusCatModel.Songs">
+            <EntityTypeMapping TypeName="MusCatModel.Song">
               <MappingFragment StoreEntitySet="Songs">
-                <ScalarProperty Name="PID" ColumnName="PID" />
-                <ScalarProperty Name="AID" ColumnName="AID" />
-                <ScalarProperty Name="SID" ColumnName="SID" />
-                <ScalarProperty Name="SN" ColumnName="SN" />
-                <ScalarProperty Name="SName" ColumnName="SName" />
-                <ScalarProperty Name="STime" ColumnName="STime" />
-                <ScalarProperty Name="SInfo" ColumnName="SInfo" />
-                <ScalarProperty Name="SRate" ColumnName="SRate" />
+                <ScalarProperty Name="PerformerID" ColumnName="PerformerID" />
+                <ScalarProperty Name="AlbumID" ColumnName="AlbumID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="TrackNo" ColumnName="TrackNo" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="TimeLength" ColumnName="TimeLength" />
+                <ScalarProperty Name="Info" ColumnName="Info" />
+                <ScalarProperty Name="Rate" ColumnName="Rate" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="AlbumsWithEmptySongsView">
+          <EntitySetMapping Name="AlbumsWithEmptySongsViews">
             <EntityTypeMapping TypeName="MusCatModel.AlbumsWithEmptySongsView">
               <MappingFragment StoreEntitySet="AlbumsWithEmptySongsView">
-                <ScalarProperty Name="Performer" ColumnName="Performer" />
-                <ScalarProperty Name="AYear" ColumnName="AYear" />
-                <ScalarProperty Name="Album" ColumnName="Album" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ReleaseYear" ColumnName="ReleaseYear" />
+                <ScalarProperty Name="AlbumName" ColumnName="AlbumName" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="AlbumsWithoutTotalTimeView">
+          <EntitySetMapping Name="AlbumsWithoutTotalTimeViews">
             <EntityTypeMapping TypeName="MusCatModel.AlbumsWithoutTotalTimeView">
               <MappingFragment StoreEntitySet="AlbumsWithoutTotalTimeView">
-                <ScalarProperty Name="AYear" ColumnName="AYear" />
-                <ScalarProperty Name="Album" ColumnName="Album" />
-                <ScalarProperty Name="ATime" ColumnName="ATime" />
-                <ScalarProperty Name="Performer" ColumnName="Performer" />
-                <ScalarProperty Name="AID" ColumnName="AID" />
+                <ScalarProperty Name="ReleaseYear" ColumnName="ReleaseYear" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="TotalTime" ColumnName="TotalTime" />
+                <ScalarProperty Name="PerformerName" ColumnName="PerformerName" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="EmptyAlbumsView">
+          <EntitySetMapping Name="EmptyAlbumsViews">
             <EntityTypeMapping TypeName="MusCatModel.EmptyAlbumsView">
               <MappingFragment StoreEntitySet="EmptyAlbumsView">
-                <ScalarProperty Name="Performer" ColumnName="Performer" />
-                <ScalarProperty Name="AYear" ColumnName="AYear" />
-                <ScalarProperty Name="Album" ColumnName="Album" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ReleaseYear" ColumnName="ReleaseYear" />
+                <ScalarProperty Name="AlbumName" ColumnName="AlbumName" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <FunctionImportMapping FunctionImportName="DeleteByAID" FunctionName="MusCatModel.Store.DeleteByAID" />
-          <FunctionImportMapping FunctionImportName="DeleteByPID" FunctionName="MusCatModel.Store.DeleteByPID" />
-          <FunctionImportMapping FunctionImportName="SelectBetweenTimes" FunctionName="MusCatModel.Store.SelectBetweenTimes">
+          <AssociationSetMapping Name="PerformerGenres" TypeName="MusCatModel.PerformerGenres" StoreEntitySet="PerformerGenres">
+            <EndProperty Name="Genres">
+              <ScalarProperty Name="ID" ColumnName="GenreID" />
+            </EndProperty>
+            <EndProperty Name="Performers">
+              <ScalarProperty Name="ID" ColumnName="PerformerID" />
+            </EndProperty>
+          </AssociationSetMapping>
+          <FunctionImportMapping FunctionImportName="DeleteAlbumByID" FunctionName="MusCatModel.Store.DeleteAlbumByID" />
+          <FunctionImportMapping FunctionImportName="DeletePerformerByID" FunctionName="MusCatModel.Store.DeletePerformerByID" />
+          <FunctionImportMapping FunctionImportName="SelectPerformerByLetter" FunctionName="MusCatModel.Store.SelectPerformerByLetter">
             <ResultMapping>
-              <ComplexTypeMapping TypeName="MusCatModel.SelectBetweenTimes_Result">
-                <ScalarProperty Name="PID" ColumnName="PID" />
-                <ScalarProperty Name="AID" ColumnName="AID" />
-                <ScalarProperty Name="SID" ColumnName="SID" />
-                <ScalarProperty Name="SN" ColumnName="SN" />
-                <ScalarProperty Name="SName" ColumnName="SName" />
-                <ScalarProperty Name="STime" ColumnName="STime" />
-                <ScalarProperty Name="SInfo" ColumnName="SInfo" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
-          <FunctionImportMapping FunctionImportName="SelectByLetter" FunctionName="MusCatModel.Store.SelectByLetter">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="MusCatModel.SelectByLetter_Result">
-                <ScalarProperty Name="PID" ColumnName="PID" />
-                <ScalarProperty Name="Performer" ColumnName="Performer" />
+              <ComplexTypeMapping TypeName="MusCatModel.SelectPerformerByLetter_Result">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Info" ColumnName="Info" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
-          <FunctionImportMapping FunctionImportName="SelectOthers" FunctionName="MusCatModel.Store.SelectOthers">
+          <FunctionImportMapping FunctionImportName="SelectRestOfPerformers" FunctionName="MusCatModel.Store.SelectRestOfPerformers">
             <ResultMapping>
-              <ComplexTypeMapping TypeName="MusCatModel.SelectOthers_Result">
-                <ScalarProperty Name="PID" ColumnName="PID" />
-                <ScalarProperty Name="Performer" ColumnName="Performer" />
+              <ComplexTypeMapping TypeName="MusCatModel.SelectRestOfPerformers_Result">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Info" ColumnName="Info" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
-          <FunctionImportMapping FunctionImportName="UpdateAlbumsWithoutTime" FunctionName="MusCatModel.Store.UpdateAlbumsWithoutTime" />
+          <FunctionImportMapping FunctionImportName="SelectSongsInTimeInterval" FunctionName="MusCatModel.Store.SelectSongsInTimeInterval">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="MusCatModel.SelectSongsInTimeInterval_Result">
+                <ScalarProperty Name="PerformerID" ColumnName="PerformerID" />
+                <ScalarProperty Name="AlbumID" ColumnName="AlbumID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="TrackNo" ColumnName="TrackNo" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="TimeLength" ColumnName="TimeLength" />
+                <ScalarProperty Name="Info" ColumnName="Info" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

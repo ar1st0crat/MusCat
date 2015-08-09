@@ -1,11 +1,14 @@
 ﻿using MusCatalog.Model;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 
 namespace MusCatalog.View
@@ -16,10 +19,10 @@ namespace MusCatalog.View
     public partial class AlbumWindow : Window
     {
         // Current album displayed in the window
-        Albums album;
+        Album album;
         
         // Song list
-        List<Songs> albumSongs = new List<Songs>();
+        List<Song> albumSongs = new List<Song>();
                         
         // bitmaps for playback buttons
         BitmapImage imagePlay = App.Current.TryFindResource( "ImagePlayButton" ) as BitmapImage;
@@ -39,38 +42,46 @@ namespace MusCatalog.View
         // Audio player
         MusCatPlayer player = new MusCatPlayer();
         
+        // playback timer
+        DispatcherTimer playbackTimer = new DispatcherTimer();
 
 
-        public AlbumWindow(Albums a)
+        public AlbumWindow(Album a)
         {
             InitializeComponent();
 
+            // setting up timer for songs playback
+            playbackTimer.Tick += new EventHandler( PlaybackTimerTick );
+            playbackTimer.Interval = new TimeSpan( 0, 0, 2 );
+
+            //
             album = a;
 
+            //
             using (var context = new MusCatEntities())
             {
                 this.rateAlbum.DataContext = a;
                 AlbumInfoPanel.DataContext = a;
 
-                albumSongs = context.Songs.Where(s => s.Albums.AID == a.AID).ToList();
+                albumSongs = context.Songs.Where(s => s.Album.ID == a.ID).ToList();
 
-                var AlbumID = a.AID;// albumSongs.First().AID;
+                var AlbumID = a.ID;
 
                 var curAlbum = (from albs in context.Albums
-                                where albs.AID == AlbumID
-                                select albs).First(); 
+                                where albs.ID == AlbumID
+                                select albs).First();
 
                 var curPerformer = (from p in context.Performers
-                                              where p.PID == curAlbum.Performers.PID
+                                              where p.ID == curAlbum.Performer.ID
                                               select p).First();
 
                 foreach (var song in albumSongs)
                 {
                     // include the corresponding album of our song
-                    song.Albums = curAlbum;
+                    song.Album = curAlbum;
 
                     // do the same thing with performer for included album
-                    song.Albums.Performers = curPerformer;
+                    song.Album.Performer = curPerformer;
                 }
 
                 this.songlist.ItemsSource = albumSongs;
@@ -97,6 +108,7 @@ namespace MusCatalog.View
                     player.Play(fileSong, SongPlaybackStopped);
 
                     bPlaying = true;
+                    playbackTimer.Start();
 
                     ((Image)((Button)sender).FindName("playButton")).Source = imagePause;
                 }
@@ -108,6 +120,8 @@ namespace MusCatalog.View
             else
             {
                 bPlaying = false;
+                playbackTimer.Stop();
+
                 ((Image)((Button)sender).FindName( "playButton" )).Source = imagePlay;
 
                 player.Stop();
@@ -183,15 +197,15 @@ namespace MusCatalog.View
                 ((Image)this.rateAlbum.Children[i]).Source = imageEmptyStar;
             }
 
-            if ( album.ARate.HasValue )
+            if ( album.Rate.HasValue )
             {
                 int i = 0;
-                for ( ; i < album.ARate / 2; i++)
+                for ( ; i < album.Rate / 2; i++)
                 {
                     ((Image)this.rateAlbum.Children[i]).Source = imageStar;
                 }
 
-                if ( album.ARate.Value % 2 == 1 )
+                if ( album.Rate.Value % 2 == 1 )
                 {
                     ((Image)this.rateAlbum.Children[i]).Source = imageHalfStar;
                 }
@@ -204,11 +218,11 @@ namespace MusCatalog.View
         /// </summary>
         private void StarMouseDown(object sender, MouseButtonEventArgs e)
         {
-            album.ARate = (byte)(starPos * 2);
+            album.Rate = (byte)(starPos * 2);
 
             if (((Image)sender).Source == imageHalfStar)
             {
-                album.ARate--;
+                album.Rate--;
             }
 
             // update database
@@ -223,6 +237,49 @@ namespace MusCatalog.View
         private void SeekPlaybackPosition(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             player.Seek( ((Slider)sender).Value / 10.0 );
+        }
+
+        
+        // TODO:
+        private void PlaybackTimerTick(object sender, EventArgs e)
+        {
+            //var template = this.songlist.Template;
+            //var playbackSlider = (Slider)template.FindName("PlaybackSlider", this.songlist);
+
+            //playbackSlider.SetValue( player. );
+        }
+
+
+        private void AlbumCoverMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount > 1)
+            {
+                string filepath = string.Format(@"F:\{0}\{1}\Picture\{2}.jpg", char.ToUpperInvariant(album.Performer.Name[0]), album.Performer.Name, album.ID);
+                Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+
+                if (!Clipboard.ContainsImage())
+                {
+                    MessageBox.Show("No image in clipboard!");
+                    return;
+                }
+
+                var image = Clipboard.GetImage();
+                try
+                {
+                    using (var fileStream = new FileStream(filepath, FileMode.Create))
+                    {
+                        BitmapEncoder encoder = new JpegBitmapEncoder();
+                        encoder.Frames.Add(BitmapFrame.Create(image));
+                        encoder.Save(fileStream);
+
+                        BindingOperations.GetBindingExpression(this.AlbumCover, Image.SourceProperty).UpdateTarget();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
         }
     }
 }

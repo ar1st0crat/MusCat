@@ -84,28 +84,24 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\AlbumConverter.cs" />
-    <Compile Include="View\PerformerWindow.xaml.cs">
-      <DependentUpon>PerformerWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Logic\MusCatFileLocator.cs" />
-    <Compile Include="Model\Albums.cs">
+    <Compile Include="Model\Album.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\AlbumsWithEmptySongsView.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\AlbumsWithoutTotalTimeView.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\EmptyAlbumsView.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Genre.cs">
+      <DependentUpon>MusCatModel.tt</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="View\LetterButton.cs" />
-    <Compile Include="Model\Lineups.cs">
+    <Compile Include="Model\Lineup.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -125,37 +121,39 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="Model\Musician.cs">
+      <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Model\Performer.cs">
+      <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Model\SelectPerformerByLetter_Result.cs">
+      <DependentUpon>MusCatModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\SelectRestOfPerformers_Result.cs">
+      <DependentUpon>MusCatModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\SelectSongsInTimeInterval_Result.cs">
+      <DependentUpon>MusCatModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Song.cs">
+      <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View\PerformerWindow.xaml.cs">
+      <DependentUpon>PerformerWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Logic\MusCatFileLocator.cs" />
+    <Compile Include="View\LetterButton.cs" />
     <Compile Include="Logic\MusCatPlayer.cs" />
-    <Compile Include="Model\Musicians.cs">
-      <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Model\Performers.cs">
-      <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Converters\PhotoConverter.cs" />
     <Compile Include="View\RadioPlayerWindow.xaml.cs">
       <DependentUpon>RadioPlayerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\RateConverter.cs" />
     <Compile Include="Converters\RateStarsConverter.cs" />
-    <Compile Include="Model\SelectBetweenTimes_Result.cs">
-      <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Model\SelectByLetter_Result.cs">
-      <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Model\SelectOthers_Result.cs">
-      <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Model\Songs.cs">
-      <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Converters\StarsVisibilityConverter.cs" />
     <Compile Include="View\AlbumWindow.xaml.cs">
       <DependentUpon>AlbumWindow.xaml</DependentUpon>
@@ -235,6 +233,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <DependentUpon>MusCat.mdf</DependentUpon>
     </Content>
+    <Resource Include="Images\no_photo.png" />
     <Resource Include="Images\MusCat.ico" />
     <Resource Include="Images\pause.png" />
     <Resource Include="Images\play.png" />
@@ -243,8 +242,6 @@
     <Resource Include="Images\star_empty.png" />
     <Resource Include="Images\star_half.png" />
     <Resource Include="Images\vinyl_blue.png" />
-    <Resource Include="Images\music-icon.png" />
-    <Resource Include="Images\no-photo.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -266,6 +263,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <EntityDeploy Include="Model\MusCatModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>

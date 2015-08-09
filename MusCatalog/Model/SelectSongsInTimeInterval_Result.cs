@@ -10,15 +10,15 @@
 namespace MusCatalog.Model
 {
     using System;
-    using System.Collections.Generic;
     
-    public partial class Lineups
+    public partial class SelectSongsInTimeInterval_Result
     {
+        public long PerformerID { get; set; }
+        public long AlbumID { get; set; }
         public long ID { get; set; }
-        public long ID_Performer { get; set; }
-        public long ID_Musician { get; set; }
-    
-        public virtual Musicians Musicians { get; set; }
-        public virtual Performers Performers { get; set; }
+        public byte TrackNo { get; set; }
+        public string Name { get; set; }
+        public string TimeLength { get; set; }
+        public string Info { get; set; }
     }
 }

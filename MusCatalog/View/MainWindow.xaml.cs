@@ -1,8 +1,11 @@
 ﻿using MusCatalog.Model;
+using System;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 
 namespace MusCatalog.View
@@ -24,39 +27,37 @@ namespace MusCatalog.View
         {
             using (var context = new MusCatEntities())
             {
-                IQueryable<Performers> performers;
+                IQueryable<Performer> performers;
                                                 
-                if (letter.Length == 1)
+                if (letter.Length == 1)                             // 'A', 'B', 'C', ..., 'Z'
                 {
-                    performers = from p in context.Performers.Include("Albums")
-                                 where p.Performer.StartsWith(letter)
-                                 orderby p.Performer
+                    performers = from p in context.Performers
+                                 where p.Name.StartsWith(letter)
+                                 orderby p.Name
                                  select p;
                 }
-                else
+                else                                                // The "Other" option
                 {
-                    performers = from p in context.Performers.Include("Albums")
-                                     where (p.Performer.Substring(0, 1).CompareTo("A") < 0 || p.Performer.Substring(0, 1).CompareTo("Z") > 0)
-                                     orderby p.Performer
+                    performers = from p in context.Performers
+                                     where p.Name.Substring(0, 1).CompareTo("A") < 0 || p.Name.Substring(0, 1).CompareTo("Z") > 0
+                                     orderby p.Name
                                      select p;
                 }
 
-                // ====================================================== here we sort each preformer's albums by the year of release
-                // ======================================================           Possible ways to write better code:
-                // ======================================================               1) DataLoadOptions (failed so far)
-                // ======================================================               2) select new { ... } - but will need to rewrite converters
-                // ======================================================               3) CollectionViewSource (failed so far)
+                // ========================================= here we attach albums to each performer and order them by year of release.
+                //                                                      Possible ways to write better code:
+                //                                                          1) DataLoadOptions (performers AND albums) (failed so far)
+                //                                                          2) select new { ... } - but will need to rewrite converters
+                //                                                          3) CollectionViewSource (failed so far)
                 foreach (var perf in performers)
                 {
-                    int albumCount = perf.Albums.Count;
-
-                    var albs = perf.Albums.OrderBy(a => a.AYear).ToList();
+                    var albs = perf.Albums.OrderBy(a => a.ReleaseYear).ToList();
 
                     perf.Albums.Clear();
 
                     foreach (var alb in albs)
                     {
-                        perf.Albums.Add(alb);
+                        perf.Albums.Add( alb );
                     }
                 }
                 // ====================================================================================================
@@ -121,15 +122,15 @@ namespace MusCatalog.View
             {
                 case Key.Delete:
                 {
-                    Performers perf = perflist.SelectedItem as Performers;
+                    Performer perf = perflist.SelectedItem as Performer;
 
-                    if (MessageBox.Show( string.Format( "Are you sure you want to delete '{0}'?", perf.Performer ),
+                    if (MessageBox.Show( string.Format( "Are you sure you want to delete '{0}'?", perf.Name ),
                                             "Confirmation",
                                             MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
                         using (var context = new MusCatEntities())
                         {
-                            context.DeleteByPID( (int?)(perf.PID) );
+                            context.DeletePerformerByID( (int?)(perf.ID) );
                             context.SaveChanges();
                         }
                         FillPerformersListByFirstLetter( curLetter );
@@ -151,9 +152,33 @@ namespace MusCatalog.View
         {
             if (e.ClickCount > 1)
             {
-                Performers p = perflist.SelectedItem as Performers;
-                PerformerWindow performerWindow = new PerformerWindow( p );
-                performerWindow.Show();
+                Performer p = perflist.SelectedItem as Performer;
+                //PerformerWindow performerWindow = new PerformerWindow( p );
+                //performerWindow.Show();
+
+                string filepath = string.Format(@"F:\{0}\{1}\Picture\photo.jpg", char.ToUpperInvariant(p.Name[0]), p.Name);
+                Directory.CreateDirectory( Path.GetDirectoryName( filepath ) );
+
+                if ( !Clipboard.ContainsImage() )
+                {
+                    MessageBox.Show( "No image in clipboard!" );
+                    return;
+                }
+
+                var image = Clipboard.GetImage();
+                try
+                {
+                    using (var fileStream = new FileStream(filepath, FileMode.Create))
+                    {
+                        BitmapEncoder encoder = new JpegBitmapEncoder();
+                        encoder.Frames.Add(BitmapFrame.Create(image));
+                        encoder.Save(fileStream);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show( ex.Message );
+                }
             }
         }
         
@@ -167,7 +192,7 @@ namespace MusCatalog.View
 
             if (lb.Name == "SelectedAlbums")
             {
-                Albums a = lb.SelectedItem as Albums;
+                Album a = lb.SelectedItem as Album;
                 AlbumWindow albumWindow = new AlbumWindow( a );
                 albumWindow.Show();
 

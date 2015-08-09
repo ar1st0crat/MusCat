@@ -3,8 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows.Data;
-
+using System.Linq;
 
 namespace MusCatalog
 {
@@ -14,50 +15,64 @@ namespace MusCatalog
     /// </summary>
     public class PhotoConverter: IValueConverter
     {
+        private const string NoPerformerPhoto = @"../Images/no_photo.png";
+        private const string NoAlbumPhoto = @"../Images/vinyl_blue.png";
+
+        /// <summary>
+        /// Basic convertion
+        /// </summary>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Performers perf = value as Performers;
+            Performer perf = value as Performer;
 
             if (perf != null)
             {
+                Regex reg = new Regex( @"(?i)(ph|f)oto.(png|jpe?g|gif|bmp)" );
+
                 foreach (var startingPath in MusCatFileLocator.pathlist )
                 {
                     string path = startingPath +
-                                    perf.Performer[0] + 
+                                    perf.Name[0] + 
                                     Path.DirectorySeparatorChar +
-                                    perf.Performer +
-                                    @"\Picture\foto.jpg";
+                                    perf.Name + @"\Picture";
 
-                    if (File.Exists(path))
-                        return path;
+                    if (Directory.Exists(path))
+                    {
+                        var files = Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly)
+                                                .Where(filename => reg.IsMatch(filename))
+                                                .ToList();
+                        if (files.Count > 0)
+                            return files[0];
+                    }
                 }
 
-                return @"../Images/no-photo.jpg";
+                return NoPerformerPhoto;
             }
 
 
-            Albums alb = value as Albums;
+            Album alb = value as Album;
 
             if (alb != null)
             {
                 foreach (var startingPath in MusCatFileLocator.pathlist )
                 {
                     string path = startingPath + 
-                                    alb.Performers.Performer[0] + 
+                                    alb.Performer.Name[0] + 
                                     Path.DirectorySeparatorChar +
-                                    alb.Performers.Performer + 
+                                    alb.Performer.Name + 
                                     @"\Picture\" + 
-                                    alb.AID + ".jpg";
+                                    alb.ID + ".jpg";
 
                     if (File.Exists(path))
                         return path;
                 }
 
-                return @"../Images/vinyl_blue.png";
+                return NoAlbumPhoto;
             }
             
             return "";
         }
+
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {

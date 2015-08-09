@@ -12,17 +12,17 @@ namespace MusCatalog.Model
     using System;
     using System.Collections.Generic;
     
-    public partial class Songs
+    public partial class Song
     {
-        public long PID { get; set; }
-        public long AID { get; set; }
-        public long SID { get; set; }
-        public byte SN { get; set; }
-        public string SName { get; set; }
-        public string STime { get; set; }
-        public string SInfo { get; set; }
-        public Nullable<byte> SRate { get; set; }
+        public long PerformerID { get; set; }
+        public long AlbumID { get; set; }
+        public long ID { get; set; }
+        public byte TrackNo { get; set; }
+        public string Name { get; set; }
+        public string TimeLength { get; set; }
+        public string Info { get; set; }
+        public Nullable<byte> Rate { get; set; }
     
-        public virtual Albums Albums { get; set; }
+        public virtual Album Album { get; set; }
     }
 }

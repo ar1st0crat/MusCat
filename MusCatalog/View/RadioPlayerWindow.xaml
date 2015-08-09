@@ -25,11 +25,11 @@
             <StackPanel Grid.Column="0" Name="prevSongPanel" VerticalAlignment="Center" Margin="0,60,0,61" MouseDown="PrevMouseDown">
                 <Label Content="Previous" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
                 <Image Name="prevImage" Source="{Binding Converter={StaticResource photoConverter}}" Height="100"/>
-                <Label Content="{Binding Path=Performers.Performer}" FontSize="18" FontFamily="Stencil" Foreground="White" HorizontalAlignment="Center" Margin="0,5,0,-1"/>
-                <Label Content="{Binding Path=Album}" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,-5,0,-1"/>
+                <Label Content="{Binding Path=Performer.Name}" FontSize="18" FontFamily="Stencil" Foreground="White" HorizontalAlignment="Center" Margin="0,5,0,-1"/>
+                <Label Content="{Binding Path=Name}" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,-5,0,-1"/>
                 <DockPanel Name="prevSong" HorizontalAlignment="Center">
-                    <Label Content="{Binding SName}" Foreground="Beige" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
-                    <Label Content="{Binding STime}" Foreground="Beige" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
+                    <Label Content="{Binding Name}" Foreground="Beige" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
+                    <Label Content="{Binding TimeLength}" Foreground="Beige" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
                 </DockPanel>
 
             </StackPanel>
@@ -41,21 +41,21 @@
                     <Slider Name="VolumeSlider" Width="75" Value="5" ValueChanged="SliderVolumeChanged" VerticalAlignment="Center" />
                 </DockPanel>
                 <Image Name ="curImage" Source="{Binding Converter={StaticResource photoConverter}}" Height="170"/>
-                <Label Content="{Binding Path=Performers.Performer}" Foreground="White" FontSize="22" FontFamily="Stencil" HorizontalAlignment="Center" Margin="0,5,0,-1"/>
-                <Label Content="{Binding Path=Album}" FontSize="16" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,-5,0,-1"/>
+                <Label Content="{Binding Path=Performer.Name}" Foreground="White" FontSize="22" FontFamily="Stencil" HorizontalAlignment="Center" Margin="0,5,0,-1"/>
+                <Label Content="{Binding Path=Name}" FontSize="16" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,-5,0,-1"/>
                 <DockPanel Name="curSong" HorizontalAlignment="Center">
-                    <Label Content="{Binding SName}" Foreground="Beige" FontSize="18" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
-                    <Label Content="{Binding STime}" Foreground="Beige" FontSize="18" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
+                    <Label Content="{Binding Name}" Foreground="Beige" FontSize="18" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
+                    <Label Content="{Binding TimeLength}" Foreground="Beige" FontSize="18" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
                 </DockPanel>
             </StackPanel>
             <StackPanel Grid.Column="2" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="0,60,0,61" Name="nextSongPanel" MouseDown="NextMouseDown">
                 <Label Content="Next" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
                 <Image Name="nextImage" Source="{Binding Converter={StaticResource photoConverter}}" Height="100"/>
-                <Label Content="{Binding Path=Performers.Performer}" Foreground="White" FontSize="18" FontFamily="Stencil" HorizontalAlignment="Center" Margin="0,5,0,-1"/>
-                <Label Content="{Binding Path=Album}" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,-5,0,-1"/>
+                <Label Content="{Binding Path=Performer.Name}" Foreground="White" FontSize="18" FontFamily="Stencil" HorizontalAlignment="Center" Margin="0,5,0,-1"/>
+                <Label Content="{Binding Path=Name}" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,-5,0,-1"/>
                 <DockPanel Name="nextSong" HorizontalAlignment="Center">
-                    <Label Content="{Binding SName}" Foreground="Beige" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
-                    <Label Content="{Binding STime}" Foreground="Beige" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
+                    <Label Content="{Binding Name}" Foreground="Beige" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
+                    <Label Content="{Binding TimeLength}" Foreground="Beige" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
                 </DockPanel>
             </StackPanel>
         </Grid>
@@ -74,9 +74,9 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <DockPanel Margin="0,-5,0,-5">
-                                    <Label Content="{Binding Path=Albums.Performers.Performer}" Foreground="Crimson"/>
-                                    <Label Content="{Binding Path=SName}"/>
-                                    <Label Content="{Binding Path=STime}" Foreground="DarkGreen" />
+                                    <Label Content="{Binding Path=Album.Performer.Name}" Foreground="Crimson"/>
+                                    <Label Content="{Binding Path=Name}"/>
+                                    <Label Content="{Binding Path=TimeLength}" Foreground="DarkGreen" />
                                 </DockPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

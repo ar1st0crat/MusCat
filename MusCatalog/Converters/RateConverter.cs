@@ -24,7 +24,7 @@ namespace MusCatalog
         /// </summary>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Performers perf = value as Performers;
+            Performer perf = value as Performer;
 
             // ================================================== the current object is PERFORMER
             if (perf != null)
@@ -34,7 +34,7 @@ namespace MusCatalog
                     return "Not rated";
                 }
 
-                int ratedCount = perf.Albums.Count(t => t.ARate.HasValue);
+                int ratedCount = perf.Albums.Count(t => t.Rate.HasValue);
 
                 if (ratedCount == 0)
                 {
@@ -43,16 +43,16 @@ namespace MusCatalog
 
                 int sumRate = perf.Albums.Sum(t =>
                 {
-                    if (t.ARate.HasValue)
-                        return t.ARate.Value;
+                    if (t.Rate.HasValue)
+                        return t.Rate.Value;
                     else
                         return 0;
                 });
 
                 if ( ratedCount > 2 )
                 {
-                    int minRate = perf.Albums.Min(r => r.ARate).Value;
-                    int maxRate = perf.Albums.Max(r => r.ARate).Value;
+                    int minRate = perf.Albums.Min(r => r.Rate).Value;
+                    int maxRate = perf.Albums.Max(r => r.Rate).Value;
                     sumRate -= (minRate + maxRate);
                     ratedCount -= 2;
                 }
@@ -64,13 +64,13 @@ namespace MusCatalog
 
 
             // ================================================== the current object is ALBUM
-            Albums albs = value as Albums;
+            Album albs = value as Album;
 
             if (albs != null)
             {
-                if (albs.ARate.HasValue)
+                if (albs.Rate.HasValue)
                 {
-                    return albs.ARate + "/10";
+                    return albs.Rate + "/10";
                 }
                 else
                 {

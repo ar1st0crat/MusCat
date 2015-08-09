@@ -13,7 +13,7 @@ namespace MusCatalog
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Performers perf = value as Performers;
+            Performer perf = value as Performer;
 
             if (perf != null && perf.Albums != null )
             {

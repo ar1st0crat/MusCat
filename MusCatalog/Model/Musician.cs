@@ -13,22 +13,20 @@ namespace MusCatalog.Model
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     
-    public partial class Albums
+    public partial class Musician
     {
-        public Albums()
+        public Musician()
         {
-            this.Songs = new ObservableCollection<Songs>();
+            this.Lineups = new ObservableCollection<Lineup>();
         }
     
-        public long PID { get; set; }
-        public long AID { get; set; }
-        public string Album { get; set; }
-        public short AYear { get; set; }
-        public string ATime { get; set; }
-        public string AInfo { get; set; }
-        public Nullable<byte> ARate { get; set; }
-    
-        public virtual Performers Performers { get; set; }
-        public virtual ObservableCollection<Songs> Songs { get; set; }
+        public long ID { get; set; }
+        public string Name { get; set; }
+        public string Info { get; set; }
+        public Nullable<short> YearBorn { get; set; }
+        public Nullable<short> YearDied { get; set; }
+        public Nullable<long> PerformerID { get; set; }
+
+        public virtual ObservableCollection<Lineup> Lineups { get; set; }
     }
 }

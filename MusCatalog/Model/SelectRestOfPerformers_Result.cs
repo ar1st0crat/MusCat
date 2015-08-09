@@ -11,14 +11,10 @@ namespace MusCatalog.Model
 {
     using System;
     
-    public partial class SelectBetweenTimes_Result
+    public partial class SelectRestOfPerformers_Result
     {
-        public long PID { get; set; }
-        public long AID { get; set; }
-        public long SID { get; set; }
-        public byte SN { get; set; }
-        public string SName { get; set; }
-        public string STime { get; set; }
-        public string SInfo { get; set; }
+        public long ID { get; set; }
+        public string Name { get; set; }
+        public string Info { get; set; }
     }
 }

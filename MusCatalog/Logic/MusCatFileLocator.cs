@@ -45,20 +45,20 @@ namespace MusCatalog
         /// </summary>
         /// <param name="song"></param>
         /// <returns>the actual path of the file with the song if it was found, an empty string otherwise</returns>
-        public static string FindSongPath(Songs song)
+        public static string FindSongPath(Song song)
         {
             foreach (var rootpath in pathlist)
             {
                 string pathDir = rootpath +
-                                    song.Albums.Performers.Performer[0] +
-                                    System.IO.Path.DirectorySeparatorChar +
-                                    song.Albums.Performers.Performer +
-                                    System.IO.Path.DirectorySeparatorChar;
+                                    song.Album.Performer.Name[0] +
+                                    Path.DirectorySeparatorChar +
+                                    song.Album.Performer.Name +
+                                    Path.DirectorySeparatorChar;
 
                 if (Directory.Exists(pathDir))
                 {
                     string[] dirs = Directory.GetDirectories(pathDir);
-                    var neededDirs = dirs.Where( d => d.Contains(song.Albums.AYear.ToString()) );
+                    var neededDirs = dirs.Where( d => d.Contains(song.Album.ReleaseYear.ToString()) );
 
                     if (neededDirs.Count() > 0)
                     {
@@ -68,7 +68,7 @@ namespace MusCatalog
                         // Normalize string - remove spaces and punctuation!
                         foreach (string dir in neededDirs)
                         {
-                            if ( postProcess(dir).Contains(postProcess(song.Albums.Album)) )
+                            if ( postProcess(dir).Contains(postProcess(song.Album.Name)) )
                             {
                                 songDir = dir;
                                 break;
@@ -79,13 +79,13 @@ namespace MusCatalog
                         // Check if the album is double (currently we simply return ""
                         // if the album is broken into two folders (CD1 and CD2) and the song is in the second part of the album)
                         // 
-                        if (Directory.GetFiles(songDir).Length < song.SN)
+                        if (Directory.GetFiles(songDir).Length < song.TrackNo)
                         {
                             return "";
                         }
                         else
                         {
-                            return Directory.GetFiles(songDir)[song.SN - 1];
+                            return Directory.GetFiles(songDir)[song.TrackNo - 1];
                         }
                     }
                 }

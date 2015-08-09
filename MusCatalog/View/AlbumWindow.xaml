@@ -80,25 +80,25 @@
 
         <DataTemplate x:Key="SongTemplate">
             <WrapPanel>
-                <Label Content="{Binding Path=SN}" Foreground="White" FontSize="12"/>
-                <Label Content="{Binding Path=SName}" Foreground="White" FontSize="17"/>
-                <Label Content="{Binding Path=STime}" Foreground="LightGreen"/>
+                <Label Content="{Binding Path=TrackNo}" Foreground="White" FontSize="12"/>
+                <Label Content="{Binding Path=Name}" Foreground="White" FontSize="17"/>
+                <Label Content="{Binding Path=TimeLength}" Foreground="LightGreen"/>
             </WrapPanel>
         </DataTemplate>
         
         
         <DataTemplate x:Key="SelectedSongTemplate">
             <StackPanel>
-                <WrapPanel Background="Transparent" Margin="0,20,0,0">
-                    <Label Content="{Binding Path=SN}" Foreground="#f2d479" FontSize="17" FontWeight="ExtraBold"/>
-                    <Label Content="{Binding Path=SName}" Foreground="#f2d479" FontSize="22" FontWeight="ExtraBold"/>
-                    <Label Content="{Binding Path=STime}" Foreground="LightGreen" FontSize="17" FontWeight="ExtraBold"/>
+                <WrapPanel Background="Transparent" Margin="0,20,0,0" HorizontalAlignment="Center">
+                    <Label Content="{Binding Path=TrackNo}" Foreground="#f2d479" FontSize="17" FontWeight="ExtraBold"/>
+                    <Label Content="{Binding Path=Name}" Foreground="#f2d479" FontSize="22" FontWeight="ExtraBold"/>
+                    <Label Content="{Binding Path=TimeLength}" Foreground="LightGreen" FontSize="17" FontWeight="ExtraBold"/>
                 </WrapPanel>
-                <DockPanel Background="Transparent" Margin="0,0,0,20">
-                    <Button CommandParameter="{Binding Path=SN}" Click="PlaySongClick" Width="36" Height="36" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="0,0,-5,0">
+                <DockPanel Background="Transparent" Margin="0,0,0,20" HorizontalAlignment="Center">
+                    <Button CommandParameter="{Binding Path=TrackNo}" Click="PlaySongClick" Width="36" Height="36" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="0,0,-5,0">
                         <Image Name="playButton" Source="{StaticResource ImagePlayButton}" />
                     </Button>
-                    <Slider Style="{StaticResource SliderStyle}" Name="PlaybackSlider" Width="300" Value="0" ValueChanged="SeekPlaybackPosition" VerticalAlignment="Center" />
+                    <Slider Style="{StaticResource SliderStyle}" x:Name="PlaybackSlider" Width="300" Value="0" ValueChanged="SeekPlaybackPosition" VerticalAlignment="Center" />
                 </DockPanel>
             </StackPanel>
         </DataTemplate>
@@ -121,7 +121,6 @@
     <Window.Background>
         <LinearGradientBrush>
             <GradientStop Color="#001122" Offset="0" />
-            <!--<GradientStop Color="#0088ff" Offset="1.8" />-->
             <GradientStop Color="#ffffff" Offset="3"/>
         </LinearGradientBrush>
     </Window.Background>
@@ -132,10 +131,11 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" Name="AlbumInfoPanel">
-            <Image Source="{Binding Converter={StaticResource photoConverter}}"
+            <Image x:Name="AlbumCover" Source="{Binding Converter={StaticResource photoConverter}}"
                    Grid.Column="0"
                    Width="300" Height="300"
-                   Margin="10,25,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" />
+                   Margin="10,25,0,0" HorizontalAlignment="Center" VerticalAlignment="Top"
+                   MouseDown="AlbumCoverMouseDown" />
 
             <DockPanel>
                 <DockPanel HorizontalAlignment="Left" Margin="15,0,0,0">
@@ -160,14 +160,14 @@
                                MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" MouseDown="StarMouseDown" />
                     </StackPanel>
                 </DockPanel>
-                <Label Content="{Binding ATime}" Background="Maroon" Width="auto" HorizontalAlignment="Right" Margin="0,-15,40,0" 
+                <Label Content="{Binding TotalTime}" Background="Maroon" Width="auto" HorizontalAlignment="Right" Margin="0,-15,40,0" 
                        Foreground="White" FontSize="24" FontFamily="Broadway"/>
             </DockPanel>
 
             <StackPanel>
-                <Label Content="{Binding Path=Performers.Performer}" FontFamily="Stencil" Foreground="AntiqueWhite" FontSize="22" HorizontalAlignment="Center" Margin="0,10,0,0" />
-                <Label Content="{Binding Path=Album}" FontFamily="Arial Narrow" Foreground="AntiqueWhite" FontSize="20" HorizontalAlignment="Center" Margin="0,-5,0,0" />
-                <Label Content="{Binding Path=AYear}" FontFamily="Broadway" Foreground="AntiqueWhite" FontSize="18" HorizontalAlignment="Center" Margin="0,-5,0,0"/>
+                <Label Content="{Binding Path=Performer.Name}" FontFamily="Stencil" Foreground="AntiqueWhite" FontSize="22" HorizontalAlignment="Center" Margin="0,10,0,0" />
+                <Label Content="{Binding Path=Name}" FontFamily="Arial Narrow" Foreground="AntiqueWhite" FontSize="20" HorizontalAlignment="Center" Margin="0,-5,0,0" />
+                <Label Content="{Binding Path=ReleaseYear}" FontFamily="Broadway" Foreground="AntiqueWhite" FontSize="18" HorizontalAlignment="Center" Margin="0,-5,0,0"/>
             </StackPanel>
             <Button Width="200" Height="48" Margin="0,50,0,0" Foreground="White" Background="Indigo" FontSize="18" FontFamily="Arial Narrow" Click="EditAlbumButtonClick">
                 <TextBlock>Edit Album</TextBlock>
@@ -179,9 +179,13 @@
                  SelectedItem="{Binding Path=SelectedItem}"
                  IsSynchronizedWithCurrentItem="True"
                  HorizontalAlignment="Left" VerticalAlignment="Top"
+                 HorizontalContentAlignment="Center"
                  Margin="10,25,10,10" Padding="20,20,20,20"
                  Width="auto" Height="auto"
-                 Background="Transparent" BorderBrush="Transparent" Opacity=".85">
+                 BorderBrush="Transparent">
+            <ListBox.Background>
+                <ImageBrush ImageSource="../Images/vinyl_blue.png" Opacity=".1" Stretch="Uniform"/>
+            </ListBox.Background>
         </ListBox>
     </Grid>
 </Window>

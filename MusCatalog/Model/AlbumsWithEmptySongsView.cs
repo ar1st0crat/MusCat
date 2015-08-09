@@ -14,8 +14,8 @@ namespace MusCatalog.Model
     
     public partial class AlbumsWithEmptySongsView
     {
-        public string Performer { get; set; }
-        public short AYear { get; set; }
-        public string Album { get; set; }
+        public string Name { get; set; }
+        public short ReleaseYear { get; set; }
+        public string AlbumName { get; set; }
     }
 }
