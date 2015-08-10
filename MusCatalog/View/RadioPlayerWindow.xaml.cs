@@ -306,5 +306,11 @@ namespace MusCatalog.View
                 PrevSong();
             }
         }
+
+        private void CurrentAlbumClick(object sender, MouseButtonEventArgs e)
+        {
+            AlbumWindow albumWindow = new AlbumWindow( songs[ nCurrentSong ].Album );
+            albumWindow.Show();
+        }
     }
 }

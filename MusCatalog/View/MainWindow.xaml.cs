@@ -6,6 +6,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.ComponentModel;
+using System.Windows.Data;
 
 
 namespace MusCatalog.View
@@ -15,9 +17,12 @@ namespace MusCatalog.View
     /// </summary>
     public partial class MainWindow : Window
     {
+        //
         LetterButton prevButton = null;
-
+        //
         string curLetter = "A";
+        //
+        Album selectedAlbum = null;
 
         /// <summary>
         /// Populate the list of performers whose name starts with specific letter (or not a letter - "other" case)
@@ -28,15 +33,17 @@ namespace MusCatalog.View
             using (var context = new MusCatEntities())
             {
                 IQueryable<Performer> performers;
-                                                
-                if (letter.Length == 1)                             // 'A', 'B', 'C', ..., 'Z'
+
+                // single letters ('A', 'B', 'C', ..., 'Z')
+                if (letter.Length == 1)                             
                 {
                     performers = from p in context.Performers
                                  where p.Name.StartsWith(letter)
                                  orderby p.Name
                                  select p;
                 }
-                else                                                // The "Other" option
+                // The "Other" option
+                else
                 {
                     performers = from p in context.Performers
                                      where p.Name.Substring(0, 1).CompareTo("A") < 0 || p.Name.Substring(0, 1).CompareTo("Z") > 0
@@ -44,32 +51,85 @@ namespace MusCatalog.View
                                      select p;
                 }
 
-                // ========================================= here we attach albums to each performer and order them by year of release.
-                //                                                      Possible ways to write better code:
-                //                                                          1) DataLoadOptions (performers AND albums) (failed so far)
-                //                                                          2) select new { ... } - but will need to rewrite converters
-                //                                                          3) CollectionViewSource (failed so far)
+                // ============================= order each performer's albums by year of release, then by name (in collection view)
                 foreach (var perf in performers)
                 {
-                    var albs = perf.Albums.OrderBy(a => a.ReleaseYear).ToList();
-
-                    perf.Albums.Clear();
-
-                    foreach (var alb in albs)
-                    {
-                        perf.Albums.Add( alb );
-                    }
+                    ICollectionView view = CollectionViewSource.GetDefaultView(perf.Albums);
+                    view.SortDescriptions.Add( new SortDescription("ReleaseYear", ListSortDirection.Ascending));
+                    view.SortDescriptions.Add( new SortDescription("Name", ListSortDirection.Ascending));
                 }
-                // ====================================================================================================
 
                 this.perflist.ItemsSource = performers.ToList();
                 this.perflist.SelectedIndex = -1;
             }
         }
 
-        
         /// <summary>
         /// TODO
+        /// </summary>
+        private void RemoveSelectedPerformer()
+        {
+            Performer perf = this.perflist.SelectedItem as Performer;
+
+            if (perf == null)
+            {
+                MessageBox.Show("Please select performer to remove");
+            }
+            else if (MessageBox.Show(string.Format("Are you sure you want to delete '{0}'?",
+                                        perf.Name),
+                                        "Confirmation",
+                                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                using (var context = new MusCatEntities())
+                {
+                    //context.DeletePerformerByID((int?)(perf.ID));                         // option1: stored procedure
+                    var performerToDelete = context.Performers                              // option2: LINQ query
+                                                   .Where(p => p.ID == perf.ID)
+                                                   .SingleOrDefault<Performer>();
+                    context.Performers.Remove( performerToDelete );
+                    context.SaveChanges();
+
+                    // update collection
+                    FillPerformersListByFirstLetter( curLetter );
+                }
+            }
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        private void RemoveSelectedAlbum()
+        {
+            if ( selectedAlbum == null )
+            {
+                MessageBox.Show( "Please select album to remove" );
+            }
+            else if (MessageBox.Show(string.Format("Are you sure you want to delete\n '{0}' \nby '{1}'?",
+                                            selectedAlbum.Name, selectedAlbum.Performer.Name),
+                                            "Confirmation",
+                                            MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                using (var context = new MusCatEntities())
+                {
+                    //context.DeleteAlbumByID((int?)(selectedAlbum.ID));               // option1: stored procedure
+                    var albumToDelete = context.Albums                                 // option2: LINQ query
+                                               .Where(a => a.ID == selectedAlbum.ID)
+                                               .SingleOrDefault<Album>();
+                    context.SaveChanges();
+
+                    Performer perf = this.perflist.SelectedItem as Performer;
+                    perf.Albums.Remove( selectedAlbum );
+                    
+                    // update selected albums collection view
+                    ICollectionView view = CollectionViewSource.GetDefaultView(perf.Albums);
+                    view.Refresh();
+                }
+            }
+        }
+        
+        
+        /// <summary>
+        /// Main window initialization
         /// </summary>
         public MainWindow()
         {
@@ -116,31 +176,21 @@ namespace MusCatalog.View
         /// <summary>
         /// TODO
         /// </summary>
-        private void perflist_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void PerflistPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            switch ( e.Key )
+            if (selectedAlbum != null)      // if some album is selected then propagate event handling to albumlist
+                return;
+
+            Performer perf = perflist.SelectedItem as Performer;
+
+            if ( e.Key == Key.Enter )
             {
-                case Key.Delete:
-                {
-                    Performer perf = perflist.SelectedItem as Performer;
-
-                    if (MessageBox.Show( string.Format( "Are you sure you want to delete '{0}'?", perf.Name ),
-                                            "Confirmation",
-                                            MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                    {
-                        using (var context = new MusCatEntities())
-                        {
-                            context.DeletePerformerByID( (int?)(perf.ID) );
-                            context.SaveChanges();
-                        }
-                        FillPerformersListByFirstLetter( curLetter );
-                    }
-                    break;
-                }
-
-                case Key.Enter:
-                    perflist_MouseDoubleClick(sender, null);
-                    break;
+                PerformerWindow performerWindow = new PerformerWindow( perf );
+                performerWindow.Show();
+            }
+            else if ( e.Key == Key.Delete )
+            {
+                RemoveSelectedPerformer();
             }
         }
 
@@ -148,7 +198,7 @@ namespace MusCatalog.View
         /// <summary>
         /// TODO
         /// </summary>
-        private void perflist_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void PerflistMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount > 1)
             {
@@ -181,23 +231,24 @@ namespace MusCatalog.View
                 }
             }
         }
-        
+
+
+        /// <summary>
+        /// Synchronize currently selected album with corresponding variable
+        /// </summary>
+        private void AlbumSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var lb = sender as ListBox;
+            selectedAlbum = lb.SelectedItem as Album;
+        }
 
         /// <summary>
         /// TODO
         /// </summary>
-        private void SelectedAlbums_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void SelectedAlbumsMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            ListBox lb = sender as ListBox;
-
-            if (lb.Name == "SelectedAlbums")
-            {
-                Album a = lb.SelectedItem as Album;
-                AlbumWindow albumWindow = new AlbumWindow( a );
-                albumWindow.Show();
-
-                this.perflist.InvalidateVisual();
-            }
+            AlbumWindow albumWindow = new AlbumWindow(selectedAlbum);
+            albumWindow.Show();
         }
 
         /// <summary>
@@ -205,35 +256,105 @@ namespace MusCatalog.View
         /// </summary>
         private void SelectedAlbumKeyDown(object sender, KeyEventArgs e)
         {
-            SelectedAlbums_MouseDoubleClick(sender, null);
+            if (e.Key == Key.Enter)
+            {
+                AlbumWindow albumWindow = new AlbumWindow(selectedAlbum);
+                albumWindow.Show();
+            }
+            else if (e.Key == Key.Delete)
+            {
+                RemoveSelectedAlbum();
+            }
         }
 
 
-        /// <summary>
-        /// TODO
-        /// </summary>
-        private void MusCatRadioClick(object sender, RoutedEventArgs e)
+        //
+        // ================== Menu click handlers boilerplate code ========================
+        //
+        private void MenuAddPerformerClick(object sender, RoutedEventArgs e)
         {
-            RadioPlayerWindow radio = new RadioPlayerWindow();
-            radio.Show();
+            //PerformerWindow perfWindow = new PerformerWindow();
+            //perfWindow.ShowDialog();
+            FillPerformersListByFirstLetter( curLetter );
         }
-        
 
-        /// <summary>
-        /// TODO
-        /// </summary>
-        private void FindClick(object sender, RoutedEventArgs e)
+        private void MenuEditPerformerClick(object sender, RoutedEventArgs e)
         {
+            PerformerWindow perfWindow = new PerformerWindow();
+            perfWindow.ShowDialog();
         }
 
+        private void MenuRemovePerformerClick(object sender, RoutedEventArgs e)
+        {
+            RemoveSelectedPerformer();
+        }
 
-        /// <summary>
-        /// Show stats window
-        /// </summary>
+        private void MenuMusiciansClick(object sender, RoutedEventArgs e)
+        {
+            //MisiciansWindow musicians = new MusiciansWindow();
+            //musicians.ShowDialog();
+        }
+
+        private void MenuAddAlbumClick(object sender, RoutedEventArgs e)
+        {
+            Performer perf = this.perflist.SelectedItem as Performer;
+            Album a = new Album();
+            a.Name = "Unknown";
+            a.ReleaseYear = 2000;
+            a.Rate = 9;
+            a.TotalTime = "40:02";
+            a.PerformerID = perf.ID;
+            
+            using (var context = new MusCatEntities())
+            {
+                a.ID = context.Albums.Max( alb => alb.ID ) + 1;
+                context.Albums.Add(a);
+                context.SaveChanges();
+
+                a.Performer = perf;
+                perf.Albums.Add(a);
+                
+                ICollectionView view = CollectionViewSource.GetDefaultView(perf.Albums);
+                view.Refresh();
+            }
+        }
+
+        private void MenuEditAlbumClick(object sender, RoutedEventArgs e)
+        {
+            if (selectedAlbum != null)
+            {
+                AlbumWindow albumWindow = new AlbumWindow(selectedAlbum);
+                albumWindow.Show();
+            }
+        }
+
+        private void MenuRemoveAlbumClick(object sender, RoutedEventArgs e)
+        {
+            RemoveSelectedAlbum();
+        }
+
         private void MenuStatsClick(object sender, RoutedEventArgs e)
         {
             //StatsWindow stats = new StatsWindow();
             //stats.Show();
+        }
+
+        private void MenuSettingsClick(object sender, RoutedEventArgs e)
+        {
+            //SettingsWindow settings = new SettingsWindow();
+            //settings.ShowDialog();
+        }
+        
+        private void MenuRadioClick(object sender, RoutedEventArgs e)
+        {
+            RadioPlayerWindow radio = new RadioPlayerWindow();
+            radio.Show();
+        }
+
+        private void MenuHelpClick(object sender, RoutedEventArgs e)
+        {
+            //HelpWindow info = new HelpWindow();
+            //info.ShowDialog();
         }
     }
 }

@@ -14,7 +14,6 @@ namespace MusCatalog.Model
     
     public partial class Song
     {
-        public long PerformerID { get; set; }
         public long AlbumID { get; set; }
         public long ID { get; set; }
         public byte TrackNo { get; set; }

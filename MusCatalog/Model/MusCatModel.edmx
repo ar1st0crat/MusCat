@@ -131,7 +131,6 @@
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="PerformerID" Type="bigint" Nullable="false" />
           <Property Name="AlbumID" Type="bigint" Nullable="false" />
           <Property Name="ID" Type="bigint" Nullable="false" />
           <Property Name="TrackNo" Type="tinyint" Nullable="false" />
@@ -272,14 +271,6 @@
         <Function Name="DeletePerformerByID" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="Original_PID" Type="int" Mode="In" />
         </Function>
-        <Function Name="SelectPerformerByLetter" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="LETTER" Type="varchar" Mode="In" />
-        </Function>
-        <Function Name="SelectRestOfPerformers" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
-        <Function Name="SelectSongsInTimeInterval" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="LOW_TIME" Type="varchar" Mode="In" />
-          <Parameter Name="HIGH_TIME" Type="varchar" Mode="In" />
-        </Function>
       </Schema>
     </edmx:StorageModels>
     <!-- CSDL content -->
@@ -320,14 +311,6 @@
           </FunctionImport>
           <FunctionImport Name="DeletePerformerByID">
             <Parameter Name="Original_PID" Mode="In" Type="Int32" />
-          </FunctionImport>
-          <FunctionImport Name="SelectPerformerByLetter" ReturnType="Collection(MusCatModel.SelectPerformerByLetter_Result)">
-            <Parameter Name="LETTER" Mode="In" Type="String" />
-          </FunctionImport>
-          <FunctionImport Name="SelectRestOfPerformers" ReturnType="Collection(MusCatModel.SelectRestOfPerformers_Result)" />
-          <FunctionImport Name="SelectSongsInTimeInterval" ReturnType="Collection(MusCatModel.SelectSongsInTimeInterval_Result)">
-            <Parameter Name="LOW_TIME" Mode="In" Type="String" />
-            <Parameter Name="HIGH_TIME" Mode="In" Type="String" />
           </FunctionImport>
         </EntityContainer>
         <EntityType Name="Album">
@@ -392,7 +375,6 @@
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="PerformerID" Type="Int64" Nullable="false" />
           <Property Name="AlbumID" Type="Int64" Nullable="false" />
           <Property Name="ID" Type="Int64" Nullable="false" />
           <Property Name="TrackNo" Type="Byte" Nullable="false" />
@@ -495,25 +477,6 @@
           <End Role="Genres" Type="MusCatModel.Genre" Multiplicity="0..1" />
           <End Role="Performers" Type="MusCatModel.Performer" Multiplicity="*" />
         </Association>
-        <ComplexType Name="SelectPerformerByLetter_Result">
-          <Property Type="Int64" Name="ID" Nullable="false" />
-          <Property Type="String" Name="Name" Nullable="false" MaxLength="30" />
-          <Property Type="String" Name="Info" Nullable="true" MaxLength="Max" />
-        </ComplexType>
-        <ComplexType Name="SelectRestOfPerformers_Result">
-          <Property Type="Int64" Name="ID" Nullable="false" />
-          <Property Type="String" Name="Name" Nullable="false" MaxLength="30" />
-          <Property Type="String" Name="Info" Nullable="true" MaxLength="Max" />
-        </ComplexType>
-        <ComplexType Name="SelectSongsInTimeInterval_Result">
-          <Property Type="Int64" Name="PerformerID" Nullable="false" />
-          <Property Type="Int64" Name="AlbumID" Nullable="false" />
-          <Property Type="Int64" Name="ID" Nullable="false" />
-          <Property Type="Byte" Name="TrackNo" Nullable="false" />
-          <Property Type="String" Name="Name" Nullable="false" MaxLength="50" />
-          <Property Type="String" Name="TimeLength" Nullable="false" MaxLength="6" />
-          <Property Type="String" Name="Info" Nullable="true" MaxLength="Max" />
-        </ComplexType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -576,7 +539,6 @@
           <EntitySetMapping Name="Songs">
             <EntityTypeMapping TypeName="MusCatModel.Song">
               <MappingFragment StoreEntitySet="Songs">
-                <ScalarProperty Name="PerformerID" ColumnName="PerformerID" />
                 <ScalarProperty Name="AlbumID" ColumnName="AlbumID" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="TrackNo" ColumnName="TrackNo" />
@@ -626,37 +588,6 @@
           </AssociationSetMapping>
           <FunctionImportMapping FunctionImportName="DeleteAlbumByID" FunctionName="MusCatModel.Store.DeleteAlbumByID" />
           <FunctionImportMapping FunctionImportName="DeletePerformerByID" FunctionName="MusCatModel.Store.DeletePerformerByID" />
-          <FunctionImportMapping FunctionImportName="SelectPerformerByLetter" FunctionName="MusCatModel.Store.SelectPerformerByLetter">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="MusCatModel.SelectPerformerByLetter_Result">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Info" ColumnName="Info" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
-          <FunctionImportMapping FunctionImportName="SelectRestOfPerformers" FunctionName="MusCatModel.Store.SelectRestOfPerformers">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="MusCatModel.SelectRestOfPerformers_Result">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Info" ColumnName="Info" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
-          <FunctionImportMapping FunctionImportName="SelectSongsInTimeInterval" FunctionName="MusCatModel.Store.SelectSongsInTimeInterval">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="MusCatModel.SelectSongsInTimeInterval_Result">
-                <ScalarProperty Name="PerformerID" ColumnName="PerformerID" />
-                <ScalarProperty Name="AlbumID" ColumnName="AlbumID" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="TrackNo" ColumnName="TrackNo" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="TimeLength" ColumnName="TimeLength" />
-                <ScalarProperty Name="Info" ColumnName="Info" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

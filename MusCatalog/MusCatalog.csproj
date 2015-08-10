@@ -90,12 +90,15 @@
     </Compile>
     <Compile Include="Model\AlbumsWithEmptySongsView.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\AlbumsWithoutTotalTimeView.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\EmptyAlbumsView.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\Genre.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
@@ -128,15 +131,6 @@
     <Compile Include="Model\Performer.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
       <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Model\SelectPerformerByLetter_Result.cs">
-      <DependentUpon>MusCatModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\SelectRestOfPerformers_Result.cs">
-      <DependentUpon>MusCatModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\SelectSongsInTimeInterval_Result.cs">
-      <DependentUpon>MusCatModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Model\Song.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>

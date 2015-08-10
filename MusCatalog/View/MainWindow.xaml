@@ -23,6 +23,14 @@
         <local:YearsConverter x:Key="yearsConverter"/>
         <local:StarsVisibilityConverter x:Key="starsVisibilityConverter"/>
 
+        <!--
+        <CollectionViewSource x:Key="SortedAlbumsViewModel" Source="{Binding Path=Albums}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="ReleaseYear" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        -->
+
         <DataTemplate x:Key="ItemTemplate">
             <StackPanel Orientation="Horizontal">
                 <Image Source="{Binding Converter={StaticResource photoConverter}}" Height="85" Width="125" Margin="15,10,15,25"/>
@@ -113,7 +121,7 @@
 
         <DataTemplate x:Key="SelectedTemplate">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                <StackPanel Margin="5,5,35,5" HorizontalAlignment="Center" MouseDown="perflist_MouseDoubleClick">
+                <StackPanel Margin="5,5,35,5" HorizontalAlignment="Center" MouseDown="PerflistMouseDoubleClick">
                     <Image Source="{Binding Converter={StaticResource photoConverter}}" Height="150" Width="200" Margin="5,5,5,5" />
                     <Label FontSize="26" Foreground="Black" FontFamily="Stencil" Content="{Binding Name}" Padding="1,1,1,1" HorizontalAlignment="Center" />
                     <Label FontSize="16" Foreground="Black" FontFamily="Arial Narrow" Content="{Binding Country}" Padding="1,1,1,1" HorizontalAlignment="Center" />
@@ -127,7 +135,7 @@
                     <Label FontSize="18" Foreground="DarkGreen" FontFamily="Arial Narrow" Content="{Binding Converter={StaticResource rateConverter}}"
                            Padding="10,1,10,1" HorizontalAlignment="Center" />
                 </StackPanel>
-                <ListBox HorizontalAlignment="Stretch" Name="SelectedAlbums" BorderThickness="0" MouseDoubleClick="SelectedAlbums_MouseDoubleClick" KeyDown="SelectedAlbumKeyDown"
+                <ListBox HorizontalAlignment="Stretch" Name="SelectedAlbums" BorderThickness="0" MouseDoubleClick="SelectedAlbumsMouseDoubleClick" KeyDown="SelectedAlbumKeyDown" SelectionChanged="AlbumSelectionChanged"
                          ItemsSource="{Binding Albums}"                        
                          ItemContainerStyle="{StaticResource AlbumContainerStyle}">
                     <ListBox.ItemsPanel>
@@ -164,10 +172,21 @@
         </Grid.RowDefinitions>
         
         <Menu HorizontalAlignment="Stretch" Height="28" VerticalAlignment="Top" Grid.Row="0">
-            <MenuItem Header="Performers"/>
+            <MenuItem Header="Performers">
+                <MenuItem Header="Add..." HorizontalAlignment="Left" Width="145" Click="MenuAddPerformerClick"/>
+                <MenuItem Header="Edit..." HorizontalAlignment="Left" Width="145" Click="MenuEditPerformerClick"/>
+                <MenuItem Header="Remove..." HorizontalAlignment="Left" Width="145" Click="MenuRemovePerformerClick"/>
+                <MenuItem Header="Musicians..." HorizontalAlignment="Left" Width="145" Click="MenuMusiciansClick"/>
+            </MenuItem>
+            <MenuItem Header="Album">
+                <MenuItem Header="Add..." HorizontalAlignment="Left" Width="145" Click="MenuAddAlbumClick"/>
+                <MenuItem Header="Edit..." HorizontalAlignment="Left" Width="145" Click="MenuEditAlbumClick"/>
+                <MenuItem Header="Remove..." HorizontalAlignment="Left" Width="145" Click="MenuRemoveAlbumClick"/>
+            </MenuItem>
             <MenuItem Header="Stats" Click="MenuStatsClick"/>
-            <MenuItem Header="Find" Click="FindClick"/>
-            <MenuItem Header="MusCat Radio" Click="MusCatRadioClick"/>
+            <MenuItem Header="Settings" Click="MenuSettingsClick"/>
+            <MenuItem Header="MusCat Radio" Click="MenuRadioClick"/>
+            <MenuItem Header="Help" Click="MenuHelpClick"/>
         </Menu>
         
         <WrapPanel Margin="10,10,10,10" Name="lettersPanel" Grid.Row="1" HorizontalAlignment="Center"/>
@@ -177,7 +196,7 @@
                  ItemContainerStyle="{StaticResource ContainerStyle}"
                  SelectedItem="{Binding Path=SelectedItem}"
                  IsSynchronizedWithCurrentItem="True"
-                 PreviewKeyDown="perflist_PreviewKeyDown">
+                 PreviewKeyDown="PerflistPreviewKeyDown">
             <ListBox.Background>
                 <LinearGradientBrush>
                     <GradientStop Color="#001122" Offset="0" />

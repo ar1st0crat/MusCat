@@ -40,7 +40,7 @@
                     <Image Source="{StaticResource ImageStopButton}" Width="32" Margin="0,0,0,10" MouseDown="StopMouseDown"/>
                     <Slider Name="VolumeSlider" Width="75" Value="5" ValueChanged="SliderVolumeChanged" VerticalAlignment="Center" />
                 </DockPanel>
-                <Image Name ="curImage" Source="{Binding Converter={StaticResource photoConverter}}" Height="170"/>
+                <Image Name ="curImage" Source="{Binding Converter={StaticResource photoConverter}}" Height="200" MouseDown="CurrentAlbumClick"/>
                 <Label Content="{Binding Path=Performer.Name}" Foreground="White" FontSize="22" FontFamily="Stencil" HorizontalAlignment="Center" Margin="0,5,0,-1"/>
                 <Label Content="{Binding Path=Name}" FontSize="16" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,-5,0,-1"/>
                 <DockPanel Name="curSong" HorizontalAlignment="Center">

@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="5e5693a28c3845cd93fc21e2b99b9230" Name="Diagram1">
+      <Diagram DiagramId="03626bddfa154033a27ba08eef0fc8e2" Name="Diagram1">
         <EntityTypeShape EntityType="MusCatModel.Album" Width="1.5" PointX="5.25" PointY="4.5" IsExpanded="true" />
         <EntityTypeShape EntityType="MusCatModel.Genre" Width="1.5" PointX="0.75" PointY="5" IsExpanded="true" />
         <EntityTypeShape EntityType="MusCatModel.Lineup" Width="1.5" PointX="5.25" PointY="0.75" IsExpanded="true" />

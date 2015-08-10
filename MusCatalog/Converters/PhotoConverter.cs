@@ -31,6 +31,7 @@ namespace MusCatalog
 
                 foreach (var startingPath in MusCatFileLocator.pathlist )
                 {
+					// TODO: don't form the path here, call MusCatFileLocator method instead
                     string path = startingPath +
                                     perf.Name[0] + 
                                     Path.DirectorySeparatorChar +
