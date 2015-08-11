@@ -135,7 +135,8 @@
                    Grid.Column="0"
                    Width="300" Height="300"
                    Margin="10,25,0,0" HorizontalAlignment="Center" VerticalAlignment="Top"
-                   MouseDown="AlbumCoverMouseDown" />
+                   MouseDown="AlbumCoverMouseDown">
+            </Image> 
 
             <DockPanel>
                 <DockPanel HorizontalAlignment="Left" Margin="15,0,0,0">

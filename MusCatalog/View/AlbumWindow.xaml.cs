@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -60,9 +59,6 @@ namespace MusCatalog.View
             //
             using (var context = new MusCatEntities())
             {
-                this.rateAlbum.DataContext = a;
-                AlbumInfoPanel.DataContext = a;
-
                 albumSongs = context.Songs.Where(s => s.Album.ID == a.ID).ToList();
 
                 var AlbumID = a.ID;
@@ -83,6 +79,9 @@ namespace MusCatalog.View
                     // do the same thing with performer for included album
                     song.Album.Performer = curPerformer;
                 }
+
+                this.rateAlbum.DataContext = a;
+                AlbumInfoPanel.DataContext = a;
 
                 this.songlist.ItemsSource = albumSongs;
             }
@@ -254,25 +253,31 @@ namespace MusCatalog.View
         {
             if (e.ClickCount > 1)
             {
-                string filepath = string.Format(@"F:\{0}\{1}\Picture\{2}.jpg", char.ToUpperInvariant(album.Performer.Name[0]), album.Performer.Name, album.ID);
-                Directory.CreateDirectory(Path.GetDirectoryName(filepath));
-
                 if (!Clipboard.ContainsImage())
                 {
                     MessageBox.Show("No image in clipboard!");
                     return;
                 }
 
+                string filepath = string.Format(@"F:\{0}\{1}\Picture\{2}.jpg", char.ToUpperInvariant(album.Performer.Name[0]), album.Performer.Name, album.ID);
+                Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+
                 var image = Clipboard.GetImage();
                 try
                 {
-                    using (var fileStream = new FileStream(filepath, FileMode.Create))
+                    // first check if file already exists
+                    if (File.Exists(filepath))
+                    {
+                        File.Delete(filepath);
+                    }
+
+                    using (var fileStream = new FileStream(filepath, FileMode.CreateNew))
                     {
                         BitmapEncoder encoder = new JpegBitmapEncoder();
                         encoder.Frames.Add(BitmapFrame.Create(image));
                         encoder.Save(fileStream);
 
-                        BindingOperations.GetBindingExpression(this.AlbumCover, Image.SourceProperty).UpdateTarget();
+                        this.AlbumCover.Source = encoder.Frames[0];
                     }
                 }
                 catch (Exception ex)

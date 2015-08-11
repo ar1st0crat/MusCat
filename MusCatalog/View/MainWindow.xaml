@@ -23,13 +23,6 @@
         <local:YearsConverter x:Key="yearsConverter"/>
         <local:StarsVisibilityConverter x:Key="starsVisibilityConverter"/>
 
-        <!--
-        <CollectionViewSource x:Key="SortedAlbumsViewModel" Source="{Binding Path=Albums}">
-            <CollectionViewSource.SortDescriptions>
-                <scm:SortDescription PropertyName="ReleaseYear" />
-            </CollectionViewSource.SortDescriptions>
-        </CollectionViewSource>
-        -->
 
         <DataTemplate x:Key="ItemTemplate">
             <StackPanel Orientation="Horizontal">

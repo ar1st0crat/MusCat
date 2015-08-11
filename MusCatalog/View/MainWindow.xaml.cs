@@ -202,17 +202,21 @@ namespace MusCatalog.View
         {
             if (e.ClickCount > 1)
             {
+                if (!Clipboard.ContainsImage())
+                {
+                    MessageBox.Show("No image in clipboard!");
+                    return;
+                }
+
                 Performer p = perflist.SelectedItem as Performer;
-                //PerformerWindow performerWindow = new PerformerWindow( p );
-                //performerWindow.Show();
 
                 string filepath = string.Format(@"F:\{0}\{1}\Picture\photo.jpg", char.ToUpperInvariant(p.Name[0]), p.Name);
                 Directory.CreateDirectory( Path.GetDirectoryName( filepath ) );
 
-                if ( !Clipboard.ContainsImage() )
+                // first check if file already exists
+                if (File.Exists(filepath))
                 {
-                    MessageBox.Show( "No image in clipboard!" );
-                    return;
+                    File.Delete(filepath);
                 }
 
                 var image = Clipboard.GetImage();
@@ -227,7 +231,7 @@ namespace MusCatalog.View
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show( ex.Message );
+                    MessageBox.Show(ex.Message);
                 }
             }
         }

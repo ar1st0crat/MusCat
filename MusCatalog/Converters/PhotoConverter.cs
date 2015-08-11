@@ -6,6 +6,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Data;
 using System.Linq;
+using System.Windows.Media.Imaging;
 
 namespace MusCatalog
 {
@@ -23,52 +24,42 @@ namespace MusCatalog
         /// </summary>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            // if the current converter is yielding a performer photo path
             Performer perf = value as Performer;
 
             if (perf != null)
             {
-                Regex reg = new Regex( @"(?i)(ph|f)oto.(png|jpe?g|gif|bmp)" );
+                string performerPhotoPath = MusCatFileLocator.GetPathImagePerformer(perf);
 
-                foreach (var startingPath in MusCatFileLocator.pathlist )
+                if ( performerPhotoPath != "")
                 {
-					// TODO: don't form the path here, call MusCatFileLocator method instead
-                    string path = startingPath +
-                                    perf.Name[0] + 
-                                    Path.DirectorySeparatorChar +
-                                    perf.Name + @"\Picture";
-
-                    if (Directory.Exists(path))
-                    {
-                        var files = Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly)
-                                                .Where(filename => reg.IsMatch(filename))
-                                                .ToList();
-                        if (files.Count > 0)
-                            return files[0];
-                    }
+                    return BitmapFrame.Create( new Uri( performerPhotoPath ),
+                                                            BitmapCreateOptions.IgnoreImageCache,
+                                                            BitmapCacheOption.OnLoad);
                 }
-
-                return NoPerformerPhoto;
+                else
+                {
+                    return NoPerformerPhoto;
+                }
             }
 
-
+            // or maybe the converter's yielding an album photo path
             Album alb = value as Album;
 
             if (alb != null)
             {
-                foreach (var startingPath in MusCatFileLocator.pathlist )
+                string albumPhotoPath = MusCatFileLocator.GetPathImageAlbum(alb);
+
+                if (albumPhotoPath != "")
                 {
-                    string path = startingPath + 
-                                    alb.Performer.Name[0] + 
-                                    Path.DirectorySeparatorChar +
-                                    alb.Performer.Name + 
-                                    @"\Picture\" + 
-                                    alb.ID + ".jpg";
-
-                    if (File.Exists(path))
-                        return path;
+                    return BitmapFrame.Create(new Uri(albumPhotoPath),
+                                                            BitmapCreateOptions.IgnoreImageCache,
+                                                            BitmapCacheOption.OnLoad);
                 }
-
-                return NoAlbumPhoto;
+                else
+                {
+                    return NoAlbumPhoto;
+                }
             }
             
             return "";
