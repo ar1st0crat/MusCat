@@ -259,7 +259,23 @@ namespace MusCatalog.View
                     return;
                 }
 
-                string filepath = string.Format(@"F:\{0}\{1}\Picture\{2}.jpg", char.ToUpperInvariant(album.Performer.Name[0]), album.Performer.Name, album.ID);
+                //string filepath = string.Format(@"F:\{0}\{1}\Picture\{2}.jpg", char.ToUpperInvariant(album.Performer.Name[0]), album.Performer.Name, album.ID);
+                var filepaths = MusCatFileLocator.MakePathImageAlbum( album );
+                string filepath = filepaths[0];
+
+                if (filepaths.Count > 1)
+                {
+                    ChoiceWindow choice = new ChoiceWindow();
+                    choice.SetChoiceList(filepaths);
+                    choice.ShowDialog();
+
+                    if (choice.ChoiceResult == "")
+                    {
+                        return;
+                    }
+                    filepath = choice.ChoiceResult;
+                }
+                
                 Directory.CreateDirectory(Path.GetDirectoryName(filepath));
 
                 var image = Clipboard.GetImage();

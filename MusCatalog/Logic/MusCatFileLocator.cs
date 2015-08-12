@@ -21,7 +21,7 @@ namespace MusCatalog
     {
         // pathlist contains starting paths where to look for media files
         // pathlist is stored in paths.xml
-        public static List<string> pathlist = new List<string>();
+        private static List<string> pathlist = new List<string>();
 
         /// <summary>
         /// During initialization MusCatLocator loads data from file "config\paths.xml".
@@ -110,6 +110,33 @@ namespace MusCatalog
 
             return "";
         }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static List<string> MakePathImagePerformer(Performer p, string ext = "jpg")
+        {
+            List<string> filepaths = new List<string>();
+
+            foreach (var startingPath in pathlist)
+            {
+                string path = string.Format(@"{0}\{1}\{2}", startingPath, p.Name[0], p.Name);
+
+                if (Directory.Exists(path))
+                {
+                    filepaths.Add( string.Format(@"{0}\Picture\photo.{1}", path, ext) );
+                    return filepaths;
+                }
+            }
+
+            foreach (var startingPath in pathlist)
+            {
+                filepaths.Add( string.Format(@"{0}\{1}\{2}\Picture\photo.{3}", startingPath, p.Name[0], p.Name, ext) );
+            }
+            return filepaths;
+        }
                 
         /// <summary>
         /// TODO
@@ -143,6 +170,34 @@ namespace MusCatalog
 
             return "";
         }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static List<string> MakePathImageAlbum(Album a, string ext = "jpg")
+        {
+            List<string> filepaths = new List<string>();
+
+            foreach (var startingPath in pathlist)
+            {
+                string path = string.Format(@"{0}\{1}\{2}", startingPath, a.Performer.Name[0], a.Performer.Name);
+
+                if (Directory.Exists(path))
+                {
+                    filepaths.Add(string.Format(@"{0}\Picture\{1}.{2}", path, a.ID, ext));
+                    return filepaths;
+                }
+            }
+
+            foreach (var startingPath in pathlist)
+            {
+                filepaths.Add(string.Format(@"{0}\{1}\{2}\Picture\{3}.{4}", startingPath, a.Performer.Name[0], a.Performer.Name, a.ID, ext));
+            }
+            return filepaths;
+        }
+
 
         /// <summary>
         /// Normalize string: remove all spaces and punctuations, convert each letter to uppercase

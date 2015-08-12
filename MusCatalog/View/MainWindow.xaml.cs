@@ -210,7 +210,24 @@ namespace MusCatalog.View
 
                 Performer p = perflist.SelectedItem as Performer;
 
-                string filepath = string.Format(@"F:\{0}\{1}\Picture\photo.jpg", char.ToUpperInvariant(p.Name[0]), p.Name);
+                var filepaths = MusCatFileLocator.MakePathImagePerformer( p );
+                string filepath = filepaths[0];
+
+                if ( filepaths.Count > 1 )
+                {
+                    ChoiceWindow choice = new ChoiceWindow();
+                    choice.SetChoiceList( filepaths );
+                    choice.ShowDialog();
+
+                    if (choice.ChoiceResult == "")
+                    {
+                        return;
+                    }
+                    filepath = choice.ChoiceResult;
+                }
+                
+
+                //string filepath = string.Format(@"F:\{0}\{1}\Picture\photo.jpg", char.ToUpperInvariant(p.Name[0]), p.Name);
                 Directory.CreateDirectory( Path.GetDirectoryName( filepath ) );
 
                 // first check if file already exists
