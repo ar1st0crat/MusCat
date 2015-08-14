@@ -29,7 +29,7 @@ namespace MusCatalog
 
             if (perf != null)
             {
-                string performerPhotoPath = MusCatFileLocator.GetPathImagePerformer(perf);
+                string performerPhotoPath = FileLocator.GetPathImagePerformer(perf);
 
                 if ( performerPhotoPath != "")
                 {
@@ -48,7 +48,7 @@ namespace MusCatalog
 
             if (alb != null)
             {
-                string albumPhotoPath = MusCatFileLocator.GetPathImageAlbum(alb);
+                string albumPhotoPath = FileLocator.GetPathImageAlbum(alb);
 
                 if (albumPhotoPath != "")
                 {

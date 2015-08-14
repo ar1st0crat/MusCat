@@ -5,9 +5,8 @@
         xmlns:local="clr-namespace:MusCatalog"
         Title="Album Info"
         SizeToContent="WidthAndHeight"
-        BorderBrush="AliceBlue">
-    
-    <!-- Height="625" Width="800" -->
+        BorderBrush="AliceBlue"
+        Closing="WindowClosing">
     
     <Window.Resources>
         <sys:Int32 x:Key="star1">1</sys:Int32>
@@ -96,11 +95,9 @@
                     <Label Content="{Binding Path=Name}" Foreground="#f2d479" FontSize="22" FontWeight="ExtraBold"/>
                     <Label Content="{Binding Path=TimeLength}" Foreground="LightGreen" FontSize="17" FontWeight="ExtraBold"/>
                 </WrapPanel>
-                <DockPanel Background="Transparent" Margin="0,0,0,20" HorizontalAlignment="Center">
-                    <Button CommandParameter="{Binding Path=TrackNo}" Click="PlaySongClick" Width="36" Height="36" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="0,0,-5,0">
-                        <Image Name="playButton" Source="{StaticResource ImagePlayButton}" />
-                    </Button>
-                    <Slider Style="{StaticResource SliderStyle}" x:Name="PlaybackSlider" Width="300" Value="0" ValueChanged="SeekPlaybackPosition" VerticalAlignment="Center" />
+                <DockPanel Background="Transparent" Margin="0,0,0,20" HorizontalAlignment="Center" Loaded="SliderLoaded">
+                    <Image x:Name="PlayButtonImage" Source="{StaticResource ImagePauseButton}" Width="32" Height="32" MouseDown="PlaySongClick" />
+                    <Slider x:Name="PlaybackSlider" Style="{StaticResource SliderStyle}" Width="300" VerticalAlignment="Center" Thumb.DragCompleted="SeekPlaybackPosition" />
                 </DockPanel>
             </StackPanel>
         </DataTemplate>
@@ -182,7 +179,9 @@
                  HorizontalContentAlignment="Center"
                  Margin="10,25,10,10" Padding="20,20,20,20"
                  Width="auto" Height="auto"
-                 BorderBrush="Transparent">
+                 BorderBrush="Transparent"
+                 PreviewMouseDown="SonglistMouseDown"
+                 SelectionChanged="SelectedSongChanged">
             <ListBox.Background>
                 <ImageBrush ImageSource="../Images/vinyl_blue.png" Opacity=".1" Stretch="Uniform"/>
             </ListBox.Background>

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -14,6 +15,7 @@ namespace MusCatalog.View
 {
     /// <summary>
     /// Interaction logic for AlbumWindow.xaml
+    /// Some WinForms programming style here, since interaction between MediaPlayer and Slider could be made only in code-behind
     /// </summary>
     public partial class AlbumWindow : Window
     {
@@ -35,113 +37,204 @@ namespace MusCatalog.View
         // number of the star that was clicked
         byte starPos = 0;
 
-        // indicator of album track playback
-        bool bPlaying = false;
-
         // Audio player
-        MusCatPlayer player = new MusCatPlayer();
+        AudioPlayer player = new AudioPlayer();
         
-        // playback timer
+        // playback timer to synchronize playback slider with MediaPlayer
         DispatcherTimer playbackTimer = new DispatcherTimer();
 
+        // slider and image references in selected items
+        Slider curSlider = null;
+        Image curPlaybackImage = null;
 
+        // boolean flag indicating that items in songlist are selected by user
+        bool bSelectionByUser = false;
+
+
+        /// <summary>
+        /// Window constructor sets up: 1) DispatcherTimer, 2) itemsource for a songlist
+        /// </summary>
+        /// <param name="a">Album whose info is shown in the window</param>
         public AlbumWindow(Album a)
         {
             InitializeComponent();
 
             // setting up timer for songs playback
             playbackTimer.Tick += new EventHandler( PlaybackTimerTick );
-            playbackTimer.Interval = new TimeSpan( 0, 0, 2 );
+            playbackTimer.Interval = TimeSpan.FromSeconds(2);
 
-            //
+            // save current album in 'album' variable
             album = a;
 
-            //
+            // load and prepare all songs from the album for further actions
             using (var context = new MusCatEntities())
             {
                 albumSongs = context.Songs.Where(s => s.Album.ID == a.ID).ToList();
 
-                var AlbumID = a.ID;
-
-                var curAlbum = (from albs in context.Albums
-                                where albs.ID == AlbumID
-                                select albs).First();
-
-                var curPerformer = (from p in context.Performers
-                                              where p.ID == curAlbum.Performer.ID
-                                              select p).First();
-
                 foreach (var song in albumSongs)
                 {
-                    // include the corresponding album of our song
-                    song.Album = curAlbum;
-
-                    // do the same thing with performer for included album
-                    song.Album.Performer = curPerformer;
+                    song.Album = album;
                 }
 
                 this.rateAlbum.DataContext = a;
-                AlbumInfoPanel.DataContext = a;
-
+                this.AlbumInfoPanel.DataContext = a;
                 this.songlist.ItemsSource = albumSongs;
             }
         }
 
-
-        private void EditAlbumButtonClick(object sender, RoutedEventArgs e)
+        
+        /// <summary>
+        /// Freeze media player when the window is closing to avoid a memory leak
+        /// </summary>
+        private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            MessageBox.Show("OK!");
+            player.Freeze();
         }
 
+        /// <summary>
+        /// The purpose of this little handler is to store the reference to playback slider and playback button image
+        /// (we'll easily reference the playback slider without needing to traverse across the tree of controls)
+        /// </summary>
+        private void SliderLoaded(object sender, RoutedEventArgs e)
+        {
+            DockPanel panel = sender as DockPanel;
+            curSlider = panel.FindName("PlaybackSlider") as Slider;
+            curPlaybackImage = panel.FindName("PlayButtonImage") as Image;
+        }
 
+        /// <summary>
+        /// After each click on the songlist item, set the indicator (that items in songlist are selected by user) to true
+        /// </summary>
+        private void SonglistMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            bSelectionByUser = true;
+        }
+
+        ///
+        /// ============================== Song playback functions ==================================
+        ///
+        private void PlaySong()
+        {
+            var song = this.songlist.SelectedItem as Song;
+            string songfile = FileLocator.FindSongPath(albumSongs[Convert.ToInt32(song.TrackNo) - 1]);
+
+            try
+            {
+                player.Play(songfile, SongPlaybackStopped);
+                playbackTimer.Start();
+                curPlaybackImage.Source = imagePause;
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Sorry, song could not be played");
+            }
+        }
+
+        private void PauseSong()
+        {
+            player.Pause();
+            playbackTimer.Stop();
+            curPlaybackImage.Source = imagePlay;
+        }
+
+        private void ResumeSong()
+        {
+            player.Resume();
+            playbackTimer.Start();
+            curPlaybackImage.Source = imagePause;
+        }
+
+        private void StopSong()
+        {
+            player.Stop();
+            playbackTimer.Stop();
+            curPlaybackImage.Source = imagePlay;
+        }
+        /// =========================================================================================
+        
+        /// <summary>
+        /// Start or stop playing the selected song (playback button click handler)
+        /// </summary>
         private void PlaySongClick(object sender, RoutedEventArgs e)
         {
-            if (!bPlaying)
+            switch (player.SongPlaybackState)
             {
-                Button btn = sender as Button;
-                
-                string fileSong = MusCatFileLocator.FindSongPath(
-                                            albumSongs[ Convert.ToInt32( btn.CommandParameter ) - 1 ] );
-                try
-                {
-                    player.Play(fileSong, SongPlaybackStopped);
-
-                    bPlaying = true;
-                    playbackTimer.Start();
-
-                    ((Image)((Button)sender).FindName("playButton")).Source = imagePause;
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show( "Song could not be played" );
-                }
+                case PlaybackState.PLAY:
+                    PauseSong();
+                    break;
+                case PlaybackState.PAUSE:
+                    ResumeSong();
+                    break;
+                case PlaybackState.STOP:
+                    PlaySong();
+                    break;
             }
-            else
+        }
+        
+        /// <summary>
+        /// Handler of an event fired when the song reached the end
+        /// </summary>
+        private void SongPlaybackStopped(object sender, EventArgs e)
+        {
+            StopSong();
+
+            // play next song
+            if (this.songlist.SelectedIndex == this.songlist.Items.Count - 1)
             {
-                bPlaying = false;
-                playbackTimer.Stop();
-
-                ((Image)((Button)sender).FindName( "playButton" )).Source = imagePlay;
-
-                player.Stop();
+                return;
             }
+            this.songlist.SelectedIndex++;
+            this.songlist.Focus();
         }
 
 
         /// <summary>
-        /// 
+        /// Rewind the song to the position specified by playback slider
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SongPlaybackStopped(object sender, NAudio.Wave.StoppedEventArgs e)
+        /// <param name="sender">playback slider</param>
+        private void SeekPlaybackPosition(object sender, DragCompletedEventArgs e)  //RoutedPropertyChangedEventArgs<double> e)
         {
-            if (player.SongPlaybackState != PlaybackState.STOP)
+            if (player.SongPlaybackState == PlaybackState.STOP)
             {
-                player.SongPlaybackState = PlaybackState.STOP;
+                return;
             }
+
+            player.Seek( ((Slider)sender).Value / 10.0 );
+        }
+
+        
+        /// <summary>
+        /// Update the slider thumb position according to current position of MediaPlayer
+        /// </summary>
+        private void PlaybackTimerTick(object sender, EventArgs e)
+        {
+            if (player.SongPlaybackState != PlaybackState.PLAY || curSlider == null)
+            {
+                return;
+            }
+
+            curSlider.Value = player.TimePercent() * 10.0;
         }
 
 
+        private void SelectedSongChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if ( !bSelectionByUser )
+            {
+                return;
+            }
+
+            if ( player.SongPlaybackState != PlaybackState.STOP )
+            {
+                StopSong();
+            }
+
+            PlaySong();
+        }
+
+
+
+        // ======================== MOVE TO EditAlbumWindow.xaml.cs ==========================
 
         /// <summary>
         /// 
@@ -160,7 +253,7 @@ namespace MusCatalog.View
             }
 
             // draw all stars to the left as "full" stars
-            for (int i = 0; i < starPos-1; i++ )
+            for (int i = 0; i < starPos - 1; i++)
             {
                 ((Image)this.rateAlbum.Children[i]).Source = imageStar;
             }
@@ -178,7 +271,7 @@ namespace MusCatalog.View
             }
 
             // rest of the stars are empty
-            for (int i = starPos; i < 5; i++ )
+            for (int i = starPos; i < 5; i++)
             {
                 ((Image)this.rateAlbum.Children[i]).Source = imageEmptyStar;
             }
@@ -196,15 +289,15 @@ namespace MusCatalog.View
                 ((Image)this.rateAlbum.Children[i]).Source = imageEmptyStar;
             }
 
-            if ( album.Rate.HasValue )
+            if (album.Rate.HasValue)
             {
                 int i = 0;
-                for ( ; i < album.Rate / 2; i++)
+                for (; i < album.Rate / 2; i++)
                 {
                     ((Image)this.rateAlbum.Children[i]).Source = imageStar;
                 }
 
-                if ( album.Rate.Value % 2 == 1 )
+                if (album.Rate.Value % 2 == 1)
                 {
                     ((Image)this.rateAlbum.Children[i]).Source = imageHalfStar;
                 }
@@ -225,27 +318,11 @@ namespace MusCatalog.View
             }
 
             // update database
-            using ( var context = new MusCatEntities() )
+            using (var context = new MusCatEntities())
             {
                 context.Entry(album).State = System.Data.EntityState.Modified;
-                context.SaveChanges( );
+                context.SaveChanges();
             }
-        }
-
-        
-        private void SeekPlaybackPosition(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            player.Seek( ((Slider)sender).Value / 10.0 );
-        }
-
-        
-        // TODO:
-        private void PlaybackTimerTick(object sender, EventArgs e)
-        {
-            //var template = this.songlist.Template;
-            //var playbackSlider = (Slider)template.FindName("PlaybackSlider", this.songlist);
-
-            //playbackSlider.SetValue( player. );
         }
 
 
@@ -260,7 +337,7 @@ namespace MusCatalog.View
                 }
 
                 //string filepath = string.Format(@"F:\{0}\{1}\Picture\{2}.jpg", char.ToUpperInvariant(album.Performer.Name[0]), album.Performer.Name, album.ID);
-                var filepaths = MusCatFileLocator.MakePathImageAlbum( album );
+                var filepaths = FileLocator.MakePathImageAlbum( album );
                 string filepath = filepaths[0];
 
                 if (filepaths.Count > 1)

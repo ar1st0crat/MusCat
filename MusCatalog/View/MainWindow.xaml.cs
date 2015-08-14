@@ -135,7 +135,7 @@ namespace MusCatalog.View
         {
             InitializeComponent();
 
-            MusCatFileLocator.Initialize();
+            FileLocator.Initialize();
             
             foreach (char c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
             {
@@ -210,7 +210,7 @@ namespace MusCatalog.View
 
                 Performer p = perflist.SelectedItem as Performer;
 
-                var filepaths = MusCatFileLocator.MakePathImagePerformer( p );
+                var filepaths = FileLocator.MakePathImagePerformer( p );
                 string filepath = filepaths[0];
 
                 if ( filepaths.Count > 1 )

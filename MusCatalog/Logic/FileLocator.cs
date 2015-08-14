@@ -17,7 +17,7 @@ namespace MusCatalog
     /// 3) album images (e.g. "C:\F\FooPerformer\Picture\1762.jpg")
     /// 
     /// </summary>
-    class MusCatFileLocator
+    class FileLocator
     {
         // pathlist contains starting paths where to look for media files
         // pathlist is stored in paths.xml
@@ -90,7 +90,7 @@ namespace MusCatalog
                 return "";
             }
 
-            Regex reg = new Regex(@"(?i)(ph|f)oto.(png|jpe?g|gif|bmp)");
+            Regex reg = new Regex(@"(?i)\b(ph|f)oto.(png|jpe?g|gif|bmp)");
 
             foreach (var startingPath in pathlist)
             {
@@ -150,7 +150,7 @@ namespace MusCatalog
                 return "";
             }
 
-            Regex reg = new Regex(@"(?i)" + a.ID + ".(png|jpe?g|gif|bmp)");
+            Regex reg = new Regex(@"\b(?i)" + a.ID + ".(png|jpe?g|gif|bmp)");
 
             foreach (var startingPath in pathlist)
             {

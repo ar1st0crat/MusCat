@@ -1,9 +1,5 @@
-﻿using MusCatalog.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
@@ -11,54 +7,32 @@ using System.Windows.Media.Imaging;
 namespace MusCatalog.View
 {
     /// <summary>
-    /// Class for interaction logic for RadioPlayerWindow.xaml
-    /// 
-    /// TODO: Refactor! Extract class RadioPlayer
-    /// 
+    /// Class for interaction logic for Radioradio.PlayerWindow.xaml
     /// </summary>
     public partial class RadioPlayerWindow : Window
     {
-        // the list of recently played songs
-        List<Song> songs = new List<Song>();
-        int nCurrentSong = 0;
-
-        // the number of recently played songs which we're tracking
-        const int MAX_SONGS_IN_ARCHIVE = 25;
-
-        // bitmaps for playback buttons
+        // Bitmaps for playback buttons
         BitmapImage imagePlay = App.Current.Resources[ "ImagePlayButton" ] as BitmapImage;
         BitmapImage imagePause = App.Current.Resources[ "ImagePauseButton" ] as BitmapImage;
 
-        // Audio player
-        MusCatPlayer player = new MusCatPlayer();
+        // Radio Station
+        Radio radio = new Radio();
 
-
-        /// <summary>
-        /// RadioPlayerWindow constructor
-        /// </summary>
+        
         public RadioPlayerWindow()
         {
             InitializeComponent();
 
             // we add two songs to the playlist right away:
             // 1. The song for current playback
+            radio.AddSong();
             // 2. The upcoming song
-
-            var currentSong = SelectRandomSong();
-            ((DockPanel)this.curSongPanel.FindName("curSong")).DataContext = currentSong;
-            this.curSongPanel.DataContext = currentSong;
-            this.curImage.DataContext = currentSong.Album;
-            songs.Add( currentSong );
-
-            var nextSong = SelectRandomSong();
-            this.nextImage.DataContext = nextSong.Album;
-            this.nextSongPanel.DataContext = nextSong;
-            songs.Add( nextSong );
-
+            radio.AddSong();
+            
             // Update MVVM GUI song elements
             UpdateGUISongs();
 
-            // start playing the first song right away
+            // Start playing the first song right away
             StartPlayingCurrentSong();
         }
 
@@ -68,84 +42,10 @@ namespace MusCatalog.View
         /// </summary>
         private void UpdateGUISongs()
         {
-            if ( nCurrentSong > 0 )
-            {
-                ((DockPanel)this.prevSongPanel.FindName("prevSong")).DataContext = songs[nCurrentSong - 1];
-                this.prevSongPanel.DataContext = songs[nCurrentSong - 1].Album;
-                this.prevImage.DataContext = songs[nCurrentSong - 1].Album;
-            }
-
-            ((DockPanel)this.curSongPanel.FindName("curSong")).DataContext = songs[nCurrentSong];
-            this.curImage.DataContext = songs[nCurrentSong].Album;
-            this.curSongPanel.DataContext = songs[nCurrentSong].Album;
-
-            ((DockPanel)this.nextSongPanel.FindName("nextSong")).DataContext = songs[nCurrentSong + 1];
-            this.nextSongPanel.DataContext = songs[nCurrentSong + 1].Album;
-            this.nextImage.DataContext = songs[nCurrentSong + 1].Album;
-
-            this.Archive.ItemsSource = songs;
-            this.Archive.Items.Refresh();
-        }
-
-
-        /// <summary>
-        /// The method selects random song from a local database.
-        /// The song is guaranteed to be present in user's file system
-        /// </summary>
-        /// <returns>Songs object selected randomly from the database</returns>
-        private Song SelectRandomSong()
-        {
-            Song song = null;
-
-            using (var context = new MusCatEntities())
-            {
-                Random songSelector = new Random();
-
-                // find out the maximum song ID in the database
-                var maxSID = context.Songs.Max( s => s.ID );
-
-                // we keep select a song randomly until the song file is actually present in our file system
-                // and while it isn't present in our archive of recently played songs
-                do
-                {
-                    IQueryable<Song> selectedsongs;
-                    do
-                    {
-                        // generate random song ID
-                        var songNo = songSelector.Next() % maxSID;
-
-                        // the problem here is that our generated ID isn't necessarily present in the database
-                        // however there will be at least one song with songID that is greater or equal than this ID
-                        selectedsongs = (from s in context.Songs
-                                             where s.ID >= songNo
-                                             select s).Take(1);
-
-                        // if the filter "Short songs is 'on'" we do additional filtering
-                        if (this.ShortSongs.IsChecked.Value)
-                            selectedsongs = selectedsongs.Where(
-                                    s => s.TimeLength.Length <= 4 && s.TimeLength.CompareTo("3:00") < 0);
-                    }
-                    while (selectedsongs.Count() < 1);
-
-
-                    // select the first song from the set of selected songs
-                    song = selectedsongs.First();
-
-                    // include the corresponding album of our song
-                    song.Album = (from a in context.Albums
-                                    where a.ID == song.AlbumID
-                                    select a).First();
-
-                    // do the same thing with performer for included album
-                    song.Album.Performer = (from p in context.Performers
-                                               where p.ID == song.Album.PerformerID
-                                               select p).First();
-                }
-                while (songs.Where(s => s.ID == song.ID).Count() > 0          // true, if the archive already contains this song
-                    || MusCatFileLocator.FindSongPath(song) == "");             // true, if the file with this song doesn't exist
-            }
-
-            return song;
+            this.prevSongPanel.DataContext = radio.PrevSong();
+            this.curSongPanel.DataContext = radio.CurrentSong();
+            this.nextSongPanel.DataContext = radio.NextSong();
+            this.Archive.ItemsSource = radio.GetSongArchive();
         }
 
 
@@ -154,21 +54,7 @@ namespace MusCatalog.View
         /// </summary>
         private void NextSong()
         {
-            // check if the archive ("songlist story") is full 
-            if (songs.Count >= MAX_SONGS_IN_ARCHIVE)
-                songs.RemoveAt(0);                      // if we remove the first element then we don't have to increase nCurrentSong
-            else
-                nCurrentSong++;                         // otherwise - increase nCurrentSong
-
-            // if the next song is the last one in the playlist
-            // then we should select new upcoming song and add it to the playlist
-            if (nCurrentSong == songs.Count - 1)
-            {
-                var s = SelectRandomSong();
-                this.nextImage.DataContext = s.Album;
-                this.nextSongPanel.DataContext = s;
-                songs.Add(s);
-            }
+            radio.MoveToNextSong();
 
             // update GUI
             UpdateGUISongs();
@@ -178,16 +64,12 @@ namespace MusCatalog.View
             StartPlayingCurrentSong();
         }
 
-
         /// <summary>
         /// 
         /// </summary>
         private void PrevSong()
         {
-            // if the current song isn't the first one in a songlist
-            // we can safely decrease the current position in the songlist
-            if (nCurrentSong > 0)
-                nCurrentSong--;
+            radio.MoveToPrevSong();
 
             // update GUI
             UpdateGUISongs();
@@ -195,7 +77,6 @@ namespace MusCatalog.View
             // after switching to previous song we play it right away
             StartPlayingCurrentSong();
         }
-                
 
         /// <summary>
         /// 
@@ -203,98 +84,57 @@ namespace MusCatalog.View
         private void StartPlayingCurrentSong()
         {
             this.playback.Source = imagePause;
-
-            string fileSong = MusCatFileLocator.FindSongPath(songs[nCurrentSong]);
-
-            try
-            {
-                player.Play( fileSong, SongPlaybackStopped );
-            }
-            catch (Exception)
-            {
-                songs.RemoveAt(nCurrentSong--);
-                
-                // if the next song is the last one in the playlist
-                // then we should select new upcoming song and add it to the playlist
-                if (nCurrentSong == songs.Count - 1)
-                {
-                    var s = SelectRandomSong();
-                    this.nextImage.DataContext = s.Album;
-                    this.nextSongPanel.DataContext = s;
-                    songs.Add( s );
-                }
-
-                NextSong();
-            }
+            radio.PlayCurrentSong( SongPlaybackStopped );
         }
-
-
+        
         /// <summary>
-        /// 
+        /// Handler of an event fired when the current song reached the end
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SongPlaybackStopped(object sender, NAudio.Wave.StoppedEventArgs e)
+        private void SongPlaybackStopped(object sender, EventArgs e)
         {
-            if ( player.SongPlaybackState != PlaybackState.STOP )
+            // if the stopping of the song wasn't initiated by user,
+            // then the current song is over and we switch to next song
+            if (radio.Player.SongPlaybackState != PlaybackState.STOP)
             {
-                player.SongPlaybackState = PlaybackState.STOP;
                 NextSong();
             }
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void PausePlayMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if ( player.SongPlaybackState == PlaybackState.PLAY )
+            switch (radio.Player.SongPlaybackState)
             {
-                player.Pause();
-                this.playback.Source = imagePlay;
-            }
-            else if ( player.SongPlaybackState == PlaybackState.PAUSE )
-            {
-                player.Resume();
-                this.playback.Source = imagePause;
-            }
-            else
-            {
-                StartPlayingCurrentSong();
-                this.playback.Source = imagePause;
+                case PlaybackState.PLAY:
+                    radio.Player.Pause();
+                    this.playback.Source = imagePlay;
+                    break;
+                case PlaybackState.PAUSE:
+                    radio.Player.Resume();
+                    this.playback.Source = imagePause;
+                    break;
+                case PlaybackState.STOP:
+                    StartPlayingCurrentSong();
+                    this.playback.Source = imagePause;
+                    break;
             }
         }
-
-
-
-        private void SliderVolumeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            player.SetVolume( (float)this.VolumeSlider.Value / 10.0f );
-        }
-
-
+        
         private void StopMouseDown(object sender, MouseButtonEventArgs e)
         {
-            player.Stop();
+            radio.Player.Stop();
             this.playback.Source = imagePlay;
         }
-
-
+        
         private void NextMouseDown(object sender, MouseButtonEventArgs e)
         {
             NextSong();
         }
-
-
+        
         private void PrevMouseDown(object sender, MouseButtonEventArgs e)
         {
             PrevSong();
         }
-
-
+        
         private void RadioPlayerKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Right)
@@ -307,9 +147,14 @@ namespace MusCatalog.View
             }
         }
 
+        private void SliderVolumeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            radio.Player.SetVolume((float)this.VolumeSlider.Value / 10.0f);
+        }
+
         private void CurrentAlbumClick(object sender, MouseButtonEventArgs e)
         {
-            AlbumWindow albumWindow = new AlbumWindow( songs[ nCurrentSong ].Album );
+            AlbumWindow albumWindow = new AlbumWindow( radio.CurrentSong().Album );
             albumWindow.Show();
         }
     }
