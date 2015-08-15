@@ -22,13 +22,7 @@ namespace MusCatalog
 
         public PlaybackState SongPlaybackState { get; set; }
 
-        // wrapping the waveOut.PlaybackStopped event
-        public event EventHandler<StoppedEventArgs> PlaybackStopped
-        {
-            add { waveOut.PlaybackStopped += value; }
-            remove { waveOut.PlaybackStopped -= value; }
-        }
-
+        
         public AudioPlayer()
         {
             SongPlaybackState = PlaybackState.STOP;

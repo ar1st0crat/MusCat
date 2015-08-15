@@ -7,7 +7,7 @@ using System.Windows.Media.Imaging;
 namespace MusCatalog.View
 {
     /// <summary>
-    /// Class for interaction logic for Radioradio.PlayerWindow.xaml
+    /// Class for interaction logic for RadioPlayerWindow.xaml
     /// </summary>
     public partial class RadioPlayerWindow : Window
     {
@@ -46,6 +46,7 @@ namespace MusCatalog.View
             this.curSongPanel.DataContext = radio.CurrentSong();
             this.nextSongPanel.DataContext = radio.NextSong();
             this.Archive.ItemsSource = radio.GetSongArchive();
+			this.Archive.Items.Refresh();
         }
 
 
@@ -83,8 +84,8 @@ namespace MusCatalog.View
         /// </summary>
         private void StartPlayingCurrentSong()
         {
-            this.playback.Source = imagePause;
             radio.PlayCurrentSong( SongPlaybackStopped );
+            this.playback.Source = imagePause;
         }
         
         /// <summary>

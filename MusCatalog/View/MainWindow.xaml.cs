@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.ComponentModel;
 using System.Windows.Data;
@@ -19,6 +20,7 @@ namespace MusCatalog.View
     {
         //
         LetterButton prevButton = null;
+        LetterButton pressedButton = null;
         //
         string curLetter = "A";
         //
@@ -62,8 +64,30 @@ namespace MusCatalog.View
                 this.perflist.ItemsSource = performers.ToList();
                 this.perflist.SelectedIndex = -1;
             }
-        }
 
+            
+            // ============================================================================
+            // REFACTOR! REFACTOR! REFACTOR! REFACTOR! REFACTOR! REFACTOR! REFACTOR! 
+            // ============================================================================
+            this.NavigationPanel.Children.Clear();
+
+            for (int i = 0; i < 5; i++)
+            {
+                var nb = new TextBlock();
+                nb.Name = "nb" + (i * 7 + 1).ToString();
+                nb.Text = (i+1).ToString();
+                nb.TextDecorations = TextDecorations.Underline;
+                nb.Cursor = Cursors.Hand;
+                nb.Margin = new Thickness(5, 0, 0, 0);
+                nb.Foreground = Brushes.Yellow;
+                nb.Background = Brushes.Transparent;
+                nb.MouseDown += NavigationClick;
+                this.NavigationPanel.Children.Add(nb);
+            }
+
+            ((TextBlock)this.NavigationPanel.Children[0]).TextDecorations = null;
+        }
+        
         /// <summary>
         /// TODO
         /// </summary>
@@ -136,7 +160,7 @@ namespace MusCatalog.View
             InitializeComponent();
 
             FileLocator.Initialize();
-            
+
             foreach (char c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
             {
                 LetterButton b = new LetterButton( c.ToString() );
@@ -161,7 +185,7 @@ namespace MusCatalog.View
         /// </summary>
         private void LetterClick(object sender, RoutedEventArgs e)
         {
-            LetterButton pressedButton = (LetterButton)sender;
+            pressedButton = (LetterButton)sender;
 
             prevButton.DeSelect();
             pressedButton.Select();
@@ -170,6 +194,15 @@ namespace MusCatalog.View
 
             curLetter = pressedButton.Content.ToString();
             FillPerformersListByFirstLetter( curLetter );
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        private void NavigationClick(object sender, RoutedEventArgs e)
+        {
+            var b = sender as TextBlock;
+            MessageBox.Show( b.Name );
         }
                
 
@@ -227,7 +260,6 @@ namespace MusCatalog.View
                 }
                 
 
-                //string filepath = string.Format(@"F:\{0}\{1}\Picture\photo.jpg", char.ToUpperInvariant(p.Name[0]), p.Name);
                 Directory.CreateDirectory( Path.GetDirectoryName( filepath ) );
 
                 // first check if file already exists
@@ -376,6 +408,77 @@ namespace MusCatalog.View
         {
             //HelpWindow info = new HelpWindow();
             //info.ShowDialog();
+        }
+
+        private void PerformerSearchClick(object sender, MouseButtonEventArgs e)
+        {
+            using (var context = new MusCatEntities())
+            {
+                var performers = from p in context.Performers
+                                 where p.Name.ToUpper().Contains(this.PerformerSearch.Text.ToUpper())
+                                 orderby p.Name
+                                 select p;
+
+                // ============================= order each performer's albums by year of release, then by name (in collection view)
+                foreach (var perf in performers)
+                {
+                    ICollectionView view = CollectionViewSource.GetDefaultView(perf.Albums);
+                    view.SortDescriptions.Add(new SortDescription("ReleaseYear", ListSortDirection.Ascending));
+                    view.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+                }
+                this.perflist.ItemsSource = performers.ToList();
+                this.perflist.SelectedIndex = -1;
+
+
+                if (pressedButton != null)
+                {
+                    pressedButton.DeSelect();
+                }
+                else
+                {
+                    prevButton.DeSelect();
+                }
+            }
+        }
+
+        private void AlbumSearchClick(object sender, MouseButtonEventArgs e)
+        {
+            using (var context = new MusCatEntities())
+            {
+                var performers = context.Performers.Where(p => p.Albums
+                                                   .Where(a => a.Name.Contains(this.AlbumSearch.Text))
+                                                   .Count() > 0);
+
+                foreach (var perf in performers)
+                {
+                    var filteredAlbums = perf.Albums.Where( a => a.Name.ToUpper().Contains(this.AlbumSearch.Text.ToUpper()) ).ToList();
+                    perf.Albums.Clear();
+                    foreach (var album in filteredAlbums)
+                    {
+                        perf.Albums.Add( album );
+                    }
+                }
+
+                // ============================= order each performer's albums by year of release, then by name (in collection view)
+                foreach (var perf in performers)
+                {
+                    ICollectionView view = CollectionViewSource.GetDefaultView(perf.Albums);
+                    view.SortDescriptions.Add(new SortDescription("ReleaseYear", ListSortDirection.Ascending));
+                    view.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+                }
+                this.perflist.ItemsSource = performers.ToList();
+                this.perflist.SelectedIndex = -1;
+
+
+                if (pressedButton != null)
+                {
+                    pressedButton.DeSelect();
+                }
+                else
+                {
+                    prevButton.DeSelect();
+                }
+            }
         }
     }
 }

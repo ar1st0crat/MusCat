@@ -6,6 +6,7 @@ namespace MusCatalog.View
     class LetterButton: Button
     {
         FontFamily letterFont = new FontFamily( "Stencil" );
+        bool bSelected = false;
         const int width = 32;
         const int height = 32;
         const double scaleCoeff = 1.5;
@@ -25,12 +26,17 @@ namespace MusCatalog.View
         {
             Width *= scaleCoeff;
             Height *= scaleCoeff;
+            bSelected = true;
         }
 
         public void DeSelect()
         {
-            Width /= scaleCoeff;
-            Height /= scaleCoeff;
+            if (bSelected)
+            {
+                Width /= scaleCoeff;
+                Height /= scaleCoeff;
+                bSelected = false;
+            }
         }
     }
 }
