@@ -78,6 +78,13 @@ namespace MusCatalog
                 }
             }
 
+            // ================================================== the current object is  byte? rate
+            byte? rate = value as Nullable<byte>;
+            if (rate.HasValue)
+            {
+                return rate.Value + "/10";
+            }
+
             return "Not Rated";
         }
 

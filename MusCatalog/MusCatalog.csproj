@@ -140,6 +140,9 @@
     <Compile Include="View\ChoiceWindow.xaml.cs">
       <DependentUpon>ChoiceWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\EditAlbumWindow.xaml.cs">
+      <DependentUpon>EditAlbumWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\PerformerWindow.xaml.cs">
       <DependentUpon>PerformerWindow.xaml</DependentUpon>
     </Compile>
@@ -158,6 +161,10 @@
     </Compile>
     <Compile Include="Converters\YearsConverter.cs" />
     <Page Include="View\ChoiceWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\EditAlbumWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

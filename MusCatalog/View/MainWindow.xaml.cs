@@ -376,7 +376,7 @@ namespace MusCatalog.View
         {
             if (selectedAlbum != null)
             {
-                AlbumWindow albumWindow = new AlbumWindow(selectedAlbum);
+                EditAlbumWindow albumWindow = new EditAlbumWindow(selectedAlbum);
                 albumWindow.Show();
             }
         }

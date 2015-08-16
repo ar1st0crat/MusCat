@@ -1,18 +1,14 @@
 ﻿using MusCatalog.Model;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Text.RegularExpressions;
 using System.Windows.Data;
-using System.Linq;
 using System.Windows.Media.Imaging;
 
 namespace MusCatalog
 {
     /// <summary>
-    /// Converter:          Performer   =>  image path with performer's photo or default photo
-    ///                     Album       =>  image path with album cover or default photo
+    /// Converter:          Performer   =>  (optionally reduced) image with performer's photo or default photo
+    ///                     Album       =>  (optionally reduced) image with album cover or default photo
     /// </summary>
     public class PhotoConverter: IValueConverter
     {
@@ -22,6 +18,8 @@ namespace MusCatalog
         /// <summary>
         /// Basic convertion
         /// </summary>
+        /// <param name="parameter">The height of a thumbnail image, or null if the original image should be returned</param>
+        /// <returns></returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             // if the current converter is yielding a performer photo path
@@ -31,11 +29,23 @@ namespace MusCatalog
             {
                 string performerPhotoPath = FileLocator.GetPathImagePerformer(perf);
 
+                // if the photo exists
                 if ( performerPhotoPath != "")
                 {
-                    return BitmapFrame.Create( new Uri( performerPhotoPath ),
-                                                            BitmapCreateOptions.IgnoreImageCache,
-                                                            BitmapCacheOption.OnLoad);
+                    // optimization: reduce original image (set DecodePixelHeight property)
+                    // and release the original image by returning new WriteableBitmap
+                    BitmapImage bi = new BitmapImage();
+                    bi.BeginInit();
+                    bi.CacheOption = BitmapCacheOption.OnLoad;
+                    bi.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                    if (parameter != null)
+                    {
+                        bi.DecodePixelHeight = (int)(double)parameter;
+                    }
+                    bi.UriSource = new Uri(performerPhotoPath);
+                    bi.EndInit();
+
+                    return new WriteableBitmap(bi);
                 }
                 else
                 {
@@ -52,9 +62,19 @@ namespace MusCatalog
 
                 if (albumPhotoPath != "")
                 {
-                    return BitmapFrame.Create(new Uri(albumPhotoPath),
-                                                            BitmapCreateOptions.IgnoreImageCache,
-                                                            BitmapCacheOption.OnLoad);
+                    // optimization is the same as for performer photo image
+                    BitmapImage bi = new BitmapImage();
+                    bi.BeginInit();
+                    bi.CacheOption = BitmapCacheOption.OnLoad;
+                    bi.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                    if (parameter != null)
+                    {
+                        bi.DecodePixelHeight = (int)(double)parameter;
+                    }
+                    bi.UriSource = new Uri( albumPhotoPath );
+                    bi.EndInit();
+
+                    return new WriteableBitmap(bi);
                 }
                 else
                 {
