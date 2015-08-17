@@ -7,6 +7,11 @@
         SizeToContent="WidthAndHeight"
         BorderBrush="AliceBlue">
 
+    <Window.CommandBindings>
+        <CommandBinding Command="Save" CanExecute="SaveSongCanExecute" Executed="SaveSong" />
+        <CommandBinding Command="Delete" Executed="DeleteSong" />
+    </Window.CommandBindings>
+    
     <Window.Resources>
         <sys:Double x:Key="albumWidth">300</sys:Double>
         <sys:Double x:Key="albumHeight">300</sys:Double>
@@ -29,13 +34,14 @@
                 <Label Content="{Binding Path=TimeLength}" Foreground="LightGreen"/>
             </WrapPanel>
         </DataTemplate>
-
+        
         <Style TargetType="{x:Type ListBoxItem}" x:Key="SongStyle">
             <Setter Property="ContentTemplate" Value="{StaticResource SongTemplate}" />
             <Style.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
             </Style.Resources>
         </Style>
+        
     </Window.Resources>
 
     <Window.Background>
@@ -83,8 +89,9 @@
                                MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" MouseDown="StarMouseDown" />
                     </StackPanel>
                 </DockPanel>
-                <TextBox Text="{Binding TotalTime}" Background="Maroon" Width="auto" HorizontalAlignment="Right" Margin="0,-15,40,0" 
-                       Foreground="White" FontSize="24" FontFamily="Broadway"/>
+                <TextBox Name="TotalTime" Text="{Binding TotalTime, Mode=TwoWay}"
+                         Background="Maroon" Width="auto" HorizontalAlignment="Right" Margin="0,-15,40,0" 
+                         Foreground="White" FontSize="24" FontFamily="Broadway"/>
             </DockPanel>
 
             <StackPanel Margin="10,0,0,15">
@@ -103,12 +110,12 @@
 
         <StackPanel Grid.Column="1" Margin="20">
             <WrapPanel HorizontalAlignment="Center">
-                <Button Content="Parse mp3..." Padding="5" Margin="5" Click="ParseMp3Click" />
-                <Button Content="Fix names" Padding="5" Margin="5" Click="FixNamesClick" />
-                <Button Content="Fix times" Padding="5" Margin="5,5,90,5" Click="FixTimesClick" />
-                <Button Content="Clear all" Padding="5" Margin="5" />
-                <Button Content="Save all" Padding="5" Margin="5" />
-                <Button Content="Add..." Padding="5" Margin="5" Click="AddSongClick" />
+                <Button Content="Parse mp3..." Padding="5" Margin="5" Click="ParseMp3" />
+                <Button Content="Fix names" Padding="5" Margin="5" Click="FixNames" />
+                <Button Content="Fix times" Padding="5" Margin="5,5,90,5" Click="FixTimes" />
+                <Button Content="Clear all" Padding="5" Margin="5" Click="ClearAll" />
+                <Button Content="Save all" Padding="5" Margin="5" Click="SaveAll" />
+                <Button Content="Add..." Padding="5" Margin="5" Click="AddSong" />
             </WrapPanel>
             <DataGrid x:Name="GridSongs" Grid.Column="1" ItemsSource="{Binding}" AutoGenerateColumns="False" FontSize="14"
                       AlternatingRowBackground="#daffff"  AlternationCount="2" CanUserAddRows="False"
@@ -122,8 +129,8 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <WrapPanel>
-                                    <Button Content="Save" CommandParameter="{Binding ID}" Click="SaveSongClick"/>
-                                    <Button Content="Delete" CommandParameter="{Binding ID}" Click="DeleteSongClick"/>
+                                    <Button Content="Save" Command="Save" CommandParameter="{Binding ID}" />
+                                    <Button Content="Delete" Command="Delete" CommandParameter="{Binding ID}" />
                                 </WrapPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>

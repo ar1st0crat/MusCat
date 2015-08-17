@@ -328,7 +328,7 @@ namespace MusCatalog.View
         {
             //PerformerWindow perfWindow = new PerformerWindow();
             //perfWindow.ShowDialog();
-            FillPerformersListByFirstLetter( curLetter );
+            FillPerformersListByFirstLetter(curLetter);
         }
 
         private void MenuEditPerformerClick(object sender, RoutedEventArgs e)
@@ -352,10 +352,9 @@ namespace MusCatalog.View
         {
             Performer perf = this.perflist.SelectedItem as Performer;
             Album a = new Album();
-            a.Name = "Unknown";
-            a.ReleaseYear = 2000;
-            a.Rate = 9;
-            a.TotalTime = "40:02";
+            a.Name = "New Album";
+            a.ReleaseYear = (short)DateTime.Now.Year;
+            a.TotalTime = "00:00";
             a.PerformerID = perf.ID;
             
             using (var context = new MusCatEntities())
@@ -366,7 +365,10 @@ namespace MusCatalog.View
 
                 a.Performer = perf;
                 perf.Albums.Add(a);
-                
+
+                EditAlbumWindow editAlbum = new EditAlbumWindow( a );
+                editAlbum.ShowDialog();
+
                 ICollectionView view = CollectionViewSource.GetDefaultView(perf.Albums);
                 view.Refresh();
             }

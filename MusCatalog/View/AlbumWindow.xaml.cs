@@ -29,14 +29,6 @@ namespace MusCatalog.View
         BitmapImage imagePlay = App.Current.TryFindResource( "ImagePlayButton" ) as BitmapImage;
         BitmapImage imagePause = App.Current.TryFindResource( "ImagePauseButton" ) as BitmapImage;
 
-        // bitmaps for stars
-        BitmapImage imageStar = App.Current.TryFindResource( "ImageStar" ) as BitmapImage;
-        BitmapImage imageHalfStar = App.Current.TryFindResource( "ImageHalfStar" ) as BitmapImage;
-        BitmapImage imageEmptyStar = App.Current.TryFindResource( "ImageEmptyStar" ) as BitmapImage;
-
-        // number of the star that was clicked
-        byte starPos = 0;
-
         // Audio player
         AudioPlayer player = new AudioPlayer();
         
@@ -110,9 +102,8 @@ namespace MusCatalog.View
             bSelectionByUser = true;
         }
 
-        ///
-        /// ============================== Song playback functions ==================================
-        ///
+        #region Song playback functions
+        
         private void PlaySong()
         {
             var song = this.songlist.SelectedItem as Song;
@@ -150,8 +141,9 @@ namespace MusCatalog.View
             playbackTimer.Stop();
             curPlaybackImage.Source = imagePlay;
         }
-        /// =========================================================================================
-        
+
+        #endregion
+
         /// <summary>
         /// Start or stop playing the selected song (playback button click handler)
         /// </summary>
@@ -246,7 +238,6 @@ namespace MusCatalog.View
                     return;
                 }
 
-                //string filepath = string.Format(@"F:\{0}\{1}\Picture\{2}.jpg", char.ToUpperInvariant(album.Performer.Name[0]), album.Performer.Name, album.ID);
                 var filepaths = FileLocator.MakePathImageAlbum( album );
                 string filepath = filepaths[0];
 
