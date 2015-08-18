@@ -130,13 +130,8 @@ namespace MusCatalog.View
 
         private void AddSong(object sender, RoutedEventArgs e)
         {
-            //if ( this.GridSongs.Items.Count > 0 && albumSongs.Last().ID == -1 )
-            //{
-            //    return;
-            //}
-
             byte newTrackNo = (byte)(albumSongs.Last().TrackNo + 1);
-            albumSongs.Add( new Song { ID = -1, TrackNo = newTrackNo, AlbumID = album.ID, Album = album} );
+            albumSongs.Add( new Song { ID = -1, TrackNo = newTrackNo, AlbumID = album.ID} );
             
             this.GridSongs.ItemsSource = albumSongs;
             this.GridSongs.Items.Refresh();
@@ -246,6 +241,33 @@ namespace MusCatalog.View
             }
         }
 
+        private string ChooseImageSavePath()
+        {
+            var filepaths = FileLocator.MakePathImageAlbum(album);
+
+            if (filepaths.Count > 1)
+            {
+                ChoiceWindow choice = new ChoiceWindow();
+                choice.SetChoiceList(filepaths);
+                choice.ShowDialog();
+
+                return choice.ChoiceResult;
+            }
+
+            return filepaths[0];
+        }
+
+        private void PrepareFileForSaving(string filepath)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+
+            // first check if file already exists
+            if (File.Exists(filepath))
+            {
+                File.Delete(filepath);
+            }
+        }
+
         private void LoadAlbumImageFromClipboard(object sender, RoutedEventArgs e)
         {
             if (!Clipboard.ContainsImage())
@@ -254,32 +276,16 @@ namespace MusCatalog.View
                 return;
             }
 
-            var filepaths = FileLocator.MakePathImageAlbum(album);
-            string filepath = filepaths[0];
-
-            if (filepaths.Count > 1)
+            string filepath = ChooseImageSavePath();
+            if (filepath == null)
             {
-                ChoiceWindow choice = new ChoiceWindow();
-                choice.SetChoiceList(filepaths);
-                choice.ShowDialog();
-
-                if (choice.ChoiceResult == "")
-                {
-                    return;
-                }
-                filepath = choice.ChoiceResult;
+                return;
             }
-
-            Directory.CreateDirectory(Path.GetDirectoryName(filepath));
 
             var image = Clipboard.GetImage();
             try
             {
-                // first check if file already exists
-                if (File.Exists(filepath))
-                {
-                    File.Delete(filepath);
-                }
+                PrepareFileForSaving(filepath);
 
                 using (var fileStream = new FileStream(filepath, FileMode.CreateNew))
                 {
@@ -287,7 +293,7 @@ namespace MusCatalog.View
                     encoder.Frames.Add(BitmapFrame.Create(image));
                     encoder.Save(fileStream);
 
-                    this.AlbumCover.Source = encoder.Frames[0];
+                    this.AlbumCover.Source = new WriteableBitmap( encoder.Frames[0] );
                 }
             }
             catch (Exception ex)
@@ -298,7 +304,28 @@ namespace MusCatalog.View
 
         private void LoadAlbumImageFromFile(object sender, RoutedEventArgs e)
         {
+            OpenFileDialog ofd = new OpenFileDialog();
+            var result = ofd.ShowDialog();
+            if (result.HasValue && result.Value == true)
+            {
+                string filepath = ChooseImageSavePath();
+                if (filepath == null)
+                {
+                    return;
+                }
 
+                try
+                {
+                    PrepareFileForSaving(filepath);
+                    File.Copy(ofd.FileName, filepath);
+
+                    this.AlbumCover.Source = new WriteableBitmap(new BitmapImage(new Uri(filepath)));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show( ex.Message );
+                }
+            }
         }
 
         

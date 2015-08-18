@@ -1,8 +1,10 @@
 ﻿<Window x:Class="MusCatalog.View.PerformerWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Performer"
-        Height="600" Width="800">
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:MusCatalog"
+        Title="Performer Info"
+        SizeToContent="Width">
     
     <Window.Background>
         <LinearGradientBrush>
@@ -11,19 +13,35 @@
         </LinearGradientBrush>
     </Window.Background>
     
+    <Window.Resources>
+        <sys:Double x:Key="PerformerImageWidth">400</sys:Double>
+        <local:PhotoConverter x:Key="photoConverter" />
+    </Window.Resources>
+    
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
-        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition />
+            <ColumnDefinition Width="420" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         
         <StackPanel Grid.Column="0" Grid.Row="0">
-            <Image HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,21,0,0" Height="250" Width="350"/>
+            <Image Source="{Binding Converter={StaticResource photoConverter}, ConverterParameter={StaticResource PerformerImageWidth}}"
+                   HorizontalAlignment="Left" VerticalAlignment="Top"
+                   Margin="10,20,0,0" Width="{StaticResource PerformerImageWidth}"/>
+            <Label Content="{Binding Name}" Foreground="White" FontFamily="Stencil" FontSize="28" HorizontalAlignment="Center"/>
+            <Label Content="{Binding Country.Name}" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
+            <ListBox ItemsSource="{Binding Styles}"
+                     Background="Transparent" BorderBrush="Transparent">
+            </ListBox>
+            <Label Content="Lineup:" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
+            <ListBox ItemsSource="{Binding Lineups}"
+                     Background="Transparent" BorderBrush="Transparent">
+            </ListBox>
         </StackPanel>
-
+        <StackPanel Grid.Column="1">
+            <TextBox Text="{Binding Info}" Margin="15" MaxWidth="400"
+                     Foreground="White" Background="Transparent" BorderBrush="Transparent"
+                     TextWrapping="Wrap"  VerticalScrollBarVisibility="Auto" />
+        </StackPanel>
     </Grid>
 </Window>

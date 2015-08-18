@@ -136,9 +136,7 @@
             <Image x:Name="AlbumCover" Source="{Binding Converter={StaticResource photoConverter}, ConverterParameter={StaticResource albumHeight}}"
                    Grid.Column="0"
                    Width="{StaticResource albumWidth}" Height="{StaticResource albumHeight}"
-                   Margin="10,25,0,0" HorizontalAlignment="Center" VerticalAlignment="Top"
-                   MouseDown="AlbumCoverMouseDown">
-            </Image> 
+                   Margin="10,25,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" /> 
 
             <DockPanel>
                 <DockPanel HorizontalAlignment="Left" Margin="15,0,0,0">

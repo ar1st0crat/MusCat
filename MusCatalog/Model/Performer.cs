@@ -23,10 +23,11 @@ namespace MusCatalog.Model
     
         public long ID { get; set; }
         public string Name { get; set; }
-        public string Country { get; set; }
         public string Info { get; set; }
+        public Nullable<byte> CountryID { get; set; }
 
         public virtual ObservableCollection<Album> Albums { get; set; }
+        public virtual Country Country { get; set; }
         public virtual ObservableCollection<Lineup> Lineups { get; set; }
         public virtual Genre Genre { get; set; }
     }

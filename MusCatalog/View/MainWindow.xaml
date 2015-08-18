@@ -131,11 +131,11 @@
 
         <DataTemplate x:Key="SelectedPerformerTemplate">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                <StackPanel Margin="5,5,35,5" HorizontalAlignment="Center" MouseDown="PerflistMouseDoubleClick">
+                <StackPanel Margin="5,5,35,5" HorizontalAlignment="Center">
                     <Image Height="{StaticResource selectedPerformerHeight}" Width="{StaticResource selectedPerformerWidth}" Margin="15,10,15,5" 
                        Source="{Binding Converter={StaticResource photoConverter}, ConverterParameter={StaticResource selectedPerformerHeight}}" />
                     <Label FontSize="26" Foreground="Black" FontFamily="Stencil" Content="{Binding Name}" Padding="1,1,1,1" HorizontalAlignment="Center" />
-                    <Label FontSize="16" Foreground="Black" FontFamily="Arial Narrow" Content="{Binding Country}" Padding="1,1,1,1" HorizontalAlignment="Center" />
+                    <Label FontSize="16" Foreground="Black" FontFamily="Arial Narrow" Content="{Binding Country.Name}" Padding="1,1,1,1" HorizontalAlignment="Center" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" Width="15"/>
                         <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}" Width="15"/>

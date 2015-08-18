@@ -19,7 +19,6 @@ namespace MusCatalog.Model
         public byte TrackNo { get; set; }
         public string Name { get; set; }
         public string TimeLength { get; set; }
-        public string Info { get; set; }
         public Nullable<byte> Rate { get; set; }
     
         public virtual Album Album { get; set; }

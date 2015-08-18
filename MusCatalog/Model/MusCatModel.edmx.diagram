@@ -4,18 +4,17 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="03626bddfa154033a27ba08eef0fc8e2" Name="Diagram1">
-        <EntityTypeShape EntityType="MusCatModel.Album" Width="1.5" PointX="5.25" PointY="4.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="MusCatModel.Genre" Width="1.5" PointX="0.75" PointY="5" IsExpanded="true" />
-        <EntityTypeShape EntityType="MusCatModel.Lineup" Width="1.5" PointX="5.25" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="MusCatModel.Musician" Width="1.5" PointX="3" PointY="8.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="MusCatModel.Performer" Width="1.5" PointX="3" PointY="4.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="MusCatModel.Song" Width="1.5" PointX="7.5" PointY="4.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="MusCatModel.AlbumsWithEmptySongsView" Width="1.5" PointX="5.75" PointY="8.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="MusCatModel.AlbumsWithoutTotalTimeView" Width="1.5" PointX="7.75" PointY="8.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="MusCatModel.EmptyAlbumsView" Width="1.5" PointX="9.75" PointY="2.625" IsExpanded="true" />
+      <Diagram DiagramId="db055b6d0ca94747b9c67944cad5b2f9" Name="Diagram1">
+        <EntityTypeShape EntityType="MusCatModel.Album" Width="1.5" PointX="5.25" PointY="3.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="MusCatModel.Country" Width="1.5" PointX="0.75" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="MusCatModel.Genre" Width="1.5" PointX="0.75" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="MusCatModel.Lineup" Width="1.5" PointX="8.25" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MusCatModel.Musician" Width="1.5" PointX="6" PointY="8" IsExpanded="true" />
+        <EntityTypeShape EntityType="MusCatModel.Performer" Width="1.5" PointX="3" PointY="3.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="MusCatModel.Song" Width="1.5" PointX="7.5" PointY="3.625" IsExpanded="true" />
         <AssociationConnector Association="MusCatModel.FK_Albums_Performers" ManuallyRouted="false" />
         <AssociationConnector Association="MusCatModel.FK_Songs_Albums" ManuallyRouted="false" />
+        <AssociationConnector Association="MusCatModel.FK_Performers_Countries" ManuallyRouted="false" />
         <AssociationConnector Association="MusCatModel.FK_Lineups_Musicians" ManuallyRouted="false" />
         <AssociationConnector Association="MusCatModel.FK_Lineups_Performers" ManuallyRouted="false" />
         <AssociationConnector Association="MusCatModel.PerformerGenres" ManuallyRouted="false" />

@@ -18,13 +18,40 @@ namespace MusCatalog.View
     /// </summary>
     public partial class MainWindow : Window
     {
-        //
+        Album selectedAlbum = null;
+
+        // References to "selected" and "deselected" buttons in upper navigation panel
         LetterButton prevButton = null;
         LetterButton pressedButton = null;
-        //
         string curLetter = "A";
-        //
-        Album selectedAlbum = null;
+
+        /// <summary>
+        /// Main window initialization
+        /// </summary>
+        public MainWindow()
+        {
+            InitializeComponent();
+
+            FileLocator.Initialize();
+
+            // create the upper navigation panel
+            foreach (char c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+            {
+                LetterButton b = new LetterButton(c.ToString());
+                b.Click += LetterClick;
+
+                lettersPanel.Children.Add(b);
+            }
+
+            LetterButton bOther = new LetterButton("Other", 70);
+            bOther.Click += LetterClick;
+            lettersPanel.Children.Add(bOther);
+
+            // Start with the "A-letter"-list
+            FillPerformersListByFirstLetter("A");
+            prevButton = (LetterButton)lettersPanel.Children[0];
+            prevButton.Select();
+        }
 
         /// <summary>
         /// Populate the list of performers whose name starts with specific letter (or not a letter - "other" case)
@@ -39,16 +66,18 @@ namespace MusCatalog.View
                 // single letters ('A', 'B', 'C', ..., 'Z')
                 if (letter.Length == 1)                             
                 {
-                    performers = from p in context.Performers
-                                 where p.Name.StartsWith(letter)
+                    performers = from p in context.Performers.Include("Country")
+                                 where p.Name.ToUpper().StartsWith(letter)
                                  orderby p.Name
                                  select p;
                 }
                 // The "Other" option
+                // (all performers whose name doesn't start with capital English letter, e.g. "10CC", "Пикник", etc.)
                 else
                 {
-                    performers = from p in context.Performers
-                                     where p.Name.Substring(0, 1).CompareTo("A") < 0 || p.Name.Substring(0, 1).CompareTo("Z") > 0
+                    performers = from p in context.Performers.Include("Country")
+                                     where p.Name.ToUpper().Substring(0, 1).CompareTo("A") < 0 || 
+                                           p.Name.ToUpper().Substring(0, 1).CompareTo("Z") > 0
                                      orderby p.Name
                                      select p;
                 }
@@ -87,9 +116,87 @@ namespace MusCatalog.View
 
             ((TextBlock)this.NavigationPanel.Children[0]).TextDecorations = null;
         }
-        
+
         /// <summary>
-        /// TODO
+        /// Select performers whose name contains the search pattern (specified in lower navigation panel)
+        /// </summary>
+        private void PerformerSearchClick(object sender, MouseButtonEventArgs e)
+        {
+            using (var context = new MusCatEntities())
+            {
+                var performers = from p in context.Performers.Include("Country")
+                                 where p.Name.ToUpper().Contains(this.PerformerSearch.Text.ToUpper())
+                                 orderby p.Name
+                                 select p;
+
+                // order each performer's albums by year of release, then by name (in collection view)
+                foreach (var perf in performers)
+                {
+                    ICollectionView view = CollectionViewSource.GetDefaultView(perf.Albums);
+                    view.SortDescriptions.Add(new SortDescription("ReleaseYear", ListSortDirection.Ascending));
+                    view.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+                }
+                this.perflist.ItemsSource = performers.ToList();
+                this.perflist.SelectedIndex = -1;
+
+                // deselect all buttons in upper navigation panel
+                if (pressedButton != null)
+                {
+                    pressedButton.DeSelect();
+                }
+                else
+                {
+                    prevButton.DeSelect();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Select performers having albums whose name contains search pattern (specified in lower navigation panel)
+        /// </summary>
+        private void AlbumSearchClick(object sender, MouseButtonEventArgs e)
+        {
+            using (var context = new MusCatEntities())
+            {
+                var performers = context.Performers.Include("Country")
+                                                   .Where(p => p.Albums
+                                                   .Where(a => a.Name.Contains(this.AlbumSearch.Text))
+                                                   .Count() > 0);
+
+                foreach (var perf in performers)
+                {
+                    var filteredAlbums = perf.Albums.Where(a => a.Name.ToUpper().Contains(this.AlbumSearch.Text.ToUpper())).ToList();
+                    perf.Albums.Clear();
+                    foreach (var album in filteredAlbums)
+                    {
+                        perf.Albums.Add(album);
+                    }
+                }
+
+                // order each performer's albums by year of release, then by name (in collection view)
+                foreach (var perf in performers)
+                {
+                    ICollectionView view = CollectionViewSource.GetDefaultView(perf.Albums);
+                    view.SortDescriptions.Add(new SortDescription("ReleaseYear", ListSortDirection.Ascending));
+                    view.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+                }
+                this.perflist.ItemsSource = performers.ToList();
+                this.perflist.SelectedIndex = -1;
+
+                // deselect all buttons in upper navigation panel
+                if (pressedButton != null)
+                {
+                    pressedButton.DeSelect();
+                }
+                else
+                {
+                    prevButton.DeSelect();
+                }
+            }
+        }
+                
+        /// <summary>
+        /// Remove performer selected in the list of performers
         /// </summary>
         private void RemoveSelectedPerformer()
         {
@@ -120,7 +227,7 @@ namespace MusCatalog.View
         }
 
         /// <summary>
-        /// TODO
+        /// Remove album selected in the list of albums
         /// </summary>
         private void RemoveSelectedAlbum()
         {
@@ -151,37 +258,8 @@ namespace MusCatalog.View
             }
         }
         
-        
         /// <summary>
-        /// Main window initialization
-        /// </summary>
-        public MainWindow()
-        {
-            InitializeComponent();
-
-            FileLocator.Initialize();
-
-            foreach (char c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-            {
-                LetterButton b = new LetterButton( c.ToString() );
-                b.Click += LetterClick;
-
-                lettersPanel.Children.Add( b );
-            }
-
-            LetterButton bOther = new LetterButton( "Other", 70 );
-            bOther.Click += LetterClick;
-            lettersPanel.Children.Add( bOther );
-
-            // Start with the "A-letter"-list
-            prevButton = (LetterButton)lettersPanel.Children[0];
-            prevButton.Select();
-            FillPerformersListByFirstLetter("A");
-        }
-
-
-        /// <summary>
-        /// TODO
+        /// Upper navigation panel click handler
         /// </summary>
         private void LetterClick(object sender, RoutedEventArgs e)
         {
@@ -197,22 +275,44 @@ namespace MusCatalog.View
         }
 
         /// <summary>
-        /// TODO
+        /// Lower navigation panel click handler
         /// </summary>
         private void NavigationClick(object sender, RoutedEventArgs e)
         {
             var b = sender as TextBlock;
             MessageBox.Show( b.Name );
         }
-               
 
         /// <summary>
-        /// TODO
+        /// Synchronize currently selected album with corresponding variable
+        /// </summary>
+        private void AlbumSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var lb = sender as ListBox;
+            selectedAlbum = lb.SelectedItem as Album;
+        }
+
+        private void SelectedAlbumsMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            AlbumWindow albumWindow = new AlbumWindow(selectedAlbum);
+            albumWindow.Show();
+        }
+
+        #region KeyDown handlers
+
+        /// <summary>
+        /// KeyDown handler (for performers):
+        ///     Enter   -> View performer info
+        ///     Del     -> Remove performer and asoociated discography
+        ///     F4      -> Edit performer
         /// </summary>
         private void PerflistPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (selectedAlbum != null)      // if some album is selected then propagate event handling to albumlist
+            // if some album is selected then propagate event handling to albumlist
+            if (selectedAlbum != null)
+            {
                 return;
+            }
 
             Performer perf = perflist.SelectedItem as Performer;
 
@@ -227,85 +327,11 @@ namespace MusCatalog.View
             }
         }
 
-    
         /// <summary>
-        /// TODO
-        /// </summary>
-        private void PerflistMouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount > 1)
-            {
-                if (!Clipboard.ContainsImage())
-                {
-                    MessageBox.Show("No image in clipboard!");
-                    return;
-                }
-
-                Performer p = perflist.SelectedItem as Performer;
-
-                var filepaths = FileLocator.MakePathImagePerformer( p );
-                string filepath = filepaths[0];
-
-                if ( filepaths.Count > 1 )
-                {
-                    ChoiceWindow choice = new ChoiceWindow();
-                    choice.SetChoiceList( filepaths );
-                    choice.ShowDialog();
-
-                    if (choice.ChoiceResult == "")
-                    {
-                        return;
-                    }
-                    filepath = choice.ChoiceResult;
-                }
-                
-
-                Directory.CreateDirectory( Path.GetDirectoryName( filepath ) );
-
-                // first check if file already exists
-                if (File.Exists(filepath))
-                {
-                    File.Delete(filepath);
-                }
-
-                var image = Clipboard.GetImage();
-                try
-                {
-                    using (var fileStream = new FileStream(filepath, FileMode.Create))
-                    {
-                        BitmapEncoder encoder = new JpegBitmapEncoder();
-                        encoder.Frames.Add(BitmapFrame.Create(image));
-                        encoder.Save(fileStream);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-            }
-        }
-
-
-        /// <summary>
-        /// Synchronize currently selected album with corresponding variable
-        /// </summary>
-        private void AlbumSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var lb = sender as ListBox;
-            selectedAlbum = lb.SelectedItem as Album;
-        }
-
-        /// <summary>
-        /// TODO
-        /// </summary>
-        private void SelectedAlbumsMouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            AlbumWindow albumWindow = new AlbumWindow(selectedAlbum);
-            albumWindow.Show();
-        }
-
-        /// <summary>
-        /// TODO
+        /// KeyDown handler (for albums):
+        ///     Enter   -> View album info
+        ///     Del     -> Remove album
+        ///     F4      -> Edit album
         /// </summary>
         private void SelectedAlbumKeyDown(object sender, KeyEventArgs e)
         {
@@ -320,20 +346,40 @@ namespace MusCatalog.View
             }
         }
 
-
-        //
-        // ================== Menu click handlers boilerplate code ========================
-        //
+        #endregion
+        
+        #region Menu click handlers boilerplate code
+        
         private void MenuAddPerformerClick(object sender, RoutedEventArgs e)
         {
-            //PerformerWindow perfWindow = new PerformerWindow();
-            //perfWindow.ShowDialog();
-            FillPerformersListByFirstLetter(curLetter);
+            // set initial information of a newly added performer
+            Performer p = new Performer { Name = "Unknown performer" };
+            
+            using (var context = new MusCatEntities())
+            {
+                p.ID = context.Performers.Max( perf => perf.ID ) + 1;
+                context.Performers.Add( p );
+                context.SaveChanges();
+
+                EditPerformerWindow editPerformer = new EditPerformerWindow( p );
+                editPerformer.ShowDialog();
+
+                // TODO: do this only if the first letter is current letter
+                FillPerformersListByFirstLetter( curLetter );
+            }
         }
 
         private void MenuEditPerformerClick(object sender, RoutedEventArgs e)
         {
-            PerformerWindow perfWindow = new PerformerWindow();
+            if (this.perflist.SelectedIndex < 0)
+            {
+                MessageBox.Show( "Please choose performer to edit!" );
+                return;
+            }
+
+            var perf = this.perflist.SelectedItem as Performer;
+
+            EditPerformerWindow perfWindow = new EditPerformerWindow( perf );
             perfWindow.ShowDialog();
         }
 
@@ -350,12 +396,16 @@ namespace MusCatalog.View
 
         private void MenuAddAlbumClick(object sender, RoutedEventArgs e)
         {
+            if ( this.perflist.SelectedIndex < 0 )
+            {
+                MessageBox.Show( "Please choose the performer!" );
+                return;
+            }
+
             Performer perf = this.perflist.SelectedItem as Performer;
-            Album a = new Album();
-            a.Name = "New Album";
-            a.ReleaseYear = (short)DateTime.Now.Year;
-            a.TotalTime = "00:00";
-            a.PerformerID = perf.ID;
+
+            // set initial information of a newly added album
+            Album a = new Album { Name="New Album", TotalTime="00:00", PerformerID=perf.ID, ReleaseYear=(short)DateTime.Now.Year };
             
             using (var context = new MusCatEntities())
             {
@@ -412,75 +462,6 @@ namespace MusCatalog.View
             //info.ShowDialog();
         }
 
-        private void PerformerSearchClick(object sender, MouseButtonEventArgs e)
-        {
-            using (var context = new MusCatEntities())
-            {
-                var performers = from p in context.Performers
-                                 where p.Name.ToUpper().Contains(this.PerformerSearch.Text.ToUpper())
-                                 orderby p.Name
-                                 select p;
-
-                // ============================= order each performer's albums by year of release, then by name (in collection view)
-                foreach (var perf in performers)
-                {
-                    ICollectionView view = CollectionViewSource.GetDefaultView(perf.Albums);
-                    view.SortDescriptions.Add(new SortDescription("ReleaseYear", ListSortDirection.Ascending));
-                    view.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-                }
-                this.perflist.ItemsSource = performers.ToList();
-                this.perflist.SelectedIndex = -1;
-
-
-                if (pressedButton != null)
-                {
-                    pressedButton.DeSelect();
-                }
-                else
-                {
-                    prevButton.DeSelect();
-                }
-            }
-        }
-
-        private void AlbumSearchClick(object sender, MouseButtonEventArgs e)
-        {
-            using (var context = new MusCatEntities())
-            {
-                var performers = context.Performers.Where(p => p.Albums
-                                                   .Where(a => a.Name.Contains(this.AlbumSearch.Text))
-                                                   .Count() > 0);
-
-                foreach (var perf in performers)
-                {
-                    var filteredAlbums = perf.Albums.Where( a => a.Name.ToUpper().Contains(this.AlbumSearch.Text.ToUpper()) ).ToList();
-                    perf.Albums.Clear();
-                    foreach (var album in filteredAlbums)
-                    {
-                        perf.Albums.Add( album );
-                    }
-                }
-
-                // ============================= order each performer's albums by year of release, then by name (in collection view)
-                foreach (var perf in performers)
-                {
-                    ICollectionView view = CollectionViewSource.GetDefaultView(perf.Albums);
-                    view.SortDescriptions.Add(new SortDescription("ReleaseYear", ListSortDirection.Ascending));
-                    view.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-                }
-                this.perflist.ItemsSource = performers.ToList();
-                this.perflist.SelectedIndex = -1;
-
-
-                if (pressedButton != null)
-                {
-                    pressedButton.DeSelect();
-                }
-                else
-                {
-                    prevButton.DeSelect();
-                }
-            }
-        }
+        #endregion
     }
 }

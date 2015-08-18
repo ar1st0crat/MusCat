@@ -96,15 +96,7 @@
       <DependentUpon>MusCatModel.tt</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Model\AlbumsWithEmptySongsView.cs">
-      <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Model\AlbumsWithoutTotalTimeView.cs">
-      <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Model\EmptyAlbumsView.cs">
+    <Compile Include="Model\Country.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -150,6 +142,9 @@
     <Compile Include="View\EditAlbumWindow.xaml.cs">
       <DependentUpon>EditAlbumWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\EditPerformerWindow.xaml.cs">
+      <DependentUpon>EditPerformerWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\PerformerWindow.xaml.cs">
       <DependentUpon>PerformerWindow.xaml</DependentUpon>
     </Compile>
@@ -172,6 +167,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\EditAlbumWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\EditPerformerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -279,7 +278,6 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <EntityDeploy Include="Model\MusCatModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>

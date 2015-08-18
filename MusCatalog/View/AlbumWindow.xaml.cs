@@ -1,7 +1,6 @@
 ﻿using MusCatalog.Model;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -222,63 +221,6 @@ namespace MusCatalog.View
             }
 
             PlaySong();
-        }
-
-
-
-        // ======================== MOVE TO EditAlbumWindow.xaml.cs ==========================
-
-        private void AlbumCoverMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount > 1)
-            {
-                if (!Clipboard.ContainsImage())
-                {
-                    MessageBox.Show("No image in clipboard!");
-                    return;
-                }
-
-                var filepaths = FileLocator.MakePathImageAlbum( album );
-                string filepath = filepaths[0];
-
-                if (filepaths.Count > 1)
-                {
-                    ChoiceWindow choice = new ChoiceWindow();
-                    choice.SetChoiceList(filepaths);
-                    choice.ShowDialog();
-
-                    if (choice.ChoiceResult == "")
-                    {
-                        return;
-                    }
-                    filepath = choice.ChoiceResult;
-                }
-                
-                Directory.CreateDirectory(Path.GetDirectoryName(filepath));
-
-                var image = Clipboard.GetImage();
-                try
-                {
-                    // first check if file already exists
-                    if (File.Exists(filepath))
-                    {
-                        File.Delete(filepath);
-                    }
-
-                    using (var fileStream = new FileStream(filepath, FileMode.CreateNew))
-                    {
-                        BitmapEncoder encoder = new JpegBitmapEncoder();
-                        encoder.Frames.Add(BitmapFrame.Create(image));
-                        encoder.Save(fileStream);
-
-                        this.AlbumCover.Source = encoder.Frames[0];
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-            }
         }
     }
 }

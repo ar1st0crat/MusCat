@@ -11,11 +11,18 @@ namespace MusCatalog.Model
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     
-    public partial class EmptyAlbumsView
+    public partial class Country
     {
+        public Country()
+        {
+            this.Performers = new ObservableCollection<Performer>();
+        }
+    
+        public byte ID { get; set; }
         public string Name { get; set; }
-        public short ReleaseYear { get; set; }
-        public string AlbumName { get; set; }
+
+        public virtual ObservableCollection<Performer> Performers { get; set; }
     }
 }

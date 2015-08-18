@@ -29,14 +29,12 @@ namespace MusCatalog.Model
         }
     
         public DbSet<Album> Albums { get; set; }
+        public DbSet<Country> Countries { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<Lineup> Lineups { get; set; }
         public DbSet<Musician> Musicians { get; set; }
         public DbSet<Performer> Performers { get; set; }
         public DbSet<Song> Songs { get; set; }
-        public DbSet<AlbumsWithEmptySongsView> AlbumsWithEmptySongsViews { get; set; }
-        public DbSet<AlbumsWithoutTotalTimeView> AlbumsWithoutTotalTimeViews { get; set; }
-        public DbSet<EmptyAlbumsView> EmptyAlbumsViews { get; set; }
     
         public virtual int DeleteAlbumByID(Nullable<int> original_AID)
         {
@@ -54,6 +52,24 @@ namespace MusCatalog.Model
                 new ObjectParameter("Original_PID", typeof(int));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("DeletePerformerByID", original_PIDParameter);
+        }
+    
+        public virtual int SelectSongsInTimeInterval(string lOW_TIME, string hIGH_TIME)
+        {
+            var lOW_TIMEParameter = lOW_TIME != null ?
+                new ObjectParameter("LOW_TIME", lOW_TIME) :
+                new ObjectParameter("LOW_TIME", typeof(string));
+    
+            var hIGH_TIMEParameter = hIGH_TIME != null ?
+                new ObjectParameter("HIGH_TIME", hIGH_TIME) :
+                new ObjectParameter("HIGH_TIME", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SelectSongsInTimeInterval", lOW_TIMEParameter, hIGH_TIMEParameter);
+        }
+    
+        public virtual int UpdateAlbumsWithoutTime()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("UpdateAlbumsWithoutTime");
         }
     }
 }
