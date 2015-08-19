@@ -11,24 +11,24 @@ namespace MusCatalog.Model
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     
     public partial class Performer
     {
         public Performer()
         {
-            this.Albums = new ObservableCollection<Album>();
-            this.Lineups = new ObservableCollection<Lineup>();
+            this.Albums = new HashSet<Album>();
+            this.Lineups = new HashSet<Lineup>();
+            this.Genres = new HashSet<Genre>();
         }
     
         public long ID { get; set; }
         public string Name { get; set; }
         public string Info { get; set; }
         public Nullable<byte> CountryID { get; set; }
-
-        public virtual ObservableCollection<Album> Albums { get; set; }
+    
+        public virtual ICollection<Album> Albums { get; set; }
         public virtual Country Country { get; set; }
-        public virtual ObservableCollection<Lineup> Lineups { get; set; }
-        public virtual Genre Genre { get; set; }
+        public virtual ICollection<Lineup> Lineups { get; set; }
+        public virtual ICollection<Genre> Genres { get; set; }
     }
 }

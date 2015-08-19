@@ -11,13 +11,12 @@ namespace MusCatalog.Model
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     
     public partial class Album
     {
         public Album()
         {
-            this.Songs = new ObservableCollection<Song>();
+            this.Songs = new HashSet<Song>();
         }
     
         public long PerformerID { get; set; }
@@ -29,6 +28,6 @@ namespace MusCatalog.Model
         public Nullable<byte> Rate { get; set; }
     
         public virtual Performer Performer { get; set; }
-        public virtual ObservableCollection<Song> Songs { get; set; }
+        public virtual ICollection<Song> Songs { get; set; }
     }
 }

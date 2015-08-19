@@ -246,6 +246,7 @@ namespace MusCatalog.View
                     var albumToDelete = context.Albums                                 // option2: LINQ query
                                                .Where(a => a.ID == selectedAlbum.ID)
                                                .SingleOrDefault<Album>();
+                    context.Albums.Remove( albumToDelete );
                     context.SaveChanges();
 
                     Performer perf = this.perflist.SelectedItem as Performer;

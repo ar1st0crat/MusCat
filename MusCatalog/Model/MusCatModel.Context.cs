@@ -54,19 +54,6 @@ namespace MusCatalog.Model
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("DeletePerformerByID", original_PIDParameter);
         }
     
-        public virtual int SelectSongsInTimeInterval(string lOW_TIME, string hIGH_TIME)
-        {
-            var lOW_TIMEParameter = lOW_TIME != null ?
-                new ObjectParameter("LOW_TIME", lOW_TIME) :
-                new ObjectParameter("LOW_TIME", typeof(string));
-    
-            var hIGH_TIMEParameter = hIGH_TIME != null ?
-                new ObjectParameter("HIGH_TIME", hIGH_TIME) :
-                new ObjectParameter("HIGH_TIME", typeof(string));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SelectSongsInTimeInterval", lOW_TIMEParameter, hIGH_TIMEParameter);
-        }
-    
         public virtual int UpdateAlbumsWithoutTime()
         {
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("UpdateAlbumsWithoutTime");

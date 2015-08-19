@@ -11,18 +11,17 @@ namespace MusCatalog.Model
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     
     public partial class Genre
     {
         public Genre()
         {
-            this.Performers = new ObservableCollection<Performer>();
+            this.Performers = new HashSet<Performer>();
         }
     
         public byte ID { get; set; }
         public string Name { get; set; }
-
-        public virtual ObservableCollection<Performer> Performers { get; set; }
+    
+        public virtual ICollection<Performer> Performers { get; set; }
     }
 }

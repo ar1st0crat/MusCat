@@ -11,13 +11,12 @@ namespace MusCatalog.Model
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     
     public partial class Musician
     {
         public Musician()
         {
-            this.Lineups = new ObservableCollection<Lineup>();
+            this.Lineups = new HashSet<Lineup>();
         }
     
         public long ID { get; set; }
@@ -26,7 +25,7 @@ namespace MusCatalog.Model
         public Nullable<short> YearBorn { get; set; }
         public Nullable<short> YearDied { get; set; }
         public Nullable<long> PerformerID { get; set; }
-
-        public virtual ObservableCollection<Lineup> Lineups { get; set; }
+    
+        public virtual ICollection<Lineup> Lineups { get; set; }
     }
 }
