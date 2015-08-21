@@ -4,7 +4,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:MusCatalog"
         Title="MusCat"
-        Height="800" Width="1000"
+        Height="780" Width="1000"
         Icon="{StaticResource AppIcon}">
     
     <Window.Background>
@@ -22,6 +22,7 @@
         <sys:Int32 x:Key="star4">4</sys:Int32>
         <sys:Int32 x:Key="star5">5</sys:Int32>
         
+        <!-- GUI parameters -->
         <sys:Double x:Key="albumWidth">100</sys:Double>
         <sys:Double x:Key="albumHeight">100</sys:Double>
         <sys:Double x:Key="performerWidth">125</sys:Double>
@@ -35,35 +36,19 @@
         <local:RateStarsConverter x:Key="rateStarsConverter"/>
         <local:AlbumConverter x:Key="albumConverter"/>
         <local:YearsConverter x:Key="yearsConverter"/>
-        <local:StarsVisibilityConverter x:Key="starsVisibilityConverter"/>
-
-        <!-- performer template -->
-        <DataTemplate x:Key="PerformerTemplate">
-            <StackPanel Orientation="Horizontal">
-                <Image Height="{StaticResource performerHeight}" Width="{StaticResource performerWidth}" Margin="15,10,15,25" 
-                       Source="{Binding Converter={StaticResource photoConverter}, ConverterParameter={StaticResource performerHeight}}" />
-                <StackPanel>
-                    <Label FontSize="24" Foreground="LightYellow" FontFamily="Stencil" Content="{Binding Name}" Padding="0,5,0,0" />
-                    <DockPanel>
-                        <StackPanel Margin="0,0,2,0">
-                            <Label FontSize="18" Foreground="White" FontFamily="Arial Narrow" Content="{Binding Converter={StaticResource rateConverter}}" Padding="1,1,10,1" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Visibility="{Binding Converter={StaticResource starsVisibilityConverter}}">
-                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" Width="15"/>
-                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}" Width="15"/>
-                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star3}}" Width="15"/>
-                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star4}}" Width="15"/>
-                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star5}}" Width="15"/>
-                        </StackPanel>
-                        
-                    </DockPanel>
-                    <Label FontSize="16" Foreground="LightPink" FontFamily="Arial Narrow" Content="{Binding Converter={StaticResource albumConverter}}" Padding="1,1,1,1" />
-                    <Label FontSize="16" Foreground="LightGreen" FontFamily="Arial Narrow" Content="{Binding Converter={StaticResource yearsConverter}}" Padding="1,1,1,1" />
-                </StackPanel>
-            </StackPanel>
-        </DataTemplate>
-
         
+        <!-- style for an album rate textblock: we show "Not rated" only if the rate is null;
+             otherwise, the textblock is hidden and the 5-star panel is visible -->
+        <Style x:Key="RateTextBlock" TargetType="TextBlock">
+            <Setter Property="Visibility" Value="Hidden"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Rate}" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <!-- album data template -->
         <DataTemplate x:Key="AlbumTemplate">
             <StackPanel Orientation="Vertical">
                 <Grid VerticalAlignment="Top">
@@ -74,68 +59,95 @@
                         <RowDefinition Height="20" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" TextWrapping="WrapWithOverflow" FontSize="12" Foreground="Black" FontFamily="Segoe UI" Text="{Binding Path=ID, StringFormat=#{0}}" Margin="0,-1,0,-1" />
-                    <Image Grid.Row="1" VerticalAlignment="Top" Height="{StaticResource albumHeight}" Width="{StaticResource albumWidth}" Margin="5,5,5,5"
+                    <TextBlock Grid.Row="0" 
+                               TextWrapping="WrapWithOverflow" FontSize="12" Foreground="Black" FontFamily="Segoe UI" Margin="0,-1,0,-1"
+                               Text="{Binding Path=ID, StringFormat=#{0}}"/>
+                    <Image Grid.Row="1" VerticalAlignment="Top" Margin="5"
+                           Height="{StaticResource albumHeight}" Width="{StaticResource albumWidth}"
                            Source="{Binding Converter={StaticResource photoConverter}, ConverterParameter={StaticResource albumHeight}}" />
-                    <TextBlock Grid.Row="2" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" FontSize="14" Foreground="Black" FontFamily="Segoe UI" Text="{Binding Path=Name}" Margin="1,1,1,1" Width="150" TextAlignment="Center" />
-                    <TextBlock Grid.Row="3" TextWrapping="WrapWithOverflow" FontSize="12" Foreground="DarkGreen" FontFamily="Segoe UI" Text="{Binding Path=ReleaseYear}" Margin="1,1,1,3" Width="110" TextAlignment="Center" />
+                    <TextBlock Grid.Row="2" Margin="1" Width="150"
+                               Text="{Binding Path=Name}"
+                               VerticalAlignment="Center" TextAlignment="Center" TextWrapping="WrapWithOverflow"
+                               FontSize="14" Foreground="Black" FontFamily="Segoe UI"/>
+                    <TextBlock Grid.Row="3" Margin="1,1,1,3" Width="110"
+                               Text="{Binding Path=ReleaseYear}"
+                               TextWrapping="WrapWithOverflow" TextAlignment="Center"
+                               FontSize="12" Foreground="DarkGreen" FontFamily="Segoe UI"/>
                     <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
                         <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" Width="20"/>
                         <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}" Width="20"/>
                         <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star3}}" Width="20"/>
                         <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star4}}" Width="20"/>
                         <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star5}}" Width="20"/>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Rate}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
                     </StackPanel>
+                    <TextBlock Grid.Row="4"
+                               Style="{StaticResource RateTextBlock}"
+                               Text="{Binding Converter={StaticResource rateConverter}}"
+                               FontSize="12" Foreground="Black" HorizontalAlignment="Center" Margin="5" />
                 </Grid>
             </StackPanel>
         </DataTemplate>
 
-        <DataTemplate x:Key="AlbumSelectedTemplate">
-            <StackPanel Orientation="Vertical">
-                <Grid VerticalAlignment="Top">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="14"/>
-                        <RowDefinition Height="110" />
-                        <RowDefinition Height="40" />
-                        <RowDefinition Height="20" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" TextWrapping="WrapWithOverflow" FontSize="12" Foreground="Black" FontFamily="Segoe UI" Text="{Binding Path=ID, StringFormat=#{0}}" Margin="0,-1,0,-1" />
-                    <Image Grid.Row="1" VerticalAlignment="Top" Height="{StaticResource albumHeight}" Width="{StaticResource albumWidth}" Margin="5,5,5,5"
-                           Source="{Binding Converter={StaticResource photoConverter}, ConverterParameter={StaticResource albumHeight}}" />
-                    <TextBlock Grid.Row="2" TextWrapping="WrapWithOverflow" VerticalAlignment="Center" FontSize="14" Foreground="Black" FontFamily="Segoe UI" Text="{Binding Path=Name}" Margin="1,1,1,1" Width="150" TextAlignment="Center" />
-                    <TextBlock Grid.Row="3" TextWrapping="WrapWithOverflow" FontSize="12" Foreground="DarkGreen" FontFamily="Segoe UI" Text="{Binding Path=ReleaseYear}" Margin="1,1,1,1" Width="110" TextAlignment="Center" />
-                    <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" Width="20"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}" Width="20"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star3}}" Width="20"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star4}}" Width="20"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star5}}" Width="20"/>
-                    </StackPanel>
-                </Grid>
-            </StackPanel>
-        </DataTemplate>
-
-
+        <!-- album style -->
         <Style TargetType="{x:Type ListBoxItem}" x:Key="AlbumContainerStyle">
             <Setter Property="ContentTemplate" Value="{StaticResource AlbumTemplate}" />
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="ContentTemplate" Value="{StaticResource AlbumSelectedTemplate}" />
-                </Trigger>
-            </Style.Triggers>
             <Style.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="LightBlue"/>
             </Style.Resources>
         </Style>
+        
+        <!-- performer template (not selected by user) -->
+        <DataTemplate x:Key="PerformerTemplate">
+            <StackPanel Orientation="Horizontal">
+                <Image Height="{StaticResource performerHeight}" Width="{StaticResource performerWidth}" Margin="15,10,15,25" 
+                       Source="{Binding Converter={StaticResource photoConverter}, ConverterParameter={StaticResource performerHeight}}" />
+                <StackPanel>
+                    <Label FontSize="24" Foreground="LightYellow" FontFamily="Stencil" Content="{Binding Name}" Padding="0,5,0,0" />
+                    <DockPanel>
+                        <StackPanel Margin="0,0,2,0">
+                            <Label Name="rateLabel" FontSize="18" Foreground="White" FontFamily="Arial Narrow" Padding="1,1,10,1"
+                                   Content="{Binding Converter={StaticResource rateConverter}}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" Width="15"/>
+                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}" Width="15"/>
+                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star3}}" Width="15"/>
+                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star4}}" Width="15"/>
+                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star5}}" Width="15"/>
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=rateLabel, Path=Content}" Value="Not rated">
+                                            <Setter Property="Visibility" Value="Hidden"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                        </StackPanel>
+                    </DockPanel>
+                    <Label Content="{Binding Converter={StaticResource albumConverter}}" FontSize="16" Foreground="LightPink" FontFamily="Arial Narrow" Padding="1" />
+                    <Label Content="{Binding Converter={StaticResource yearsConverter}}" FontSize="16" Foreground="LightGreen" FontFamily="Arial Narrow" Padding="1" />
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
 
+        <!-- when performer is selected by user, the country of origin and the list of albums are shown -->
         <DataTemplate x:Key="SelectedPerformerTemplate">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <StackPanel Margin="5,5,35,5" HorizontalAlignment="Center">
                     <Image Height="{StaticResource selectedPerformerHeight}" Width="{StaticResource selectedPerformerWidth}" Margin="15,10,15,5" 
-                       Source="{Binding Converter={StaticResource photoConverter}, ConverterParameter={StaticResource selectedPerformerHeight}}" />
-                    <Label FontSize="26" Foreground="Black" FontFamily="Stencil" Content="{Binding Name}" Padding="1,1,1,1" HorizontalAlignment="Center" />
-                    <Label FontSize="16" Foreground="Black" FontFamily="Arial Narrow" Content="{Binding Country.Name}" Padding="1,1,1,1" HorizontalAlignment="Center" />
+                           Source="{Binding Converter={StaticResource photoConverter}, ConverterParameter={StaticResource selectedPerformerHeight}}" />
+                    <Label FontSize="26" Foreground="Black" FontFamily="Stencil" Content="{Binding Name}" Padding="1" HorizontalAlignment="Center" />
+                    <Label FontSize="16" Foreground="Black" FontFamily="Arial Narrow" Content="{Binding Country.Name}" Padding="1" HorizontalAlignment="Center" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" Width="15"/>
                         <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}" Width="15"/>
@@ -146,9 +158,13 @@
                     <Label FontSize="18" Foreground="DarkGreen" FontFamily="Arial Narrow" Content="{Binding Converter={StaticResource rateConverter}}"
                            Padding="10,1,10,1" HorizontalAlignment="Center" />
                 </StackPanel>
-                <ListBox HorizontalAlignment="Stretch" Name="SelectedAlbums" BorderThickness="0" MouseDoubleClick="SelectedAlbumsMouseDoubleClick" KeyDown="SelectedAlbumKeyDown" SelectionChanged="AlbumSelectionChanged"
+                <ListBox Name="SelectedAlbums"
                          ItemsSource="{Binding Albums}"                        
-                         ItemContainerStyle="{StaticResource AlbumContainerStyle}">
+                         ItemContainerStyle="{StaticResource AlbumContainerStyle}"
+                         HorizontalAlignment="Stretch" BorderThickness="0"
+                         MouseDoubleClick="SelectedAlbumsMouseDoubleClick"
+                         KeyDown="SelectedAlbumKeyDown"
+                         SelectionChanged="AlbumSelectionChanged">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal" IsItemsHost="True" />
@@ -158,8 +174,8 @@
             </StackPanel>
         </DataTemplate>
         
-        
-        <Style TargetType="{x:Type ListBoxItem}" x:Key="ContainerStyle">
+        <!-- performer style -->
+        <Style TargetType="{x:Type ListBoxItem}" x:Key="PerformerContainerStyle">
             <Setter Property="ContentTemplate" Value="{StaticResource PerformerTemplate}" />
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
@@ -170,10 +186,7 @@
                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="White"/>
             </Style.Resources>
         </Style>
-
     </Window.Resources>
-    
-    
     
     <Grid>
         <Grid.RowDefinitions>
@@ -182,7 +195,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
-        
+        <!-- Main menu -->        
         <Menu HorizontalAlignment="Stretch" Height="28" VerticalAlignment="Top" Grid.Row="0">
             <MenuItem Header="Performers">
                 <MenuItem Header="Add..." HorizontalAlignment="Left" Width="145" Click="MenuAddPerformerClick"/>
@@ -200,15 +213,15 @@
             <MenuItem Header="MusCat Radio" Click="MenuRadioClick"/>
             <MenuItem Header="Help" Click="MenuHelpClick" />
         </Menu>
-
+        <!-- upper navigation panel-->
         <WrapPanel Name="lettersPanel" Margin="10,10,10,10" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
-
-        <ListBox Name="perflist" Width="auto" HorizontalAlignment="Stretch" BorderThickness="0" Grid.Row="2"
+        <!-- main area (list of performers) -->
+        <ListBox Name="perflist" Grid.Row="2"
                  ItemsSource="{Binding}"
-                 ItemContainerStyle="{StaticResource ContainerStyle}"
-                 SelectedItem="{Binding Path=SelectedItem}"
+                 ItemContainerStyle="{StaticResource PerformerContainerStyle}"
                  IsSynchronizedWithCurrentItem="True"
-                 PreviewKeyDown="PerflistPreviewKeyDown">
+                 PreviewKeyDown="PerflistPreviewKeyDown"
+                 Width="auto" HorizontalAlignment="Stretch" BorderThickness="0">
             <ListBox.Background>
                 <LinearGradientBrush>
                     <GradientStop Color="#001122" Offset="0" />
@@ -216,8 +229,9 @@
                 </LinearGradientBrush>
             </ListBox.Background>
         </ListBox>
-
+        <!-- lower panel -->
         <DockPanel Grid.Row="3" Margin="10,0,10,0" VerticalAlignment="Center">
+            <!-- includes panel of search filters... -->
             <Expander ExpandDirection="Right">
                 <WrapPanel>
                     <Label Content="Find performer" Foreground="White" FontSize="14" />
@@ -228,8 +242,8 @@
                     <Image Source="{StaticResource ImagePlayButton}" Height="25" Margin="0,0,10,0" MouseDown="AlbumSearchClick" />
                 </WrapPanel>
             </Expander>
+            <!-- ...and navigation panel (for selecting the portion of data to display, e.g. 1 2 3 (1 - show first 10 records)) -->
             <WrapPanel Name="NavigationPanel" HorizontalAlignment="Right" VerticalAlignment="Center" DockPanel.Dock="Right" />
         </DockPanel>
-
     </Grid>
 </Window>

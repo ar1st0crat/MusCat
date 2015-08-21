@@ -21,9 +21,7 @@
         <local:PhotoConverter x:Key="photoConverter"/>
         <local:RateConverter x:Key="rateConverter"/>
         <local:RateStarsConverter x:Key="rateStarsConverter"/>
-        <local:StarsVisibilityConverter x:Key="starsVisibilityConverter"/>
-
-
+        
         <!-- slider style -->
         <Style x:Key="SliderThumbStyle" TargetType="{x:Type Thumb}">
             <Setter Property="OverridesDefaultStyle" Value="True"/>

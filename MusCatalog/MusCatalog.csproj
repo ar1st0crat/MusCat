@@ -157,7 +157,6 @@
     </Compile>
     <Compile Include="Converters\RateConverter.cs" />
     <Compile Include="Converters\RateStarsConverter.cs" />
-    <Compile Include="Converters\StarsVisibilityConverter.cs" />
     <Compile Include="View\AlbumWindow.xaml.cs">
       <DependentUpon>AlbumWindow.xaml</DependentUpon>
     </Compile>
