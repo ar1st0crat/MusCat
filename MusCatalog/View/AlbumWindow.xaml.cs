@@ -67,7 +67,7 @@ namespace MusCatalog.View
                     song.Album = album;
                 }
 
-                this.rateAlbum.DataContext = a;
+                //this.rateAlbum.DataContext = a;
                 this.AlbumInfoPanel.DataContext = a;
                 this.songlist.ItemsSource = albumSongs;
             }
@@ -221,6 +221,15 @@ namespace MusCatalog.View
             }
 
             PlaySong();
+        }
+
+        private void NewRateMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            using (var context = new MusCatEntities())
+            {
+                context.Entry(album).State = System.Data.EntityState.Modified;
+                context.SaveChanges();
+            }
         }
     }
 }

@@ -5,13 +5,20 @@
         xmlns:local="clr-namespace:MusCatalog"
         Title="MusCat Radio"
         SizeToContent="WidthAndHeight"
-        Background="DarkSlateBlue"
         KeyDown="RadioPlayerKeyDown">
 
+    <Window.Background>
+        <LinearGradientBrush>
+            <GradientStop Color="CornflowerBlue" Offset="0" />
+            <GradientStop Color="Black" Offset="1.2" />
+        </LinearGradientBrush>
+    </Window.Background>
+    
     <Window.Resources>
+        <!-- GUI parameters -->
         <sys:Double x:Key="albumHeight">100</sys:Double>
         <sys:Double x:Key="currentAlbumHeight">200</sys:Double>
-        
+        <!-- Album cover path converter -->
         <local:PhotoConverter x:Key="photoConverter"/>
     </Window.Resources>
 
@@ -25,18 +32,29 @@
                 <ColumnDefinition Width="270" />
                 <ColumnDefinition Width="270"/>
             </Grid.ColumnDefinitions>
-
-            <StackPanel Name="prevSongPanel" Grid.Column="0" VerticalAlignment="Center" Margin="15,60,15,60" MouseDown="PrevMouseDown">
+            
+                <!-- The panel of a previous song in radio tracklist -->
+                <StackPanel Name="prevSongPanel" Grid.Column="0" VerticalAlignment="Center" Margin="15,60,15,60" MouseDown="PrevMouseDown">
                 <Label Content="Previous" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
                 <Image Name="prevImage" Source="{Binding Path=Album, Converter={StaticResource photoConverter}, ConverterParameter={StaticResource albumHeight}}"
                        Height="{StaticResource albumHeight}"/>
-                <Label Content="{Binding Path=Album.Performer.Name}" FontSize="18" FontFamily="Stencil" Foreground="White" HorizontalAlignment="Center" Margin="0,5,0,-1"/>
-                <Label Content="{Binding Path=Album.Name}" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,-5,0,-1"/>
-                <DockPanel Name="prevSong" HorizontalAlignment="Center">
-                    <Label Content="{Binding Name}" Foreground="Beige" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
-                    <Label Content="{Binding TimeLength}" Foreground="Beige" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
-                </DockPanel>
+                <TextBlock Text="{Binding Path=Album.Performer.Name}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
+                           Foreground="White" FontSize="18" FontFamily="Stencil" Margin="3,12,3,3"/>
+                <TextBlock Text="{Binding Path=Album.Name}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
+                           Foreground="LightGreen" FontWeight="Bold" Margin="3"/>
+                <WrapPanel HorizontalAlignment="Center">
+                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Foreground="Beige" Margin="5">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0} [{1}]">
+                                <Binding Path="Name" />
+                                <Binding Path="TimeLength" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </WrapPanel>
             </StackPanel>
+            
+            <!-- The central panel of currently playing song in radio tracklist -->
             <StackPanel Name="curSongPanel" Grid.Column="1">
                 <Label FontSize="16" Foreground="AntiqueWhite" Content="Currently playing" HorizontalAlignment="Center"/>
                 <DockPanel HorizontalAlignment="Center">
@@ -46,27 +64,48 @@
                 </DockPanel>
                 <Image Name ="curImage" Source="{Binding Path=Album, Converter={StaticResource photoConverter}, ConverterParameter={StaticResource currentAlbumHeight}}"
                        Height="{StaticResource currentAlbumHeight}" MouseDown="CurrentAlbumClick"/>
-                <Label Content="{Binding Path=Album.Performer.Name}" Foreground="White" FontSize="22" FontFamily="Stencil" HorizontalAlignment="Center" Margin="0,5,0,-1"/>
-                <Label Content="{Binding Path=Album.Name}" FontSize="16" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,-5,0,-1"/>
-                <DockPanel Name="curSong" HorizontalAlignment="Center">
-                    <Label Content="{Binding Name}" Foreground="Beige" FontSize="18" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
-                    <Label Content="{Binding TimeLength}" Foreground="Beige" FontSize="18" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
-                </DockPanel>
+                <TextBlock TextWrapping="Wrap" Text="{Binding Path=Album.Performer.Name}" TextAlignment="Center"
+                           Foreground="White" FontSize="22" FontFamily="Stencil" HorizontalAlignment="Center" Margin="3,12,3,3"/>
+                <TextBlock TextWrapping="Wrap" Text="{Binding Path=Album.Name}" TextAlignment="Center"
+                           FontSize="16" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="3"/>
+                <WrapPanel HorizontalAlignment="Center">
+                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Margin="5" FontSize="18" Foreground="Beige">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0} [{1}]">
+                                <Binding Path="Name" />
+                                <Binding Path="TimeLength" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </WrapPanel>
             </StackPanel>
+            
+            <!-- The panel of a next song in radio tracklist -->
             <StackPanel Name="nextSongPanel" Grid.Column="2" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="15,60,15,60" MouseDown="NextMouseDown">
                 <Label Content="Next" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
-                <Image Name="nextImage" Source="{Binding Path=Album, Converter={StaticResource photoConverter}, ConverterParameter={StaticResource currentAlbumHeight}}"
+                <Image Name="nextImage" Source="{Binding Path=Album, Converter={StaticResource photoConverter}, ConverterParameter={StaticResource albumHeight}}"
                        Height="{StaticResource albumHeight}"/>
-                <Label Content="{Binding Path=Album.Performer.Name}" Foreground="White" FontSize="18" FontFamily="Stencil" HorizontalAlignment="Center" Margin="0,5,0,-1"/>
-                <Label Content="{Binding Path=Album.Name}" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,-5,0,-1"/>
-                <DockPanel Name="nextSong" HorizontalAlignment="Center">
-                    <Label Content="{Binding Name}" Foreground="Beige" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
-                    <Label Content="{Binding TimeLength}" Foreground="Beige" HorizontalAlignment="Center" Margin="0,-5,0,1"/>
-                </DockPanel>
+                <TextBlock Text="{Binding Path=Album.Performer.Name}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
+                           Foreground="White" FontSize="18" FontFamily="Stencil" Margin="3,12,3,3"/>
+                <TextBlock Text="{Binding Path=Album.Name}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
+                           Foreground="LightGreen" FontWeight="Bold" Margin="3"/>
+                <WrapPanel HorizontalAlignment="Center">
+                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Foreground="Beige" Margin="5">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0} [{1}]">
+                                <Binding Path="Name" />
+                                <Binding Path="TimeLength" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </WrapPanel>
             </StackPanel>
         </Grid>
+        
+        <!-- Lower panel with filters and archive songlist -->
         <DockPanel Margin="15,15,15,40">
-            <Expander Header="Details" FontFamily="Broadway" Foreground="AntiqueWhite" FontSize="26" Margin="0,0,50,0">
+            <!-- Filters -->
+            <Expander Header="Filters" FontFamily="Broadway" Foreground="AntiqueWhite" FontSize="26" Margin="0,0,50,0">
                 <StackPanel>
                     <CheckBox Content="Short songs" Margin="20,0,0,0" FontSize="20" Foreground="AntiqueWhite" Name="ShortSongs" />
                     <CheckBox Content="Decades" Margin="20,0,0,0" FontSize="20" Foreground="AntiqueWhite" Name="Decades" />
@@ -74,6 +113,7 @@
                     <CheckBox Content="Performers" Margin="20,0,0,0" FontSize="20" Foreground="AntiqueWhite" Name="Performers" />
                 </StackPanel>
             </Expander>
+            <!-- Archive radio tracklist -->
             <Expander Header="Archive" FontFamily="Broadway" Foreground="AntiqueWhite" FontSize="26" Width="auto" HorizontalAlignment="Right">
                 <StackPanel>
                     <ListBox Name="Archive" Margin="20,0,20,0" VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="14" FontFamily="Arial Narrow" Background="Transparent">

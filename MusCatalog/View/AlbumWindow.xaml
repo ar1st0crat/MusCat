@@ -3,24 +3,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:MusCatalog"
+        xmlns:view="clr-namespace:MusCatalog.View"
         Title="Album Info"
         SizeToContent="WidthAndHeight"
         BorderBrush="AliceBlue"
         Closing="WindowClosing">
     
     <Window.Resources>
-        <sys:Int32 x:Key="star1">1</sys:Int32>
-        <sys:Int32 x:Key="star2">2</sys:Int32>
-        <sys:Int32 x:Key="star3">3</sys:Int32>
-        <sys:Int32 x:Key="star4">4</sys:Int32>
-        <sys:Int32 x:Key="star5">5</sys:Int32>
-        
         <sys:Double x:Key="albumWidth">300</sys:Double>
         <sys:Double x:Key="albumHeight">300</sys:Double>
 
         <local:PhotoConverter x:Key="photoConverter"/>
         <local:RateConverter x:Key="rateConverter"/>
-        <local:RateStarsConverter x:Key="rateStarsConverter"/>
         
         <!-- slider style -->
         <Style x:Key="SliderThumbStyle" TargetType="{x:Type Thumb}">
@@ -88,7 +82,6 @@
             </WrapPanel>
         </DataTemplate>
         
-        
         <DataTemplate x:Key="SelectedSongTemplate">
             <StackPanel>
                 <WrapPanel Background="Transparent" Margin="0,20,0,0" HorizontalAlignment="Center">
@@ -102,7 +95,6 @@
                 </DockPanel>
             </StackPanel>
         </DataTemplate>
-
         
         <Style TargetType="{x:Type ListBoxItem}" x:Key="SongStyle">
             <Setter Property="ContentTemplate" Value="{StaticResource SongTemplate}" />
@@ -135,29 +127,17 @@
                    Grid.Column="0"
                    Width="{StaticResource albumWidth}" Height="{StaticResource albumHeight}"
                    Margin="10,25,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" /> 
-
             <DockPanel>
                 <DockPanel HorizontalAlignment="Left" Margin="15,0,0,0">
                     <StackPanel>
-                        <Label Name="rate" FontSize="18" Foreground="Black" Background="Orange" FontFamily="Arial Narrow" Content="{Binding Converter={StaticResource rateConverter}}" />
+                        <Label Name="rate" Content="{Binding Converter={StaticResource rateConverter}}"
+                               FontSize="18" Foreground="Black" Background="Orange" FontFamily="Arial Narrow" Margin="0,0,5,0" />
                     </StackPanel>
-                    <StackPanel Name="rateAlbum" Orientation="Horizontal" Margin="5,0,0,0">
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" 
-                               Width="25"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}"
-                               Width="25"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star3}}" 
-                               Width="25"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star4}}"
-                               Width="25"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star5}}"
-                               Width="25"/>
-                    </StackPanel>
+                    <view:RateStarsControl Height="25" Width="125" Rate="{Binding Rate}" MouseDown="NewRateMouseDown" />
                 </DockPanel>
-                <Label Content="{Binding TotalTime}" Background="Maroon" Width="auto" HorizontalAlignment="Right" Margin="0,-15,40,0" 
+                <Label Content="{Binding TotalTime}" Background="Maroon" Width="auto" HorizontalAlignment="Right" Margin="0,-10,40,0" 
                        Foreground="White" FontSize="24" FontFamily="Broadway"/>
             </DockPanel>
-
             <StackPanel>
                 <Label Content="{Binding Path=Performer.Name}" FontFamily="Stencil" Foreground="AntiqueWhite" FontSize="22" HorizontalAlignment="Center" Margin="0,10,0,0" />
                 <Label Content="{Binding Path=Name}" FontFamily="Arial Narrow" Foreground="AntiqueWhite" FontSize="20" HorizontalAlignment="Center" Margin="0,-5,0,0" />

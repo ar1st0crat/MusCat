@@ -59,7 +59,7 @@ namespace MusCatalog
                 
                 int totalRate = (int)Math.Round( (double)sumRate / ratedCount, MidpointRounding.AwayFromZero );
 
-                return totalRate + "/10";
+                return totalRate;// +"/10";
             }
 
 
@@ -91,7 +91,8 @@ namespace MusCatalog
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return value;
         }
     }
 }

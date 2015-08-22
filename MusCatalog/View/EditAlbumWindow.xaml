@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:MusCatalog"
+        xmlns:view="clr-namespace:MusCatalog.View"
         Title="Edit Album"
         SizeToContent="WidthAndHeight"
         BorderBrush="AliceBlue">
@@ -13,34 +14,12 @@
     </Window.CommandBindings>
     
     <Window.Resources>
+        <!-- GUI parameters -->
         <sys:Double x:Key="albumWidth">300</sys:Double>
         <sys:Double x:Key="albumHeight">300</sys:Double>
-
-        <sys:Int32 x:Key="star1">1</sys:Int32>
-        <sys:Int32 x:Key="star2">2</sys:Int32>
-        <sys:Int32 x:Key="star3">3</sys:Int32>
-        <sys:Int32 x:Key="star4">4</sys:Int32>
-        <sys:Int32 x:Key="star5">5</sys:Int32>
-
+        <!-- Converters -->
         <local:PhotoConverter x:Key="photoConverter"/>
         <local:RateConverter x:Key="rateConverter"/>
-        <local:RateStarsConverter x:Key="rateStarsConverter"/>
-        
-        <DataTemplate x:Key="SongTemplate">
-            <WrapPanel>
-                <Label Content="{Binding Path=TrackNo}" Foreground="White" FontSize="12"/>
-                <Label Content="{Binding Path=Name}" Foreground="White" FontSize="17"/>
-                <Label Content="{Binding Path=TimeLength}" Foreground="LightGreen"/>
-            </WrapPanel>
-        </DataTemplate>
-        
-        <Style TargetType="{x:Type ListBoxItem}" x:Key="SongStyle">
-            <Setter Property="ContentTemplate" Value="{StaticResource SongTemplate}" />
-            <Style.Resources>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
-            </Style.Resources>
-        </Style>
-        
     </Window.Resources>
 
     <Window.Background>
@@ -68,25 +47,10 @@
             <DockPanel>
                 <DockPanel HorizontalAlignment="Left" Margin="15,0,0,0">
                     <StackPanel>
-                        <TextBox Name="rate" FontSize="18" Foreground="Black" Background="Orange" FontFamily="Arial Narrow" Text="{Binding Path=Rate, Converter={StaticResource rateConverter}}" />
+                        <TextBox Name="rate" Text="{Binding Path=Rate, Converter={StaticResource rateConverter}}"
+                                 FontSize="18" Foreground="Black" Background="Orange" FontFamily="Arial Narrow" Margin="0,0,5,0"  />
                     </StackPanel>
-                    <StackPanel Name="rateAlbum" Orientation="Horizontal" Margin="5,0,0,0">
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" 
-                               Width="25"
-                               MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" MouseDown="StarMouseDown"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}"
-                               Width="25"
-                               MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" MouseDown="StarMouseDown" />
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star3}}" 
-                               Width="25"
-                               MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" MouseDown="StarMouseDown" />
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star4}}"
-                               Width="25"
-                               MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" MouseDown="StarMouseDown" />
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star5}}"
-                               Width="25"
-                               MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" MouseDown="StarMouseDown" />
-                    </StackPanel>
+                    <view:RateStarsControl Height="25" Width="125" Rate="{Binding Rate}" MouseDown="NewRateMouseDown" />
                 </DockPanel>
                 <TextBox Name="TotalTime" Text="{Binding TotalTime, Mode=TwoWay}"
                          Background="Maroon" Width="auto" HorizontalAlignment="Right" Margin="0,-15,40,0" 

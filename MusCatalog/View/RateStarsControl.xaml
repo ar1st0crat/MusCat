@@ -1,0 +1,18 @@
+﻿<UserControl x:Class="MusCatalog.View.RateStarsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid x:Name="StarGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Image Grid.Column="0" Tag="1" Source="{StaticResource ImageEmptyStar}" Cursor="Hand" MouseDown="StarMouseDown" MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" />
+        <Image Grid.Column="1" Tag="2" Source="{StaticResource ImageEmptyStar}" Cursor="Hand" MouseDown="StarMouseDown" MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" />
+        <Image Grid.Column="2" Tag="3" Source="{StaticResource ImageEmptyStar}" Cursor="Hand" MouseDown="StarMouseDown" MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" />
+        <Image Grid.Column="3" Tag="4" Source="{StaticResource ImageEmptyStar}" Cursor="Hand" MouseDown="StarMouseDown" MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" />
+        <Image Grid.Column="4" Tag="5" Source="{StaticResource ImageEmptyStar}" Cursor="Hand" MouseDown="StarMouseDown" MouseMove="StarMouseMove" MouseLeave="StarMouseLeave" />
+    </Grid>
+</UserControl>

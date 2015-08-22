@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:MusCatalog"
+        xmlns:view="clr-namespace:MusCatalog.View"
         Title="MusCat"
         Height="780" Width="1000"
         Icon="{StaticResource AppIcon}">
@@ -15,13 +16,6 @@
     </Window.Background>
     
     <Window.Resources>
-        <!-- star numbers -->
-        <sys:Int32 x:Key="star1">1</sys:Int32>
-        <sys:Int32 x:Key="star2">2</sys:Int32>
-        <sys:Int32 x:Key="star3">3</sys:Int32>
-        <sys:Int32 x:Key="star4">4</sys:Int32>
-        <sys:Int32 x:Key="star5">5</sys:Int32>
-        
         <!-- GUI parameters -->
         <sys:Double x:Key="albumWidth">100</sys:Double>
         <sys:Double x:Key="albumHeight">100</sys:Double>
@@ -33,7 +27,6 @@
         <!-- converters -->
         <local:PhotoConverter x:Key="photoConverter"/>
         <local:RateConverter x:Key="rateConverter"/>
-        <local:RateStarsConverter x:Key="rateStarsConverter"/>
         <local:AlbumConverter x:Key="albumConverter"/>
         <local:YearsConverter x:Key="yearsConverter"/>
         
@@ -74,11 +67,7 @@
                                TextWrapping="WrapWithOverflow" TextAlignment="Center"
                                FontSize="12" Foreground="DarkGreen" FontFamily="Segoe UI"/>
                     <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" Width="20"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}" Width="20"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star3}}" Width="20"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star4}}" Width="20"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star5}}" Width="20"/>
+                        <view:RateStarsControl Height="20" Width="100" Rate="{Binding Rate}" IsEnabled="False" />
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
                                 <Style.Triggers>
@@ -92,7 +81,7 @@
                     <TextBlock Grid.Row="4"
                                Style="{StaticResource RateTextBlock}"
                                Text="{Binding Converter={StaticResource rateConverter}}"
-                               FontSize="12" Foreground="Black" HorizontalAlignment="Center" Margin="5" />
+                               FontSize="12" Foreground="Black" HorizontalAlignment="Center" Margin="5"/>
                 </Grid>
             </StackPanel>
         </DataTemplate>
@@ -103,6 +92,15 @@
             <Style.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="LightBlue"/>
             </Style.Resources>
+        </Style>
+
+        <!-- performer rate info panel style -->
+        <Style TargetType="{x:Type StackPanel}" x:Key="PerformerRateStyle">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ElementName=rateLabel, Path=Content}" Value="Not rated">
+                    <Setter Property="Visibility" Value="Hidden"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
         
         <!-- performer template (not selected by user) -->
@@ -115,23 +113,10 @@
                     <DockPanel>
                         <StackPanel Margin="0,0,2,0">
                             <Label Name="rateLabel" FontSize="18" Foreground="White" FontFamily="Arial Narrow" Padding="1,1,10,1"
-                                   Content="{Binding Converter={StaticResource rateConverter}}"/>
+                                   Content="{Binding Converter={StaticResource rateConverter}}"  ContentStringFormat="{}{0}/10"/>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" Width="15"/>
-                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}" Width="15"/>
-                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star3}}" Width="15"/>
-                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star4}}" Width="15"/>
-                            <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star5}}" Width="15"/>
-                            <StackPanel.Style>
-                                <Style TargetType="StackPanel">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ElementName=rateLabel, Path=Content}" Value="Not rated">
-                                            <Setter Property="Visibility" Value="Hidden"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </StackPanel.Style>
+                        <StackPanel Orientation="Horizontal" Style="{StaticResource PerformerRateStyle}">
+                            <view:RateStarsControl Width="75" Height="15" Rate="{Binding Path=., Converter={StaticResource rateConverter}}" IsEnabled="False" />
                         </StackPanel>
                     </DockPanel>
                     <Label Content="{Binding Converter={StaticResource albumConverter}}" FontSize="16" Foreground="LightPink" FontFamily="Arial Narrow" Padding="1" />
@@ -148,12 +133,8 @@
                            Source="{Binding Converter={StaticResource photoConverter}, ConverterParameter={StaticResource selectedPerformerHeight}}" />
                     <Label FontSize="26" Foreground="Black" FontFamily="Stencil" Content="{Binding Name}" Padding="1" HorizontalAlignment="Center" />
                     <Label FontSize="16" Foreground="Black" FontFamily="Arial Narrow" Content="{Binding Country.Name}" Padding="1" HorizontalAlignment="Center" />
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star1}}" Width="15"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star2}}" Width="15"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star3}}" Width="15"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star4}}" Width="15"/>
-                        <Image Source="{Binding Converter={StaticResource rateStarsConverter}, ConverterParameter={StaticResource star5}}" Width="15"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Style="{StaticResource PerformerRateStyle}">
+                        <view:RateStarsControl Width="75" Height="15" Rate="{Binding Path=., Converter={StaticResource rateConverter}}" IsEnabled="False" />
                     </StackPanel>
                     <Label FontSize="18" Foreground="DarkGreen" FontFamily="Arial Narrow" Content="{Binding Converter={StaticResource rateConverter}}"
                            Padding="10,1,10,1" HorizontalAlignment="Center" />

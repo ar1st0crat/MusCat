@@ -156,11 +156,13 @@
       <DependentUpon>RadioPlayerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\RateConverter.cs" />
-    <Compile Include="Converters\RateStarsConverter.cs" />
     <Compile Include="View\AlbumWindow.xaml.cs">
       <DependentUpon>AlbumWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\YearsConverter.cs" />
+    <Compile Include="View\RateStarsControl.xaml.cs">
+      <DependentUpon>RateStarsControl.xaml</DependentUpon>
+    </Compile>
     <Page Include="View\ChoiceWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -194,6 +196,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\AlbumWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\RateStarsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

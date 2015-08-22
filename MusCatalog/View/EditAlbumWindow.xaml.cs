@@ -47,7 +47,7 @@ namespace MusCatalog.View
                     song.Album = album;
                 }
 
-                this.rateAlbum.DataContext = a;
+                //this.rateAlbum.DataContext = a;
                 this.AlbumInfoPanel.DataContext = a;
                 this.GridSongs.ItemsSource = albumSongs;    
             }
@@ -328,101 +328,16 @@ namespace MusCatalog.View
             }
         }
 
-        
-        #region Star image methods: mouse over, mouse leave, mouse down
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void StarMouseMove(object sender, MouseEventArgs e)
+        private void NewRateMouseDown(object sender, MouseButtonEventArgs e)
         {
-            starPos = 0;
-
-            // loop to find out what star has triggered the MouseMove event
-            foreach (var elem in this.rateAlbum.Children)
-            {
-                starPos++;
-
-                if (elem == (Image)sender)
-                    break;
-            }
-
-            // draw all stars to the left as "full" stars
-            for (int i = 0; i < starPos - 1; i++)
-            {
-                ((Image)this.rateAlbum.Children[i]).Source = imageStar;
-            }
-
-            // if the X coordinate of mouse position exceeds the half of a star size
-            if (e.GetPosition((Image)sender).X > 25 / 2)
-            {
-                // then draw full star
-                ((Image)sender).Source = imageStar;
-            }
-            else
-            {
-                // else draw half of the star
-                ((Image)sender).Source = imageHalfStar;
-            }
-
-            // rest of the stars are empty
-            for (int i = starPos; i < 5; i++)
-            {
-                ((Image)this.rateAlbum.Children[i]).Source = imageEmptyStar;
-            }
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void StarMouseLeave(object sender, MouseEventArgs e)
-        {
-            starPos = 0;
-            for (int i = 0; i < 5; i++)
-            {
-                ((Image)this.rateAlbum.Children[i]).Source = imageEmptyStar;
-            }
-
-            if (album.Rate.HasValue)
-            {
-                int i = 0;
-                for (; i < album.Rate / 2; i++)
-                {
-                    ((Image)this.rateAlbum.Children[i]).Source = imageStar;
-                }
-
-                if (album.Rate.Value % 2 == 1)
-                {
-                    ((Image)this.rateAlbum.Children[i]).Source = imageHalfStar;
-                }
-            }
-        }
-
-
-        /// <summary>
-        /// When the user clicks on a star, we update the album rate in database
-        /// </summary>
-        private void StarMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            album.Rate = (byte)(starPos * 2);
-
-            if (((Image)sender).Source == imageHalfStar)
-            {
-                album.Rate--;
-            }
-
-            // update database
             using (var context = new MusCatEntities())
             {
                 context.Entry(album).State = System.Data.EntityState.Modified;
                 context.SaveChanges();
             }
         }
-
-        #endregion
     }
-
+        
 
     //public static class AlbumCommands
     //{
