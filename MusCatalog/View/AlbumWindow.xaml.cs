@@ -69,7 +69,7 @@ namespace MusCatalog.View
 
                 //this.rateAlbum.DataContext = a;
                 this.AlbumInfoPanel.DataContext = a;
-                this.songlist.ItemsSource = albumSongs;
+                this.Songlist.ItemsSource = albumSongs;
             }
         }
 
@@ -105,7 +105,7 @@ namespace MusCatalog.View
         
         private void PlaySong()
         {
-            var song = this.songlist.SelectedItem as Song;
+            var song = this.Songlist.SelectedItem as Song;
             string songfile = FileLocator.FindSongPath(albumSongs[Convert.ToInt32(song.TrackNo) - 1]);
 
             try
@@ -141,6 +141,20 @@ namespace MusCatalog.View
             curPlaybackImage.Source = imagePlay;
         }
 
+        /// <summary>
+        /// Rewind the song to the position specified by playback slider
+        /// </summary>
+        /// <param name="sender">playback slider</param>
+        private void SeekPlaybackPosition(object sender, DragCompletedEventArgs e)
+        {
+            if (player.SongPlaybackState == PlaybackState.STOP)
+            {
+                return;
+            }
+
+            player.Seek(((Slider)sender).Value / 10.0);
+        }
+
         #endregion
 
         /// <summary>
@@ -170,29 +184,13 @@ namespace MusCatalog.View
             StopSong();
 
             // play next song
-            if (this.songlist.SelectedIndex == this.songlist.Items.Count - 1)
+            if (this.Songlist.SelectedIndex == this.Songlist.Items.Count - 1)
             {
                 return;
             }
-            this.songlist.SelectedIndex++;
-            this.songlist.Focus();
+            this.Songlist.SelectedIndex++;
+            this.Songlist.Focus();
         }
-
-
-        /// <summary>
-        /// Rewind the song to the position specified by playback slider
-        /// </summary>
-        /// <param name="sender">playback slider</param>
-        private void SeekPlaybackPosition(object sender, DragCompletedEventArgs e)  //RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (player.SongPlaybackState == PlaybackState.STOP)
-            {
-                return;
-            }
-
-            player.Seek( ((Slider)sender).Value / 10.0 );
-        }
-
         
         /// <summary>
         /// Update the slider thumb position according to current position of MediaPlayer
@@ -206,7 +204,6 @@ namespace MusCatalog.View
 
             curSlider.Value = player.TimePercent() * 10.0;
         }
-
 
         private void SelectedSongChanged(object sender, SelectionChangedEventArgs e)
         {

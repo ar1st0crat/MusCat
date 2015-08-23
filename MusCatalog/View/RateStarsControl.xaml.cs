@@ -108,7 +108,7 @@ namespace MusCatalog.View
         private static void DrawStars( byte? rate, UIElementCollection stars )
         {
             // if rate is null, then simply draw empty stars
-            if (!rate.HasValue)
+            if (!rate.HasValue || rate == 0)
             {
                 for (int i = 0; i < STARS_COUNT; i++)
                 {

@@ -122,6 +122,12 @@ namespace MusCatalog.View
             }
         }
 
+        private void DeleteSongCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+            e.Handled = true;
+        }
+
         private void DeleteSong(object sender, ExecutedRoutedEventArgs e)
         {
             var b = sender as Button;
@@ -206,7 +212,7 @@ namespace MusCatalog.View
             totalSeconds = totalSeconds % 60;
 
             album.TotalTime = string.Format("{0}:{1:00}", totalMinutes, totalSeconds);
-            this.TotalTime.Text = album.TotalTime;
+            this.AlbumTotalTime.Text = album.TotalTime;
         }
 
         private void ClearAll(object sender, RoutedEventArgs e)
@@ -293,7 +299,7 @@ namespace MusCatalog.View
                     encoder.Frames.Add(BitmapFrame.Create(image));
                     encoder.Save(fileStream);
 
-                    this.AlbumCover.Source = new WriteableBitmap( encoder.Frames[0] );
+                    this.AlbumImage.Source = new WriteableBitmap( encoder.Frames[0] );
                 }
             }
             catch (Exception ex)
@@ -319,7 +325,7 @@ namespace MusCatalog.View
                     PrepareFileForSaving(filepath);
                     File.Copy(ofd.FileName, filepath);
 
-                    this.AlbumCover.Source = new WriteableBitmap(new BitmapImage(new Uri(filepath)));
+                    this.AlbumImage.Source = new WriteableBitmap(new BitmapImage(new Uri(filepath)));
                 }
                 catch (Exception ex)
                 {

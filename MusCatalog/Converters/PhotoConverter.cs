@@ -1,4 +1,5 @@
 ﻿using MusCatalog.Model;
+using MusCatalog.ViewModel;
 using System;
 using System.Globalization;
 using System.Windows.Data;

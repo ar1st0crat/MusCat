@@ -1,4 +1,5 @@
 ﻿using MusCatalog.Model;
+using MusCatalog.ViewModel;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -24,43 +25,43 @@ namespace MusCatalog
         /// </summary>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Performer perf = value as Performer;
+            //Performer perf = value as Performer;
 
-            // ================================================== the current object is PERFORMER
-            if (perf != null)
-            {
-                if (perf.Albums.Count == 0)
-                {
-                    return "Not rated";
-                }
+            //// ================================================== the current object is PERFORMER
+            //if (perf != null)
+            //{
+            //    if (perf.Albums.Count == 0)
+            //    {
+            //        return "Not rated";
+            //    }
 
-                int ratedCount = perf.Albums.Count(t => t.Rate.HasValue);
+            //    int ratedCount = perf.Albums.Count(t => t.Rate.HasValue);
 
-                if (ratedCount == 0)
-                {
-                    return "Not rated";
-                }
+            //    if (ratedCount == 0)
+            //    {
+            //        return "Not rated";
+            //    }
 
-                int sumRate = perf.Albums.Sum(t =>
-                {
-                    if (t.Rate.HasValue)
-                        return t.Rate.Value;
-                    else
-                        return 0;
-                });
+            //    int sumRate = perf.Albums.Sum(t =>
+            //    {
+            //        if (t.Rate.HasValue)
+            //            return t.Rate.Value;
+            //        else
+            //            return 0;
+            //    });
 
-                if ( ratedCount > 2 )
-                {
-                    int minRate = perf.Albums.Min(r => r.Rate).Value;
-                    int maxRate = perf.Albums.Max(r => r.Rate).Value;
-                    sumRate -= (minRate + maxRate);
-                    ratedCount -= 2;
-                }
+            //    if ( ratedCount > 2 )
+            //    {
+            //        int minRate = perf.Albums.Min(r => r.Rate).Value;
+            //        int maxRate = perf.Albums.Max(r => r.Rate).Value;
+            //        sumRate -= (minRate + maxRate);
+            //        ratedCount -= 2;
+            //    }
                 
-                int totalRate = (int)Math.Round( (double)sumRate / ratedCount, MidpointRounding.AwayFromZero );
+            //    int totalRate = (int)Math.Round( (double)sumRate / ratedCount, MidpointRounding.AwayFromZero );
 
-                return totalRate;// +"/10";
-            }
+            //    return totalRate + "/10";
+            //}
 
 
             // ================================================== the current object is ALBUM
@@ -85,14 +86,27 @@ namespace MusCatalog
                 return rate.Value + "/10";
             }
 
-            return "Not Rated";
+            return "Not rated";
         }
 
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            //throw new NotImplementedException();
-            return value;
+            string val = value.ToString();
+            byte converted = 0;
+            if (val.Contains('/'))
+            {
+                val = val.Substring( 0, val.IndexOf('/') );
+            }
+
+            if (byte.TryParse(val, out converted))
+            {
+                return converted;
+            }
+            else
+            {
+                return 0;
+            }
         }
     }
 }

@@ -13,19 +13,28 @@ namespace MusCatalog
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Performer perf = value as Performer;
+            // Performer perf = value as Performer;
 
-            if (perf != null && perf.Albums != null )
+            //if (perf != null && perf.Albums != null )
+            //{
+            //    switch (perf.Albums.Count)
+            //    {
+            //        case 0: return "No albums";
+            //        case 1: return "1 album";
+            //        default: return perf.Albums.Count + " albums";
+            //    }
+            //}
+
+            //return "";
+
+            int albumCount = (int)value;
+
+            switch (albumCount)
             {
-                switch (perf.Albums.Count)
-                {
-                    case 0: return "No albums";
-                    case 1: return "1 album";
-                    default: return perf.Albums.Count + " albums";
-                }
+                case 0: return "No albums";
+                case 1: return "1 album";
+                default: return albumCount + " albums";
             }
-            
-            return "";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

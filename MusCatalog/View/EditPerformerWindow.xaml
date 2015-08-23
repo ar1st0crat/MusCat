@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:MusCatalog"
+        xmlns:vm="clr-namespace:MusCatalog.ViewModel"
         Title="Performer Info"
         SizeToContent="WidthAndHeight">
-
     <Window.Background>
         <LinearGradientBrush>
             <GradientStop Color="#001122" Offset="0" />
@@ -14,8 +14,10 @@
     </Window.Background>
 
     <Window.Resources>
-        <sys:Double x:Key="PerformerImageWidth">400</sys:Double>
-        <local:PhotoConverter x:Key="photoConverter" />
+        
+        <sys:Double x:Key="PerformerPhotoWidth">400</sys:Double>
+        
+        <local:PhotoConverter x:Key="PerformerPhotoConverter" />
     </Window.Resources>
 
     <Grid>
@@ -29,36 +31,37 @@
                 <Button Content="Load from file..." Margin="15,10,3,10" Padding="5" Click="LoadPerformerImageFromFile"/>
                 <Button Content="Load from clipboard" Margin="0,10,3,10" Click="LoadPerformerImageFromClipboard"/>
             </WrapPanel>
-            <Image Name="PerformerPhoto" Source="{Binding Converter={StaticResource photoConverter}, ConverterParameter={StaticResource PerformerImageWidth}}"
-                   HorizontalAlignment="Left" VerticalAlignment="Top" Width="{StaticResource PerformerImageWidth}"/>
+            <Image Name="PerformerPhoto" Source="{Binding Path=Performer, Converter={StaticResource PerformerPhotoConverter}, ConverterParameter={StaticResource PerformerPhotoWidth}}"
+                   HorizontalAlignment="Left" VerticalAlignment="Top" Width="{StaticResource PerformerPhotoWidth}"/>
             <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
                 <Label Content="Name: " Foreground="WhiteSmoke"/>
-                <TextBox Text="{Binding Name}" Width="300" FontFamily="Stencil" FontSize="20" HorizontalAlignment="Center"/>
+                <TextBox Text="{Binding Performer.Name}" Width="300" FontFamily="Stencil" FontSize="20" HorizontalAlignment="Center"/>
             </WrapPanel>
             <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Label Content="Country: " Foreground="WhiteSmoke"/>
-                <ComboBox Name="CountryList" Width="290" FontSize="16" HorizontalAlignment="Center"
-                          DisplayMemberPath="Name" 
-                          SelectedValuePath="ID"/>
+                <ComboBox x:Name="CountryList"
+                          ItemsSource="{Binding Countries}" SelectedItem="{Binding Performer.Country}" SelectedValue="{Binding Performer.CountryID}"
+                          Width="290" FontSize="16" HorizontalAlignment="Center"
+                          DisplayMemberPath="Name" SelectedValuePath="ID" IsSynchronizedWithCurrentItem="False"/>
             </WrapPanel>
-            <ListBox Name="GenreList" ItemsSource="{Binding}"
+            <ListBox Name="GenreList" ItemsSource="{Binding Genres}"
                      Background="Transparent" BorderBrush="Transparent">
                 <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <ListBoxItem>
+                            <ListBoxItem Foreground="White">
                                 <CheckBox Content="{Binding Name}" />
                             </ListBoxItem>
                         </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
             <Label Content="Lineup:" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
-            <ListBox ItemsSource="{Binding Lineups}"
+            <ListBox ItemsSource="{Binding Performer.Lineups}"
                      Background="Transparent" BorderBrush="Transparent">
             </ListBox>
             <Button Content="Save performer information" Margin="10" Padding="5" Click="SavePerformerInformation"/>
         </StackPanel>
         <StackPanel Grid.Column="1">
-            <TextBox Text="{Binding Info}" Width="350" Height="600" Margin="15" Background="Black"
+            <TextBox Text="{Binding Performer.Info}" Width="350" Height="600" Margin="15" Background="Black"
                      TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
                      Foreground="White" Opacity=".35" />
         </StackPanel>

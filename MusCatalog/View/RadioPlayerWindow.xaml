@@ -37,7 +37,11 @@
                 <StackPanel Name="prevSongPanel" Grid.Column="0" VerticalAlignment="Center" Margin="15,60,15,60" MouseDown="PrevMouseDown">
                 <Label Content="Previous" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
                 <Image Name="prevImage" Source="{Binding Path=Album, Converter={StaticResource photoConverter}, ConverterParameter={StaticResource albumHeight}}"
-                       Height="{StaticResource albumHeight}"/>
+                       Height="{StaticResource albumHeight}">
+                    <Image.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="15"/>
+                    </Image.Effect>
+                </Image>
                 <TextBlock Text="{Binding Path=Album.Performer.Name}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
                            Foreground="White" FontSize="18" FontFamily="Stencil" Margin="3,12,3,3"/>
                 <TextBlock Text="{Binding Path=Album.Name}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
@@ -63,7 +67,11 @@
                     <Slider Name="VolumeSlider" Width="75" Value="5" ValueChanged="SliderVolumeChanged" VerticalAlignment="Center" />
                 </DockPanel>
                 <Image Name ="curImage" Source="{Binding Path=Album, Converter={StaticResource photoConverter}, ConverterParameter={StaticResource currentAlbumHeight}}"
-                       Height="{StaticResource currentAlbumHeight}" MouseDown="CurrentAlbumClick"/>
+                       Height="{StaticResource currentAlbumHeight}" MouseDown="CurrentAlbumClick">
+                    <Image.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="20"/>
+                    </Image.Effect>
+                </Image>
                 <TextBlock TextWrapping="Wrap" Text="{Binding Path=Album.Performer.Name}" TextAlignment="Center"
                            Foreground="White" FontSize="22" FontFamily="Stencil" HorizontalAlignment="Center" Margin="3,12,3,3"/>
                 <TextBlock TextWrapping="Wrap" Text="{Binding Path=Album.Name}" TextAlignment="Center"
@@ -84,7 +92,11 @@
             <StackPanel Name="nextSongPanel" Grid.Column="2" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="15,60,15,60" MouseDown="NextMouseDown">
                 <Label Content="Next" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
                 <Image Name="nextImage" Source="{Binding Path=Album, Converter={StaticResource photoConverter}, ConverterParameter={StaticResource albumHeight}}"
-                       Height="{StaticResource albumHeight}"/>
+                       Height="{StaticResource albumHeight}">
+                    <Image.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="15"/>
+                    </Image.Effect>
+                </Image>
                 <TextBlock Text="{Binding Path=Album.Performer.Name}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
                            Foreground="White" FontSize="18" FontFamily="Stencil" Margin="3,12,3,3"/>
                 <TextBlock Text="{Binding Path=Album.Name}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"

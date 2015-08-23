@@ -16,6 +16,10 @@
             <BitmapImage x:Key="ImageStopButton" UriSource="Images/stop.png" />
             <!-- application icon -->
             <BitmapImage x:Key="AppIcon" UriSource="Images/MusCat.ico" />
+            <!-- reusable control styles -->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/MusCatalog;component/View/SongSlider.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -8,72 +8,21 @@
         SizeToContent="WidthAndHeight"
         BorderBrush="AliceBlue"
         Closing="WindowClosing">
+    <Window.Background>
+        <LinearGradientBrush>
+            <GradientStop Color="#001122" Offset="0" />
+            <GradientStop Color="#ffffff" Offset="3"/>
+        </LinearGradientBrush>
+    </Window.Background>
     
     <Window.Resources>
-        <sys:Double x:Key="albumWidth">300</sys:Double>
-        <sys:Double x:Key="albumHeight">300</sys:Double>
-
-        <local:PhotoConverter x:Key="photoConverter"/>
-        <local:RateConverter x:Key="rateConverter"/>
+        <!-- GUI parameters -->
+        <sys:Double x:Key="AlbumWidth">300</sys:Double>
+        <sys:Double x:Key="AlbumHeight">300</sys:Double>
+        <!-- Converters -->
+        <local:PhotoConverter x:Key="AlbumImageConverter"/>
+        <local:RateConverter x:Key="AlbumRateConverter"/>
         
-        <!-- slider style -->
-        <Style x:Key="SliderThumbStyle" TargetType="{x:Type Thumb}">
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Thumb}">
-                        <Grid>
-                            <Border Name="outerBorder" Background="#fff7f2e4" BorderBrush="#f2d479" Height="32" Width="32" Opacity="1" BorderThickness="3" CornerRadius="10"/>
-                            <Border Name="innerBorder" Background="#f2d479"   BorderBrush="#f2d479" Height="14" Width="14" Opacity="1" />
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="outerBorder" Property="BorderBrush" Value="#fff24d79" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="outerBorder" Property="Background" Value="#fff2d479" />
-                                <Setter TargetName="outerBorder" Property="BorderBrush" Value="#fff2d479" />
-                                <Setter TargetName="innerBorder" Property="Width" Value="8" />
-                                <Setter TargetName="innerBorder" Property="Height" Value="8" />
-                                <Setter TargetName="innerBorder" Property="CornerRadius" Value="2" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-                
-        <ControlTemplate x:Key="HorizontalSlider" TargetType="{x:Type Slider}">
-            <Grid Margin="5">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <TickBar x:Name="TopTick" Visibility="Collapsed" Fill="LightGray" Placement="Top" SnapsToDevicePixels="True" Height="12" Margin="0,0,0,2" />
-                <Border x:Name="TrackBackground" Grid.Row="1" Margin="10,0" BorderThickness="2" BorderBrush="#f2d479" VerticalAlignment="Center" Height="12" />
-                <Track x:Name="PART_Track" Grid.Row="1">
-                    <Track.Thumb>
-                        <Thumb x:Name="Thumb" Style="{StaticResource SliderThumbStyle}" />
-                    </Track.Thumb>
-                    <Track.DecreaseRepeatButton>
-                        <RepeatButton Background="#f2d479" Height="14" Margin="10,0,0,0"/>
-                    </Track.DecreaseRepeatButton>
-                </Track>
-                <TickBar x:Name="BottomTick" Grid.Row="2" Visibility="Collapsed" Fill="LightYellow" Placement="Bottom" SnapsToDevicePixels="True" Height="12" Margin="0,2,0,0"/>
-            </Grid>
-        </ControlTemplate>
-
-        <Style x:Key="SliderStyle" TargetType="{x:Type Slider}">
-            <Setter Property="SnapsToDevicePixels" Value="true" />
-            <Setter Property="OverridesDefaultStyle" Value="true" />
-            <Style.Triggers>
-                <Trigger Property="Orientation" Value="Horizontal">
-                    <Setter Property="Template" Value="{StaticResource HorizontalSlider}" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-        
-
         <DataTemplate x:Key="SongTemplate">
             <WrapPanel>
                 <Label Content="{Binding Path=TrackNo}" Foreground="White" FontSize="12"/>
@@ -107,45 +56,52 @@
                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
             </Style.Resources>
         </Style>
-        
     </Window.Resources>
-
-    <Window.Background>
-        <LinearGradientBrush>
-            <GradientStop Color="#001122" Offset="0" />
-            <GradientStop Color="#ffffff" Offset="3"/>
-        </LinearGradientBrush>
-    </Window.Background>
     
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="350" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0" Name="AlbumInfoPanel">
-            <Image x:Name="AlbumCover" Source="{Binding Converter={StaticResource photoConverter}, ConverterParameter={StaticResource albumHeight}}"
-                   Grid.Column="0"
-                   Width="{StaticResource albumWidth}" Height="{StaticResource albumHeight}"
+        <StackPanel x:Name="AlbumInfoPanel" Grid.Column="0">
+            <Image x:Name="AlbumCover" Source="{Binding Converter={StaticResource AlbumImageConverter}, ConverterParameter={StaticResource AlbumHeight}}"
+                   Width="{StaticResource AlbumWidth}" Height="{StaticResource AlbumHeight}"
                    Margin="10,25,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" /> 
             <DockPanel>
                 <DockPanel HorizontalAlignment="Left" Margin="15,0,0,0">
                     <StackPanel>
-                        <Label Name="rate" Content="{Binding Converter={StaticResource rateConverter}}"
-                               FontSize="18" Foreground="Black" Background="Orange" FontFamily="Arial Narrow" Margin="0,0,5,0" />
+                        <TextBlock x:Name="AlbumRate" Text="{Binding Path=Rate, Converter={StaticResource AlbumRateConverter}}"
+                               FontSize="18" Foreground="Black" Background="Orange" FontFamily="Arial Narrow" Padding="5" Margin="0,0,7,0">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="LightGoldenrodYellow" BlurRadius="5" Opacity=".25"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
                     </StackPanel>
-                    <view:RateStarsControl Height="25" Width="125" Rate="{Binding Rate}" MouseDown="NewRateMouseDown" />
+                    <view:RateStarsControl Height="25" Width="125" Rate="{Binding Path=Rate}" MouseDown="NewRateMouseDown" />
                 </DockPanel>
-                <Label Content="{Binding TotalTime}" Background="Maroon" Width="auto" HorizontalAlignment="Right" Margin="0,-10,40,0" 
-                       Foreground="White" FontSize="24" FontFamily="Broadway"/>
+                <Label Content="{Binding Path=TotalTime}" Background="Maroon" Width="auto" HorizontalAlignment="Right" Margin="0,-10,15,0" 
+                       Foreground="White" FontSize="24" FontFamily="Broadway">
+                    <Label.RenderTransform>
+                        <RotateTransform Angle="-10"/>
+                    </Label.RenderTransform>
+                    <Label.Effect>
+                        <DropShadowEffect Color="White" Opacity=".25" BlurRadius="5"/>
+                    </Label.Effect>
+                </Label>
             </DockPanel>
             <StackPanel>
-                <Label Content="{Binding Path=Performer.Name}" FontFamily="Stencil" Foreground="AntiqueWhite" FontSize="22" HorizontalAlignment="Center" Margin="0,10,0,0" />
-                <Label Content="{Binding Path=Name}" FontFamily="Arial Narrow" Foreground="AntiqueWhite" FontSize="20" HorizontalAlignment="Center" Margin="0,-5,0,0" />
-                <Label Content="{Binding Path=ReleaseYear}" FontFamily="Broadway" Foreground="AntiqueWhite" FontSize="18" HorizontalAlignment="Center" Margin="0,-5,0,20"/>
+                <TextBlock Text="{Binding Path=Performer.Name}" TextWrapping="Wrap" TextAlignment="Center"
+                           FontFamily="Stencil" Foreground="AntiqueWhite" FontSize="22"
+                           HorizontalAlignment="Center" Margin="20,20,20,10" />
+                <TextBlock Text="{Binding Path=Name}" TextWrapping="Wrap" TextAlignment="Center"
+                           FontFamily="Arial Narrow" Foreground="AntiqueWhite" FontSize="20" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Path=ReleaseYear}"
+                           FontFamily="Broadway" Foreground="AntiqueWhite" FontSize="18"
+                           HorizontalAlignment="Center" Margin="20,10,20,25"/>
             </StackPanel>
         </StackPanel>
         
-        <ListBox Name="songlist" Grid.Column="1" 
+        <ListBox x:Name="Songlist" Grid.Column="1" 
                  ItemContainerStyle="{StaticResource SongStyle}"
                  SelectedItem="{Binding Path=SelectedItem}"
                  IsSynchronizedWithCurrentItem="True"
