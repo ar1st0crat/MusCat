@@ -25,32 +25,11 @@ namespace MusCatalog.View
         BitmapImage imageStar = App.Current.TryFindResource("ImageStar") as BitmapImage;
         BitmapImage imageHalfStar = App.Current.TryFindResource("ImageHalfStar") as BitmapImage;
         BitmapImage imageEmptyStar = App.Current.TryFindResource("ImageEmptyStar") as BitmapImage;
+                
 
-        // number of the star that was clicked
-        byte starPos = 0;
-
-
-        public EditAlbumWindow( Album a )
+        public EditAlbumWindow()
         {
             InitializeComponent();
-
-            // save current album in 'album' variable
-            album = a;
-            
-            // load and prepare all songs from the album for further actions
-            using (var context = new MusCatEntities())
-            {
-                albumSongs = context.Songs.Where(s => s.Album.ID == a.ID).ToList();
-
-                foreach (var song in albumSongs)
-                {
-                    song.Album = album;
-                }
-
-                //this.rateAlbum.DataContext = a;
-                this.AlbumInfoPanel.DataContext = a;
-                this.GridSongs.ItemsSource = albumSongs;    
-            }
         }
 
         private void ParseMp3(object sender, RoutedEventArgs e)

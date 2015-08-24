@@ -1,5 +1,4 @@
-﻿using MusCatalog.Model;
-using MusCatalog.ViewModel;
+﻿using MusCatalog.ViewModel;
 using System.Windows;
 
 namespace MusCatalog.View
@@ -9,9 +8,8 @@ namespace MusCatalog.View
     /// </summary>
     public partial class EditPerformerWindow : Window
     {
-        public EditPerformerWindow( EditPerformerViewModel model )
+        public EditPerformerWindow()
         {
-            DataContext = model;
             InitializeComponent();
         }
 

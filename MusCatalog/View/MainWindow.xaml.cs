@@ -115,37 +115,17 @@ namespace MusCatalog.View
         }
                 
         /// <summary>
-        /// Remove performer selected in the list of performers
-        /// </summary>
-        private void RemoveSelectedPerformer()
-        {
-            ((MainViewModel)DataContext).RemoveSelectedPerformer();
-        }
-
-        /// <summary>
-        /// Remove album selected in the list of albums
-        /// </summary>
-        private void RemoveSelectedAlbum()
-        {
-            ((MainViewModel)DataContext).RemoveSelectedAlbum();
-        }
-        
-        /// <summary>
         /// Upper navigation panel click handler
         /// </summary>
         private void LetterClick(object sender, RoutedEventArgs e)
         {
             pressedButton = (LetterButton)sender;
-
             prevButton.DeSelect();
             pressedButton.Select();
-            
             prevButton = pressedButton;
-
             curLetter = pressedButton.Content.ToString();
 
             ((MainViewModel)DataContext).LoadPerformers( curLetter );
-            FillPerformersListByFirstLetter( curLetter );
         }
 
         /// <summary>
@@ -159,8 +139,7 @@ namespace MusCatalog.View
 
         private void SelectedAlbumsMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            AlbumWindow albumWindow = new AlbumWindow( ((MainViewModel)DataContext).SelectedPerformer.SelectedAlbum.Album );
-            albumWindow.Show();
+            ((MainViewModel)DataContext).ViewSelectedAlbum();
         }
 
         #region KeyDown handlers
@@ -175,7 +154,7 @@ namespace MusCatalog.View
         {
             // if some album is selected then propagate event handling to albumlist
             if ( ((MainViewModel)DataContext).SelectedPerformer == null ||
-                 ((MainViewModel)DataContext).SelectedPerformer.SelectedAlbum.Album != null )
+                 ((MainViewModel)DataContext).SelectedPerformer.SelectedAlbum != null )
             {
                 return;
             }
@@ -184,12 +163,11 @@ namespace MusCatalog.View
 
             if ( e.Key == Key.Enter )
             {
-                PerformerWindow performerWindow = new PerformerWindow( perf );
-                performerWindow.Show();
+                ((MainViewModel)DataContext).ViewSelectedPerformer();
             }
             else if ( e.Key == Key.Delete )
             {
-                RemoveSelectedPerformer();
+                ((MainViewModel)DataContext).RemoveSelectedPerformer();
             }
         }
 
@@ -203,12 +181,11 @@ namespace MusCatalog.View
         {
             if (e.Key == Key.Enter)
             {
-                AlbumWindow albumWindow = new AlbumWindow( ((MainViewModel)DataContext).SelectedPerformer.SelectedAlbum.Album );
-                albumWindow.Show();
+                ((MainViewModel)DataContext).ViewSelectedAlbum();
             }
             else if (e.Key == Key.Delete)
             {
-                RemoveSelectedAlbum();
+                ((MainViewModel)DataContext).RemoveSelectedAlbum();
             }
         }
 
@@ -228,7 +205,7 @@ namespace MusCatalog.View
 
         private void MenuRemovePerformerClick(object sender, RoutedEventArgs e)
         {
-            RemoveSelectedPerformer();
+            ((MainViewModel)DataContext).RemoveSelectedPerformer();
         }
 
         private void MenuMusiciansClick(object sender, RoutedEventArgs e)
@@ -239,46 +216,17 @@ namespace MusCatalog.View
 
         private void MenuAddAlbumClick(object sender, RoutedEventArgs e)
         {
-            if ( this.Performerlist.SelectedIndex < 0 )
-            {
-                MessageBox.Show( "Please choose the performer!" );
-                return;
-            }
-
-            Performer perf = this.Performerlist.SelectedItem as Performer;
-
-            // set initial information of a newly added album
-            Album a = new Album { Name="New Album", TotalTime="00:00", PerformerID=perf.ID, ReleaseYear=(short)DateTime.Now.Year };
-            
-            using (var context = new MusCatEntities())
-            {
-                a.ID = context.Albums.Max( alb => alb.ID ) + 1;
-                context.Albums.Add(a);
-                context.SaveChanges();
-
-                a.Performer = perf;
-                perf.Albums.Add(a);
-
-                EditAlbumWindow editAlbum = new EditAlbumWindow( a );
-                editAlbum.ShowDialog();
-
-                ICollectionView view = CollectionViewSource.GetDefaultView(perf.Albums);
-                view.Refresh();
-            }
+            ((MainViewModel)DataContext).AddAlbum();
         }
 
         private void MenuEditAlbumClick(object sender, RoutedEventArgs e)
         {
-            if (((MainViewModel)DataContext).SelectedPerformer.SelectedAlbum.Album != null)
-            {
-                EditAlbumWindow albumWindow = new EditAlbumWindow(((MainViewModel)DataContext).SelectedPerformer.SelectedAlbum.Album);
-                albumWindow.Show();
-            }
+            ((MainViewModel)DataContext).EditAlbum();
         }
 
         private void MenuRemoveAlbumClick(object sender, RoutedEventArgs e)
         {
-            RemoveSelectedAlbum();
+            ((MainViewModel)DataContext).RemoveSelectedAlbum();
         }
 
         private void MenuStatsClick(object sender, RoutedEventArgs e)

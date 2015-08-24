@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using MusCatalog.Model;
 
 namespace MusCatalog.View
 {
@@ -8,10 +7,9 @@ namespace MusCatalog.View
     /// </summary>
     public partial class PerformerWindow : Window
     {
-        public PerformerWindow( Performer perf )
+        public PerformerWindow()
         {
             InitializeComponent();
-            this.DataContext = perf;
         }
     }
 }

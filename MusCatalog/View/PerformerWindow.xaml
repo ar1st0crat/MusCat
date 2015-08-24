@@ -4,6 +4,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:MusCatalog"
         Title="Performer Info"
+        Height="700"
         SizeToContent="Width">
     
     <Window.Background>
@@ -14,8 +15,8 @@
     </Window.Background>
     
     <Window.Resources>
-        <sys:Double x:Key="PerformerImageWidth">400</sys:Double>
-        <local:PhotoConverter x:Key="photoConverter" />
+        <sys:Double x:Key="PerformerPhotoWidth">400</sys:Double>
+        <local:PhotoConverter x:Key="PerformerPhotoConverter" />
     </Window.Resources>
     
     <Grid>
@@ -25,23 +26,27 @@
         </Grid.ColumnDefinitions>
         
         <StackPanel Grid.Column="0" Grid.Row="0">
-            <Image Source="{Binding Converter={StaticResource photoConverter}, ConverterParameter={StaticResource PerformerImageWidth}}"
+            <Image Source="{Binding Path=Performer, Converter={StaticResource PerformerPhotoConverter}, ConverterParameter={StaticResource PerformerPhotoWidth}}"
                    HorizontalAlignment="Left" VerticalAlignment="Top"
-                   Margin="10,20,0,0" Width="{StaticResource PerformerImageWidth}"/>
-            <Label Content="{Binding Name}" Foreground="White" FontFamily="Stencil" FontSize="28" HorizontalAlignment="Center"/>
-            <Label Content="{Binding Country.Name}" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
-            <ListBox ItemsSource="{Binding Styles}"
+                   Margin="10,20,0,0" Width="{StaticResource PerformerPhotoWidth}"/>
+            <Label Content="{Binding Performer.Name}" Foreground="White" FontFamily="Stencil" FontSize="28" HorizontalAlignment="Center"/>
+            <Label Content="{Binding Performer.Country.Name}" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
+            <ListBox ItemsSource="{Binding Performer.Styles}"
                      Background="Transparent" BorderBrush="Transparent">
             </ListBox>
             <Label Content="Lineup:" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
-            <ListBox ItemsSource="{Binding Lineups}"
+            <ListBox ItemsSource="{Binding Performer.Lineups}"
                      Background="Transparent" BorderBrush="Transparent">
             </ListBox>
         </StackPanel>
         <StackPanel Grid.Column="1">
-            <TextBox Text="{Binding Info}" Margin="15" MaxWidth="400"
+            <!--
+            <TextBox Text="{Binding Performer.Info}" Margin="15" MaxWidth="400"
                      Foreground="White" Background="Transparent" BorderBrush="Transparent"
-                     TextWrapping="Wrap"  VerticalScrollBarVisibility="Auto" />
+                     TextWrapping="Wrap"  VerticalScrollBarVisibility="Visible" />
+            -->
+            <TextBox Text="{Binding Performer.Info}" Width="auto" MaxWidth="500" Height="650" Margin="15" Background="Transparent" BorderBrush="Transparent"
+                     TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Foreground="White" />
         </StackPanel>
     </Grid>
 </Window>

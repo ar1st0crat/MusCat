@@ -1,10 +1,10 @@
 ﻿using MusCatalog.Model;
+using MusCatalog.View;
 using System;
 using System.Linq;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
-using MusCatalog.View;
 
 
 namespace MusCatalog.ViewModel
@@ -23,7 +23,6 @@ namespace MusCatalog.ViewModel
         }
 
         public PerformerViewModel SelectedPerformer { get; set; }
-        
 
         public MainViewModel()
         {
@@ -32,6 +31,25 @@ namespace MusCatalog.ViewModel
 
         public void LoadPerformers( string letter = "A" )
         {
+            /*
+                var total = bannersPhrases.Select(p => p.Phrase).Count();
+                var pageSize = 10; // set your page size, which is number of records per page
+
+                var page = 1; // set current page number, must be >= 1
+
+                var skip = pageSize * (page-1);
+
+                var canPage = skip < total;
+
+                if (canPage) // do what you wish if you can page no further
+                   return;
+
+                Phrases = bannersPhrases.Select(p => p.Phrase)
+                             .Skip(skip)
+                             .Take(pageSize)
+                             .ToArray(); 
+             */
+
             using (var context = new MusCatEntities())
             {
                 IQueryable<Performer> performersSelected;
@@ -209,6 +227,62 @@ namespace MusCatalog.ViewModel
             }
         }
 
+        public void ViewSelectedPerformer()
+        {
+            if (SelectedPerformer == null)
+            {
+                MessageBox.Show("Please select performer to edit!");
+                return;
+            }
+
+            PerformerWindow perfWindow = new PerformerWindow();// SelectedPerformer );
+            perfWindow.DataContext = SelectedPerformer;
+            perfWindow.Show();
+        }
+
+        public void EditPerformer()
+        {
+            if (SelectedPerformer == null)
+            {
+                MessageBox.Show( "Please select performer to edit!" );
+                return;
+            }
+
+            EditPerformerViewModel viewmodel = new EditPerformerViewModel( SelectedPerformer.Performer );
+            EditPerformerWindow perfWindow = new EditPerformerWindow();
+            perfWindow.DataContext = viewmodel;
+            perfWindow.ShowDialog();
+        }
+
+        public void AddPerformer()
+        {
+            // set initial information of a newly added performer
+            Performer perf = new Performer { Name = "Unknown performer" };
+
+            using (var context = new MusCatEntities())
+            {
+                perf.ID = context.Performers.Max(p => p.ID) + 1;
+                context.Performers.Add(perf);
+                context.SaveChanges();
+
+                EditPerformerViewModel viewmodel = new EditPerformerViewModel(perf);
+                EditPerformerWindow perfWindow = new EditPerformerWindow();
+                perfWindow.DataContext = viewmodel;
+                perfWindow.ShowDialog();
+
+                // TODO: do this only if the first letter is current letter
+                if (perf.Name.ToUpper()[0] == performers[0].Performer.Name.ToUpper()[0])
+                {
+                    performers.Add(new PerformerViewModel { Performer = perf, Albums = new ObservableCollection<AlbumViewModel>() });
+                }
+
+                MessageBox.Show("Performer was succesfully added to database");
+            }
+        }
+
+        /// <summary>
+        /// cRud: Remove performer selected in the list of performers
+        /// </summary>
         public void RemoveSelectedPerformer()
         {
             var perf = SelectedPerformer.Performer;
@@ -231,11 +305,76 @@ namespace MusCatalog.ViewModel
                     context.Performers.Remove(performerToDelete);
                     context.SaveChanges();
 
-                    performers.Remove( SelectedPerformer );
+                    performers.Remove(SelectedPerformer);
                 }
-            }   
+            }
         }
 
+        public void ViewSelectedAlbum()
+        {
+            if (SelectedPerformer == null || SelectedPerformer.SelectedAlbum == null)
+            {
+                MessageBox.Show("Please select album to edit!");
+                return;
+            }
+
+            // lazy load songs of selected album
+            SelectedPerformer.SelectedAlbum.LoadSongs();
+
+            AlbumWindow albumWindow = new AlbumWindow();
+            albumWindow.DataContext = new AlbumPlaybackViewModel( SelectedPerformer.SelectedAlbum );
+            albumWindow.Show();
+        }
+
+        public void EditAlbum()
+        {
+            if (SelectedPerformer == null || SelectedPerformer.SelectedAlbum == null)
+            {
+                MessageBox.Show("Please select album to edit!");
+                return;
+            }
+
+            // lazy load songs of selected album
+            SelectedPerformer.SelectedAlbum.LoadSongs();
+
+            EditAlbumViewModel viewmodel = new EditAlbumViewModel( SelectedPerformer.SelectedAlbum.Album );
+            AlbumWindow albumWindow = new AlbumWindow();
+            albumWindow.DataContext = viewmodel;
+            albumWindow.Show();
+        }
+
+        public void AddAlbum()
+        {
+            if (SelectedPerformer == null)
+            {
+                MessageBox.Show("Please select performer!");
+                return;
+            }
+
+            // set initial information of a newly added album
+            Album a = new Album {   Name = "New Album",
+                                    TotalTime = "00:00",
+                                    PerformerID = SelectedPerformer.Performer.ID,
+                                    ReleaseYear = (short)DateTime.Now.Year };
+
+            using (var context = new MusCatEntities())
+            {
+                a.ID = context.Albums.Max(alb => alb.ID) + 1;
+                context.Albums.Add(a);
+                context.SaveChanges();
+
+                a.Performer = SelectedPerformer.Performer;
+                SelectedPerformer.Albums.Add(new AlbumViewModel { Album = a });
+
+                EditAlbumViewModel viewmodel = new EditAlbumViewModel(a);
+                EditAlbumWindow editAlbum = new EditAlbumWindow();
+                editAlbum.ShowDialog();
+            }
+        }
+
+        /// <summary>
+        /// Remove album selected in the list of albums
+        /// </summary>
         public void RemoveSelectedAlbum()
         {
             if (SelectedPerformer == null)
@@ -263,47 +402,9 @@ namespace MusCatalog.ViewModel
                     context.Albums.Remove(albumToDelete);
                     context.SaveChanges();
 
-                    SelectedPerformer.Albums.Remove( selectedAlbum );
+                    SelectedPerformer.Albums.Remove(selectedAlbum);
                 }
             }
-        }
-
-        public void AddPerformer()
-        {
-            // set initial information of a newly added performer
-            Performer perf = new Performer { Name = "Unknown performer" };
-            
-            using (var context = new MusCatEntities())
-            {
-                perf.ID = context.Performers.Max(p => p.ID) + 1;
-                context.Performers.Add(perf);
-                context.SaveChanges();
-
-                EditPerformerViewModel model = new EditPerformerViewModel(perf);
-                EditPerformerWindow perfWindow = new EditPerformerWindow(model);
-                perfWindow.ShowDialog();
-
-                // TODO: do this only if the first letter is current letter
-                if ( perf.Name.ToUpper()[0] == performers[0].Performer.Name.ToUpper()[0] )
-                {
-                    performers.Add(new PerformerViewModel { Performer = perf, Albums = new ObservableCollection<AlbumViewModel>() });
-                }
-
-                MessageBox.Show( "Performer was succesfully added to database" );
-            }
-        }
-
-        public void EditPerformer()
-        {
-            if (SelectedPerformer == null)
-            {
-                MessageBox.Show( "Please select performer to edit!" );
-                return;
-            }
-
-            EditPerformerViewModel model = new EditPerformerViewModel( SelectedPerformer.Performer );
-            EditPerformerWindow perfWindow = new EditPerformerWindow( model );
-            perfWindow.ShowDialog();
         }
 
         #region INotifyPropertyChanged event and method

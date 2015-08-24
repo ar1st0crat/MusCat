@@ -38,9 +38,15 @@
                     <Label Content="{Binding Path=Name}" Foreground="#f2d479" FontSize="22" FontWeight="ExtraBold"/>
                     <Label Content="{Binding Path=TimeLength}" Foreground="LightGreen" FontSize="17" FontWeight="ExtraBold"/>
                 </WrapPanel>
-                <DockPanel Background="Transparent" Margin="0,0,0,20" HorizontalAlignment="Center" Loaded="SliderLoaded">
-                    <Image x:Name="PlayButtonImage" Source="{StaticResource ImagePauseButton}" Width="32" Height="32" MouseDown="PlaySongClick" />
-                    <Slider x:Name="PlaybackSlider" Style="{StaticResource SliderStyle}" Width="300" VerticalAlignment="Center" Thumb.DragCompleted="SeekPlaybackPosition" />
+                <DockPanel Background="Transparent" Margin="0,0,0,20" HorizontalAlignment="Center">
+                    <Image x:Name="PlayButtonImage"
+                           Source="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
+                                            Path=DataContext.PlaybackImage, UpdateSourceTrigger=PropertyChanged}"
+                           Width="32" Height="32" MouseDown="PlaySongClick" />
+                    <Slider x:Name="PlaybackSlider" Style="{StaticResource SliderStyle}"
+                            Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, 
+                                            Path=DataContext.PlaybackPercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Width="300" VerticalAlignment="Center" Thumb.DragCompleted="SeekPlaybackPosition"/>
                 </DockPanel>
             </StackPanel>
         </DataTemplate>
@@ -64,22 +70,22 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <StackPanel x:Name="AlbumInfoPanel" Grid.Column="0">
-            <Image x:Name="AlbumCover" Source="{Binding Converter={StaticResource AlbumImageConverter}, ConverterParameter={StaticResource AlbumHeight}}"
+            <Image x:Name="AlbumCover" Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter}, ConverterParameter={StaticResource AlbumHeight}}"
                    Width="{StaticResource AlbumWidth}" Height="{StaticResource AlbumHeight}"
                    Margin="10,25,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" /> 
             <DockPanel>
                 <DockPanel HorizontalAlignment="Left" Margin="15,0,0,0">
                     <StackPanel>
-                        <TextBlock x:Name="AlbumRate" Text="{Binding Path=Rate, Converter={StaticResource AlbumRateConverter}}"
+                        <TextBlock x:Name="AlbumRate" Text="{Binding Path=Album.Rate, Converter={StaticResource AlbumRateConverter}}"
                                FontSize="18" Foreground="Black" Background="Orange" FontFamily="Arial Narrow" Padding="5" Margin="0,0,7,0">
                             <TextBlock.Effect>
                                 <DropShadowEffect Color="LightGoldenrodYellow" BlurRadius="5" Opacity=".25"/>
                             </TextBlock.Effect>
                         </TextBlock>
                     </StackPanel>
-                    <view:RateStarsControl Height="25" Width="125" Rate="{Binding Path=Rate}" MouseDown="NewRateMouseDown" />
+                    <view:RateStarsControl Height="25" Width="125" Rate="{Binding Path=Album.Rate}" MouseDown="NewRateMouseDown" />
                 </DockPanel>
-                <Label Content="{Binding Path=TotalTime}" Background="Maroon" Width="auto" HorizontalAlignment="Right" Margin="0,-10,15,0" 
+                <Label Content="{Binding Path=Album.TotalTime}" Background="Maroon" Width="auto" HorizontalAlignment="Right" Margin="0,-10,15,0" 
                        Foreground="White" FontSize="24" FontFamily="Broadway">
                     <Label.RenderTransform>
                         <RotateTransform Angle="-10"/>
@@ -90,31 +96,33 @@
                 </Label>
             </DockPanel>
             <StackPanel>
-                <TextBlock Text="{Binding Path=Performer.Name}" TextWrapping="Wrap" TextAlignment="Center"
+                <TextBlock Text="{Binding Path=Album.Performer.Name}" TextWrapping="Wrap" TextAlignment="Center"
                            FontFamily="Stencil" Foreground="AntiqueWhite" FontSize="22"
                            HorizontalAlignment="Center" Margin="20,20,20,10" />
-                <TextBlock Text="{Binding Path=Name}" TextWrapping="Wrap" TextAlignment="Center"
+                <TextBlock Text="{Binding Path=Album.Name}" TextWrapping="Wrap" TextAlignment="Center"
                            FontFamily="Arial Narrow" Foreground="AntiqueWhite" FontSize="20" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding Path=ReleaseYear}"
+                <TextBlock Text="{Binding Path=Album.ReleaseYear}"
                            FontFamily="Broadway" Foreground="AntiqueWhite" FontSize="18"
                            HorizontalAlignment="Center" Margin="20,10,20,25"/>
             </StackPanel>
         </StackPanel>
         
-        <ListBox x:Name="Songlist" Grid.Column="1" 
+        <ListBox x:Name="Songlist" Grid.Column="1"
+                 ItemsSource="{Binding Songs}"
                  ItemContainerStyle="{StaticResource SongStyle}"
-                 SelectedItem="{Binding Path=SelectedItem}"
-                 IsSynchronizedWithCurrentItem="True"
+                 SelectedItem="{Binding Path=SelectedSong, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 IsSynchronizedWithCurrentItem="False"
                  HorizontalAlignment="Left" VerticalAlignment="Top"
                  HorizontalContentAlignment="Center"
                  Margin="10,25,10,10" Padding="20,20,20,20"
                  Width="auto" Height="auto"
-                 BorderBrush="Transparent"
-                 PreviewMouseDown="SonglistMouseDown"
-                 SelectionChanged="SelectedSongChanged">
+                 BorderBrush="Transparent">
             <ListBox.Background>
                 <ImageBrush ImageSource="../Images/vinyl_blue.png" Opacity=".1" Stretch="Uniform"/>
             </ListBox.Background>
+            <ListBox.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
+            </ListBox.Resources>
         </ListBox>
     </Grid>
 </Window>

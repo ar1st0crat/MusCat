@@ -5,7 +5,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -69,6 +68,7 @@ namespace MusCatalog.ViewModel
 
         private void PrepareFileForSaving(string filepath)
         {
+            // ensure that necessary directory exists
             Directory.CreateDirectory(Path.GetDirectoryName(filepath));
 
             // first check if file already exists
@@ -96,7 +96,6 @@ namespace MusCatalog.ViewModel
                     File.Copy(ofd.FileName, filepath);
 
                     RaisePropertyChanged( "Performer" );
-                    //this.PerformerPhoto.Source = new WriteableBitmap(new BitmapImage(new Uri(filepath)));
                 }
                 catch (Exception ex)
                 {

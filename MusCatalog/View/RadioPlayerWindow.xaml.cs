@@ -155,8 +155,8 @@ namespace MusCatalog.View
 
         private void CurrentAlbumClick(object sender, MouseButtonEventArgs e)
         {
-            AlbumWindow albumWindow = new AlbumWindow( radio.CurrentSong().Album );
-            albumWindow.Show();
+            //AlbumWindow albumWindow = new AlbumWindow( radio.CurrentSong().Album );
+            //albumWindow.Show();
         }
     }
 }

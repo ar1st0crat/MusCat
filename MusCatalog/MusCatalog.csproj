@@ -136,10 +136,13 @@
       <DependentUpon>MusCatModel.tt</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ViewModel\AlbumPlaybackViewModel.cs" />
     <Compile Include="ViewModel\AlbumViewModel.cs" />
+    <Compile Include="ViewModel\EditAlbumViewModel.cs" />
     <Compile Include="ViewModel\EditPerformerViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\PerformerViewModel.cs" />
+    <Compile Include="ViewModel\RadioViewModel.cs" />
     <Compile Include="View\ChoiceWindow.xaml.cs">
       <DependentUpon>ChoiceWindow.xaml</DependentUpon>
     </Compile>
