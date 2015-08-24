@@ -156,10 +156,13 @@ namespace MusCatalog.View
 
         private void CurrentAlbumClick(object sender, MouseButtonEventArgs e)
         {
-            //AlbumWindow albumWindow = new AlbumWindow( radio.CurrentSong().Album );
-            //albumWindow.Show();
+            var album = new AlbumViewModel { Album = radio.CurrentSong().Album };
+
+            // lazy load songs of selected album
+            album.LoadSongs();
+
             AlbumWindow albumWindow = new AlbumWindow();
-            albumWindow.DataContext = new AlbumPlaybackViewModel(new AlbumViewModel { Album = radio.CurrentSong().Album });
+            albumWindow.DataContext = new AlbumPlaybackViewModel( album );
             albumWindow.Show();
         }
     }

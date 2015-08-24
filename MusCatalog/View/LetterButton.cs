@@ -3,7 +3,7 @@ using System.Windows.Media;
 
 namespace MusCatalog.View
 {
-    class LetterButton: Button
+    public class LetterButton: Button
     {
         FontFamily letterFont = new FontFamily( "Stencil" );
         bool bSelected = false;

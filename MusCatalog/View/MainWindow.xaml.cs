@@ -1,12 +1,8 @@
 ﻿using MusCatalog.Model;
-using System;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.ComponentModel;
-using System.Windows.Data;
 using MusCatalog.ViewModel;
 
 
@@ -17,44 +13,16 @@ namespace MusCatalog.View
     /// </summary>
     public partial class MainWindow : Window
     {
-        // References to "selected" and "deselected" buttons in upper navigation panel
-        LetterButton prevButton = null;
-        LetterButton pressedButton = null;
-        string curLetter = "A";
-
         /// <summary>
         /// Main window initialization
         /// </summary>
         public MainWindow()
         {
             InitializeComponent();
-
             FileLocator.Initialize();
-
-            // create the upper navigation panel
-            foreach (char c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-            {
-                LetterButton b = new LetterButton(c.ToString());
-                b.Click += LetterClick;
-
-                lettersPanel.Children.Add(b);
-            }
-
-            LetterButton bOther = new LetterButton("Other", 70);
-            bOther.Click += LetterClick;
-            lettersPanel.Children.Add(bOther);
-
-            // Start with the "A-letter"-list
-            //FillPerformersListByFirstLetter("A");
-            prevButton = (LetterButton)lettersPanel.Children[0];
-            prevButton.Select();
         }
 
-        /// <summary>
-        /// Populate the list of performers whose name starts with specific letter (or not a letter - "other" case)
-        /// </summary>
-        /// <param name="letter">The first letter of a performer's name ("A", "B", "C", ..., "Z") or "Other"</param>
-        private void FillPerformersListByFirstLetter( string letter )
+        private void CreateLowerNavigationPanel()
         {
             // ============================================================================
             // REFACTOR! REFACTOR! REFACTOR! REFACTOR! REFACTOR! REFACTOR! REFACTOR! 
@@ -78,54 +46,14 @@ namespace MusCatalog.View
             ((TextBlock)this.NavigationPanel.Children[0]).TextDecorations = null;
         }
 
-        /// <summary>
-        /// Select performers whose name contains the search pattern (specified in lower navigation panel)
-        /// </summary>
         private void PerformerSearchClick(object sender, MouseButtonEventArgs e)
         {
             ((MainViewModel)DataContext).LoadPerformersByName( this.PerformerSearch.Text );
-
-            // deselect all buttons in upper navigation panel
-            if (pressedButton != null)
-            {
-                pressedButton.DeSelect();
-            }
-            else
-            {
-                prevButton.DeSelect();
-            }
         }
 
-        /// <summary>
-        /// Select performers having albums whose name contains search pattern (specified in lower navigation panel)
-        /// </summary>
         private void AlbumSearchClick(object sender, MouseButtonEventArgs e)
         {
             ((MainViewModel)DataContext).LoadPerformersByAlbumName(this.AlbumSearch.Text);
-
-            // deselect all buttons in upper navigation panel
-            if (pressedButton != null)
-            {
-                pressedButton.DeSelect();
-            }
-            else
-            {
-                prevButton.DeSelect();
-            }
-        }
-                
-        /// <summary>
-        /// Upper navigation panel click handler
-        /// </summary>
-        private void LetterClick(object sender, RoutedEventArgs e)
-        {
-            pressedButton = (LetterButton)sender;
-            prevButton.DeSelect();
-            pressedButton.Select();
-            prevButton = pressedButton;
-            curLetter = pressedButton.Content.ToString();
-
-            ((MainViewModel)DataContext).SelectPerformersByFirstLetter( curLetter );
         }
 
         /// <summary>

@@ -25,10 +25,72 @@ namespace MusCatalog.ViewModel
 
         public PerformerViewModel SelectedPerformer { get; set; }
 
+        // Letters in upper navigation panel
+        public ObservableCollection<LetterButton> LetterCollection { get; set; }
+
+        // References to "selected" and "deselected" buttons in upper navigation panel
+        private LetterButton prevButton = null;
+        private LetterButton pressedButton = null;
+        
+        
         public MainViewModel()
         {
+            CreateUpperNavigationPanel();
             SelectPerformersByFirstLetter("A");
         }
+
+        #region Upper navigation panel
+
+        public void CreateUpperNavigationPanel()
+        {
+            LetterCollection = new ObservableCollection<LetterButton>();
+
+            // create the upper navigation panel
+            foreach (char c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+            {
+                LetterButton b = new LetterButton(c.ToString());
+                b.Click += LetterClick;
+                LetterCollection.Add(b);
+            }
+
+            LetterButton bOther = new LetterButton("Other", 70);
+            bOther.Click += LetterClick;
+            LetterCollection.Add(bOther);
+
+            // Start with the "A-letter"-list
+            prevButton = LetterCollection[0];
+            prevButton.Select();
+        }
+
+        /// <summary>
+        /// Upper navigation panel click handler
+        /// </summary>
+        private void LetterClick(object sender, RoutedEventArgs e)
+        {
+            pressedButton = (LetterButton)sender;
+            prevButton.DeSelect();
+            pressedButton.Select();
+            prevButton = pressedButton;
+
+            SelectPerformersByFirstLetter( pressedButton.Content.ToString() );
+        }
+
+        /// <summary>
+        /// Deselect all buttons in upper navigation panel
+        /// </summary>
+        private void ResetButtons()
+        {
+            if (pressedButton != null)
+            {
+                pressedButton.DeSelect();
+            }
+            else
+            {
+                prevButton.DeSelect();
+            }
+        }
+
+        #endregion
 
         public void FillPerformerList( IQueryable<Performer> performersSelected, string albumString = null )
         {
@@ -98,6 +160,10 @@ namespace MusCatalog.ViewModel
             }
         }
 
+        /// <summary>
+        /// Populate the list of performers whose name starts with specific letter (or not a letter - "other" case)
+        /// </summary>
+        /// <param name="letter">The first letter of a performer's name ("A", "B", "C", ..., "Z") or "Other"</param>
         public void SelectPerformersByFirstLetter( string letter = "A" )
         {
             /*
@@ -146,6 +212,9 @@ namespace MusCatalog.ViewModel
             }
         }
 
+        /// <summary>
+        /// Select performers whose name contains the search pattern (specified in lower navigation panel)
+        /// </summary>
         public void LoadPerformersByName( string name )
         {
             using (var context = new MusCatEntities())
@@ -156,9 +225,14 @@ namespace MusCatalog.ViewModel
                                  select p;
 
                 FillPerformerList( performersSelected );
+
+                ResetButtons();
             }
         }
 
+        /// <summary>
+        /// Select performers having albums whose name contains search pattern (specified in lower navigation panel)
+        /// </summary>
         public void LoadPerformersByAlbumName( string albumString )
         {
             using (var context = new MusCatEntities())
@@ -170,6 +244,8 @@ namespace MusCatalog.ViewModel
                                                    .OrderBy(p => p.Name);
 
                 FillPerformerList(performersSelected, albumString);
+
+                ResetButtons();
             }
         }
 
