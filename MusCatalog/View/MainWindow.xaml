@@ -32,7 +32,7 @@
         <!-- converters -->
         <local:PhotoConverter x:Key="PhotoConverter"/>
         <local:RateConverter x:Key="RateConverter"/>
-        <local:AlbumConverter x:Key="AlbumCountConverter"/>
+        <local:AlbumCountConverter x:Key="AlbumCountConverter"/>
         <local:YearsConverter x:Key="YearsConverter"/>
         
         <!-- style for an album rate textblock: we show "Not rated" only if the rate is null;

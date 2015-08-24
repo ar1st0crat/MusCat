@@ -125,7 +125,7 @@ namespace MusCatalog.View
             prevButton = pressedButton;
             curLetter = pressedButton.Content.ToString();
 
-            ((MainViewModel)DataContext).LoadPerformers( curLetter );
+            ((MainViewModel)DataContext).SelectPerformersByFirstLetter( curLetter );
         }
 
         /// <summary>

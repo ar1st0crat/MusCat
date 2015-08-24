@@ -9,24 +9,10 @@ namespace MusCatalog
     /// <summary>
     /// Converter:      Performer  =>  Brief signature indicating the number of performer's albums
     /// </summary>
-    class AlbumConverter:  IValueConverter
+    class AlbumCountConverter:  IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // Performer perf = value as Performer;
-
-            //if (perf != null && perf.Albums != null )
-            //{
-            //    switch (perf.Albums.Count)
-            //    {
-            //        case 0: return "No albums";
-            //        case 1: return "1 album";
-            //        default: return perf.Albums.Count + " albums";
-            //    }
-            //}
-
-            //return "";
-
             int albumCount = (int)value;
 
             switch (albumCount)

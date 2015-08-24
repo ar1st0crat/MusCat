@@ -90,7 +90,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Converters\AlbumConverter.cs" />
+    <Compile Include="Converters\AlbumCountConverter.cs" />
     <Compile Include="Logic\Radio.cs" />
     <Compile Include="Model\Album.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>

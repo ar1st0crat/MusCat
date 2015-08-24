@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MusCatalog.ViewModel;
+using System;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -157,6 +158,9 @@ namespace MusCatalog.View
         {
             //AlbumWindow albumWindow = new AlbumWindow( radio.CurrentSong().Album );
             //albumWindow.Show();
+            AlbumWindow albumWindow = new AlbumWindow();
+            albumWindow.DataContext = new AlbumPlaybackViewModel(new AlbumViewModel { Album = radio.CurrentSong().Album });
+            albumWindow.Show();
         }
     }
 }

@@ -20,7 +20,7 @@ namespace MusCatalog.ViewModel
 
                 foreach (var song in albumSongs)
                 {
-                    //song.Album = album;
+                    song.Album = a;
                     Album.Songs.Add( song );
                 }
             }

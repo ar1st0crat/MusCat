@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
+using System.Collections.Generic;
 
 
 namespace MusCatalog.ViewModel
@@ -26,10 +27,78 @@ namespace MusCatalog.ViewModel
 
         public MainViewModel()
         {
-            LoadPerformers();
+            SelectPerformersByFirstLetter("A");
         }
 
-        public void LoadPerformers( string letter = "A" )
+        public void FillPerformerList( IQueryable<Performer> performersSelected, string albumString = null )
+        {
+            performers.Clear();
+
+            foreach (var perf in performersSelected)
+            {
+                var pvModel = new PerformerViewModel { Performer = perf };
+
+                /// Fill performer'salbumlist
+                List<Album> albums;
+
+                // If no filter is specified, then copy all albums to PerformerViewModel
+                if (albumString == null)
+                {
+                    albums = perf.Albums.OrderBy(a => a.ReleaseYear).ToList();
+                    foreach (var album in albums)
+                    {
+                        pvModel.Albums.Add(new AlbumViewModel { Album = album });
+                    }
+                }
+                // Otherwise, filter out albums to show according to album search string
+                else
+                {
+                    albums = perf.Albums.Where(a => a.Name.ToUpper().Contains(albumString.ToUpper())).ToList();
+                    foreach (var album in albums)
+                    {
+                        pvModel.Albums.Add(new AlbumViewModel { Album = album });
+                    }
+                }
+
+                /// The total rate of performer is calculated based on the following statistics of album rates:
+                /// 
+                ///     if the number of albums is more than 2 then the worst rate and the best rate are discarded
+                ///     and the total rate is an average of remaining rates
+                ///     
+                ///     otherwise - the total rate is simply an average of album rates
+                ///     
+                byte? avgRate = null;
+
+                int ratedCount = albums.Count(t => t.Rate.HasValue);
+                if (ratedCount > 0)
+                {
+                    int sumRate = albums.Sum(t =>
+                    {
+                        if (t.Rate.HasValue)
+                            return t.Rate.Value;
+                        else
+                            return 0;
+                    });
+
+                    if (ratedCount > 2)
+                    {
+                        byte minRate = albums.Min(r => r.Rate).Value;
+                        byte maxRate = albums.Max(r => r.Rate).Value;
+                        sumRate -= (minRate + maxRate);
+                        ratedCount -= 2;
+                    }
+
+                    avgRate = (byte)Math.Round((double)sumRate / ratedCount, MidpointRounding.AwayFromZero);
+                }
+
+                pvModel.AlbumCount = albums.Count();
+                pvModel.AlbumCollectionRate = avgRate;
+
+                performers.Add(pvModel);
+            }
+        }
+
+        public void SelectPerformersByFirstLetter( string letter = "A" )
         {
             /*
                 var total = bannersPhrases.Select(p => p.Phrase).Count();
@@ -73,46 +142,7 @@ namespace MusCatalog.ViewModel
                                  select p;
                 }
 
-                performers.Clear();
-
-                foreach (var perf in performersSelected)
-                {
-                    byte? avgRate = null;
-
-                    int ratedCount = perf.Albums.Count(t => t.Rate.HasValue);
-
-                    if (ratedCount > 0)
-                    {
-                        int sumRate = perf.Albums.Sum(t =>
-                        {
-                            if (t.Rate.HasValue)
-                                return t.Rate.Value;
-                            else
-                                return 0;
-                        });
-
-                        if (ratedCount > 2)
-                        {
-                            byte minRate = perf.Albums.Min(r => r.Rate).Value;
-                            byte maxRate = perf.Albums.Max(r => r.Rate).Value;
-                            sumRate -= (minRate + maxRate);
-                            ratedCount -= 2;
-                        }
-
-                        avgRate = (byte)Math.Round((double)sumRate / ratedCount, MidpointRounding.AwayFromZero);
-                    }
-
-                    var albs = perf.Albums.OrderBy(a => a.ReleaseYear).ToList();
-
-                    var pvModel = new PerformerViewModel { Performer = perf, AlbumCount = perf.Albums.Count(), AlbumCollectionRate=avgRate };
-
-                    foreach (var alb in albs)
-                    {
-                        pvModel.Albums.Add(new AlbumViewModel { Album = alb });
-                    }
-
-                    performers.Add( pvModel );
-                }
+                FillPerformerList( performersSelected );
             }
         }
 
@@ -125,105 +155,21 @@ namespace MusCatalog.ViewModel
                                  orderby p.Name
                                  select p;
 
-                // order each performer's albums by year of release, then by name (in collection view)
-                performers.Clear();
-
-                foreach (var perf in performersSelected)
-                {
-                    byte? avgRate = null;
-
-                    int ratedCount = perf.Albums.Count(t => t.Rate.HasValue);
-
-                    if (ratedCount > 0)
-                    {
-                        int sumRate = perf.Albums.Sum(t =>
-                        {
-                            if (t.Rate.HasValue)
-                                return t.Rate.Value;
-                            else
-                                return 0;
-                        });
-
-                        if (ratedCount > 2)
-                        {
-                            byte minRate = perf.Albums.Min(r => r.Rate).Value;
-                            byte maxRate = perf.Albums.Max(r => r.Rate).Value;
-                            sumRate -= (minRate + maxRate);
-                            ratedCount -= 2;
-                        }
-
-                        avgRate = (byte)Math.Round((double)sumRate / ratedCount, MidpointRounding.AwayFromZero);
-                    }
-
-                    var albs = perf.Albums.OrderBy(a => a.ReleaseYear).ToList();
-
-                    perf.Albums.Clear();
-                    foreach (var alb in albs)
-                    {
-                        perf.Albums.Add(alb);
-                    }
-
-                    performers.Add(new PerformerViewModel { Performer = perf, AlbumCount = perf.Albums.Count(), AlbumCollectionRate = avgRate });
-                }
+                FillPerformerList( performersSelected );
             }
         }
 
-        public void LoadPerformersByAlbumName(string name)
+        public void LoadPerformersByAlbumName( string albumString )
         {
             using (var context = new MusCatEntities())
             {
                 var performersSelected = context.Performers.Include("Country")
                                                    .Where(p => p.Albums
-                                                   .Where(a => a.Name.Contains(name))
+                                                   .Where(a => a.Name.Contains(albumString))
                                                    .Count() > 0)
                                                    .OrderBy(p => p.Name);
 
-                performers.Clear();
-
-                foreach (var perf in performersSelected)
-                {
-                    var filteredAlbums = perf.Albums.Where(a => a.Name.ToUpper().Contains(name.ToUpper())).ToList();
-                    perf.Albums.Clear();
-                    foreach (var album in filteredAlbums)
-                    {
-                        perf.Albums.Add(album);
-                    }
-
-                    byte? avgRate = null;
-
-                    int ratedCount = perf.Albums.Count(t => t.Rate.HasValue);
-
-                    if (ratedCount > 0)
-                    {
-                        int sumRate = perf.Albums.Sum(t =>
-                        {
-                            if (t.Rate.HasValue)
-                                return t.Rate.Value;
-                            else
-                                return 0;
-                        });
-
-                        if (ratedCount > 2)
-                        {
-                            byte minRate = perf.Albums.Min(r => r.Rate).Value;
-                            byte maxRate = perf.Albums.Max(r => r.Rate).Value;
-                            sumRate -= (minRate + maxRate);
-                            ratedCount -= 2;
-                        }
-
-                        avgRate = (byte)Math.Round((double)sumRate / ratedCount, MidpointRounding.AwayFromZero);
-                    }
-
-                    var albs = perf.Albums.OrderBy(a => a.ReleaseYear).ToList();
-
-                    perf.Albums.Clear();
-                    foreach (var alb in albs)
-                    {
-                        perf.Albums.Add(alb);
-                    }
-
-                    performers.Add(new PerformerViewModel { Performer = perf, AlbumCount = perf.Albums.Count(), AlbumCollectionRate = avgRate });
-                }
+                FillPerformerList(performersSelected, albumString);
             }
         }
 
