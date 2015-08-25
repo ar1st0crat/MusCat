@@ -1,29 +1,339 @@
-﻿using MusCatalog.Model;
+﻿using Microsoft.Win32;
+using MusCatalog.Model;
+using MusCatalog.View;
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace MusCatalog.ViewModel
 {
-    class EditAlbumViewModel
+    class EditAlbumViewModel : INotifyPropertyChanged
     {
-        public Album Album { get; set; }
-
-        public EditAlbumViewModel( Album a )
+        public AlbumViewModel AlbumView { get; set; }
+        public Album Album
         {
-            Album = a;
-
-            // load and prepare all songs from the album for further actions
-            using (var context = new MusCatEntities())
+            get { return AlbumView.Album; }
+            set
             {
-                var albumSongs = context.Songs.Where(s => s.Album.ID == a.ID).ToList();
+                AlbumView.Album = value;
+                RaisePropertyChanged("Album");
+            }
+        }
+        public string AlbumTotalTime
+        {
+            get { return Album.TotalTime; }
+            set
+            {
+                Album.TotalTime = value;
+                RaisePropertyChanged("AlbumTotalTime");
+            }
+        }
 
-                foreach (var song in albumSongs)
+        public ObservableCollection<Song> Songs
+        {
+            get { return AlbumView.Songs; }
+        }
+        public Song SelectedSong { get; set; }
+
+        // bitmaps for stars
+        private static BitmapImage imageStar = App.Current.TryFindResource("ImageStar") as BitmapImage;
+        private static BitmapImage imageHalfStar = App.Current.TryFindResource("ImageHalfStar") as BitmapImage;
+        private static BitmapImage imageEmptyStar = App.Current.TryFindResource("ImageEmptyStar") as BitmapImage;
+
+
+        public EditAlbumViewModel( AlbumViewModel viewmodel )
+        {
+            AlbumView = viewmodel;
+        }
+
+        public void ParseMp3()
+        {
+            var fbd = new System.Windows.Forms.FolderBrowserDialog();
+            if (fbd.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+            {
+                return;
+            }
+
+            var i = 0;
+            foreach (var filename in Directory.GetFiles(fbd.SelectedPath, "*.mp3"))
+            {
+                if (i == Songs.Count)
                 {
-                    song.Album = a;
-                    Album.Songs.Add( song );
+                    Songs.Add(new Song { ID = -1, AlbumID = Album.ID });
+                }
+
+                var file = TagLib.File.Create(filename);
+                var v2tag = (TagLib.Id3v2.Tag)file.GetTag(TagLib.TagTypes.Id3v2);
+
+                if (v2tag != null)
+                {
+                    Songs.ElementAt(i).Name = v2tag.Title;
+                }
+                else
+                {
+                    TagLib.Id3v1.Tag v1tag;
+                    v1tag = (TagLib.Id3v1.Tag)file.GetTag(TagLib.TagTypes.Id3v1);
+                    if (v1tag != null)
+                    {
+                        Songs.ElementAt(i).Name = v1tag.Title;
+                    }
+                    else
+                    {
+                        Songs.ElementAt(i).Name = Path.GetFileNameWithoutExtension(filename);
+                    }
+                }
+
+                Songs.ElementAt(i).TrackNo = (byte)(i + 1);
+                Songs.ElementAt(i).TimeLength = file.Properties.Duration.ToString(@"m\:ss");
+
+                file.Dispose();
+
+                i++;
+            }
+
+            FixTimes();
+        }
+
+        public void SaveSong()
+        {
+            if (SelectedSong != null)
+            {
+                using (var context = new MusCatEntities())
+                {
+                    context.Entry(context.Songs.Find(SelectedSong.ID)).CurrentValues.SetValues(SelectedSong);
+                    context.SaveChanges();
                 }
             }
         }
+
+        public void DeleteSong()
+        {
+            if (MessageBox.Show(string.Format("Are you sure you want to delete the song\n'{0}'\nby '{1}'?",
+                                            SelectedSong.Name, SelectedSong.Album.Performer.Name),
+                                            "Confirmation",
+                                            MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                using (var context = new MusCatEntities())
+                {
+                    context.Songs.Remove(SelectedSong);
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        public void AddSong()
+        {
+            byte newTrackNo = (byte)(Songs.Last().TrackNo + 1);
+            Songs.Add(new Song { ID = -1, TrackNo = newTrackNo, AlbumID = Album.ID });
+        }
+
+        public void SaveAlbumInformation()
+        {
+            using (var context = new MusCatEntities())
+            {
+                context.Entry(Album).State = System.Data.EntityState.Modified;
+                context.SaveChanges();
+            }
+        }
+
+        public void FixNames()
+        {
+            foreach (var s in Songs)
+            {
+                s.Name = s.Name.Trim();
+                s.Name = s.Name.Replace("_", " ");
+                s.Name = s.Name.ToLower();
+
+                string oldLetter = s.Name.Substring(0, 1);
+                s.Name = s.Name.Remove(0, 1).Insert(0, oldLetter.ToUpper());
+
+                int spacePos = s.Name.IndexOf(' ');
+                while (spacePos > -1)
+                {
+                    oldLetter = s.Name.Substring(spacePos + 1, 1);
+                    s.Name = s.Name.Remove(spacePos + 1, 1).Insert(spacePos + 1, oldLetter.ToUpper());
+                    spacePos = s.Name.IndexOf(' ', spacePos + 1);
+                }
+            }
+        }
+
+        public void FixTimes()
+        {
+            int totalMinutes = 0, totalSeconds = 0;
+
+            foreach (var s in Songs)
+            {
+                // fix each record if there's a need
+                string clean = "";
+                foreach (char c in s.TimeLength)
+                {
+                    if (char.IsDigit(c) || c == ':')
+                        clean += c;
+                }
+
+                int colonPos = clean.IndexOf(':');
+
+                if (colonPos == -1)
+                {
+                    clean = clean + ":00";
+                }
+                else if (clean.Length - colonPos < 2)
+                {
+                    clean = clean.Insert(colonPos + 1, "0");
+                }
+
+                s.TimeLength = clean;
+                colonPos = clean.IndexOf(':');
+
+                totalMinutes += int.Parse(s.TimeLength.Substring(0, colonPos));
+                totalSeconds += int.Parse(s.TimeLength.Substring(colonPos + 1));
+            }
+
+            // calculate total time
+            totalMinutes += totalSeconds / 60;
+            totalSeconds = totalSeconds % 60;
+
+            AlbumTotalTime = string.Format("{0}:{1:00}", totalMinutes, totalSeconds);
+        }
+
+        public void ClearAll()
+        {
+            if (MessageBox.Show(string.Format("Are you sure you want to delete all songs in the album\n '{0}' \nby '{1}'?",
+                                            Album.Name, Album.Performer.Name),
+                                            "Confirmation",
+                                            MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                Songs.Clear();
+            }
+        }
+
+        public void SaveAll()
+        {
+            using (var context = new MusCatEntities())
+            {
+                foreach (var song in Songs)
+                {
+                    if (song.ID == -1)
+                    {
+                        song.ID = context.Songs.Max(s => s.ID) + 1;
+                        context.Songs.Add(song);
+                    }
+                    else
+                    {
+                        context.Entry(context.Songs.Find(song.ID)).CurrentValues.SetValues(song);
+                    }
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        public string ChooseImageSavePath()
+        {
+            var filepaths = FileLocator.MakePathImageAlbum(Album);
+
+            if (filepaths.Count > 1)
+            {
+                ChoiceWindow choice = new ChoiceWindow();
+                choice.SetChoiceList(filepaths);
+                choice.ShowDialog();
+
+                return choice.ChoiceResult;
+            }
+
+            return filepaths[0];
+        }
+
+        public void PrepareFileForSaving(string filepath)
+        {
+            // ensure that target directory exists
+            Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+
+            // first check if file already exists
+            if (File.Exists(filepath))
+            {
+                File.Delete(filepath);
+            }
+        }
+
+        public void LoadAlbumImageFromClipboard()
+        {
+            if (!Clipboard.ContainsImage())
+            {
+                MessageBox.Show("No image in clipboard!");
+                return;
+            }
+
+            string filepath = ChooseImageSavePath();
+            if (filepath == null)
+            {
+                return;
+            }
+
+            var image = Clipboard.GetImage();
+            try
+            {
+                PrepareFileForSaving(filepath);
+
+                using (var fileStream = new FileStream(filepath, FileMode.CreateNew))
+                {
+                    BitmapEncoder encoder = new JpegBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(image));
+                    encoder.Save(fileStream);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            RaisePropertyChanged("Album");
+            AlbumView.RaisePropertyChanged("Album");
+        }
+
+        public void LoadAlbumImageFromFile()
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            var result = ofd.ShowDialog();
+            if (result.HasValue && result.Value == true)
+            {
+                string filepath = ChooseImageSavePath();
+                if (filepath == null)
+                {
+                    return;
+                }
+
+                try
+                {
+                    PrepareFileForSaving(filepath);
+                    File.Copy(ofd.FileName, filepath);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
+                RaisePropertyChanged("Album");
+                AlbumView.RaisePropertyChanged("Album");
+            }
+        }
+
+        #region INotifyPropertyChanged event and method
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
     }
 }

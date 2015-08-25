@@ -15,23 +15,8 @@ namespace MusCatalog
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // =================================================== if the current object is ALBUM
-            Album albs = value as Album;
-
-            if (albs != null)
-            {
-                if (albs.Rate.HasValue)
-                {
-                    return albs.Rate + "/10";
-                }
-                else
-                {
-                    return "Not rated";
-                }
-            }
-
-            // ==================================== if the current object is simply Nullable<byte>
             byte? rate = value as Nullable<byte>;
+
             if (rate.HasValue)
             {
                 return rate.Value + "/10";

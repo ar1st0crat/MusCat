@@ -29,6 +29,9 @@ namespace MusCatalog.ViewModel
             }
         }
 
+        /// <summary>
+        /// Lazty load songs
+        /// </summary>
         public void LoadSongs()
         {
             // load and prepare all songs from the album for further actions
@@ -51,7 +54,7 @@ namespace MusCatalog.ViewModel
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void RaisePropertyChanged(string propertyName)
+        public void RaisePropertyChanged(string propertyName)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)

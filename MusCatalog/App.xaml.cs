@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using MusCatalog.View;
+using System.Windows;
 
 namespace MusCatalog
 {
@@ -7,5 +8,11 @@ namespace MusCatalog
     /// </summary>
     public partial class App : Application
     {
+        void AppInitialize( object sender, StartupEventArgs e)
+        {
+            FileLocator.Initialize();
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+        }
     }
 }

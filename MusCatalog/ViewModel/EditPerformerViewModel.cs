@@ -12,17 +12,26 @@ namespace MusCatalog.ViewModel
 {
     public class EditPerformerViewModel : INotifyPropertyChanged
     {
-        public Performer Performer { get; set; }
+        public PerformerViewModel PerformerView { get; set; }
+        public Performer Performer
+        {
+            get { return PerformerView.Performer; }
+            set
+            {
+                PerformerView.Performer = value;
+                RaisePropertyChanged("Performer");
+            }
+        }
+
         public byte? SelectedCountryID { get; set; }
         public Country SelectedCountry { get; set; }
-
         public ObservableCollection<Country> Countries { get; set; }
         public ObservableCollection<Genre> Genres { get; set; }
 
 
-        public EditPerformerViewModel( Performer p )
+        public EditPerformerViewModel( PerformerViewModel p )
         {
-            Performer = p;
+            PerformerView = p;
 
             using ( var context = new MusCatEntities() )
             {
@@ -95,15 +104,14 @@ namespace MusCatalog.ViewModel
                     PrepareFileForSaving(filepath);
                     File.Copy(ofd.FileName, filepath);
 
-                    RaisePropertyChanged( "Performer" );
+                    RaisePropertyChanged("Performer");
+                    PerformerView.RaisePropertyChanged("Performer");
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show( ex.Message );
                 }
             }
-
-            RaisePropertyChanged("Performer");
         }
 
         public void LoadPerformerImageFromClipboard()
@@ -137,7 +145,8 @@ namespace MusCatalog.ViewModel
                 MessageBox.Show(ex.Message);
             }
 
-            RaisePropertyChanged("Performer");
+            RaisePropertyChanged( "Performer" );
+            PerformerView.RaisePropertyChanged( "Performer" );
         }
 
         #region INotifyPropertyChanged event and method

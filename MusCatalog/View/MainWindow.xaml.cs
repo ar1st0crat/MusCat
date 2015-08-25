@@ -1,9 +1,7 @@
 ﻿using MusCatalog.Model;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
 using MusCatalog.ViewModel;
+using System.Windows;
+using System.Windows.Input;
 
 
 namespace MusCatalog.View
@@ -13,56 +11,19 @@ namespace MusCatalog.View
     /// </summary>
     public partial class MainWindow : Window
     {
-        /// <summary>
-        /// Main window initialization
-        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
-            FileLocator.Initialize();
-        }
-
-        private void CreateLowerNavigationPanel()
-        {
-            // ============================================================================
-            // REFACTOR! REFACTOR! REFACTOR! REFACTOR! REFACTOR! REFACTOR! REFACTOR! 
-            // ============================================================================
-            this.NavigationPanel.Children.Clear();
-
-            for (int i = 0; i < 5; i++)
-            {
-                var nb = new TextBlock();
-                nb.Name = "nb" + (i * 7 + 1).ToString();
-                nb.Text = (i+1).ToString();
-                nb.TextDecorations = TextDecorations.Underline;
-                nb.Cursor = Cursors.Hand;
-                nb.Margin = new Thickness(5, 0, 0, 0);
-                nb.Foreground = Brushes.Yellow;
-                nb.Background = Brushes.Transparent;
-                nb.MouseDown += NavigationClick;
-                this.NavigationPanel.Children.Add(nb);
-            }
-
-            ((TextBlock)this.NavigationPanel.Children[0]).TextDecorations = null;
         }
 
         private void PerformerSearchClick(object sender, MouseButtonEventArgs e)
         {
-            ((MainViewModel)DataContext).LoadPerformersByName( this.PerformerSearch.Text );
+            ((MainViewModel)DataContext).SelectPerformersByName();
         }
 
         private void AlbumSearchClick(object sender, MouseButtonEventArgs e)
         {
-            ((MainViewModel)DataContext).LoadPerformersByAlbumName(this.AlbumSearch.Text);
-        }
-
-        /// <summary>
-        /// Lower navigation panel click handler
-        /// </summary>
-        private void NavigationClick(object sender, RoutedEventArgs e)
-        {
-            var b = sender as TextBlock;
-            MessageBox.Show( b.Name );
+            ((MainViewModel)DataContext).SelectPerformersByAlbumName();
         }
 
         private void SelectedAlbumsMouseDoubleClick(object sender, MouseButtonEventArgs e)

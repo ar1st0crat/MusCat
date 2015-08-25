@@ -66,7 +66,8 @@
                     <Image Source="{StaticResource ImageStopButton}" Width="32" Margin="0,0,0,10" MouseDown="StopMouseDown"/>
                     <Slider Name="VolumeSlider" Width="75" Value="5" ValueChanged="SliderVolumeChanged" VerticalAlignment="Center" />
                 </DockPanel>
-                <Image Name ="curImage" Source="{Binding Path=Album, Converter={StaticResource photoConverter}, ConverterParameter={StaticResource currentAlbumHeight}}"
+                <Image x:Name ="curImage" Cursor="Hand"
+                       Source="{Binding Path=Album, Converter={StaticResource photoConverter}, ConverterParameter={StaticResource currentAlbumHeight}}"
                        Height="{StaticResource currentAlbumHeight}" MouseDown="CurrentAlbumClick">
                     <Image.Effect>
                         <DropShadowEffect Color="Black" BlurRadius="20"/>

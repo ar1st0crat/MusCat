@@ -11,16 +11,69 @@ namespace MusCatalog.Model
 {
     using System;
     using System.Collections.Generic;
-    
-    public partial class Song
+    using System.ComponentModel;
+
+    public partial class Song : INotifyPropertyChanged
     {
+        private byte trackNo;
+        private string name;
+        private string timeLength;
+        private byte? rate;
+        
         public long AlbumID { get; set; }
         public long ID { get; set; }
-        public byte TrackNo { get; set; }
-        public string Name { get; set; }
-        public string TimeLength { get; set; }
-        public Nullable<byte> Rate { get; set; }
+        public byte TrackNo
+        {
+            get { return trackNo; }
+            set
+            {
+                trackNo = value;
+                RaisePropertyChanged( "TrackNo" );
+            } 
+        }
+        public string Name
+        {
+            get { return name; }
+            set
+            { 
+                name = value;
+                RaisePropertyChanged( "Name" );
+            }
+        }
+        public string TimeLength
+        {
+            get { return timeLength; }
+            set
+            {
+                timeLength = value;
+                RaisePropertyChanged( "TimeLength" );
+            }
+        }
+        public Nullable<byte> Rate
+        {
+            get { return rate; }
+            set
+            {
+                rate = value;
+                RaisePropertyChanged("Rate");
+            }
+        }
     
         public virtual Album Album { get; set; }
+
+        #region INotifyPropertyChanged event and method
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
     }
 }

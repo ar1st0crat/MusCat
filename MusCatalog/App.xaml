@@ -1,9 +1,8 @@
-﻿<Application x:Class="sysalog.App"
+﻿<Application x:Class="MusCatalog.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             StartupUri="View/MainWindow.xaml">
-    
+             Startup="AppInitialize">
     <Application.Resources>
         <ResourceDictionary>
             <!-- star images -->

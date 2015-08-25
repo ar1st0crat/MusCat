@@ -1,14 +1,36 @@
 ﻿using MusCatalog.Model;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows.Media.Imaging;
 
 namespace MusCatalog.ViewModel
 {
     public class PerformerViewModel : INotifyPropertyChanged
     {
         public Performer Performer { get; set; }
-        public byte? AlbumCollectionRate { get; set; }
-        public int AlbumCount { get; set; }
+
+        private byte? albumCollectionRate;
+        public byte? AlbumCollectionRate
+        { 
+            get { return albumCollectionRate; }
+            set
+            {
+                albumCollectionRate = value;
+                RaisePropertyChanged( "AlbumCollectionRate" );
+            }
+        }
+
+        private int albumCount;
+        public int AlbumCount
+        { 
+            get { return albumCount; }
+            set
+            {
+                albumCount = value;
+                RaisePropertyChanged( "AlbumCount" );
+            }
+        }
 
         public AlbumViewModel SelectedAlbum { get; set; }
 
@@ -23,11 +45,12 @@ namespace MusCatalog.ViewModel
             }
         }
 
+
         #region INotifyPropertyChanged event and method
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void RaisePropertyChanged(string propertyName)
+        public void RaisePropertyChanged(string propertyName)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
