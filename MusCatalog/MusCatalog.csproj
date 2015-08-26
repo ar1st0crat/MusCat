@@ -91,6 +91,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\AlbumCountConverter.cs" />
+    <Compile Include="Logic\Mp3Parser.cs" />
     <Compile Include="Logic\Radio.cs" />
     <Compile Include="Model\Album.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
@@ -156,7 +157,7 @@
       <DependentUpon>PerformerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Logic\FileLocator.cs" />
-    <Compile Include="View\LetterButton.cs" />
+    <Compile Include="View\LetterNavigationButton.cs" />
     <Compile Include="Logic\AudioPlayer.cs" />
     <Compile Include="Converters\PhotoConverter.cs" />
     <Compile Include="View\RadioPlayerWindow.xaml.cs">

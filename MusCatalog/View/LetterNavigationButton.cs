@@ -3,7 +3,7 @@ using System.Windows.Media;
 
 namespace MusCatalog.View
 {
-    public class LetterButton: Button
+    public class LetterNavigationButton: Button
     {
         FontFamily letterFont = new FontFamily( "Stencil" );
         bool bSelected = false;
@@ -11,7 +11,7 @@ namespace MusCatalog.View
         const int height = 32;
         const double scaleCoeff = 1.5;
 
-        public LetterButton(string text, int w = width, int h = height)
+        public LetterNavigationButton(string text, int w = width, int h = height)
         {
             Content = text;
             Background = Brushes.Black;

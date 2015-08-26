@@ -7,7 +7,7 @@ using System.Windows.Input;
 namespace MusCatalog.View
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for MainWindow.xaml (all actions are redirected to MainViewModel)
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -18,12 +18,12 @@ namespace MusCatalog.View
 
         private void PerformerSearchClick(object sender, MouseButtonEventArgs e)
         {
-            ((MainViewModel)DataContext).SelectPerformersByName();
+            ((MainViewModel)DataContext).SelectPerformersByPattern();
         }
 
         private void AlbumSearchClick(object sender, MouseButtonEventArgs e)
         {
-            ((MainViewModel)DataContext).SelectPerformersByAlbumName();
+            ((MainViewModel)DataContext).SelectPerformersByAlbumPattern();
         }
 
         private void SelectedAlbumsMouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -47,8 +47,6 @@ namespace MusCatalog.View
             {
                 return;
             }
-
-            Performer perf = Performerlist.SelectedItem as Performer;
 
             if ( e.Key == Key.Enter )
             {

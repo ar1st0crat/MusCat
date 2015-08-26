@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:MusCatalog"
+        xmlns:vm="clr-namespace:MusCatalog.ViewModel"
         Title="MusCat Radio"
         SizeToContent="WidthAndHeight"
         KeyDown="RadioPlayerKeyDown">
-
     <Window.Background>
         <LinearGradientBrush>
             <GradientStop Color="CornflowerBlue" Offset="0" />
@@ -14,12 +14,16 @@
         </LinearGradientBrush>
     </Window.Background>
     
+    <Window.DataContext>
+        <vm:RadioViewModel />
+    </Window.DataContext>
+
     <Window.Resources>
         <!-- GUI parameters -->
-        <sys:Double x:Key="albumHeight">100</sys:Double>
-        <sys:Double x:Key="currentAlbumHeight">200</sys:Double>
+        <sys:Double x:Key="AlbumImageHeight">100</sys:Double>
+        <sys:Double x:Key="CurrentAlbumImageHeight">200</sys:Double>
         <!-- Album cover path converter -->
-        <local:PhotoConverter x:Key="photoConverter"/>
+        <local:PhotoConverter x:Key="AlbumImageConverter"/>
     </Window.Resources>
 
     <StackPanel>
@@ -33,18 +37,22 @@
                 <ColumnDefinition Width="270"/>
             </Grid.ColumnDefinitions>
             
-                <!-- The panel of a previous song in radio tracklist -->
-                <StackPanel Name="prevSongPanel" Grid.Column="0" VerticalAlignment="Center" Margin="15,60,15,60" MouseDown="PrevMouseDown">
+            <!-- The panel of a previous song in radio tracklist -->
+            <StackPanel DataContext="{Binding PreviousSong}" Grid.Column="0"
+                        VerticalAlignment="Center" Margin="15,60,15,60"
+                        MouseDown="PrevMouseDown">
                 <Label Content="Previous" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
-                <Image Name="prevImage" Source="{Binding Path=Album, Converter={StaticResource photoConverter}, ConverterParameter={StaticResource albumHeight}}"
-                       Height="{StaticResource albumHeight}">
+                <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter}, ConverterParameter={StaticResource AlbumImageHeight}}"
+                       Height="{StaticResource AlbumImageHeight}">
                     <Image.Effect>
                         <DropShadowEffect Color="Black" BlurRadius="15"/>
                     </Image.Effect>
                 </Image>
-                <TextBlock Text="{Binding Path=Album.Performer.Name}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
+                <TextBlock Text="{Binding Path=Album.Performer.Name}"
+                           TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
                            Foreground="White" FontSize="18" FontFamily="Stencil" Margin="3,12,3,3"/>
-                <TextBlock Text="{Binding Path=Album.Name}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
+                <TextBlock Text="{Binding Path=Album.Name}"
+                           TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
                            Foreground="LightGreen" FontWeight="Bold" Margin="3"/>
                 <WrapPanel HorizontalAlignment="Center">
                     <TextBlock TextWrapping="Wrap" TextAlignment="Center" Foreground="Beige" Margin="5">
@@ -59,23 +67,34 @@
             </StackPanel>
             
             <!-- The central panel of currently playing song in radio tracklist -->
-            <StackPanel Name="curSongPanel" Grid.Column="1">
-                <Label FontSize="16" Foreground="AntiqueWhite" Content="Currently playing" HorizontalAlignment="Center"/>
+            <StackPanel DataContext="{Binding CurrentSong}" Grid.Column="1">
+                <Label Content="Currently playing" FontSize="16" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
                 <DockPanel HorizontalAlignment="Center">
-                    <Image Name="playback" Source="{StaticResource ImagePauseButton}" Width="32" Margin="0,0,0,10" MouseDown="PausePlayMouseDown"/>
-                    <Image Source="{StaticResource ImageStopButton}" Width="32" Margin="0,0,0,10" MouseDown="StopMouseDown"/>
-                    <Slider Name="VolumeSlider" Width="75" Value="5" ValueChanged="SliderVolumeChanged" VerticalAlignment="Center" />
+                    <Image Source="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
+                                            Path=DataContext.PlaybackImage, UpdateSourceTrigger=PropertyChanged}"
+                           Width="32" Margin="0,0,0,10"
+                           MouseDown="PlaybackMouseDown"/>
+                    <Image Source="{StaticResource ImageStopButton}"
+                           Width="32" Margin="0,0,0,10"
+                           MouseDown="StopMouseDown"/>
+                    <Slider Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
+                                            Path=DataContext.SongVolume, Mode=TwoWay}"
+                            Width="75" VerticalAlignment="Center" />
                 </DockPanel>
-                <Image x:Name ="curImage" Cursor="Hand"
-                       Source="{Binding Path=Album, Converter={StaticResource photoConverter}, ConverterParameter={StaticResource currentAlbumHeight}}"
-                       Height="{StaticResource currentAlbumHeight}" MouseDown="CurrentAlbumClick">
+                <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter},
+                                                    ConverterParameter={StaticResource CurrentAlbumImageHeight}}"
+                       Height="{StaticResource CurrentAlbumImageHeight}"
+                       Cursor="Hand"
+                       MouseDown="CurrentAlbumClick">
                     <Image.Effect>
                         <DropShadowEffect Color="Black" BlurRadius="20"/>
                     </Image.Effect>
                 </Image>
-                <TextBlock TextWrapping="Wrap" Text="{Binding Path=Album.Performer.Name}" TextAlignment="Center"
+                <TextBlock Text="{Binding Path=Album.Performer.Name}" 
+                           TextWrapping="Wrap" TextAlignment="Center"
                            Foreground="White" FontSize="22" FontFamily="Stencil" HorizontalAlignment="Center" Margin="3,12,3,3"/>
-                <TextBlock TextWrapping="Wrap" Text="{Binding Path=Album.Name}" TextAlignment="Center"
+                <TextBlock Text="{Binding Path=Album.Name}" 
+                           TextWrapping="Wrap" TextAlignment="Center"
                            FontSize="16" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="3"/>
                 <WrapPanel HorizontalAlignment="Center">
                     <TextBlock TextWrapping="Wrap" TextAlignment="Center" Margin="5" FontSize="18" Foreground="Beige">
@@ -90,17 +109,21 @@
             </StackPanel>
             
             <!-- The panel of a next song in radio tracklist -->
-            <StackPanel Name="nextSongPanel" Grid.Column="2" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="15,60,15,60" MouseDown="NextMouseDown">
+            <StackPanel DataContext="{Binding NextSong}" Grid.Column="2"
+                        VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="15,60,15,60"
+                        MouseDown="NextMouseDown">
                 <Label Content="Next" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
-                <Image Name="nextImage" Source="{Binding Path=Album, Converter={StaticResource photoConverter}, ConverterParameter={StaticResource albumHeight}}"
-                       Height="{StaticResource albumHeight}">
+                <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter}, ConverterParameter={StaticResource AlbumImageHeight}}"
+                       Height="{StaticResource AlbumImageHeight}">
                     <Image.Effect>
                         <DropShadowEffect Color="Black" BlurRadius="15"/>
                     </Image.Effect>
                 </Image>
-                <TextBlock Text="{Binding Path=Album.Performer.Name}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
+                <TextBlock Text="{Binding Path=Album.Performer.Name}"
+                           TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
                            Foreground="White" FontSize="18" FontFamily="Stencil" Margin="3,12,3,3"/>
-                <TextBlock Text="{Binding Path=Album.Name}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
+                <TextBlock Text="{Binding Path=Album.Name}" 
+                           TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
                            Foreground="LightGreen" FontWeight="Bold" Margin="3"/>
                 <WrapPanel HorizontalAlignment="Center">
                     <TextBlock TextWrapping="Wrap" TextAlignment="Center" Foreground="Beige" Margin="5">
@@ -129,16 +152,23 @@
             <!-- Archive radio tracklist -->
             <Expander Header="Archive" FontFamily="Broadway" Foreground="AntiqueWhite" FontSize="26" Width="auto" HorizontalAlignment="Right">
                 <StackPanel>
-                    <ListBox Name="Archive" Margin="20,0,20,0" VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="14" FontFamily="Arial Narrow" Background="Transparent">
+                    <ListBox ItemsSource="{Binding Path=RadioArchive}"
+                             Margin="20,0,20,0" VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="14" FontFamily="Arial Narrow"
+                             Background="Transparent" BorderBrush="Transparent" SelectedIndex="-1">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <DockPanel Margin="0,-5,0,-5">
-                                    <Label Content="{Binding Path=Album.Performer.Name}" Foreground="Crimson"/>
-                                    <Label Content="{Binding Path=Name}"/>
-                                    <Label Content="{Binding Path=TimeLength}" Foreground="DarkGreen" />
+                                    <Label Content="{Binding Path=Album.Performer.Name}" Foreground="LightPink"/>
+                                    <Label Content="{Binding Path=Name}" Foreground="White"/>
+                                    <Label Content="{Binding Path=TimeLength}" Foreground="LightGreen" />
                                 </DockPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListBoxItem}">
+                                <Setter Property="Focusable" Value="False"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
                     </ListBox>
                 </StackPanel>
             </Expander>

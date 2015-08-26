@@ -236,13 +236,14 @@ namespace MusCatalog
 
                     if (neededDirs.Count() > 0)
                     {
-                        string songDir = neededDirs.First();
+                        string songDir = ""; // neededDirs.First();
                                                 
                         // Check if song name contains punctuation and eliminate it!
                         // Normalize string - remove spaces and punctuation!
                         foreach (string dir in neededDirs)
                         {
-                            if ( LocatorNormalize(dir).Contains( LocatorNormalize(song.Album.Name) ) )
+                            string dirShortName = dir.Substring(dir.LastIndexOf("\\"));
+                            if ( LocatorNormalize(dirShortName).Contains( LocatorNormalize(song.Album.Name) ) )
                             {
                                 songDir = dir;
                                 break;
@@ -250,9 +251,9 @@ namespace MusCatalog
                         }
 
                         // TODO:
-                        // Check if the album is double (currently we simply return ""
-                        // if the album is broken into two folders (CD1 and CD2) and the song is in the second part of the album)
-                        // 
+                        // Check if the album is double (currently we simply return "" if
+                        // the album is broken into two folders (CD1 and CD2)
+                        // and the song is in the second part of the album)
                         if (Directory.GetFiles(songDir).Length < song.TrackNo)
                         {
                             return "";

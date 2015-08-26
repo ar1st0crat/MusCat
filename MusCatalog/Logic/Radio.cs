@@ -1,7 +1,7 @@
 ﻿using MusCatalog.Model;
 using NAudio.Wave;
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace MusCatalog
@@ -9,7 +9,7 @@ namespace MusCatalog
     class Radio
     {
         // the list of recently played songs
-        private List<Song> songlist = new List<Song>();
+        private ObservableCollection<Song> songlist = new ObservableCollection<Song>();
         private int nCurrentSong = 0;
 
         // the number of recently played songs which we're tracking
@@ -22,10 +22,9 @@ namespace MusCatalog
             get { return player; }
         }
 
-                
-        public List<Song> GetSongArchive()
+        public ObservableCollection<Song> SongArchive
         {
-            return songlist;
+            get { return songlist; }
         }
 
         public Song CurrentSong()

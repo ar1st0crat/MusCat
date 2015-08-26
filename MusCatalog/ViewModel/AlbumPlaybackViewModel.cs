@@ -6,28 +6,27 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Threading;
 using System.Windows.Media.Imaging;
-using System.Windows.Controls;
 
 
 namespace MusCatalog.ViewModel
 {
     class AlbumPlaybackViewModel : INotifyPropertyChanged
     {
-        public AlbumViewModel AlbumModel { get; set; }
+        public AlbumViewModel AlbumView { get; set; }
         
         public Album Album
         {
-            get { return AlbumModel.Album; }
+            get { return AlbumView.Album; }
             set
             {
-                AlbumModel.Album = value;
+                AlbumView.Album = value;
                 RaisePropertyChanged( "Album" );
             }
         }
 
         public ObservableCollection<Song> Songs
         {
-            get { return AlbumModel.Songs; }
+            get { return AlbumView.Songs; }
         }
 
         private Song selectedSong;
@@ -80,7 +79,7 @@ namespace MusCatalog.ViewModel
 
         public AlbumPlaybackViewModel(AlbumViewModel viewmodel)
         {
-            AlbumModel = viewmodel;
+            AlbumView = viewmodel;
 
             // setting up timer for songs playback
             playbackTimer.Tick += new EventHandler(PlaybackTimerTick);
@@ -196,6 +195,7 @@ namespace MusCatalog.ViewModel
 
         /// <summary>
         /// Freeze media player when the window is closing to avoid a memory leak
+        /// and unsubscribe from the RateUpdated event for the same reason
         /// </summary>
         public void Close()
         {
@@ -212,8 +212,16 @@ namespace MusCatalog.ViewModel
             {
                 context.Entry(Album).State = System.Data.EntityState.Modified;
                 context.SaveChanges();
+
+                // raise event to allow for correct updating of MainViewModel
+                if (RateUpdated != null)
+                {
+                    RateUpdated(Album.Performer, null);
+                }
             }
         }
+
+        public event EventHandler RateUpdated;
 
         #region INotifyPropertyChanged event and method
 

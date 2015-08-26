@@ -245,11 +245,11 @@
             <Expander ExpandDirection="Right">
                 <WrapPanel>
                     <Label Content="Find performer" Foreground="White" FontSize="14" />
-                    <TextBox x:Name="PerformerSearch" Text="{Binding Path=PerformerPattern}"
+                    <TextBox x:Name="PerformerSearch" Text="{Binding Path=PerformerPattern, UpdateSourceTrigger=PropertyChanged}"
                              Width="120" Margin="10,0,3,0" FontFamily="Stencil" FontSize="14" Height="20" />
                     <Image Source="{StaticResource ImagePlayButton}" Height="25" Margin="0,0,10,0" MouseDown="PerformerSearchClick" />
                     <Label Content="Find album" Foreground="White" FontSize="14" />
-                    <TextBox x:Name="AlbumSearch" Text="{Binding AlbumPattern}"
+                    <TextBox x:Name="AlbumSearch" Text="{Binding AlbumPattern, UpdateSourceTrigger=PropertyChanged}"
                              Width="120" Margin="10,0,3,0" FontFamily="Stencil" FontSize="14" Height="20" />
                     <Image Source="{StaticResource ImagePlayButton}" Height="25" Margin="0,0,10,0" MouseDown="AlbumSearchClick" />
                 </WrapPanel>

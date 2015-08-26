@@ -58,44 +58,9 @@ namespace MusCatalog.ViewModel
                 return;
             }
 
-            var i = 0;
-            foreach (var filename in Directory.GetFiles(fbd.SelectedPath, "*.mp3"))
-            {
-                if (i == Songs.Count)
-                {
-                    Songs.Add(new Song { ID = -1, AlbumID = Album.ID });
-                }
-
-                var file = TagLib.File.Create(filename);
-                var v2tag = (TagLib.Id3v2.Tag)file.GetTag(TagLib.TagTypes.Id3v2);
-
-                if (v2tag != null)
-                {
-                    Songs.ElementAt(i).Name = v2tag.Title;
-                }
-                else
-                {
-                    TagLib.Id3v1.Tag v1tag;
-                    v1tag = (TagLib.Id3v1.Tag)file.GetTag(TagLib.TagTypes.Id3v1);
-                    if (v1tag != null)
-                    {
-                        Songs.ElementAt(i).Name = v1tag.Title;
-                    }
-                    else
-                    {
-                        Songs.ElementAt(i).Name = Path.GetFileNameWithoutExtension(filename);
-                    }
-                }
-
-                Songs.ElementAt(i).TrackNo = (byte)(i + 1);
-                Songs.ElementAt(i).TimeLength = file.Properties.Duration.ToString(@"m\:ss");
-
-                file.Dispose();
-
-                i++;
-            }
-
-            FixTimes();
+            Mp3Parser parser = new Mp3Parser();
+            parser.ParseMp3Collection( fbd.SelectedPath, Album, Songs );
+            AlbumTotalTime = parser.FixTimes( Songs );
         }
 
         public void SaveSong()
@@ -142,62 +107,14 @@ namespace MusCatalog.ViewModel
 
         public void FixNames()
         {
-            foreach (var s in Songs)
-            {
-                s.Name = s.Name.Trim();
-                s.Name = s.Name.Replace("_", " ");
-                s.Name = s.Name.ToLower();
-
-                string oldLetter = s.Name.Substring(0, 1);
-                s.Name = s.Name.Remove(0, 1).Insert(0, oldLetter.ToUpper());
-
-                int spacePos = s.Name.IndexOf(' ');
-                while (spacePos > -1)
-                {
-                    oldLetter = s.Name.Substring(spacePos + 1, 1);
-                    s.Name = s.Name.Remove(spacePos + 1, 1).Insert(spacePos + 1, oldLetter.ToUpper());
-                    spacePos = s.Name.IndexOf(' ', spacePos + 1);
-                }
-            }
+            Mp3Parser parser = new Mp3Parser();
+            parser.FixNames(Songs);
         }
 
         public void FixTimes()
         {
-            int totalMinutes = 0, totalSeconds = 0;
-
-            foreach (var s in Songs)
-            {
-                // fix each record if there's a need
-                string clean = "";
-                foreach (char c in s.TimeLength)
-                {
-                    if (char.IsDigit(c) || c == ':')
-                        clean += c;
-                }
-
-                int colonPos = clean.IndexOf(':');
-
-                if (colonPos == -1)
-                {
-                    clean = clean + ":00";
-                }
-                else if (clean.Length - colonPos < 2)
-                {
-                    clean = clean.Insert(colonPos + 1, "0");
-                }
-
-                s.TimeLength = clean;
-                colonPos = clean.IndexOf(':');
-
-                totalMinutes += int.Parse(s.TimeLength.Substring(0, colonPos));
-                totalSeconds += int.Parse(s.TimeLength.Substring(colonPos + 1));
-            }
-
-            // calculate total time
-            totalMinutes += totalSeconds / 60;
-            totalSeconds = totalSeconds % 60;
-
-            AlbumTotalTime = string.Format("{0}:{1:00}", totalMinutes, totalSeconds);
+            Mp3Parser parser = new Mp3Parser();
+            AlbumTotalTime = parser.FixTimes( Songs );
         }
 
         public void ClearAll()
