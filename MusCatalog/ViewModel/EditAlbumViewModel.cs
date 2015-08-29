@@ -92,7 +92,12 @@ namespace MusCatalog.ViewModel
 
         public void AddSong()
         {
-            byte newTrackNo = (byte)(Songs.Last().TrackNo + 1);
+            byte newTrackNo = 1;
+
+            if (Songs.Count > 0)
+            {
+                newTrackNo = (byte)(Songs.LastOrDefault().TrackNo + 1);
+            }
             Songs.Add(new Song { ID = -1, TrackNo = newTrackNo, AlbumID = Album.ID });
         }
 

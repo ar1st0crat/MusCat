@@ -348,6 +348,8 @@ namespace MusCatalog.ViewModel
 
                 // deselect all buttons in upper navigation panel
                 ResetButtons();
+
+                FirstLetter = "_";
             }
         }
 
@@ -375,6 +377,8 @@ namespace MusCatalog.ViewModel
 
                 // deselect all buttons in upper navigation panel
                 ResetButtons();
+
+                FirstLetter = "_";
             }
         }
 
@@ -421,15 +425,14 @@ namespace MusCatalog.ViewModel
                 perfWindow.DataContext = viewmodel;
                 perfWindow.ShowDialog();
 
-                // Update current list of performers only if the first letter of a newly added performer
-                // is the first letter currently selectd in upper navigation panel
-                if (perf.Name.ToUpper()[0] == performers[0].Performer.Name.ToUpper()[0])
-                {
-                    // TODO: insert performer at the right place in the list
-                    performers.Add(new PerformerViewModel { Performer = perf });
-                }
+                // clear all performers shown in the main window
+                performers.Clear();
+                ResetButtons();
+                SelectedPage = 0;
+                pageCollection.Clear();
 
-                MessageBox.Show("Performer was succesfully added to database");
+                // and show only newly added performer (to focus user's attention on said performer)
+                performers.Add(new PerformerViewModel { Performer = perf });
             }
         }
 
@@ -545,8 +548,27 @@ namespace MusCatalog.ViewModel
                 editAlbum.DataContext = new EditAlbumViewModel( albumView );
                 editAlbum.ShowDialog();
 
-                // TODO: insert at the right place
-                SelectedPerformer.Albums.Add(albumView);
+                // Insert the view model of a newly added album at the right place in performer's collection
+                int j = SelectedPerformer.Albums.Count;
+                for (int i = 0; i < SelectedPerformer.Albums.Count; i++ )
+                {
+                    // firstly, let's see where newly asdded album fits by its year of release
+                    if (a.ReleaseYear <= SelectedPerformer.Albums[i].Album.ReleaseYear)
+                    {
+                        // then, there can be several albums with the same year of release
+                        // so loop through them to find the place for insertion (by album name)
+                        j = i;
+                        while ( SelectedPerformer.Albums[j].Album.ReleaseYear == a.ReleaseYear &&
+                                a.Name.CompareTo( SelectedPerformer.Albums[j].Album.Name ) > 0 &&
+                                j < SelectedPerformer.Albums.Count )
+                        {
+                            j++;
+                        }
+                        break;
+                    }
+                }
+
+                SelectedPerformer.Albums.Insert(j, albumView);
 
                 // to update view
                 SelectedPerformer.AlbumCount = SelectedPerformer.Albums.Count();

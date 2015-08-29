@@ -99,7 +99,7 @@ namespace MusCatalog.ViewModel
 
         private void PlayCurrentSong()
         {
-            radio.PlayCurrentSong( SongPlaybackStopped );
+            radio.PlayCurrentSong(SongPlaybackStopped);
             PlaybackImage = imagePause;
         }
         

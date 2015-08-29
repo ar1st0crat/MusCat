@@ -250,6 +250,11 @@ namespace MusCatalog
                             }
                         }
 
+                        if (songDir == "")
+                        {
+                            return "";
+                        }
+
                         // TODO:
                         // Check if the album is double (currently we simply return "" if
                         // the album is broken into two folders (CD1 and CD2)

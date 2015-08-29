@@ -119,7 +119,7 @@ namespace MusCatalog
                     AddSong();
                 }
 
-                NextSong();
+                MoveToNextSong();
             }
         }
 
