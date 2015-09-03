@@ -139,6 +139,7 @@
     </Compile>
     <Compile Include="ViewModel\AlbumPlaybackViewModel.cs" />
     <Compile Include="ViewModel\AlbumViewModel.cs" />
+    <Compile Include="ViewModel\Command.cs" />
     <Compile Include="ViewModel\EditAlbumViewModel.cs" />
     <Compile Include="ViewModel\EditPerformerViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />

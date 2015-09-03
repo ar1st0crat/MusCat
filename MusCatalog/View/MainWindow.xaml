@@ -144,13 +144,24 @@
                            Source="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
                                             ConverterParameter={StaticResource SelectedPerformerPhotoHeight},
                                             UpdateSourceTrigger=PropertyChanged}" />
-                    <Label FontSize="26" Foreground="Black" FontFamily="Stencil" Content="{Binding Performer.Name}" Padding="1" HorizontalAlignment="Center" />
-                    <Label FontSize="16" Foreground="Black" FontFamily="Arial Narrow" Content="{Binding Performer.Country.Name}" Padding="1" HorizontalAlignment="Center" />
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Style="{StaticResource PerformerRateStyle}">
-                        <view:RateStarsControl Width="75" Height="15" Rate="{Binding Path=AlbumCollectionRate}" IsEnabled="False" />
-                    </StackPanel>
-                    <Label FontSize="18" Foreground="DarkGreen" FontFamily="Arial Narrow" Content="{Binding Path=AlbumCollectionRate, Converter={StaticResource RateConverter}}"
-                           Padding="10,1,10,1" HorizontalAlignment="Center" />
+                    <Label Content="{Binding Path=AlbumCollectionRate, Converter={StaticResource RateConverter}}" Grid.Column="0"
+                               FontSize="20" Foreground="DarkGreen" Background="Orange" FontFamily="Arial Narrow" Padding="10" Margin="0,-35,0,0" HorizontalAlignment="Right">
+                        <Label.RenderTransform>
+                            <RotateTransform Angle="-25"/>
+                        </Label.RenderTransform>
+                        <Label.Effect>
+                            <DropShadowEffect Color="Black" BlurRadius="10"/>
+                        </Label.Effect>
+                    </Label>
+                    <Label FontSize="26" Foreground="Black" FontFamily="Stencil" Content="{Binding Performer.Name}" Margin="0,-10,0,0" HorizontalAlignment="Center" />
+                    <StackPanel HorizontalAlignment="Center" Margin="0,-5,0,15">
+                            <Label Content="{Binding Performer.Country.Name}"
+                                   FontSize="16" Foreground="Black" FontFamily="Arial Narrow"  Padding="1" HorizontalAlignment="Center" />
+                            <StackPanel Style="{StaticResource PerformerRateStyle}"
+                                        Orientation="Horizontal" HorizontalAlignment="Center" >
+                                <view:RateStarsControl Width="75" Height="15" Rate="{Binding Path=AlbumCollectionRate}" IsEnabled="False" />
+                            </StackPanel>
+                        </StackPanel>
                 </StackPanel>
                 <ListBox x:Name="SelectedAlbums"
                          ItemsSource="{Binding Path=Albums}"                        

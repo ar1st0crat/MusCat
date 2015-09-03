@@ -120,6 +120,7 @@ namespace MusCatalog
                 }
 
                 MoveToNextSong();
+                PlayCurrentSong( SongStoppedHandler );
             }
         }
 

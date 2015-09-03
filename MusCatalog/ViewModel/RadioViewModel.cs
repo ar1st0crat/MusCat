@@ -3,6 +3,7 @@ using MusCatalog.View;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 
@@ -51,10 +52,25 @@ namespace MusCatalog.ViewModel
             get { return radio.SongArchive; }
         }
 
+        // commands
+        public ICommand PlaybackCommand { get; private set; }
+        public ICommand StopCommand { get; private set; }
+        public ICommand PreviousSongCommand { get; private set; }
+        public ICommand NextSongCommand { get; private set; }
+        public ICommand ShowAlbumCommand { get; private set; }
+
         #endregion
+
 
         public RadioViewModel()
         {
+            // setting up all commands
+            PlaybackCommand = new RelayCommand(SongPlaybackAction);
+            StopCommand = new RelayCommand(Stop);
+            PreviousSongCommand = new RelayCommand(PlayPreviousSong);
+            NextSongCommand = new RelayCommand(PlayNextSong);
+            ShowAlbumCommand = new RelayCommand( ViewAlbumContainingCurrentSong );
+
             // we add two songs to the playlist right away:
             // 1. The song for current playback
             radio.AddSong();
@@ -67,7 +83,7 @@ namespace MusCatalog.ViewModel
         }
 
         /// <summary>
-        /// The method updates three properties (previous, next and currently playing songs)
+        /// The method updates three properties (previous, next and currently played songs)
         /// </summary>
         private void UpdateSongs()
         {
@@ -83,7 +99,6 @@ namespace MusCatalog.ViewModel
         public void PlayNextSong()
         {
             radio.MoveToNextSong();
-            UpdateSongs();
             // after we added new upcoming song we must play the current song
             // (this song was "upcoming" before we added new song to the playlist)
             PlayCurrentSong();
@@ -92,7 +107,6 @@ namespace MusCatalog.ViewModel
         public void PlayPreviousSong()
         {
             radio.MoveToPrevSong();
-            UpdateSongs();
             // after switching to previous song we play it right away
             PlayCurrentSong();
         }
@@ -100,6 +114,7 @@ namespace MusCatalog.ViewModel
         private void PlayCurrentSong()
         {
             radio.PlayCurrentSong(SongPlaybackStopped);
+            UpdateSongs();
             PlaybackImage = imagePause;
         }
         
@@ -152,6 +167,7 @@ namespace MusCatalog.ViewModel
             albumWindow.DataContext = new AlbumPlaybackViewModel( albumView );
             albumWindow.Show();
         }
+
 
         #region INotifyPropertyChanged event and method
 

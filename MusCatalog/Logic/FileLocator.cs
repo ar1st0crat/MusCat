@@ -24,7 +24,7 @@ namespace MusCatalog
         private static List<string> pathlist = new List<string>();
 
         /// <summary>
-        /// During initialization MusCatLocator loads data from file "config\paths.xml".
+        /// During initialization FileLocator loads data from file "config\paths.xml".
         /// If MusCat app is launched for the first time or the config file is corrupted, user is asked to specify paths
         /// </summary>
         public static void Initialize()
@@ -65,7 +65,6 @@ namespace MusCatalog
         /// </summary>
         public static void SaveConfigFile()
         {
-            // save config file paths.xml
             Directory.CreateDirectory("config");
             using (XmlWriter writer = XmlWriter.Create(@"config\paths.xml"))
             {
@@ -79,10 +78,10 @@ namespace MusCatalog
         }
                 
         /// <summary>
-        /// TODO
+        /// Look for image file with performer's photo
         /// </summary>
-        /// <param name="p"></param>
-        /// <returns></returns>
+        /// <param name="p">Performer object</param>
+        /// <returns>Path to performer's photo file, or null if the photo file could not be found</returns>
         public static string GetPathImagePerformer( Performer p )
         {
             if (p == null)
@@ -99,8 +98,8 @@ namespace MusCatalog
                 if (Directory.Exists(path))
                 {
                     var files = Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly)
-                                            .Where(filename => reg.IsMatch(filename))
-                                            .ToList();
+                                         .Where(filename => reg.IsMatch(filename))
+                                         .ToList();
                     if (files.Count > 0)
                     {
                         return files[0];
@@ -112,10 +111,11 @@ namespace MusCatalog
         }
 
         /// <summary>
-        /// TODO
+        /// Generate the list of possible paths for saving performer's photo, according to FileLocator's pathlist and naming conventions
         /// </summary>
-        /// <param name="p"></param>
-        /// <returns></returns>
+        /// <param name="p">Performer object</param>
+        /// <param name="ext">Performer's photo file extension</param>
+        /// <returns>List of possible paths for saving performer's photo</returns>
         public static List<string> MakePathImagePerformer(Performer p, string ext = "jpg")
         {
             List<string> filepaths = new List<string>();
@@ -139,10 +139,10 @@ namespace MusCatalog
         }
                 
         /// <summary>
-        /// TODO
+        /// Look for image file with album cover image
         /// </summary>
-        /// <param name="a"></param>
-        /// <returns></returns>
+        /// <param name="a">Album object</param>
+        /// <returns>Path to album image file, or null if the file could not be found</returns>
         public static string GetPathImageAlbum(Album a)
         {
             if (a == null)
@@ -159,8 +159,8 @@ namespace MusCatalog
                 if (Directory.Exists(path))
                 {
                     var files = Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly)
-                                            .Where(filename => reg.IsMatch(filename))
-                                            .ToList();
+                                         .Where(filename => reg.IsMatch(filename))
+                                         .ToList();
                     if (files.Count > 0)
                     {
                         return files[0];
@@ -172,10 +172,11 @@ namespace MusCatalog
         }
 
         /// <summary>
-        /// TODO
+        /// Generate the list of possible paths for saving album cover image, according to FileLocator's pathlist and naming conventions
         /// </summary>
-        /// <param name="p"></param>
-        /// <returns></returns>
+        /// <param name="a">Album object</param>
+        /// <param name="ext">Album image file extension</param>
+        /// <returns>List of possible paths for saving album cover image</returns>
         public static List<string> MakePathImageAlbum(Album a, string ext = "jpg")
         {
             List<string> filepaths = new List<string>();

@@ -5,8 +5,7 @@
         xmlns:local="clr-namespace:MusCatalog"
         xmlns:vm="clr-namespace:MusCatalog.ViewModel"
         Title="MusCat Radio"
-        SizeToContent="WidthAndHeight"
-        KeyDown="RadioPlayerKeyDown">
+        SizeToContent="WidthAndHeight">
     <Window.Background>
         <LinearGradientBrush>
             <GradientStop Color="CornflowerBlue" Offset="0" />
@@ -17,6 +16,14 @@
     <Window.DataContext>
         <vm:RadioViewModel />
     </Window.DataContext>
+
+    <!-- Keyboard command bindings -->
+    <!-- LEFT  -  play previous song in radio tracklist -->
+    <!-- RIGHT -  play next song in radio tracklist -->
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding PreviousSongCommand}" Key="Left"/>
+        <KeyBinding Command="{Binding NextSongCommand}" Key="Right"/>
+    </Window.InputBindings>
 
     <Window.Resources>
         <!-- GUI parameters -->
@@ -39,15 +46,22 @@
             
             <!-- The panel of a previous song in radio tracklist -->
             <StackPanel DataContext="{Binding PreviousSong}" Grid.Column="0"
-                        VerticalAlignment="Center" Margin="15,60,15,60"
-                        MouseDown="PrevMouseDown">
+                        VerticalAlignment="Center" Margin="15,60,15,60">
                 <Label Content="Previous" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
+                <!-- The cover of an album containing previous song in radio tracklist -->
                 <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter}, ConverterParameter={StaticResource AlbumImageHeight}}"
                        Height="{StaticResource AlbumImageHeight}">
+                    <!-- The album cover is clickable -->
+                    <Image.InputBindings>
+                        <MouseBinding Gesture="LeftClick"
+                                      Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
+                                                Path=DataContext.PreviousSongCommand}" />
+                    </Image.InputBindings>
                     <Image.Effect>
                         <DropShadowEffect Color="Black" BlurRadius="15"/>
                     </Image.Effect>
                 </Image>
+                <!-- Text info regarding the performer and album of previous song in radio tracklist -->
                 <TextBlock Text="{Binding Path=Album.Performer.Name}"
                            TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
                            Foreground="White" FontSize="18" FontFamily="Stencil" Margin="3,12,3,3"/>
@@ -66,59 +80,79 @@
                 </WrapPanel>
             </StackPanel>
             
-            <!-- The central panel of currently playing song in radio tracklist -->
-            <StackPanel DataContext="{Binding CurrentSong}" Grid.Column="1">
+            <!-- The central panel of currently played song in radio tracklist -->
+            <StackPanel Grid.Column="1">
                 <Label Content="Currently playing" FontSize="16" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
                 <DockPanel HorizontalAlignment="Center">
-                    <Image Source="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
-                                            Path=DataContext.PlaybackImage, UpdateSourceTrigger=PropertyChanged}"
-                           Width="32" Margin="0,0,0,10"
-                           MouseDown="PlaybackMouseDown"/>
+                    <!-- Images in playback control panel -->
+                    <Image Source="{Binding PlaybackImage, UpdateSourceTrigger=PropertyChanged}"
+                           Width="32" Margin="0,0,0,10">
+                        <Image.InputBindings>
+                            <MouseBinding Gesture="LeftClick" Command="{Binding Path=PlaybackCommand}" />
+                        </Image.InputBindings>
+                    </Image>
                     <Image Source="{StaticResource ImageStopButton}"
-                           Width="32" Margin="0,0,0,10"
-                           MouseDown="StopMouseDown"/>
-                    <Slider Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
-                                            Path=DataContext.SongVolume, Mode=TwoWay}"
-                            Width="75" VerticalAlignment="Center" />
+                           Width="32" Margin="0,0,0,10">
+                        <Image.InputBindings>
+                            <MouseBinding Gesture="LeftClick" Command="{Binding Path=StopCommand}" />
+                        </Image.InputBindings>
+                    </Image>
+                    <Slider Value="{Binding Path=SongVolume, Mode=TwoWay}" Width="75" VerticalAlignment="Center" />
                 </DockPanel>
-                <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter},
-                                                    ConverterParameter={StaticResource CurrentAlbumImageHeight}}"
-                       Height="{StaticResource CurrentAlbumImageHeight}"
-                       Cursor="Hand"
-                       MouseDown="CurrentAlbumClick">
-                    <Image.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="20"/>
-                    </Image.Effect>
-                </Image>
-                <TextBlock Text="{Binding Path=Album.Performer.Name}" 
-                           TextWrapping="Wrap" TextAlignment="Center"
-                           Foreground="White" FontSize="22" FontFamily="Stencil" HorizontalAlignment="Center" Margin="3,12,3,3"/>
-                <TextBlock Text="{Binding Path=Album.Name}" 
-                           TextWrapping="Wrap" TextAlignment="Center"
-                           FontSize="16" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="3"/>
-                <WrapPanel HorizontalAlignment="Center">
-                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Margin="5" FontSize="18" Foreground="Beige">
-                        <TextBlock.Text>
-                            <MultiBinding StringFormat="{}{0} [{1}]">
-                                <Binding Path="Name" />
-                                <Binding Path="TimeLength" />
-                            </MultiBinding>
-                        </TextBlock.Text>
-                    </TextBlock>
-                </WrapPanel>
+                <StackPanel DataContext="{Binding CurrentSong}">
+                    <!-- The cover of an album containing currently played song -->
+                    <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter},
+                                                        ConverterParameter={StaticResource CurrentAlbumImageHeight}}"
+                                    Height="{StaticResource CurrentAlbumImageHeight}"
+                                    Cursor="Hand">
+                        <!-- The album cover is clickable -->
+                        <Image.InputBindings>
+                            <MouseBinding Gesture="LeftClick"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
+                                                    Path=DataContext.ShowAlbumCommand}" />
+                        </Image.InputBindings>
+                        <Image.Effect>
+                            <DropShadowEffect Color="Black" BlurRadius="20"/>
+                        </Image.Effect>
+                    </Image>
+                    <!-- Text info regarding the performer and album of currently played song -->
+                    <TextBlock Text="{Binding Path=Album.Performer.Name}" 
+                               TextWrapping="Wrap" TextAlignment="Center"
+                               Foreground="White" FontSize="22" FontFamily="Stencil" HorizontalAlignment="Center" Margin="3,12,3,3"/>
+                    <TextBlock Text="{Binding Path=Album.Name}" 
+                               TextWrapping="Wrap" TextAlignment="Center"
+                               FontSize="16" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="3"/>
+                    <WrapPanel HorizontalAlignment="Center">
+                        <TextBlock TextWrapping="Wrap" TextAlignment="Center" Margin="5" FontSize="18" Foreground="Beige">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} [{1}]">
+                                    <Binding Path="Name" />
+                                    <Binding Path="TimeLength" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </WrapPanel>
+                </StackPanel>
             </StackPanel>
             
             <!-- The panel of a next song in radio tracklist -->
             <StackPanel DataContext="{Binding NextSong}" Grid.Column="2"
-                        VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="15,60,15,60"
-                        MouseDown="NextMouseDown">
+                        VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="15,60,15,60">
                 <Label Content="Next" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
+                <!-- The cover of an album containing next song in radio tracklist -->
                 <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter}, ConverterParameter={StaticResource AlbumImageHeight}}"
                        Height="{StaticResource AlbumImageHeight}">
+                    <!-- The album cover is clickable -->
+                    <Image.InputBindings>
+                        <MouseBinding Gesture="LeftClick"
+                                      Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
+                                                Path=DataContext.NextSongCommand}" />
+                    </Image.InputBindings>
                     <Image.Effect>
                         <DropShadowEffect Color="Black" BlurRadius="15"/>
                     </Image.Effect>
                 </Image>
+                <!-- Text info regarding the performer and album of next song in radio tracklist -->
                 <TextBlock Text="{Binding Path=Album.Performer.Name}"
                            TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
                            Foreground="White" FontSize="18" FontFamily="Stencil" Margin="3,12,3,3"/>

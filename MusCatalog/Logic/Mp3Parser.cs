@@ -6,6 +6,11 @@ using System.Text.RegularExpressions;
 
 namespace MusCatalog
 {
+    /// <summary>
+    /// Class Mp3Parser is responsible for:
+    /// - extracting th etrack number and track nme from mp3 files
+    /// - retrieving and formatting song duration
+    /// </summary>
     class Mp3Parser
     {
         /// <summary>
