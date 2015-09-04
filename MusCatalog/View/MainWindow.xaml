@@ -287,6 +287,8 @@
                     </MenuItem>
                     <MenuItem Header="Edit..." Command="{Binding Path=EditPerformerCommand}"/>
                     <MenuItem Header="Remove" Command="{Binding Path=DeletePerformerCommand}"/>
+                    <Separator/>
+                    <MenuItem Header="Add album..." Command="{Binding Path=AddAlbumCommand}"/>
                 </ContextMenu>
             </ListBox.ContextMenu>
         </ListBox>

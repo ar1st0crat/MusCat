@@ -29,9 +29,9 @@ namespace MusCatalog.ViewModel
         public ObservableCollection<Genre> Genres { get; set; }
 
         // commands
-        public RelayCommand LoadImageFromFileCommand;
-        public RelayCommand LoadImageFromClipboardCommand;
-        public RelayCommand SavePerformerCommand;
+        public RelayCommand LoadImageFromFileCommand { get; private set; }
+        public RelayCommand LoadImageFromClipboardCommand { get; private set; }
+        public RelayCommand SavePerformerCommand { get; private set; }
 
         public EditPerformerViewModel( PerformerViewModel p )
         {

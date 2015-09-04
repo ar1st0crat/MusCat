@@ -12,11 +12,11 @@
             <GradientStop Color="#ff77bb" Offset="2.5" />
         </LinearGradientBrush>
     </Window.Background>
-
+    
     <Window.Resources>
-        
+        <!-- GUI parameters -->
         <sys:Double x:Key="PerformerPhotoWidth">400</sys:Double>
-        
+        <!-- Converters -->
         <local:PhotoConverter x:Key="PerformerPhotoConverter" />
     </Window.Resources>
 
@@ -28,10 +28,10 @@
 
         <StackPanel Grid.Column="0" Grid.Row="0" Margin="10">
             <WrapPanel HorizontalAlignment="Center">
-                <Button Command="{Binding LoadImageFromFileCommand}" Content="Load from file..." Margin="15,10,3,10" Padding="5"/>
-                <Button Command="{Binding LoadImageFromClipboardCommand}" Content="Load from clipboard" Margin="0,10,3,10"/>
+                <Button Command="{Binding Path=LoadImageFromFileCommand}" Content="Load from file..." Margin="15,10,3,10" Padding="5"/>
+                <Button Command="{Binding Path=LoadImageFromClipboardCommand}" Content="Load from clipboard" Margin="0,10,3,10"/>
             </WrapPanel>
-            <Image Name="PerformerPhoto" Source="{Binding Path=Performer, Converter={StaticResource PerformerPhotoConverter}, ConverterParameter={StaticResource PerformerPhotoWidth}}"
+            <Image x:Name="PerformerPhoto" Source="{Binding Path=Performer, Converter={StaticResource PerformerPhotoConverter}, ConverterParameter={StaticResource PerformerPhotoWidth}}"
                    HorizontalAlignment="Left" VerticalAlignment="Top" Width="{StaticResource PerformerPhotoWidth}"/>
             <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
                 <Label Content="Name: " Foreground="WhiteSmoke"/>
