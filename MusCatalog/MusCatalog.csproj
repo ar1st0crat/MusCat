@@ -70,6 +70,9 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Interactivity">
+      <HintPath>..\packages\Expression.Blend.Sdk.1.0.2\lib\net45\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -139,7 +142,7 @@
     </Compile>
     <Compile Include="ViewModel\AlbumPlaybackViewModel.cs" />
     <Compile Include="ViewModel\AlbumViewModel.cs" />
-    <Compile Include="ViewModel\Command.cs" />
+    <Compile Include="ViewModel\RelayCommand.cs" />
     <Compile Include="ViewModel\EditAlbumViewModel.cs" />
     <Compile Include="ViewModel\EditPerformerViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />

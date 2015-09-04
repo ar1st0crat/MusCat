@@ -3,6 +3,10 @@ using System.Windows.Media;
 
 namespace MusCatalog.View
 {
+    /// <summary>
+    /// The button with a letter content
+    /// The button is used in the upper navigation panel of the main window
+    /// </summary>
     public class LetterNavigationButton: Button
     {
         FontFamily letterFont = new FontFamily( "Stencil" );
@@ -22,6 +26,9 @@ namespace MusCatalog.View
             Height = h;
         }
 
+        /// <summary>
+        /// The button can be selected and enlarged
+        /// </summary>
         public void Select()
         {
             Width *= scaleCoeff;
@@ -29,6 +36,10 @@ namespace MusCatalog.View
             bSelected = true;
         }
 
+        /// <summary>
+        /// The button can be deselected (for example, when another button is selected)
+        /// and get its original size
+        /// </summary>
         public void DeSelect()
         {
             if (bSelected)

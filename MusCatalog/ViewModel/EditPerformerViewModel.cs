@@ -10,7 +10,7 @@ using System.Windows.Media.Imaging;
 
 namespace MusCatalog.ViewModel
 {
-    public class EditPerformerViewModel : INotifyPropertyChanged
+    class EditPerformerViewModel : INotifyPropertyChanged
     {
         public PerformerViewModel PerformerView { get; set; }
         public Performer Performer
@@ -28,9 +28,19 @@ namespace MusCatalog.ViewModel
         public ObservableCollection<Country> Countries { get; set; }
         public ObservableCollection<Genre> Genres { get; set; }
 
+        // commands
+        public RelayCommand LoadImageFromFileCommand;
+        public RelayCommand LoadImageFromClipboardCommand;
+        public RelayCommand SavePerformerCommand;
 
         public EditPerformerViewModel( PerformerViewModel p )
         {
+            // setting up commands
+            LoadImageFromFileCommand = new RelayCommand( LoadPerformerImageFromFile );
+            LoadImageFromClipboardCommand = new RelayCommand( LoadPerformerImageFromClipboard );
+            SavePerformerCommand = new RelayCommand( SavePerformerInformation );
+
+            // load and set all necessary information to edit performer
             PerformerView = p;
 
             using ( var context = new MusCatEntities() )

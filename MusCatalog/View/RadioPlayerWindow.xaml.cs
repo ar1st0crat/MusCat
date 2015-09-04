@@ -1,7 +1,4 @@
-﻿using MusCatalog.ViewModel;
-using System.Windows;
-using System.Windows.Input;
-
+﻿using System.Windows;
 
 namespace MusCatalog.View
 {

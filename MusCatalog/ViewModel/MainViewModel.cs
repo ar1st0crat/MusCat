@@ -13,6 +13,9 @@ using System.Windows.Media;
 
 namespace MusCatalog.ViewModel
 {
+    /// <summary>
+    /// The way we select performers in the main list
+    /// </summary>
     enum PerformerFilters : byte
     {
         FilteredByFirstLetter,
@@ -20,7 +23,11 @@ namespace MusCatalog.ViewModel
         FilteredByAlbumPattern
     }
 
-    public class MainViewModel : INotifyPropertyChanged
+    /// <summary>
+    /// MainViewModel is responsible for CRUD operations with performers and albums
+    /// (and other stuff from main menu such as Radio, Stats, Settings, Help)
+    /// </summary>
+    class MainViewModel : INotifyPropertyChanged
     {
         private ObservableCollection<PerformerViewModel> performers = new ObservableCollection<PerformerViewModel>();
         public ObservableCollection<PerformerViewModel> Performers
@@ -53,7 +60,29 @@ namespace MusCatalog.ViewModel
         }
 
         PerformerFilters Filter = PerformerFilters.FilteredByFirstLetter;
-        
+
+        #region Commands
+
+        public RelayCommand GeneralViewCommand { get; private set; }
+        public RelayCommand GeneralDeleteCommand { get; private set; }
+        public RelayCommand GeneralEditCommand { get; private set; }
+        public RelayCommand ViewPerformerCommand { get; private set; }
+        public RelayCommand ViewAlbumCommand { get; private set; }
+        public RelayCommand AddPerformerCommand { get; private set; }
+        public RelayCommand AddAlbumCommand { get; private set; }
+        public RelayCommand EditPerformerCommand { get; private set; }
+        public RelayCommand EditAlbumCommand { get; private set; }
+        public RelayCommand DeletePerformerCommand { get; private set; }
+        public RelayCommand DeleteAlbumCommand { get; private set; }
+        public RelayCommand PerformerSearchCommand { get; private set; }
+        public RelayCommand AlbumSearchCommand { get; private set; }
+        public RelayCommand EditMusiciansCommand { get; private set; }
+        public RelayCommand StartRadioCommand { get; private set; }
+        public RelayCommand StatsCommand { get; private set; }
+        public RelayCommand SettingsCommand { get; private set; }
+        public RelayCommand HelpCommand { get; private set; }
+
+        #endregion
 
         #region Upper navigation panel
 
@@ -74,12 +103,12 @@ namespace MusCatalog.ViewModel
             foreach (char c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
             {
                 LetterNavigationButton b = new LetterNavigationButton( c.ToString() );
-                b.Click += LetterClick;
+                b.Click += SetFirstLetter;
                 LetterCollection.Add(b);
             }
 
             LetterNavigationButton bOther = new LetterNavigationButton( "Other", 70 );
-            bOther.Click += LetterClick;
+            bOther.Click += SetFirstLetter;
             LetterCollection.Add(bOther);
 
             // Start with the "A-letter"-list
@@ -90,7 +119,7 @@ namespace MusCatalog.ViewModel
         /// <summary>
         /// Upper navigation panel click handler
         /// </summary>
-        private void LetterClick(object sender, RoutedEventArgs e)
+        private void SetFirstLetter(object sender, RoutedEventArgs e)
         {
             pressedButton = (LetterNavigationButton)sender;
             prevButton.DeSelect();
@@ -182,14 +211,57 @@ namespace MusCatalog.ViewModel
 
         public MainViewModel()
         {
+            // setting up all commands (quite a lot of them)
+            GeneralViewCommand = new RelayCommand(() =>
+            {
+                if (SelectedPerformer != null && SelectedPerformer.SelectedAlbum != null)
+                    ViewSelectedAlbum();
+                else
+                    ViewSelectedPerformer();
+            });
+
+            GeneralDeleteCommand = new RelayCommand(() =>
+            {
+                if (SelectedPerformer != null && SelectedPerformer.SelectedAlbum != null)
+                    RemoveSelectedAlbum();
+                else
+                    RemoveSelectedPerformer();
+            });
+
+            GeneralEditCommand = new RelayCommand(() =>
+            {
+                if (SelectedPerformer != null && SelectedPerformer.SelectedAlbum != null)
+                    EditAlbum();
+                else
+                    EditPerformer();
+            });
+
+            ViewPerformerCommand = new RelayCommand(ViewSelectedPerformer);
+            ViewAlbumCommand = new RelayCommand(ViewSelectedAlbum);
+            AddPerformerCommand = new RelayCommand( AddPerformer );
+            AddAlbumCommand = new RelayCommand( AddAlbum );
+            EditPerformerCommand = new RelayCommand( EditPerformer );
+            EditAlbumCommand = new RelayCommand( EditAlbum );
+            DeletePerformerCommand = new RelayCommand( RemoveSelectedPerformer );
+            DeleteAlbumCommand = new RelayCommand( RemoveSelectedAlbum );
+            PerformerSearchCommand = new RelayCommand( SelectPerformersByPattern );
+            AlbumSearchCommand = new RelayCommand( SelectPerformersByAlbumPattern );
+            EditMusiciansCommand = new RelayCommand(() => { });
+            StartRadioCommand = new RelayCommand( StartRadio );
+            StatsCommand = new RelayCommand(() => { });
+            SettingsCommand = new RelayCommand(() => { });
+            HelpCommand = new RelayCommand(() => { });
+
+            // create navigation panel
             CreateUpperNavigationPanel();
+            // and select the initial set of performers (starting with "A")
             SelectPerformersByFirstLetter();
         }
 
         /// <summary>
         /// The total rate of performer's album collection is calculated based on the following statistics of album rates:
         /// 
-        ///     if the number of albums is more than 2 then the worst rate and the best rate are discarded
+        ///     if the number of albums is more than 2, then the worst rate and the best rate are discarded
         ///     and the total rate is an average of remaining rates
         ///     
         ///     otherwise - the total rate is simply an average of album rates
@@ -386,7 +458,7 @@ namespace MusCatalog.ViewModel
         {
             if (SelectedPerformer == null)
             {
-                MessageBox.Show("Please select performer to edit!");
+                MessageBox.Show("Please select performer to show!");
                 return;
             }
 
@@ -463,29 +535,11 @@ namespace MusCatalog.ViewModel
             }
         }
 
-        /// <summary>
-        /// Handler of the RateUpdated event
-        /// </summary>
-        /// <param name="sender">Performer whose album has been updated</param>
-        /// <param name="e">Empty</param>
-        public void AlbumRateUpdated(object sender, EventArgs e)
-        {
-            var perf = sender as Performer;
-            foreach ( var performerView in performers )
-            {
-                if (performerView.Performer.ID == perf.ID)
-                {
-                    performerView.AlbumCollectionRate = CalculateAlbumCollectionRate(perf.Albums.ToList());
-                    return;
-                }
-            }
-        }
-
         public void ViewSelectedAlbum()
         {
             if (SelectedPerformer == null || SelectedPerformer.SelectedAlbum == null)
             {
-                MessageBox.Show("Please select album to edit!");
+                MessageBox.Show("Please select album to show!");
                 return;
             }
 
@@ -608,6 +662,30 @@ namespace MusCatalog.ViewModel
                     
                     // to update view
                     SelectedPerformer.AlbumCount = SelectedPerformer.Albums.Count();
+                }
+            }
+        }
+
+        public void StartRadio()
+        {
+            RadioPlayerWindow radio = new RadioPlayerWindow();
+            radio.Show();
+        }
+
+        /// <summary>
+        /// Handler of the RateUpdated event
+        /// </summary>
+        /// <param name="sender">Performer whose album has been updated</param>
+        /// <param name="e">Empty</param>
+        public void AlbumRateUpdated(object sender, EventArgs e)
+        {
+            var perf = sender as Performer;
+            foreach (var performerView in performers)
+            {
+                if (performerView.Performer.ID == perf.ID)
+                {
+                    performerView.AlbumCollectionRate = CalculateAlbumCollectionRate(perf.Albums.ToList());
+                    return;
                 }
             }
         }

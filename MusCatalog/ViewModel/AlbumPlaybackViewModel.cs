@@ -76,9 +76,29 @@ namespace MusCatalog.ViewModel
             }
         }
 
+        // commands
+        public RelayCommand WindowClosingCommand { get; private set; }
+        public RelayCommand PlaybackCommand { get; private set; }
+        public RelayCommand SeekPlaybackPositionCommand { get; private set; }
+        public RelayCommand StartDragCommand { get; private set; }
+        public RelayCommand StopDragCommand { get; private set; }
+        public RelayCommand UpdateRateCommand { get; private set; }
 
+        private bool bDragged = false;
+
+        // Constructor
         public AlbumPlaybackViewModel(AlbumViewModel viewmodel)
         {
+            // setting up commands
+            WindowClosingCommand = new RelayCommand( Close );
+            PlaybackCommand = new RelayCommand( PlaybackSongAction );
+            UpdateRateCommand = new RelayCommand( UpdateRate );
+            SeekPlaybackPositionCommand = new RelayCommand( SeekPlaybackPosition );
+            // toggle the bDragged variable
+            StartDragCommand = new RelayCommand(() => bDragged = true );             
+            StopDragCommand = new RelayCommand(() => bDragged = false );
+            
+            // set main album view model
             AlbumView = viewmodel;
 
             // setting up timer for songs playback
@@ -169,8 +189,10 @@ namespace MusCatalog.ViewModel
         /// <param name="sender">playback slider</param>
         public void SeekPlaybackPosition()
         {
-            if (player.SongPlaybackState == PlaybackState.STOP)
+            // if the slider value was changed with timer (not by user) or the song is stopped
+            if (!bDragged || player.SongPlaybackState == PlaybackState.STOP)
             {
+                // then do nothing
                 return;
             }
 
@@ -222,6 +244,7 @@ namespace MusCatalog.ViewModel
         }
 
         public event EventHandler RateUpdated;
+
 
         #region INotifyPropertyChanged event and method
 

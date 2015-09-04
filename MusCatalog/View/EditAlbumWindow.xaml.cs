@@ -81,21 +81,4 @@ namespace MusCatalog.View
             ((EditAlbumViewModel)DataContext).LoadAlbumImageFromFile();
         }
     }
-        
-
-    //public static class AlbumCommands
-    //{
-    //    public static readonly RoutedUICommand SaveSong = new RoutedUICommand
-    //            (
-    //                    "Save Song",
-    //                    "Save Song",
-    //                    typeof(AlbumCommands),
-    //                    new InputGestureCollection()
-    //                            {
-    //                                    new KeyGesture( Key.S, ModifierKeys.Control )
-    //                            }
-    //            );
-
-    //    //Define more commands here, just like the one above
-    //}
 }

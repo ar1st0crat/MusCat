@@ -2,13 +2,13 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:local="clr-namespace:MusCatalog"
         xmlns:view="clr-namespace:MusCatalog.View"
         xmlns:vm="clr-namespace:MusCatalog.ViewModel"
         Title="MusCat"
         Height="780" Width="1000"
         Icon="{StaticResource AppIcon}">
-    
     <Window.Background>
         <LinearGradientBrush>
             <GradientStop Color="Indigo" Offset="0" />
@@ -19,6 +19,27 @@
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
+
+    <!-- Keyboard command bindings -->
+    <!-- ENTER  -  view info of a performaer or an album (depending on current selection) -->
+    <!-- DELETE -  delete a performaer or an album (depending on current selection) -->
+    <!-- F4     -  edit a performaer or an album (depending on current selection) -->
+    <!-- Ctrl+N -  add new performer -->
+    <!-- Ctrl+A -  add new album -->
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding GeneralViewCommand}" Key="Enter"/>
+        <KeyBinding Command="{Binding GeneralDeleteCommand}" Key="Delete"/>
+        <KeyBinding Command="{Binding GeneralEditCommand}" Key="F4"/>
+        <KeyBinding Command="{Binding AddPerformerCommand}" Modifiers="Control" Key="P"/>
+        <KeyBinding Command="{Binding AddAlbumCommand}" Modifiers="Control" Key="A"/>
+    </Window.InputBindings>
+
+    <!-- Mouse double click is analogous to pressing ENTER key -->
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="MouseDoubleClick">
+            <i:InvokeCommandAction Command="{Binding Path=GeneralViewCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     
     <Window.Resources>
         <!-- GUI parameters -->
@@ -167,14 +188,30 @@
                          ItemsSource="{Binding Path=Albums}"                        
                          ItemContainerStyle="{StaticResource AlbumContainerStyle}"
                          SelectedItem="{Binding Path=SelectedAlbum}"
-                         HorizontalAlignment="Stretch" BorderThickness="0"
-                         MouseDoubleClick="SelectedAlbumsMouseDoubleClick"
-                         KeyDown="SelectedAlbumKeyDown">
+                         Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext}"
+                         HorizontalAlignment="Stretch" BorderThickness="0">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal" IsItemsHost="True" />
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="View album..."
+                                      Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
+                                                        Path=PlacementTarget.Tag.ViewAlbumCommand}">
+                                <MenuItem.Icon>
+                                    <Image Source="{StaticResource ImagePlayButton}" Width="20" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Edit album..."
+                                      Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
+                                                        Path=PlacementTarget.Tag.EditAlbumCommand}"/>
+                            <MenuItem Header="Remove"
+                                      Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
+                                                        Path=PlacementTarget.Tag.DeleteAlbumCommand}"/>
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
                 </ListBox>
             </StackPanel>
         </DataTemplate>
@@ -203,20 +240,20 @@
         <!-- Main menu -->        
         <Menu HorizontalAlignment="Stretch" Height="28" VerticalAlignment="Top" Grid.Row="0">
             <MenuItem Header="Performers">
-                <MenuItem Header="Add..." HorizontalAlignment="Left" Width="145" Click="MenuAddPerformerClick"/>
-                <MenuItem Header="Edit..." HorizontalAlignment="Left" Width="145" Click="MenuEditPerformerClick"/>
-                <MenuItem Header="Remove..." HorizontalAlignment="Left" Width="145" Click="MenuRemovePerformerClick"/>
-                <MenuItem Header="Musicians..." HorizontalAlignment="Left" Width="145" Click="MenuMusiciansClick"/>
+                <MenuItem Command="{Binding Path=AddPerformerCommand}" Header="Add..." HorizontalAlignment="Left" Width="145"/>
+                <MenuItem Command="{Binding Path=EditPerformerCommand}" Header="Edit..." HorizontalAlignment="Left" Width="145"/>
+                <MenuItem Command="{Binding Path=DeletePerformerCommand}" Header="Remove" HorizontalAlignment="Left" Width="145"/>
+                <MenuItem Command="{Binding Path=EditMusiciansCommand}" Header="Musicians..." HorizontalAlignment="Left" Width="145"/>
             </MenuItem>
             <MenuItem Header="Album">
-                <MenuItem Header="Add..." HorizontalAlignment="Left" Width="145" Click="MenuAddAlbumClick"/>
-                <MenuItem Header="Edit..." HorizontalAlignment="Left" Width="145" Click="MenuEditAlbumClick"/>
-                <MenuItem Header="Remove..." HorizontalAlignment="Left" Width="145" Click="MenuRemoveAlbumClick"/>
+                <MenuItem Command="{Binding Path=AddAlbumCommand}" Header="Add..." HorizontalAlignment="Left" Width="145"/>
+                <MenuItem Command="{Binding Path=EditAlbumCommand}" Header="Edit..." HorizontalAlignment="Left" Width="145"/>
+                <MenuItem Command="{Binding Path=DeleteAlbumCommand}" Header="Remove" HorizontalAlignment="Left" Width="145"/>
             </MenuItem>
-            <MenuItem Header="Stats" Click="MenuStatsClick"/>
-            <MenuItem Header="Settings" Click="MenuSettingsClick"/>
-            <MenuItem Header="MusCat Radio" Click="MenuRadioClick"/>
-            <MenuItem Header="Help" Click="MenuHelpClick" />
+            <MenuItem Command="{Binding Path=StatsCommand}" Header="Stats"/>
+            <MenuItem Command="{Binding Path=SettingsCommand}" Header="Settings"/>
+            <MenuItem Command="{Binding Path=StartRadioCommand}" Header="MusCat Radio"/>
+            <MenuItem Command="{Binding Path=HelpCommand}" Header="Help"/>
         </Menu>
         <!-- upper navigation panel-->
         <WrapPanel Grid.Row="1" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -226,13 +263,6 @@
                         <StackPanel Orientation="Horizontal"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-                <!--
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Height="30" Content="{Binding Username}"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                -->
             </ItemsControl>
         </WrapPanel>
         <!-- main area (list of performers) -->
@@ -241,7 +271,6 @@
                  ItemContainerStyle="{StaticResource PerformerContainerStyle}"
                  IsSynchronizedWithCurrentItem="False"
                  SelectedItem="{Binding Path=SelectedPerformer}"
-                 PreviewKeyDown="PerformerlistPreviewKeyDown"
                  Width="auto" HorizontalAlignment="Stretch" BorderThickness="0">
             <ListBox.Background>
                 <LinearGradientBrush>
@@ -249,6 +278,17 @@
                     <GradientStop Color="#ffffff" Offset="4" />
                 </LinearGradientBrush>
             </ListBox.Background>
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="View..." Command="{Binding Path=ViewPerformerCommand}">
+                        <MenuItem.Icon>
+                            <Image Source="{StaticResource ImagePlayButton}" Width="20" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Edit..." Command="{Binding Path=EditPerformerCommand}"/>
+                    <MenuItem Header="Remove" Command="{Binding Path=DeletePerformerCommand}"/>
+                </ContextMenu>
+            </ListBox.ContextMenu>
         </ListBox>
         <!-- lower panel -->
         <DockPanel Grid.Row="3" Margin="10,0,10,0" VerticalAlignment="Center">
@@ -258,11 +298,17 @@
                     <Label Content="Find performer" Foreground="White" FontSize="14" />
                     <TextBox x:Name="PerformerSearch" Text="{Binding Path=PerformerPattern, UpdateSourceTrigger=PropertyChanged}"
                              Width="120" Margin="10,0,3,0" FontFamily="Stencil" FontSize="14" Height="20" />
-                    <Image Source="{StaticResource ImagePlayButton}" Height="25" Margin="0,0,10,0" MouseDown="PerformerSearchClick" />
+                    <Button Command="{Binding PerformerSearchCommand}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
+                            BorderBrush="Transparent" Background="Transparent" Margin="0,0,10,0">
+                        <Image Source="{StaticResource ImagePlayButton}" Height="25"/>
+                    </Button>
                     <Label Content="Find album" Foreground="White" FontSize="14" />
                     <TextBox x:Name="AlbumSearch" Text="{Binding AlbumPattern, UpdateSourceTrigger=PropertyChanged}"
                              Width="120" Margin="10,0,3,0" FontFamily="Stencil" FontSize="14" Height="20" />
-                    <Image Source="{StaticResource ImagePlayButton}" Height="25" Margin="0,0,10,0" MouseDown="AlbumSearchClick" />
+                    <Button Command="{Binding AlbumSearchCommand}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
+                            BorderBrush="Transparent" Background="Transparent" Margin="0,0,10,0">
+                        <Image Source="{StaticResource ImagePlayButton}" Height="25"/>
+                    </Button>
                 </WrapPanel>
             </Expander>
             <!-- ...and navigation panel (for selecting the portion of data to display, e.g. 1 2 3 (1 - show first 10 records)) -->
@@ -273,13 +319,6 @@
                             <StackPanel Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
-                    <!--
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Height="30" Content="{Binding Username}"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                -->
                 </ItemsControl>
             </WrapPanel>
         </DockPanel>
