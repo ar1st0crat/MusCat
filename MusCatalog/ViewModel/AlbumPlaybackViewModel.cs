@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Threading;
 using System.Windows.Media.Imaging;
+using System.Threading;
 
 
 namespace MusCatalog.ViewModel
@@ -84,7 +85,13 @@ namespace MusCatalog.ViewModel
         public RelayCommand StopDragCommand { get; private set; }
         public RelayCommand UpdateRateCommand { get; private set; }
 
+        // This variable is set to true while the slider thumb is being dragged
+        // (Binding the event "Thumb.DragCompleted" in XAML to some command doesn't work for some reason)
         private bool bDragged = false;
+
+        // Play song in seperate thread
+        private Thread playThread;
+
 
         // Constructor
         public AlbumPlaybackViewModel(AlbumViewModel viewmodel)
@@ -135,7 +142,12 @@ namespace MusCatalog.ViewModel
 
             try
             {
-                player.Play(songfile, SongPlaybackStopped);
+                // play file in separate thread
+                playThread = new Thread( () => player.Play(songfile, SongPlaybackStopped) );
+                playThread.IsBackground = true;
+                playThread.Start();
+                
+                // launch timer for playback slider tracking 
                 playbackTimer.Start();
                 PlaybackImage = imagePause;
                 PlaybackPercentage = 0.0;
@@ -163,8 +175,6 @@ namespace MusCatalog.ViewModel
         private void StopSong()
         {
             player.Stop();
-            playbackTimer.Stop();
-            PlaybackImage = imagePlay;
         }
 
         /// <summary>
@@ -172,7 +182,15 @@ namespace MusCatalog.ViewModel
         /// </summary>
         private void SongPlaybackStopped(object sender, EventArgs e)
         {
-            StopSong();
+            playThread.Join();
+            playbackTimer.Stop();
+            PlaybackImage = imagePlay;
+
+            if (player.IsManualStop == true)
+            {
+                player.IsManualStop = false;
+                return;
+            }
 
             // play next song
             if (SelectedSong == Songs.Last())
@@ -221,6 +239,10 @@ namespace MusCatalog.ViewModel
         /// </summary>
         public void Close()
         {
+            if (playThread != null)
+            {
+                playThread.Join();
+            }
             player.Freeze();
         }
 

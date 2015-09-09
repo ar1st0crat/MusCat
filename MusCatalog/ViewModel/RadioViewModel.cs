@@ -3,6 +3,7 @@ using MusCatalog.View;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Threading;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
@@ -17,6 +18,9 @@ namespace MusCatalog.ViewModel
         
         // Radio Station
         private Radio radio = new Radio();
+
+        // Play song in seperate thread
+        private Thread playThread;
 
         #region INPC properties
 
@@ -98,6 +102,7 @@ namespace MusCatalog.ViewModel
 
         public void PlayNextSong()
         {
+            Stop();
             radio.MoveToNextSong();
             // after we added new upcoming song we must play the current song
             // (this song was "upcoming" before we added new song to the playlist)
@@ -106,6 +111,7 @@ namespace MusCatalog.ViewModel
 
         public void PlayPreviousSong()
         {
+            Stop();
             radio.MoveToPrevSong();
             // after switching to previous song we play it right away
             PlayCurrentSong();
@@ -113,7 +119,11 @@ namespace MusCatalog.ViewModel
 
         private void PlayCurrentSong()
         {
-            radio.PlayCurrentSong(SongPlaybackStopped);
+            //radio.PlayCurrentSong(SongPlaybackStopped);
+            playThread = new Thread(() => radio.PlayCurrentSong( SongPlaybackStopped ));
+            playThread.IsBackground = true;
+            playThread.Start();
+            
             UpdateSongs();
             PlaybackImage = imagePause;
         }
@@ -123,6 +133,15 @@ namespace MusCatalog.ViewModel
         /// </summary>
         private void SongPlaybackStopped(object sender, EventArgs e)
         {
+            playThread.Join();
+            PlaybackImage = imagePlay;
+
+            if (radio.Player.IsManualStop == true)
+            {
+                radio.Player.IsManualStop = false;
+                return;
+            }
+
             // if the stopping of the song wasn't initiated by user,
             // then the current song is over and we switch to next song
             if (radio.Player.SongPlaybackState != PlaybackState.STOP)
@@ -153,7 +172,6 @@ namespace MusCatalog.ViewModel
         public void Stop()
         {
             radio.Player.Stop();
-            PlaybackImage = imagePlay;
         }
 
         public void ViewAlbumContainingCurrentSong()

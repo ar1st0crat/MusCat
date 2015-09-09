@@ -1,5 +1,6 @@
 ﻿using NAudio.Wave;
 using System;
+using System.Threading;
 
 namespace MusCatalog
 {
@@ -16,23 +17,25 @@ namespace MusCatalog
     class AudioPlayer
     {
         // NAudio component for a song playback
-        WaveOut waveOut = new WaveOut();
+        WaveOut waveOut = null;
         // Underlying mp3 file reader
         Mp3FileReader mp3Reader = null;
 
         public PlaybackState SongPlaybackState { get; set; }
+        public bool IsManualStop { get; set; }
 
         
         public AudioPlayer()
         {
             SongPlaybackState = PlaybackState.STOP;
+            IsManualStop = false;
         }
 
         public void SetVolume(float vol)
         {
             waveOut.Volume = vol;
         }
-        
+
         /// <summary>
         /// Start playing new song
         /// </summary>
@@ -41,8 +44,11 @@ namespace MusCatalog
         /// <exception cref="Exception">Thrown if an mp3 file can't be opened</exception>
         public void Play(string filename, EventHandler<StoppedEventArgs> PlaybackStopped = null)
         {
-            Freeze();
-
+            if (waveOut != null)
+            {
+                Freeze();
+            }
+            
             waveOut = new WaveOut();
 
             // here we may face some problems depending on particular mp3 file (exception is possible)
@@ -54,8 +60,9 @@ namespace MusCatalog
             SongPlaybackState = PlaybackState.PLAY;
         }
 
-        public void Stop()
+        public void Stop( bool bManual = true )
         {
+            IsManualStop = bManual;
             waveOut.Stop();
             SongPlaybackState = PlaybackState.STOP;
         }
@@ -107,18 +114,21 @@ namespace MusCatalog
         /// </summary>
         public void Freeze()
         {
-            if (waveOut.PlaybackState == NAudio.Wave.PlaybackState.Playing)
+            if (waveOut != null)
             {
-                Stop();
-            }
+                if (waveOut.PlaybackState == NAudio.Wave.PlaybackState.Playing)
+                {
+                    Stop(false);
+                }
 
-            waveOut.Dispose();
-            waveOut = null;
+                waveOut.Dispose();
+                waveOut = null;
 
-            if (mp3Reader != null)
-            {
-                mp3Reader.Dispose();
-                mp3Reader = null;
+                if (mp3Reader != null)
+                {
+                    mp3Reader.Dispose();
+                    mp3Reader = null;
+                }
             }
         }
     }
