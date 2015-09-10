@@ -4,7 +4,6 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Threading;
 using System.Windows.Media.Imaging;
 using System.Threading;
 
@@ -44,7 +43,7 @@ namespace MusCatalog.ViewModel
 
         public int SelectedSongIndex { get; set; }
 
-        // bitmaps for playback buttons
+        // Bitmaps for playback buttons
         private static BitmapImage imagePlay = App.Current.TryFindResource("ImagePlayButton") as BitmapImage;
         private static BitmapImage imagePause = App.Current.TryFindResource("ImagePauseButton") as BitmapImage;
 
@@ -59,13 +58,10 @@ namespace MusCatalog.ViewModel
             }
         }
 
-        // playback timer to synchronize playback slider with MediaPlayer
-        DispatcherTimer playbackTimer = new DispatcherTimer();
-
         // Audio player
         AudioPlayer player = new AudioPlayer();
 
-        // percentage
+        // Song time percentage
         private double playbackPercentage = 0.0;
         public double PlaybackPercentage
         {
@@ -77,7 +73,7 @@ namespace MusCatalog.ViewModel
             }
         }
 
-        // commands
+        // Commands
         public RelayCommand WindowClosingCommand { get; private set; }
         public RelayCommand PlaybackCommand { get; private set; }
         public RelayCommand SeekPlaybackPositionCommand { get; private set; }
@@ -88,9 +84,6 @@ namespace MusCatalog.ViewModel
         // This variable is set to true while the slider thumb is being dragged
         // (Binding the event "Thumb.DragCompleted" in XAML to some command doesn't work for some reason)
         private bool bDragged = false;
-
-        // Play song in seperate thread
-        private Thread playThread;
 
 
         // Constructor
@@ -107,10 +100,6 @@ namespace MusCatalog.ViewModel
             
             // set main album view model
             AlbumView = viewmodel;
-
-            // setting up timer for songs playback
-            playbackTimer.Tick += new EventHandler(PlaybackTimerTick);
-            playbackTimer.Interval = TimeSpan.FromSeconds(2);
         }
 
         #region Song playback functions
@@ -140,67 +129,72 @@ namespace MusCatalog.ViewModel
 
             string songfile = FileLocator.FindSongPath(SelectedSong);
 
-            try
+            // play song using BackgroundWorker
+            var bw = new BackgroundWorker();
+            bw.DoWork += (o, e) =>
             {
-                // play file in separate thread
-                playThread = new Thread( () => player.Play(songfile, SongPlaybackStopped) );
-                playThread.IsBackground = true;
-                playThread.Start();
-                
-                // launch timer for playback slider tracking 
-                playbackTimer.Start();
-                PlaybackImage = imagePause;
                 PlaybackPercentage = 0.0;
-            }
-            catch (Exception)
+
+                try
+                {
+                    player.Play(songfile);
+                }
+                catch (Exception)
+                {
+                    // if the exception was thrown, show message
+                    MessageBox.Show("Sorry, song could not be played");
+                    // and manually set STOP flag in order to not proceed to next song
+                    player.IsManualStop = true;
+                    return;
+                }
+                
+                // loop while song was not stopped (naturally or manually)
+                while (!player.IsStopped())
+                {
+                    // update the slider value
+                    PlaybackPercentage = player.TimePercent() * 10.0;
+                    Thread.Sleep(1000);
+                }
+
+                PlaybackImage = imagePause;
+            };
+
+            // when song was stopped... 
+            bw.RunWorkerCompleted += (o, e) =>
             {
-                MessageBox.Show("Sorry, song could not be played");
-            }
+                // if song was stopped by user then do nothing
+                if (player.IsManualStop == true)
+                {
+                    return;
+                }
+
+                // else play next song (if current song is not the last one)
+                if (SelectedSong == Songs.Last())
+                {
+                    return;
+                }
+
+                SelectedSong = Songs.SkipWhile(s => s != SelectedSong).Skip(1).FirstOrDefault();
+            };
+
+            bw.RunWorkerAsync();
         }
 
         private void PauseSong()
         {
             player.Pause();
-            playbackTimer.Stop();
             PlaybackImage = imagePlay;
         }
 
         private void ResumeSong()
         {
             player.Resume();
-            playbackTimer.Start();
             PlaybackImage = imagePause;
         }
 
         private void StopSong()
         {
             player.Stop();
-        }
-
-        /// <summary>
-        /// Handler of an event fired when the song reached the end
-        /// </summary>
-        private void SongPlaybackStopped(object sender, EventArgs e)
-        {
-            if (playThread != null)
-            {
-                playThread.Join();
-                playbackTimer.Stop();
-                PlaybackImage = imagePlay;
-            }
-
-            if (player.IsManualStop == true)
-            {
-                return;
-            }
-
-            // play next song (if current song is not the last one)
-            if (SelectedSong == Songs.Last())
-            {
-                return;
-            }
-
-            SelectedSong = Songs.SkipWhile(s => s != SelectedSong).Skip(1).FirstOrDefault();
         }
 
         /// <summary>
@@ -221,19 +215,6 @@ namespace MusCatalog.ViewModel
 
         #endregion
 
-        /// <summary>
-        /// Update the PlaybackPercentage property (and slider thumb position as well)
-        /// according to current position of Audio Player
-        /// </summary>
-        private void PlaybackTimerTick(object sender, EventArgs e)
-        {
-            if (player.SongPlaybackState != PlaybackState.PLAY)
-            {
-                return;
-            }
-
-            PlaybackPercentage = player.TimePercent() * 10.0;
-        }
 
         /// <summary>
         /// Freeze media player when the window is closing to avoid a memory leak

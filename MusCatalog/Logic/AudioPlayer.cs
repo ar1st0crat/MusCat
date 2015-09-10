@@ -1,6 +1,5 @@
 ﻿using NAudio.Wave;
 using System;
-using System.Threading;
 
 namespace MusCatalog
 {
@@ -39,9 +38,8 @@ namespace MusCatalog
         /// Start playing new song
         /// </summary>
         /// <param name="filename">Location of an audio file</param>
-        /// <param name="PlaybackStopped">Stop playback event handler</param>
         /// <exception cref="Exception">Thrown if an mp3 file can't be opened</exception>
-        public void Play(string filename, EventHandler<StoppedEventArgs> PlaybackStopped = null)
+        public void Play(string filename)
         {
             if (waveOut != null)
             {
@@ -53,7 +51,6 @@ namespace MusCatalog
             // here we may face some problems depending on particular mp3 file (exception is possible)
             mp3Reader = new Mp3FileReader(filename);
             waveOut.Init(mp3Reader);
-            waveOut.PlaybackStopped += PlaybackStopped;
             waveOut.Play();
 
             SongPlaybackState = PlaybackState.PLAY;
@@ -91,7 +88,7 @@ namespace MusCatalog
             }
 
             double totalSeconds = mp3Reader.TotalTime.TotalSeconds * percent;
-            TimeSpan seekPos = new TimeSpan((int)totalSeconds / 3600, (int)totalSeconds / 60, (int)totalSeconds % 60);
+            TimeSpan seekPos = TimeSpan.FromSeconds( totalSeconds ); //new TimeSpan((int)totalSeconds / 3600, (int)totalSeconds / 60, (int)totalSeconds % 60);
             mp3Reader.CurrentTime = seekPos;
         }
 
@@ -130,6 +127,11 @@ namespace MusCatalog
                     mp3Reader = null;
                 }
             }
+        }
+
+        public bool IsStopped()
+        {
+            return waveOut.PlaybackState == NAudio.Wave.PlaybackState.Stopped;
         }
     }
 }

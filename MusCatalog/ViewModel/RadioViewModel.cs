@@ -1,6 +1,5 @@
 ﻿using MusCatalog.Model;
 using MusCatalog.View;
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Threading;
@@ -62,6 +61,7 @@ namespace MusCatalog.ViewModel
         public ICommand PreviousSongCommand { get; private set; }
         public ICommand NextSongCommand { get; private set; }
         public ICommand ShowAlbumCommand { get; private set; }
+        public ICommand WindowClosingCommand { get; private set; }
 
         #endregion
 
@@ -74,6 +74,7 @@ namespace MusCatalog.ViewModel
             PreviousSongCommand = new RelayCommand(PlayPreviousSong);
             NextSongCommand = new RelayCommand(PlayNextSong);
             ShowAlbumCommand = new RelayCommand( ViewAlbumContainingCurrentSong );
+            WindowClosingCommand = new RelayCommand(Close);
 
             // we add two songs to the playlist right away:
             // 1. The song for current playback
@@ -122,39 +123,36 @@ namespace MusCatalog.ViewModel
                 radio.Player.Stop();
             }
 
-            //radio.PlayCurrentSong(SongPlaybackStopped);
-            playThread = new Thread(() => radio.PlayCurrentSong( SongPlaybackStopped ));
-            playThread.IsBackground = true;
-            playThread.Start();
+            // play song using BackgroundWorker
+            var bw = new BackgroundWorker();
+
+            bw.DoWork += (o, e) =>
+            {
+                radio.PlayCurrentSong();
+
+                // loop while song was not stopped (naturally or manually)
+                while (!radio.Player.IsStopped())
+                {
+                    Thread.Sleep(1000);
+                }
+            };
+
+            // When the song was stopped (naturally or manually)
+            bw.RunWorkerCompleted += (o, e) =>
+            {
+                if (!radio.Player.IsManualStop)
+                {
+                    // ...if naturally, then switch to next song in radio tracklist
+                    PlayNextSong();
+                }
+            };
+
+            bw.RunWorkerAsync();
 
             UpdateSongs();
             PlaybackImage = imagePause;
         }
         
-        /// <summary>
-        /// Handler of an event fired when the current song reached the end
-        /// </summary>
-        private void SongPlaybackStopped(object sender, EventArgs e)
-        {
-            if (playThread != null)
-            {
-                playThread.Join();
-                PlaybackImage = imagePlay;
-            }
-
-            if (radio.Player.IsManualStop == true)
-            {
-                return;
-            }
-
-            // if the stopping of the song wasn't initiated by user,
-            // then the current song is over and we switch to next song
-            //if (radio.Player.SongPlaybackState != PlaybackState.STOP)
-            {
-                PlayNextSong();
-            }
-        }
-
         public void SongPlaybackAction()
         {
             switch (radio.Player.SongPlaybackState)
@@ -177,6 +175,7 @@ namespace MusCatalog.ViewModel
         public void Stop()
         {
             radio.Player.Stop();
+            PlaybackImage = imagePlay;
         }
 
         public void ViewAlbumContainingCurrentSong()
@@ -191,6 +190,13 @@ namespace MusCatalog.ViewModel
             albumWindow.Show();
         }
 
+        /// <summary>
+        /// Freeze media player when the window is closing to avoid a memory leak
+        /// </summary>
+        public void Close()
+        {
+            radio.Player.Freeze();
+        }
 
         #region INotifyPropertyChanged event and method
 

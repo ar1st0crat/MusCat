@@ -64,13 +64,6 @@ namespace MusCatalog
             }
         }
 
-        private readonly object songlistLock = new object();
-
-        public Radio()
-        {
-            BindingOperations.EnableCollectionSynchronization(songlist, songlistLock);
-        }
-
         public void AddSong()
         {
             songlist.Add( SelectRandomSong() );
@@ -108,13 +101,13 @@ namespace MusCatalog
             }
         }
 
-        public void PlayCurrentSong( EventHandler<StoppedEventArgs> SongStoppedHandler )
+        public void PlayCurrentSong()
         {
             string fileSong = FileLocator.FindSongPath( songlist[nCurrentSong] );
 
             try
             {
-                player.Play(fileSong, SongStoppedHandler);
+                player.Play(fileSong);
             }
             catch (Exception)
             {
@@ -128,7 +121,7 @@ namespace MusCatalog
                 }
 
                 MoveToNextSong();
-                PlayCurrentSong( SongStoppedHandler );
+                PlayCurrentSong();
             }
         }
 
