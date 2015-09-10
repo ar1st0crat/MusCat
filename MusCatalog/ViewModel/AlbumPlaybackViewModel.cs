@@ -182,9 +182,12 @@ namespace MusCatalog.ViewModel
         /// </summary>
         private void SongPlaybackStopped(object sender, EventArgs e)
         {
-            playThread.Join();
-            playbackTimer.Stop();
-            PlaybackImage = imagePlay;
+            if (playThread != null)
+            {
+                playThread.Join();
+                playbackTimer.Stop();
+                PlaybackImage = imagePlay;
+            }
 
             if (player.IsManualStop == true)
             {
@@ -239,10 +242,6 @@ namespace MusCatalog.ViewModel
         /// </summary>
         public void Close()
         {
-            if (playThread != null)
-            {
-                playThread.Join();
-            }
             player.Freeze();
         }
 

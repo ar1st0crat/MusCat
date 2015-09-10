@@ -116,14 +116,14 @@ namespace MusCatalog
         {
             if (waveOut != null)
             {
-                if (waveOut.PlaybackState == NAudio.Wave.PlaybackState.Playing)
+                if (waveOut.PlaybackState != NAudio.Wave.PlaybackState.Stopped)
                 {
-                    Stop(false);
+                    Stop();
                 }
 
                 waveOut.Dispose();
                 waveOut = null;
-
+                
                 if (mp3Reader != null)
                 {
                     mp3Reader.Dispose();

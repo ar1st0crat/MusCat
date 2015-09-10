@@ -3,6 +3,7 @@ using NAudio.Wave;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Data;
 
 namespace MusCatalog
 {
@@ -61,6 +62,13 @@ namespace MusCatalog
             {
                 return null;
             }
+        }
+
+        private readonly object songlistLock = new object();
+
+        public Radio()
+        {
+            BindingOperations.EnableCollectionSynchronization(songlist, songlistLock);
         }
 
         public void AddSong()
@@ -160,7 +168,7 @@ namespace MusCatalog
                         if ( bOnlyShortSongs )
                         //if (this.ShortSongs.IsChecked.Value)
                             selectedsongs = selectedsongs.Where(
-                                    s => s.TimeLength.Length <= 4 && s.TimeLength.CompareTo("3:00") < 0);
+                                    s => s.TimeLength.Length <= 4 && s.TimeLength.CompareTo("2:30") < 0);
                     }
                     while (selectedsongs.Count() < 1);
 
