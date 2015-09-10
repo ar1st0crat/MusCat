@@ -168,7 +168,7 @@ namespace MusCatalog
                         if ( bOnlyShortSongs )
                         //if (this.ShortSongs.IsChecked.Value)
                             selectedsongs = selectedsongs.Where(
-                                    s => s.TimeLength.Length <= 4 && s.TimeLength.CompareTo("2:30") < 0);
+                                    s => s.TimeLength.Length <= 4 && s.TimeLength.CompareTo("1:30") < 0);
                     }
                     while (selectedsongs.Count() < 1);
 

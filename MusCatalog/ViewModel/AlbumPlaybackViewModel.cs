@@ -191,11 +191,10 @@ namespace MusCatalog.ViewModel
 
             if (player.IsManualStop == true)
             {
-                player.IsManualStop = false;
                 return;
             }
 
-            // play next song
+            // play next song (if current song is not the last one)
             if (SelectedSong == Songs.Last())
             {
                 return;

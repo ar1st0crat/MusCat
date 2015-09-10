@@ -144,7 +144,6 @@ namespace MusCatalog.ViewModel
 
             if (radio.Player.IsManualStop == true)
             {
-                radio.Player.IsManualStop = false;
                 return;
             }
 

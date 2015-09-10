@@ -23,7 +23,6 @@ namespace MusCatalog
 
         public PlaybackState SongPlaybackState { get; set; }
         public bool IsManualStop { get; set; }
-
         
         public AudioPlayer()
         {
@@ -58,6 +57,7 @@ namespace MusCatalog
             waveOut.Play();
 
             SongPlaybackState = PlaybackState.PLAY;
+            IsManualStop = false;
         }
 
         public void Stop( bool bManual = true )
