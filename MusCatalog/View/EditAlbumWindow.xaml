@@ -13,15 +13,6 @@
             <GradientStop Color="#ffffff" Offset="3"/>
         </LinearGradientBrush>
     </Window.Background>
-    <!-- 
-        Commands: 
-            Save album information
-            Save song information
-            Delete song
-    -->
-    <Window.CommandBindings>
-        <CommandBinding Command="Save" CanExecute="SaveSongCanExecute" Executed="SaveSong" />
-    </Window.CommandBindings>
     
     <Window.Resources>
         <!-- GUI parameters -->
@@ -39,8 +30,8 @@
         </Grid.ColumnDefinitions>
         <StackPanel x:Name="AlbumInfoPanel" Grid.Column="0">
             <WrapPanel HorizontalAlignment="Center">
-                <Button Content="Load from file..." Margin="15,20,3,10" Padding="5" Click="LoadAlbumImageFromFile"/>
-                <Button Content="Load from clipboard" Margin="0,20,3,10" Click="LoadAlbumImageFromClipboard"/>
+                <Button Content="Load from file..." Margin="15,20,3,10" Padding="5" Command="{Binding LoadAlbumImageFromFileCommand}"/>
+                <Button Content="Load from clipboard" Margin="0,20,3,10" Command="{Binding LoadAlbumImageFromClipboardCommand}"/>
             </WrapPanel>
             <Image x:Name="AlbumImage"
                    Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter},
@@ -57,33 +48,61 @@
                     </StackPanel>
                     <view:RateStarsControl Height="25" Width="125" Rate="{Binding Path=Album.Rate}" />
                 </DockPanel>
-                <TextBox x:Name="AlbumTotalTime" Text="{Binding Path=AlbumTotalTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                <TextBox x:Name="AlbumTotalTime" Text="{Binding Path=AlbumTotalTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
                          Background="Maroon" Width="auto" HorizontalAlignment="Right" Margin="0,-15,40,0" 
-                         Foreground="White" FontSize="24" FontFamily="Broadway"/>
+                         Foreground="White" FontSize="24" FontFamily="Broadway">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Style.Triggers>
+                                <Trigger Property="Validation.HasError" Value="true">
+                                    <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
             </DockPanel>
 
             <StackPanel Margin="20,0,0,20">
                 <Label Content="{Binding Path=Album.Performer.Name}" FontFamily="Stencil" Foreground="White" FontSize="22" HorizontalAlignment="Center" Margin="0,10,0,0" />
                 <WrapPanel HorizontalAlignment="Center">
                     <Label Content="Name: " Foreground="White" />
-                    <TextBox Text="{Binding Path=Album.Name}" FontFamily="Arial Narrow" FontSize="18" HorizontalAlignment="Center" Margin="5,0,0,5" MinWidth="280" />
+                    <TextBox x:Name="AlbumNameTextBox"
+                             Text="{Binding Path=AlbumName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" 
+                             FontFamily="Arial Narrow" FontSize="18" HorizontalAlignment="Center" Margin="5,0,0,5" MinWidth="280" />
                 </WrapPanel>
                 <WrapPanel HorizontalAlignment="Center">
                     <Label Content="Year: " Foreground="White" />
-                    <TextBox Text="{Binding Path=Album.ReleaseYear}" FontFamily="Broadway" FontSize="18" HorizontalAlignment="Center" Margin="5,0,0,10" MinWidth="80"/>
+                    <ComboBox ItemsSource="{Binding Path=ReleaseYearsCollection}" Text="{Binding Path=Album.ReleaseYear}"
+                              FontFamily="Broadway" FontSize="18" HorizontalAlignment="Center" Margin="5,0,0,10" MinWidth="100" />
                 </WrapPanel>
-                <Button Content="Save album information" Padding="5" Click="SaveAlbumInformation" />
+                <Button Content="Save album information" Padding="5" Command="{Binding SaveAlbumInformationCommand}">
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="IsEnabled" Value="false" />
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding ElementName=AlbumNameTextBox, Path=(Validation.HasError)}" Value="false" />
+                                        <Condition Binding="{Binding ElementName=AlbumTotalTime, Path=(Validation.HasError)}" Value="false" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="IsEnabled" Value="true" />
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
             </StackPanel>
         </StackPanel>
 
         <StackPanel Grid.Column="1" Margin="20">
             <WrapPanel HorizontalAlignment="Center">
-                <Button Content="Parse mp3..." Padding="5" Margin="5" Click="ParseMp3" />
-                <Button Content="Fix names" Padding="5" Margin="5" Click="FixNames" />
-                <Button Content="Fix times" Padding="5" Margin="5,5,90,5" Click="FixTimes" />
-                <Button Content="Clear all" Padding="5" Margin="5" Click="ClearAll" />
-                <Button Content="Save all" Padding="5" Margin="5" Click="SaveAll" />
-                <Button Content="Add..." Padding="5" Margin="5" Click="AddSong" />
+                <Button Content="Parse mp3..." Padding="5" Margin="5" Command="{Binding ParseMp3Command}" />
+                <Button Content="Fix names" Padding="5" Margin="5" Command="{Binding FixNamesCommand}" />
+                <Button Content="Fix times" Padding="5" Margin="5,5,90,5" Command="{Binding FixTimesCommand}" />
+                <Button Content="Clear all" Padding="5" Margin="5" Command="{Binding ClearAllSongsCommand}" />
+                <Button Content="Save all" Padding="5" Margin="5" Command="{Binding SaveAllSongsCommand}" />
+                <Button Content="Add..." Padding="5" Margin="5" Command="{Binding AddSongCommand}" />
             </WrapPanel>
             <DataGrid x:Name="GridSongs" Grid.Column="1"
                       ItemsSource="{Binding Path=Songs}" SelectedItem="{Binding Path=SelectedSong}"
@@ -91,16 +110,24 @@
                       FontSize="14" AlternatingRowBackground="#daffff"  AlternationCount="2"
                       HorizontalGridLinesBrush="White" VerticalGridLinesBrush="White">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="No" Binding="{Binding Path=TrackNo}" Width="30" />
-                    <DataGridTextColumn Header="Name" Binding="{Binding Path=Name}" Width="250" />
-                    <DataGridTextColumn Header="Time" Binding="{Binding Path=TimeLength}" Width="50" />
-                    <DataGridTextColumn Header="Rate" Binding="{Binding Path=Rate, Converter={StaticResource AlbumRateConverter}}" Width="70" />
+                    <DataGridTextColumn Header="No" Width="30"
+                                        Binding="{Binding Path=TrackNo}" />
+                    <DataGridTextColumn Header="Name" Width="250"
+                                        Binding="{Binding Path=Name, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True, ValidatesOnDataErrors=True}" />
+                    <DataGridTextColumn Header="Time" Width="50"
+                                        Binding="{Binding Path=TimeLength, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True, ValidatesOnDataErrors=True}"/>
+                    <DataGridTextColumn Header="Rate" Width="70"
+                                        Binding="{Binding Path=Rate, Converter={StaticResource AlbumRateConverter}}" />
                     <DataGridTemplateColumn Width="120" Header="Actions">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <WrapPanel>
-                                    <Button Content="Save" Command="Save" CommandParameter="{Binding Path=ID}" />
-                                    <Button Content="Delete" Click="DeleteSong" />
+                                    <Button Content="Save" 
+                                            Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
+                                                              Path=DataContext.SaveSongCommand}" />
+                                    <Button Content="Delete"
+                                            Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
+                                                              Path=DataContext.DeleteSongCommand}" />
                                 </WrapPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>

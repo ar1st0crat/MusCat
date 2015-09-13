@@ -6,12 +6,14 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
 namespace MusCatalog.ViewModel
 {
-    class EditAlbumViewModel : INotifyPropertyChanged
+    class EditAlbumViewModel : INotifyPropertyChanged, IDataErrorInfo
     {
         public AlbumViewModel AlbumView { get; set; }
         public Album Album
@@ -21,6 +23,15 @@ namespace MusCatalog.ViewModel
             {
                 AlbumView.Album = value;
                 RaisePropertyChanged("Album");
+            }
+        }
+        public string AlbumName
+        {
+            get { return Album.Name; }
+            set
+            {
+                Album.Name = value;
+                RaisePropertyChanged("AlbumName");
             }
         }
         public string AlbumTotalTime
@@ -44,10 +55,47 @@ namespace MusCatalog.ViewModel
         private static BitmapImage imageHalfStar = App.Current.TryFindResource("ImageHalfStar") as BitmapImage;
         private static BitmapImage imageEmptyStar = App.Current.TryFindResource("ImageEmptyStar") as BitmapImage;
 
+        public ObservableCollection<string> ReleaseYearsCollection { get; set; }
+
+        #region Commands
+        
+        public RelayCommand ParseMp3Command { get; private set; }
+        public RelayCommand FixNamesCommand { get; private set; }
+        public RelayCommand FixTimesCommand { get; private set; }
+        public RelayCommand ClearAllSongsCommand { get; private set; }
+        public RelayCommand SaveAllSongsCommand { get; private set; }
+        public RelayCommand AddSongCommand { get; private set; }
+        public RelayCommand SaveSongCommand { get; private set; }
+        public RelayCommand DeleteSongCommand { get; private set; }
+        public RelayCommand SaveAlbumInformationCommand { get; private set; }
+        public RelayCommand LoadAlbumImageFromFileCommand { get; private set; }
+        public RelayCommand LoadAlbumImageFromClipboardCommand { get; private set; }
+
+        #endregion
 
         public EditAlbumViewModel( AlbumViewModel viewmodel )
         {
             AlbumView = viewmodel;
+
+            // setting up commands
+            ParseMp3Command = new RelayCommand( ParseMp3 );
+            FixNamesCommand = new RelayCommand( FixNames );
+            FixTimesCommand = new RelayCommand( FixTimes );
+            ClearAllSongsCommand = new RelayCommand( ClearAll );
+            SaveAllSongsCommand = new RelayCommand( SaveAll );
+            AddSongCommand = new RelayCommand( AddSong );
+            SaveSongCommand = new RelayCommand( SaveSong );
+            DeleteSongCommand = new RelayCommand( DeleteSong );
+            SaveAlbumInformationCommand = new RelayCommand( SaveAlbumInformation );
+            LoadAlbumImageFromFileCommand = new RelayCommand( LoadAlbumImageFromFile );
+            LoadAlbumImageFromClipboardCommand = new RelayCommand( LoadAlbumImageFromClipboard );
+
+            // fill combobox with release years
+            ReleaseYearsCollection = new ObservableCollection<string>();
+            for (int i = 1900; i < 2051; i++)
+            {
+                ReleaseYearsCollection.Add(i.ToString());
+            }
         }
 
         public void ParseMp3()
@@ -67,6 +115,11 @@ namespace MusCatalog.ViewModel
         {
             if (SelectedSong != null)
             {
+                if (SelectedSong.Error != "")
+                {
+                    MessageBox.Show( "Invalid data!" );
+                    return;
+                }
                 using (var context = new MusCatEntities())
                 {
                     context.Entry(context.Songs.Find(SelectedSong.ID)).CurrentValues.SetValues(SelectedSong);
@@ -146,6 +199,7 @@ namespace MusCatalog.ViewModel
                     }
                     else
                     {
+                        // TODO: check validness of song data
                         context.Entry(context.Songs.Find(song.ID)).CurrentValues.SetValues(song);
                     }
                     context.SaveChanges();
@@ -253,6 +307,45 @@ namespace MusCatalog.ViewModel
             if (handler != null)
             {
                 handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
+
+        #region IDataErrorInfo methods
+
+        public string Error
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public string this[string columnName]
+        {
+            get 
+            {
+                string error = string.Empty;
+                switch (columnName)
+                {
+                    case "AlbumTotalTime":
+                        Regex regex = new Regex(@"^\d+:\d{2}$");
+                        if (!regex.IsMatch(AlbumTotalTime))
+                        {
+                            error = "Total time should be in the format mm:ss";
+                        }
+                        break;
+
+                    case "AlbumName":
+                        if (Album.Name.Length > 40)
+                        {
+                            error = "Album name should contain not more than 40 symbols";
+                        }
+                        else if (Album.Name == "")
+                        {
+                            error = "Album name can't be empty";
+                        }
+                        break;
+                }
+                return error;
             }
         }
 
