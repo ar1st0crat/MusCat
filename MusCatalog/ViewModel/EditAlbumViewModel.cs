@@ -199,7 +199,12 @@ namespace MusCatalog.ViewModel
                     }
                     else
                     {
-                        // TODO: check validness of song data
+                        // check validness of song data
+                        if (song.Error != "")
+                        {
+                            MessageBox.Show( String.Format( "Invalid data in song {0}!", song.TrackNo ) );
+                            continue;
+                        }
                         context.Entry(context.Songs.Find(song.ID)).CurrentValues.SetValues(song);
                     }
                     context.SaveChanges();

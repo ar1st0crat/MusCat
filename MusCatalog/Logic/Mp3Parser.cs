@@ -32,7 +32,7 @@ namespace MusCatalog
                 var file = TagLib.File.Create(filename);
                 var v2tag = (TagLib.Id3v2.Tag)file.GetTag(TagLib.TagTypes.Id3v2);
 
-                if (v2tag != null)
+                if (v2tag != null && v2tag.Title != null)
                 {
                     Songs.ElementAt(i).Name = v2tag.Title;
                 }
@@ -40,7 +40,7 @@ namespace MusCatalog
                 {
                     TagLib.Id3v1.Tag v1tag;
                     v1tag = (TagLib.Id3v1.Tag)file.GetTag(TagLib.TagTypes.Id3v1);
-                    if (v1tag != null)
+                    if (v1tag != null && v1tag.Title != null)
                     {
                         Songs.ElementAt(i).Name = v1tag.Title;
                     }
