@@ -136,10 +136,25 @@
         <!-- performer template (not selected by user) -->
         <DataTemplate x:Key="PerformerTemplate">
             <StackPanel Orientation="Horizontal">
+                <!-- uncomment this if you want performer's photo to be show as rectangle  -->
+                <!--
                 <Image Height="{StaticResource PerformerPhotoHeight}" Width="{StaticResource PerformerPhotoWidth}" Margin="15,10,15,25" 
                        Source="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
                                         ConverterParameter={StaticResource PerformerPhotoHeight},
-                                        UpdateSourceTrigger=PropertyChanged}" />
+                                        UpdateSourceTrigger=PropertyChanged}">
+                    <Image.Clip>
+                        <EllipseGeometry RadiusX="65" RadiusY="40" Center="65,40"/>
+                    </Image.Clip>
+                </Image>
+                -->
+                <Ellipse Width="95" Height="95" Margin="15,10,15,15">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
+                                            ConverterParameter={StaticResource PerformerPhotoHeight},
+                                            UpdateSourceTrigger=PropertyChanged}"
+                                        Stretch="UniformToFill"/>
+                    </Ellipse.Fill>
+                </Ellipse>
                 <StackPanel>
                     <Label FontSize="24" Foreground="LightYellow" FontFamily="Stencil" Content="{Binding Path=Performer.Name}" Padding="0,5,0,0" />
                     <DockPanel>
@@ -161,10 +176,25 @@
         <DataTemplate x:Key="SelectedPerformerTemplate">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <StackPanel Margin="5,5,35,5" HorizontalAlignment="Center">
-                    <Image Height="{StaticResource SelectedPerformerPhotoHeight}" Width="{StaticResource SelectedPerformerPhotoWidth}" Margin="15,10,15,5" 
+                    <!-- uncomment this if you want performer's photo to be show as rectangle  -->
+                    <!--
+                    <Image Height="{StaticResource SelectedPerformerPhotoHeight}" Width="{StaticResource SelectedPerformerPhotoWidth}" Margin="15,10,15,5"
                            Source="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
                                             ConverterParameter={StaticResource SelectedPerformerPhotoHeight},
-                                            UpdateSourceTrigger=PropertyChanged}" />
+                                            UpdateSourceTrigger=PropertyChanged}">
+                        <Image.Clip>
+                            <EllipseGeometry RadiusX="100" RadiusY="75" Center="100,75"/>
+                        </Image.Clip>
+                    </Image>
+                    -->
+                    <Ellipse Width="200" Height="140" Margin="15,10,15,5">
+                        <Ellipse.Fill>
+                            <ImageBrush ImageSource="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
+                                            ConverterParameter={StaticResource SelectedPerformerPhotoHeight},
+                                            UpdateSourceTrigger=PropertyChanged}"
+                                        Stretch="UniformToFill"/>
+                        </Ellipse.Fill>
+                    </Ellipse>
                     <Label Content="{Binding Path=AlbumCollectionRate, Converter={StaticResource RateConverter}}" Grid.Column="0"
                                FontSize="20" Foreground="DarkGreen" Background="Orange" FontFamily="Arial Narrow" Padding="10" Margin="0,-35,0,0" HorizontalAlignment="Right">
                         <Label.RenderTransform>
