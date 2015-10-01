@@ -137,8 +137,10 @@ namespace MusCatalog.ViewModel
             {
                 using (var context = new MusCatEntities())
                 {
-                    context.Songs.Remove(SelectedSong);
+                    context.Songs.Remove( context.Songs.SingleOrDefault(x => x.ID == SelectedSong.ID) );
                     context.SaveChanges();
+
+                    Songs.Remove(SelectedSong);
                 }
             }
         }
