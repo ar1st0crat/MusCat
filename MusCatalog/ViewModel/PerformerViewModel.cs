@@ -17,7 +17,7 @@ namespace MusCatalog.ViewModel
             set
             {
                 albumCollectionRate = value;
-                RaisePropertyChanged( "AlbumCollectionRate" );
+                RaisePropertyChanged("AlbumCollectionRate");
             }
         }
 
@@ -28,7 +28,7 @@ namespace MusCatalog.ViewModel
             set
             {
                 albumCount = value;
-                RaisePropertyChanged( "AlbumCount" );
+                RaisePropertyChanged("AlbumCount");
             }
         }
 

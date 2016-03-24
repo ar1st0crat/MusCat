@@ -57,7 +57,7 @@ namespace MusCatalog
             IsManualStop = false;
         }
 
-        public void Stop( bool bManual = true )
+        public void Stop(bool bManual = true)
         {
             IsManualStop = bManual;
             waveOut.Stop();
@@ -88,7 +88,7 @@ namespace MusCatalog
             }
 
             double totalSeconds = mp3Reader.TotalTime.TotalSeconds * percent;
-            TimeSpan seekPos = TimeSpan.FromSeconds( totalSeconds ); //new TimeSpan((int)totalSeconds / 3600, (int)totalSeconds / 60, (int)totalSeconds % 60);
+            TimeSpan seekPos = TimeSpan.FromSeconds(totalSeconds);
             mp3Reader.CurrentTime = seekPos;
         }
 

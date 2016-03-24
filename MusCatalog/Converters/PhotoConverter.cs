@@ -72,7 +72,7 @@ namespace MusCatalog
                     {
                         bi.DecodePixelHeight = (int)(double)parameter;
                     }
-                    bi.UriSource = new Uri( albumPhotoPath );
+                    bi.UriSource = new Uri(albumPhotoPath);
                     bi.EndInit();
 
                     return new WriteableBitmap(bi);
@@ -85,7 +85,6 @@ namespace MusCatalog
             
             return "";
         }
-
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {

@@ -8,18 +8,20 @@ namespace MusCatalog
 {
     /// <summary>
     /// Class Mp3Parser is responsible for:
-    /// - extracting th etrack number and track nme from mp3 files
+    /// - extracting the track number and track name from mp3 files
     /// - retrieving and formatting song duration
     /// </summary>
     class Mp3Parser
     {
         /// <summary>
-        /// TODO
+        /// Method iterates through all mp3 files in given directory,
+        /// extracts ID3 tag info from each file
+        /// and returns the collection of ready Song objects
         /// </summary>
-        /// <param name="foldername"></param>
-        /// <param name="album"></param>
-        /// <param name="Songs"></param>
-        public void ParseMp3Collection( string foldername, Album album, ObservableCollection<Song> Songs )
+        /// <param name="foldername">The directory where to parse mp3 files</param>
+        /// <param name="album">The album containing the songs we are parsing</param>
+        /// <param name="Songs">The songs filled with information extracted from mp3 files</param>
+        public void ParseMp3Collection(string foldername, Album album, ObservableCollection<Song> Songs)
         {
             var i = 0;
             foreach (var filename in Directory.GetFiles(foldername, "*.mp3"))
@@ -60,7 +62,11 @@ namespace MusCatalog
         }
 
         /// <summary>
-        /// TODO
+        /// Method corrects song titles.
+        /// Examples:
+        ///     the_title_contains_underscores      =>      The Title Contains Underscores
+        ///     Too   many   whitespaces            =>      Too Many Whitespaces
+        ///     capitalize First  letter            =>      Capitalize First Letter
         /// </summary>
         /// <param name="Songs"></param>
         public void FixNames(ObservableCollection<Song> Songs)
@@ -73,10 +79,10 @@ namespace MusCatalog
                 // additionally replace multiple whitespaces (if there are any) with one whitespace
                 s.Name = Regex.Replace(s.Name, @"\s{2,}", " ");
 
-                // "lower" each character
+                // make each character lowercase
                 s.Name = s.Name.ToLower();
 
-                // and then "upper" each first letter of the word
+                // and then capitalize each first letter of the word
                 string oldLetter = s.Name.Substring(0, 1);
                 s.Name = s.Name.Remove(0, 1).Insert(0, oldLetter.ToUpper());
 
@@ -91,10 +97,16 @@ namespace MusCatalog
         }
 
         /// <summary>
-        /// TODO
+        /// Method corrects the duration time of each song 
+        /// and computes the total duration time of all songs.
+        /// Example:
+        ///     song no.1       '3:5'       =>      '3:05'
+        ///     song no.2       '2'         =>      '2:00'
+        ///     song no.3       'a1:30'     =>      '1:30'
+        ///                            and returns: '6:35' (total time)
         /// </summary>
-        /// <param name="Songs"></param>
-        /// <returns></returns>
+        /// <param name="Songs">Collection of songs</param>
+        /// <returns>The total duration of songs in format 'm:ss'</returns>
         public string FixTimes(ObservableCollection<Song> Songs)
         {
             int totalMinutes = 0, totalSeconds = 0;
@@ -106,7 +118,9 @@ namespace MusCatalog
                 foreach (char c in s.TimeLength)
                 {
                     if (char.IsDigit(c) || c == ':')
+                    {
                         clean += c;
+                    }
                 }
 
                 int colonPos = clean.IndexOf(':');

@@ -73,22 +73,22 @@ namespace MusCatalog.ViewModel
 
         #endregion
 
-        public EditAlbumViewModel( AlbumViewModel viewmodel )
+        public EditAlbumViewModel(AlbumViewModel viewmodel)
         {
             AlbumView = viewmodel;
 
             // setting up commands
-            ParseMp3Command = new RelayCommand( ParseMp3 );
-            FixNamesCommand = new RelayCommand( FixNames );
-            FixTimesCommand = new RelayCommand( FixTimes );
-            ClearAllSongsCommand = new RelayCommand( ClearAll );
-            SaveAllSongsCommand = new RelayCommand( SaveAll );
-            AddSongCommand = new RelayCommand( AddSong );
-            SaveSongCommand = new RelayCommand( SaveSong );
-            DeleteSongCommand = new RelayCommand( DeleteSong );
-            SaveAlbumInformationCommand = new RelayCommand( SaveAlbumInformation );
-            LoadAlbumImageFromFileCommand = new RelayCommand( LoadAlbumImageFromFile );
-            LoadAlbumImageFromClipboardCommand = new RelayCommand( LoadAlbumImageFromClipboard );
+            ParseMp3Command = new RelayCommand(ParseMp3);
+            FixNamesCommand = new RelayCommand(FixNames);
+            FixTimesCommand = new RelayCommand(FixTimes);
+            ClearAllSongsCommand = new RelayCommand(ClearAll);
+            SaveAllSongsCommand = new RelayCommand(SaveAll);
+            AddSongCommand = new RelayCommand(AddSong);
+            SaveSongCommand = new RelayCommand(SaveSong);
+            DeleteSongCommand = new RelayCommand(DeleteSong);
+            SaveAlbumInformationCommand = new RelayCommand(SaveAlbumInformation);
+            LoadAlbumImageFromFileCommand = new RelayCommand(LoadAlbumImageFromFile);
+            LoadAlbumImageFromClipboardCommand = new RelayCommand(LoadAlbumImageFromClipboard);
 
             // fill combobox with release years
             ReleaseYearsCollection = new ObservableCollection<string>();
@@ -107,8 +107,8 @@ namespace MusCatalog.ViewModel
             }
 
             Mp3Parser parser = new Mp3Parser();
-            parser.ParseMp3Collection( fbd.SelectedPath, Album, Songs );
-            AlbumTotalTime = parser.FixTimes( Songs );
+            parser.ParseMp3Collection(fbd.SelectedPath, Album, Songs);
+            AlbumTotalTime = parser.FixTimes(Songs);
         }
 
         public void SaveSong()
@@ -117,7 +117,7 @@ namespace MusCatalog.ViewModel
             {
                 if (SelectedSong.Error != "")
                 {
-                    MessageBox.Show( "Invalid data!" );
+                    MessageBox.Show("Invalid data!");
                     return;
                 }
                 using (var context = new MusCatEntities())
@@ -137,7 +137,7 @@ namespace MusCatalog.ViewModel
             {
                 using (var context = new MusCatEntities())
                 {
-                    context.Songs.Remove( context.Songs.SingleOrDefault(x => x.ID == SelectedSong.ID) );
+                    context.Songs.Remove(context.Songs.SingleOrDefault(x => x.ID == SelectedSong.ID));
                     context.SaveChanges();
 
                     Songs.Remove(SelectedSong);
@@ -204,7 +204,7 @@ namespace MusCatalog.ViewModel
                         // check validness of song data
                         if (song.Error != "")
                         {
-                            MessageBox.Show( String.Format( "Invalid data in song {0}!", song.TrackNo ) );
+                            MessageBox.Show(String.Format("Invalid data in song {0}!", song.TrackNo));
                             continue;
                         }
                         context.Entry(context.Songs.Find(song.ID)).CurrentValues.SetValues(song);

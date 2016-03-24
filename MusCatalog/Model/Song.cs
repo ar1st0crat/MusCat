@@ -29,7 +29,7 @@ namespace MusCatalog.Model
             set
             {
                 trackNo = value;
-                RaisePropertyChanged( "TrackNo" );
+                RaisePropertyChanged("TrackNo");
             } 
         }
         public string Name
@@ -38,7 +38,7 @@ namespace MusCatalog.Model
             set
             { 
                 name = value;
-                RaisePropertyChanged( "Name" );
+                RaisePropertyChanged("Name");
             }
         }
         public string TimeLength
@@ -47,7 +47,7 @@ namespace MusCatalog.Model
             set
             {
                 timeLength = value;
-                RaisePropertyChanged( "TimeLength" );
+                RaisePropertyChanged("TimeLength");
             }
         }
         public Nullable<byte> Rate

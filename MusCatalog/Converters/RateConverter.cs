@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
 
-
 namespace MusCatalog
 {
     /// <summary>
@@ -25,14 +24,13 @@ namespace MusCatalog
             return "Not rated";
         }
 
-
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             string val = value.ToString();
             byte converted = 0;
             if (val.Contains('/'))
             {
-                val = val.Substring( 0, val.IndexOf('/') );
+                val = val.Substring(0, val.IndexOf('/'));
             }
 
             if (byte.TryParse(val, out converted))

@@ -66,7 +66,7 @@ namespace MusCatalog
 
         public void AddSong()
         {
-            songlist.Add( SelectRandomSong() );
+            songlist.Add(SelectRandomSong());
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace MusCatalog
         public void MoveToNextSong()
         {
             // check if the archive ("songlist story") is full 
-            if ( songlist.Count >= MAX_SONGS_IN_ARCHIVE)
+            if (songlist.Count >= MAX_SONGS_IN_ARCHIVE)
             {
                 songlist.RemoveAt(0);       // if we remove the first element then we don't have to increase nCurrentSong
             }
@@ -103,7 +103,7 @@ namespace MusCatalog
 
         public void PlayCurrentSong()
         {
-            string fileSong = FileLocator.FindSongPath( songlist[nCurrentSong] );
+            string fileSong = FileLocator.FindSongPath(songlist[nCurrentSong]);
 
             try
             {
@@ -130,7 +130,7 @@ namespace MusCatalog
         /// The song is guaranteed to be present in user's file system
         /// </summary>
         /// <returns>Songs object selected randomly from the database</returns>
-        public Song SelectRandomSong( bool bOnlyShortSongs=false )
+        public Song SelectRandomSong(bool bOnlyShortSongs=false)
         {
             Song song = null;
 
@@ -158,13 +158,13 @@ namespace MusCatalog
                                          select s).Take(1);
 
                         // if the filter "Short songs is 'on'" we do additional filtering
-                        if ( bOnlyShortSongs )
-                        //if (this.ShortSongs.IsChecked.Value)
+                        if (bOnlyShortSongs)
+                        {
                             selectedsongs = selectedsongs.Where(
                                     s => s.TimeLength.Length <= 4 && s.TimeLength.CompareTo("1:30") < 0);
+                        }
                     }
                     while (selectedsongs.Count() < 1);
-
 
                     // select the first song from the set of selected songs
                     song = selectedsongs.First();

@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
 
-
 namespace MusCatalog
 {
     /// <summary>
@@ -26,8 +25,8 @@ namespace MusCatalog
                 return "";
             }
 
-            short yearStart = perf.Albums.Min( t => t.ReleaseYear );
-            short yearEnd = perf.Albums.Max( t => t.ReleaseYear );
+            short yearStart = perf.Albums.Min(t => t.ReleaseYear);
+            short yearEnd = perf.Albums.Max(t => t.ReleaseYear);
 
             if (yearEnd != yearStart)
             {

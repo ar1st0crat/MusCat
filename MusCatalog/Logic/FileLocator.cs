@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-
 namespace MusCatalog
 {
     /// <summary>
@@ -32,29 +31,29 @@ namespace MusCatalog
             // open config file paths.xml
             if (!File.Exists(@"config\paths.xml"))
             {
-                System.Windows.MessageBox.Show( "Please specify folders for MusCat to look for media files" );
+                System.Windows.MessageBox.Show("Please specify folders for MusCat to look for media files");
 
-                Directory.CreateDirectory( "config" );
+                Directory.CreateDirectory("config");
                 using (XmlWriter writer = XmlWriter.Create(@"config\paths.xml"))
                 {
-                    writer.WriteStartElement( "pathlist" );
-                    writer.WriteElementString( "path", @"F:" );
-                    writer.WriteElementString( "path", @"G:" );
-                    writer.WriteElementString( "path", @"G:\Other" );
+                    writer.WriteStartElement("pathlist");
+                    writer.WriteElementString("path", @"F:");
+                    writer.WriteElementString("path", @"G:");
+                    writer.WriteElementString("path", @"G:\Other");
                     writer.WriteEndElement();
                 }
             }
 
             using (XmlReader reader = XmlReader.Create(@"config\paths.xml"))
             {
-                while ( reader.Read() )
+                while (reader.Read())
                 {
-                    if ( reader.IsStartElement() && reader.Name == "path" )
+                    if (reader.IsStartElement() && reader.Name == "path")
                     {
-                        if ( !reader.Read() )
+                        if (!reader.Read())
                             break;
 
-                        pathlist.Add( reader.Value );
+                        pathlist.Add(reader.Value);
                     }
                 }
             }
@@ -126,14 +125,15 @@ namespace MusCatalog
 
                 if (Directory.Exists(path))
                 {
-                    filepaths.Add( string.Format(@"{0}\Picture\photo.{1}", path, ext) );
+                    filepaths.Add(string.Format(@"{0}\Picture\photo.{1}", path, ext));
                     return filepaths;
                 }
             }
 
             foreach (var startingPath in pathlist)
             {
-                filepaths.Add( string.Format(@"{0}\{1}\{2}\Picture\photo.{3}", startingPath, p.Name[0], p.Name, ext) );
+                filepaths.Add(string.Format(@"{0}\{1}\{2}\Picture\photo.{3}", 
+                                                startingPath, p.Name[0], p.Name, ext));
             }
             return filepaths;
         }
@@ -154,8 +154,8 @@ namespace MusCatalog
 
             foreach (var startingPath in pathlist)
             {
-                string path = string.Format(@"{0}\{1}\{2}\Picture", startingPath, a.Performer.Name[0], a.Performer.Name);
-
+                string path = string.Format(@"{0}\{1}\{2}\Picture", 
+                                                startingPath, a.Performer.Name[0], a.Performer.Name);
                 if (Directory.Exists(path))
                 {
                     var files = Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly)
@@ -183,8 +183,8 @@ namespace MusCatalog
 
             foreach (var startingPath in pathlist)
             {
-                string path = string.Format(@"{0}\{1}\{2}", startingPath, a.Performer.Name[0], a.Performer.Name);
-
+                string path = string.Format(@"{0}\{1}\{2}", 
+                                                startingPath, a.Performer.Name[0], a.Performer.Name);
                 if (Directory.Exists(path))
                 {
                     filepaths.Add(string.Format(@"{0}\Picture\{1}.{2}", path, a.ID, ext));
@@ -194,11 +194,11 @@ namespace MusCatalog
 
             foreach (var startingPath in pathlist)
             {
-                filepaths.Add(string.Format(@"{0}\{1}\{2}\Picture\{3}.{4}", startingPath, a.Performer.Name[0], a.Performer.Name, a.ID, ext));
+                filepaths.Add(string.Format(@"{0}\{1}\{2}\Picture\{3}.{4}", 
+                                                startingPath, a.Performer.Name[0], a.Performer.Name, a.ID, ext));
             }
             return filepaths;
         }
-
 
         /// <summary>
         /// Normalize string: remove all spaces and punctuations, convert each letter to uppercase
@@ -218,7 +218,6 @@ namespace MusCatalog
             return res;
         }
 
-
         /// <summary>
         /// A static function for locating a song file in file system
         /// </summary>
@@ -228,23 +227,23 @@ namespace MusCatalog
         {
             foreach (var rootpath in pathlist)
             {
-                string pathDir = string.Format( @"{0}\{1}\{2}", rootpath, song.Album.Performer.Name[0], song.Album.Performer.Name );
-
+                string pathDir = string.Format( @"{0}\{1}\{2}", 
+                                                    rootpath, song.Album.Performer.Name[0], song.Album.Performer.Name );
                 if (Directory.Exists(pathDir))
                 {
                     string[] dirs = Directory.GetDirectories(pathDir);
-                    var neededDirs = dirs.Where( d => d.Contains(song.Album.ReleaseYear.ToString()) );
+                    var neededDirs = dirs.Where(d => d.Contains(song.Album.ReleaseYear.ToString()));
 
                     if (neededDirs.Count() > 0)
                     {
-                        string songDir = ""; // neededDirs.First();
+                        string songDir = "";
                                                 
                         // Check if song name contains punctuation and eliminate it!
                         // Normalize string - remove spaces and punctuation!
                         foreach (string dir in neededDirs)
                         {
                             string dirShortName = dir.Substring(dir.LastIndexOf("\\"));
-                            if ( LocatorNormalize(dirShortName).Contains( LocatorNormalize(song.Album.Name) ) )
+                            if (LocatorNormalize(dirShortName).Contains(LocatorNormalize(song.Album.Name)))
                             {
                                 songDir = dir;
                                 break;

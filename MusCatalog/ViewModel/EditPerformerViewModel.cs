@@ -33,29 +33,29 @@ namespace MusCatalog.ViewModel
         public RelayCommand LoadImageFromClipboardCommand { get; private set; }
         public RelayCommand SavePerformerCommand { get; private set; }
 
-        public EditPerformerViewModel( PerformerViewModel p )
+        public EditPerformerViewModel(PerformerViewModel p)
         {
             // setting up commands
-            LoadImageFromFileCommand = new RelayCommand( LoadPerformerImageFromFile );
-            LoadImageFromClipboardCommand = new RelayCommand( LoadPerformerImageFromClipboard );
-            SavePerformerCommand = new RelayCommand( SavePerformerInformation );
+            LoadImageFromFileCommand = new RelayCommand(LoadPerformerImageFromFile);
+            LoadImageFromClipboardCommand = new RelayCommand(LoadPerformerImageFromClipboard);
+            SavePerformerCommand = new RelayCommand(SavePerformerInformation);
 
             // load and set all necessary information to edit performer
             PerformerView = p;
 
-            using ( var context = new MusCatEntities() )
+            using (var context = new MusCatEntities())
             {
                 Countries = new ObservableCollection<Country>();
                 Genres = new ObservableCollection<Genre>();
 
                 foreach (var country in context.Countries)
                 {
-                    Countries.Add( country );
+                    Countries.Add(country);
                 }
 
                 foreach (var genre in context.Genres)
                 {
-                    Genres.Add( genre );
+                    Genres.Add(genre);
                 }
             }
         }
@@ -119,7 +119,7 @@ namespace MusCatalog.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show( ex.Message );
+                    MessageBox.Show(ex.Message);
                 }
             }
         }
@@ -155,8 +155,8 @@ namespace MusCatalog.ViewModel
                 MessageBox.Show(ex.Message);
             }
 
-            RaisePropertyChanged( "Performer" );
-            PerformerView.RaisePropertyChanged( "Performer" );
+            RaisePropertyChanged("Performer");
+            PerformerView.RaisePropertyChanged("Performer");
         }
 
         #region INotifyPropertyChanged event and method

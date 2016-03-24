@@ -9,7 +9,7 @@ namespace MusCatalog.View
     /// </summary>
     public class LetterNavigationButton: Button
     {
-        FontFamily letterFont = new FontFamily( "Stencil" );
+        FontFamily letterFont = new FontFamily("Stencil");
         bool bSelected = false;
         const int width = 32;
         const int height = 32;

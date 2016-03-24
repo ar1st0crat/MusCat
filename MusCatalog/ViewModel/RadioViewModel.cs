@@ -6,7 +6,6 @@ using System.Threading;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
-
 namespace MusCatalog.ViewModel
 {
     class RadioViewModel : INotifyPropertyChanged
@@ -43,8 +42,8 @@ namespace MusCatalog.ViewModel
             set
             {
                 songVolume = value;
-                radio.Player.SetVolume( (float)value / 10.0f );
-                RaisePropertyChanged( "SongVolume" );
+                radio.Player.SetVolume((float)value / 10.0f);
+                RaisePropertyChanged("SongVolume");
             }
         }
         public Song PreviousSong { get; set; }
@@ -73,7 +72,7 @@ namespace MusCatalog.ViewModel
             StopCommand = new RelayCommand(Stop);
             PreviousSongCommand = new RelayCommand(PlayPreviousSong);
             NextSongCommand = new RelayCommand(PlayNextSong);
-            ShowAlbumCommand = new RelayCommand( ViewAlbumContainingCurrentSong );
+            ShowAlbumCommand = new RelayCommand(ViewAlbumContainingCurrentSong);
             WindowClosingCommand = new RelayCommand(Close);
 
             // we add two songs to the playlist right away:
@@ -186,7 +185,7 @@ namespace MusCatalog.ViewModel
             albumView.LoadSongs();
 
             AlbumWindow albumWindow = new AlbumWindow();
-            albumWindow.DataContext = new AlbumPlaybackViewModel( albumView );
+            albumWindow.DataContext = new AlbumPlaybackViewModel(albumView);
             albumWindow.Show();
         }
 

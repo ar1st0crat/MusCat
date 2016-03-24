@@ -14,7 +14,7 @@ namespace MusCatalog.ViewModel
             set
             {
                 album = value;
-                RaisePropertyChanged( "Album" );
+                RaisePropertyChanged("Album");
             }
         }
 

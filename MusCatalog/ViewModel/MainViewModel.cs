@@ -10,7 +10,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
-
 namespace MusCatalog.ViewModel
 {
     /// <summary>
@@ -102,12 +101,12 @@ namespace MusCatalog.ViewModel
             // create the upper navigation panel
             foreach (char c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
             {
-                LetterNavigationButton b = new LetterNavigationButton( c.ToString() );
+                LetterNavigationButton b = new LetterNavigationButton(c.ToString());
                 b.Click += SetFirstLetter;
                 LetterCollection.Add(b);
             }
 
-            LetterNavigationButton bOther = new LetterNavigationButton( "Other", 70 );
+            LetterNavigationButton bOther = new LetterNavigationButton("Other", 70);
             bOther.Click += SetFirstLetter;
             LetterCollection.Add(bOther);
 
@@ -151,17 +150,12 @@ namespace MusCatalog.ViewModel
         #region Lower navigation panel (page navigation)
 
         // Page numbers in lower navigation panel
-        private ObservableCollection<UIElement> pageCollection = new ObservableCollection<UIElement>();
-        public ObservableCollection<UIElement> PageCollection
-        {
-            get { return pageCollection; }
-            set { pageCollection = value; }
-        }
-
+        public ObservableCollection<UIElement> PageCollection { get; set; }
+        
         int SelectedPage = 0;
         int PerformersPerPage = 10;
 
-        private void CreatePageNavigationPanel( int totalCount )
+        private void CreatePageNavigationPanel(int totalCount)
         {
             PageCollection.Clear();
 
@@ -208,7 +202,6 @@ namespace MusCatalog.ViewModel
 
         #endregion
 
-
         public MainViewModel()
         {
             // setting up all commands (quite a lot of them)
@@ -238,19 +231,21 @@ namespace MusCatalog.ViewModel
 
             ViewPerformerCommand = new RelayCommand(ViewSelectedPerformer);
             ViewAlbumCommand = new RelayCommand(ViewSelectedAlbum);
-            AddPerformerCommand = new RelayCommand( AddPerformer );
-            AddAlbumCommand = new RelayCommand( AddAlbum );
-            EditPerformerCommand = new RelayCommand( EditPerformer );
-            EditAlbumCommand = new RelayCommand( EditAlbum );
-            DeletePerformerCommand = new RelayCommand( RemoveSelectedPerformer );
-            DeleteAlbumCommand = new RelayCommand( RemoveSelectedAlbum );
-            PerformerSearchCommand = new RelayCommand( SelectPerformersByPattern );
-            AlbumSearchCommand = new RelayCommand( SelectPerformersByAlbumPattern );
+            AddPerformerCommand = new RelayCommand(AddPerformer);
+            AddAlbumCommand = new RelayCommand(AddAlbum);
+            EditPerformerCommand = new RelayCommand(EditPerformer);
+            EditAlbumCommand = new RelayCommand(EditAlbum);
+            DeletePerformerCommand = new RelayCommand(RemoveSelectedPerformer);
+            DeleteAlbumCommand = new RelayCommand(RemoveSelectedAlbum);
+            PerformerSearchCommand = new RelayCommand(SelectPerformersByPattern);
+            AlbumSearchCommand = new RelayCommand(SelectPerformersByAlbumPattern);
             EditMusiciansCommand = new RelayCommand(() => { });
-            StartRadioCommand = new RelayCommand( StartRadio );
+            StartRadioCommand = new RelayCommand(StartRadio);
             StatsCommand = new RelayCommand(() => { });
             SettingsCommand = new RelayCommand(() => { });
             HelpCommand = new RelayCommand(() => { });
+
+            PageCollection = new ObservableCollection<UIElement>();
 
             // create navigation panel
             CreateUpperNavigationPanel();
@@ -269,7 +264,7 @@ namespace MusCatalog.ViewModel
         /// </summary>
         /// <param name="albums">The list of performer's albums</param>
         /// <returns>The total rate of performer's album collection</returns>
-        private byte? CalculateAlbumCollectionRate( List<Album> albums )
+        private byte? CalculateAlbumCollectionRate(List<Album> albums)
         {
             byte? avgRate = null;
 
@@ -302,16 +297,16 @@ namespace MusCatalog.ViewModel
         /// Create Performer View Models for each performer (order albums, calculate rate and count the number of albums)
         /// </summary>
         /// <param name="performersSelected">Pre-selected collection of performers to work with</param>
-        private void MakePerformerViewModels( IQueryable<Performer> performersSelected )
+        private void MakePerformerViewModels(IQueryable<Performer> performersSelected)
         {
             // tryin' it out 
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
-            CreatePageNavigationPanel( performersSelected.Count() );
+            CreatePageNavigationPanel(performersSelected.Count());
 
-            var performersPaged = performersSelected.Skip( SelectedPage * PerformersPerPage )
-                                                    .Take( PerformersPerPage )
+            var performersPaged = performersSelected.Skip(SelectedPage * PerformersPerPage)
+                                                    .Take(PerformersPerPage)
                                                     .ToList();
             performers.Clear();
 
@@ -323,7 +318,7 @@ namespace MusCatalog.ViewModel
                 List<Album> albums;
 
                 // If no album pattern filter is specified, then copy --all-- albums to PerformerViewModel
-                if ( Filter != PerformerFilters.FilteredByAlbumPattern )
+                if (Filter != PerformerFilters.FilteredByAlbumPattern)
                 {
                     albums = perf.Albums.OrderBy(a => a.ReleaseYear)
                                         .ThenBy(a => a.Name)
@@ -348,10 +343,10 @@ namespace MusCatalog.ViewModel
 
                 // Recalculate total rate and number of albums of performer
                 performerView.AlbumCount = albums.Count();
-                performerView.AlbumCollectionRate = CalculateAlbumCollectionRate( albums );
+                performerView.AlbumCollectionRate = CalculateAlbumCollectionRate(albums);
 
                 // Finally, add fully created performer view model to the list
-                performers.Add( performerView );
+                performers.Add(performerView);
             }
         }
 
@@ -392,7 +387,7 @@ namespace MusCatalog.ViewModel
                     SelectedPage = 0;
                 }
 
-                MakePerformerViewModels( performersSelected );
+                MakePerformerViewModels(performersSelected);
             }
         }
 
@@ -416,7 +411,7 @@ namespace MusCatalog.ViewModel
                     Filter = PerformerFilters.FilteredByPattern;
                 }
 
-                MakePerformerViewModels( performersSelected );
+                MakePerformerViewModels(performersSelected);
 
                 // deselect all buttons in upper navigation panel
                 ResetButtons();
@@ -475,7 +470,7 @@ namespace MusCatalog.ViewModel
                 return;
             }
 
-            EditPerformerViewModel viewmodel = new EditPerformerViewModel( SelectedPerformer );
+            EditPerformerViewModel viewmodel = new EditPerformerViewModel(SelectedPerformer);
             EditPerformerWindow perfWindow = new EditPerformerWindow();
             perfWindow.DataContext = viewmodel;
             perfWindow.Show();
@@ -501,7 +496,7 @@ namespace MusCatalog.ViewModel
                 performers.Clear();
                 ResetButtons();
                 SelectedPage = 0;
-                pageCollection.Clear();
+                PageCollection.Clear();
 
                 // and show only newly added performer (to focus user's attention on said performer)
                 performers.Add(new PerformerViewModel { Performer = perf });
@@ -516,8 +511,7 @@ namespace MusCatalog.ViewModel
             {
                 MessageBox.Show("Please select performer to remove");
             }
-            else if (MessageBox.Show(string.Format("Are you sure you want to delete '{0}'?",
-                                        perf.Name),
+            else if (MessageBox.Show(string.Format("Are you sure you want to delete '{0}'?", perf.Name),
                                         "Confirmation",
                                         MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
@@ -547,7 +541,7 @@ namespace MusCatalog.ViewModel
             SelectedPerformer.SelectedAlbum.LoadSongs();
 
             AlbumWindow albumWindow = new AlbumWindow();
-            var albumViewModel = new AlbumPlaybackViewModel( SelectedPerformer.SelectedAlbum );
+            var albumViewModel = new AlbumPlaybackViewModel(SelectedPerformer.SelectedAlbum);
 
             // TODO: unsubscribe to avoid memory leak!
             albumViewModel.RateUpdated += AlbumRateUpdated;
@@ -567,7 +561,7 @@ namespace MusCatalog.ViewModel
             SelectedPerformer.SelectedAlbum.LoadSongs();
 
             EditAlbumWindow albumWindow = new EditAlbumWindow();
-            albumWindow.DataContext = new EditAlbumViewModel( SelectedPerformer.SelectedAlbum );
+            albumWindow.DataContext = new EditAlbumViewModel(SelectedPerformer.SelectedAlbum);
             albumWindow.ShowDialog();
 
             SelectedPerformer.AlbumCollectionRate =
@@ -599,12 +593,12 @@ namespace MusCatalog.ViewModel
                 AlbumViewModel albumView = new AlbumViewModel { Album = a };
                 
                 EditAlbumWindow editAlbum = new EditAlbumWindow();
-                editAlbum.DataContext = new EditAlbumViewModel( albumView );
+                editAlbum.DataContext = new EditAlbumViewModel(albumView);
                 editAlbum.ShowDialog();
 
                 // Insert the view model of a newly added album at the right place in performer's collection
                 int j = SelectedPerformer.Albums.Count;
-                for (int i = 0; i < SelectedPerformer.Albums.Count; i++ )
+                for (int i = 0; i < SelectedPerformer.Albums.Count; i++)
                 {
                     // firstly, let's see where newly asdded album fits by its year of release
                     if (a.ReleaseYear <= SelectedPerformer.Albums[i].Album.ReleaseYear)
@@ -612,9 +606,9 @@ namespace MusCatalog.ViewModel
                         // then, there can be several albums with the same year of release
                         // so loop through them to find the place for insertion (by album name)
                         j = i;
-                        while ( SelectedPerformer.Albums[j].Album.ReleaseYear == a.ReleaseYear &&
-                                a.Name.CompareTo( SelectedPerformer.Albums[j].Album.Name ) > 0 &&
-                                j < SelectedPerformer.Albums.Count )
+                        while (SelectedPerformer.Albums[j].Album.ReleaseYear == a.ReleaseYear &&
+                                a.Name.CompareTo(SelectedPerformer.Albums[j].Album.Name) > 0 &&
+                                j < SelectedPerformer.Albums.Count)
                         {
                             j++;
                         }
@@ -627,7 +621,7 @@ namespace MusCatalog.ViewModel
                 // to update view
                 SelectedPerformer.AlbumCount = SelectedPerformer.Albums.Count();
                 SelectedPerformer.AlbumCollectionRate = 
-                    CalculateAlbumCollectionRate( SelectedPerformer.Performer.Albums.ToList() );
+                    CalculateAlbumCollectionRate(SelectedPerformer.Performer.Albums.ToList());
             }
         }
 

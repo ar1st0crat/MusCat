@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Threading;
 
-
 namespace MusCatalog.ViewModel
 {
     class AlbumPlaybackViewModel : INotifyPropertyChanged
@@ -20,7 +19,7 @@ namespace MusCatalog.ViewModel
             set
             {
                 AlbumView.Album = value;
-                RaisePropertyChanged( "Album" );
+                RaisePropertyChanged("Album");
             }
         }
 
@@ -54,7 +53,7 @@ namespace MusCatalog.ViewModel
             set
             {
                 playbackImage = value;
-                RaisePropertyChanged( "PlaybackImage" );
+                RaisePropertyChanged("PlaybackImage");
             }
         }
 
@@ -85,18 +84,16 @@ namespace MusCatalog.ViewModel
         // (Binding the event "Thumb.DragCompleted" in XAML to some command doesn't work for some reason)
         private bool bDragged = false;
 
-
-        // Constructor
         public AlbumPlaybackViewModel(AlbumViewModel viewmodel)
         {
             // setting up commands
-            WindowClosingCommand = new RelayCommand( Close );
-            PlaybackCommand = new RelayCommand( PlaybackSongAction );
-            UpdateRateCommand = new RelayCommand( UpdateRate );
-            SeekPlaybackPositionCommand = new RelayCommand( SeekPlaybackPosition );
+            WindowClosingCommand = new RelayCommand(Close);
+            PlaybackCommand = new RelayCommand(PlaybackSongAction);
+            UpdateRateCommand = new RelayCommand(UpdateRate);
+            SeekPlaybackPositionCommand = new RelayCommand(SeekPlaybackPosition);
             // toggle the bDragged variable
-            StartDragCommand = new RelayCommand(() => bDragged = true );             
-            StopDragCommand = new RelayCommand(() => bDragged = false );
+            StartDragCommand = new RelayCommand(() => bDragged = true);             
+            StopDragCommand = new RelayCommand(() => bDragged = false);
             
             // set main album view model
             AlbumView = viewmodel;
@@ -210,11 +207,10 @@ namespace MusCatalog.ViewModel
                 return;
             }
 
-            player.Seek( PlaybackPercentage / 10.0);
+            player.Seek(PlaybackPercentage / 10.0);
         }
 
         #endregion
-
 
         /// <summary>
         /// Freeze media player when the window is closing to avoid a memory leak
@@ -245,7 +241,6 @@ namespace MusCatalog.ViewModel
         }
 
         public event EventHandler RateUpdated;
-
 
         #region INotifyPropertyChanged event and method
 
