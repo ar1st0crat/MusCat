@@ -11,8 +11,8 @@
         Icon="{StaticResource AppIcon}">
     <Window.Background>
         <LinearGradientBrush>
-            <GradientStop Color="Indigo" Offset="0" />
-            <GradientStop Color="Black" Offset="1.2" />
+            <GradientStop Color="#001122" Offset="0" />
+            <GradientStop Color="#ffffff" Offset="2" />
         </LinearGradientBrush>
     </Window.Background>
     
@@ -21,9 +21,9 @@
     </Window.DataContext>
 
     <!-- Keyboard command bindings -->
-    <!-- ENTER  -  view info of a performaer or an album (depending on current selection) -->
-    <!-- DELETE -  delete a performaer or an album (depending on current selection) -->
-    <!-- F4     -  edit a performaer or an album (depending on current selection) -->
+    <!-- ENTER  -  view info of a performer or an album (depending on current selection) -->
+    <!-- DELETE -  delete a performer or an album (depending on current selection) -->
+    <!-- F4     -  edit a performer or an album (depending on current selection) -->
     <!-- Ctrl+N -  add new performer -->
     <!-- Ctrl+A -  add new album -->
     <Window.InputBindings>
@@ -55,7 +55,65 @@
         <converters:RateConverter x:Key="RateConverter"/>
         <converters:AlbumCountConverter x:Key="AlbumCountConverter"/>
         <converters:YearsConverter x:Key="YearsConverter"/>
-        
+
+        <!-- custom style of scroll bars (horizontal and vertical) -->
+        <Style x:Key="ScrollBarThumbStyle" TargetType="{x:Type Thumb}">
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Ellipse Fill="OldLace" Margin="2" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <ControlTemplate x:Key="VerticalScrollBar" TargetType="{x:Type ScrollBar}">
+            <Track Name="PART_Track" IsDirectionReversed="True">
+                <Track.Thumb>
+                    <Thumb Style="{StaticResource ScrollBarThumbStyle}" />
+                </Track.Thumb>
+            </Track>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="HorizontalScrollBar" TargetType="{x:Type ScrollBar}">
+            <Track Name="PART_Track">
+                <Track.Thumb>
+                    <Thumb Style="{StaticResource ScrollBarThumbStyle}" />
+                </Track.Thumb>
+            </Track>
+        </ControlTemplate>
+
+        <Style TargetType="ScrollBar">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Width" Value="Auto"/>
+                    <Setter Property="Height" Value="12" />
+                    <Setter Property="Template" Value="{StaticResource HorizontalScrollBar}" />
+                </Trigger>
+                <Trigger Property="Orientation" Value="Vertical">
+                    <Setter Property="Width" Value="12"/>
+                    <Setter Property="Height" Value="Auto" />
+                    <Setter Property="Template" Value="{StaticResource VerticalScrollBar}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- menu items style -->
+        <Style TargetType="{x:Type MenuItem}">
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="Margin" Value="5"/>
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Foreground" Value="LightCoral"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+
         <!-- style for an album rate textblock: we show "Not rated" only if the rate is null;
              otherwise, the textblock is hidden and the 5-star panel is visible -->
         <Style x:Key="RateTextBlock" TargetType="TextBlock">
@@ -195,8 +253,8 @@
                                         Stretch="UniformToFill"/>
                         </Ellipse.Fill>
                     </Ellipse>
-                    <Label Content="{Binding Path=AlbumCollectionRate, Converter={StaticResource RateConverter}}" Grid.Column="0"
-                               FontSize="20" Foreground="DarkGreen" Background="Orange" FontFamily="Arial Narrow" Padding="10" Margin="0,-35,0,0" HorizontalAlignment="Right">
+                    <Label Content="{Binding Path=AlbumCollectionRate, Converter={StaticResource RateConverter}}"
+                           FontSize="20" Foreground="DarkGreen" Background="Orange" FontFamily="Arial Narrow" Padding="10" Margin="0,-35,0,0" HorizontalAlignment="Right">
                         <Label.RenderTransform>
                             <RotateTransform Angle="-25"/>
                         </Label.RenderTransform>
@@ -214,7 +272,7 @@
                             </StackPanel>
                         </StackPanel>
                 </StackPanel>
-                <ListBox x:Name="SelectedAlbums"
+                <ListBox x:Name="SelectedAlbums" Background="OldLace"
                          ItemsSource="{Binding Path=Albums}"                        
                          ItemContainerStyle="{StaticResource AlbumContainerStyle}"
                          SelectedItem="{Binding Path=SelectedAlbum}"
@@ -255,35 +313,35 @@
                 </Trigger>
             </Style.Triggers>
             <Style.Resources>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="White"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="OldLace" />
             </Style.Resources>
         </Style>
     </Window.Resources>
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
+            <RowDefinition Height="40" />
             <RowDefinition Height="70" />
             <RowDefinition Height="*" />
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
         <!-- Main menu -->        
-        <Menu HorizontalAlignment="Stretch" Height="28" VerticalAlignment="Top" Grid.Row="0">
-            <MenuItem Header="Performers">
-                <MenuItem Command="{Binding Path=AddPerformerCommand}" Header="Add..." HorizontalAlignment="Left" Width="145"/>
-                <MenuItem Command="{Binding Path=EditPerformerCommand}" Header="Edit..." HorizontalAlignment="Left" Width="145"/>
-                <MenuItem Command="{Binding Path=DeletePerformerCommand}" Header="Remove" HorizontalAlignment="Left" Width="145"/>
-                <MenuItem Command="{Binding Path=EditMusiciansCommand}" Header="Musicians..." HorizontalAlignment="Left" Width="145"/>
+        <Menu HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Row="0" Background="Transparent" FontSize="14">
+            <MenuItem Header="Performers" Foreground="Wheat">
+                <MenuItem Command="{Binding Path=AddPerformerCommand}" Header="Add..." HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding Path=EditPerformerCommand}" Header="Edit..." HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding Path=DeletePerformerCommand}" Header="Remove" HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding Path=EditMusiciansCommand}" Header="Musicians..." HorizontalAlignment="Left"/>
             </MenuItem>
-            <MenuItem Header="Album">
-                <MenuItem Command="{Binding Path=AddAlbumCommand}" Header="Add..." HorizontalAlignment="Left" Width="145"/>
-                <MenuItem Command="{Binding Path=EditAlbumCommand}" Header="Edit..." HorizontalAlignment="Left" Width="145"/>
-                <MenuItem Command="{Binding Path=DeleteAlbumCommand}" Header="Remove" HorizontalAlignment="Left" Width="145"/>
+            <MenuItem Header="Album" Foreground="Wheat">
+                <MenuItem Command="{Binding Path=AddAlbumCommand}" Header="Add..." HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding Path=EditAlbumCommand}" Header="Edit..." HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding Path=DeleteAlbumCommand}" Header="Remove" HorizontalAlignment="Left"/>
             </MenuItem>
-            <MenuItem Command="{Binding Path=StatsCommand}" Header="Stats"/>
-            <MenuItem Command="{Binding Path=SettingsCommand}" Header="Settings"/>
-            <MenuItem Command="{Binding Path=StartRadioCommand}" Header="MusCat Radio"/>
-            <MenuItem Command="{Binding Path=HelpCommand}" Header="Help"/>
+            <MenuItem Command="{Binding Path=StatsCommand}" Header="Stats" Foreground="Wheat"/>
+            <MenuItem Command="{Binding Path=SettingsCommand}" Header="Settings" Foreground="Wheat"/>
+            <MenuItem Command="{Binding Path=StartRadioCommand}" Header="MusCatRadio" Foreground="Wheat"/>
+            <MenuItem Command="{Binding Path=HelpCommand}" Header="Help" Foreground="Wheat"/>
         </Menu>
         <!-- upper navigation panel-->
         <WrapPanel Grid.Row="1" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -301,13 +359,8 @@
                  ItemContainerStyle="{StaticResource PerformerContainerStyle}"
                  IsSynchronizedWithCurrentItem="False"
                  SelectedItem="{Binding Path=SelectedPerformer}"
-                 Width="auto" HorizontalAlignment="Stretch" BorderThickness="0">
-            <ListBox.Background>
-                <LinearGradientBrush>
-                    <GradientStop Color="#001122" Offset="0" />
-                    <GradientStop Color="#ffffff" Offset="4" />
-                </LinearGradientBrush>
-            </ListBox.Background>
+                 Width="auto" HorizontalAlignment="Stretch" 
+                 BorderThickness="0" Background="Transparent">
             <ListBox.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="View..." Command="{Binding Path=ViewPerformerCommand}">

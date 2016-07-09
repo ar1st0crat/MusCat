@@ -76,7 +76,7 @@
                            TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
                            Foreground="LightGreen" FontWeight="Bold" Margin="3"/>
                 <WrapPanel HorizontalAlignment="Center">
-                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Foreground="Beige" Margin="5">
+                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Foreground="OldLace" Margin="5">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}{0} [{1}]">
                                 <Binding Path="Name" />
@@ -130,7 +130,7 @@
                                TextWrapping="Wrap" TextAlignment="Center"
                                FontSize="16" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="3"/>
                     <WrapPanel HorizontalAlignment="Center">
-                        <TextBlock TextWrapping="Wrap" TextAlignment="Center" Margin="5" FontSize="18" Foreground="Beige">
+                        <TextBlock TextWrapping="Wrap" TextAlignment="Center" Margin="5" FontSize="18" Foreground="OldLace">
                             <TextBlock.Text>
                                 <MultiBinding StringFormat="{}{0} [{1}]">
                                     <Binding Path="Name" />
@@ -167,7 +167,7 @@
                            TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
                            Foreground="LightGreen" FontWeight="Bold" Margin="3"/>
                 <WrapPanel HorizontalAlignment="Center">
-                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Foreground="Beige" Margin="5">
+                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Foreground="OldLace" Margin="5">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}{0} [{1}]">
                                 <Binding Path="Name" />

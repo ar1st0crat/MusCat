@@ -16,8 +16,9 @@ namespace MusCatalog.Controls
         public LetterNavigationButton(string text, int w = 32, int h = 32)
         {
             Content = text;
-            Background = Brushes.Black;
-            Foreground = Brushes.Azure;
+            Background = Brushes.Transparent;
+            Foreground = Brushes.Wheat;
+            Opacity = 0.9;
             FontSize = 16;
             FontFamily = letterFont;
             Width = w;
