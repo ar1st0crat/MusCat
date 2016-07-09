@@ -1,8 +1,6 @@
 ﻿using MusCatalog.Model;
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows.Media.Imaging;
 
 namespace MusCatalog.ViewModel
 {

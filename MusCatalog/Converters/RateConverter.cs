@@ -1,10 +1,9 @@
-﻿using MusCatalog.Model;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
 
-namespace MusCatalog
+namespace MusCatalog.Converters
 {
     /// <summary>
     /// Converter:      Performer   =>  string Performer rate (e.g. "8/10")

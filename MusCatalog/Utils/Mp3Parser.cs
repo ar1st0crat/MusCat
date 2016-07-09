@@ -1,10 +1,10 @@
-﻿using MusCatalog.Model;
-using System.Linq;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using MusCatalog.Model;
 
-namespace MusCatalog
+namespace MusCatalog.Utils
 {
     /// <summary>
     /// Class Mp3Parser is responsible for:
@@ -32,11 +32,11 @@ namespace MusCatalog
                 }
 
                 var file = TagLib.File.Create(filename);
-                var v2tag = (TagLib.Id3v2.Tag)file.GetTag(TagLib.TagTypes.Id3v2);
+                var v2Tag = (TagLib.Id3v2.Tag)file.GetTag(TagLib.TagTypes.Id3v2);
 
-                if (v2tag != null && v2tag.Title != null)
+                if (v2Tag != null && v2Tag.Title != null)
                 {
-                    Songs.ElementAt(i).Name = v2tag.Title;
+                    Songs.ElementAt(i).Name = v2Tag.Title;
                 }
                 else
                 {

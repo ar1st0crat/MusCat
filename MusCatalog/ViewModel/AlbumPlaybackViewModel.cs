@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Threading;
+using MusCatalog.Utils;
 
 namespace MusCatalog.ViewModel
 {

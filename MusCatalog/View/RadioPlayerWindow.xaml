@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        xmlns:local="clr-namespace:MusCatalog"
         xmlns:vm="clr-namespace:MusCatalog.ViewModel"
+        xmlns:converters="clr-namespace:MusCatalog.Converters"
         Title="MusCat Radio"
         SizeToContent="WidthAndHeight">
     <Window.Background>
@@ -37,7 +37,7 @@
         <sys:Double x:Key="AlbumImageHeight">100</sys:Double>
         <sys:Double x:Key="CurrentAlbumImageHeight">200</sys:Double>
         <!-- Album cover path converter -->
-        <local:PhotoConverter x:Key="AlbumImageConverter"/>
+        <converters:PhotoConverter x:Key="AlbumImageConverter"/>
     </Window.Resources>
 
     <StackPanel>

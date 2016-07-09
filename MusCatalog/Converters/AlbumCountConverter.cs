@@ -1,9 +1,8 @@
-﻿using MusCatalog.Model;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace MusCatalog
+namespace MusCatalog.Converters
 {
     /// <summary>
     /// Converter:      Performer  =>  Brief signature indicating the number of performer's albums

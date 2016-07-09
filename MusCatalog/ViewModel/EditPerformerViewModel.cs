@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using MusCatalog.Model;
+using MusCatalog.Utils;
 using MusCatalog.View;
 using System;
 using System.Collections.ObjectModel;

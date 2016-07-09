@@ -1,4 +1,5 @@
-﻿using MusCatalog.View;
+﻿using MusCatalog.Utils;
+using MusCatalog.View;
 using System.Windows;
 
 namespace MusCatalog

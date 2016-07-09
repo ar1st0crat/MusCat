@@ -1,7 +1,7 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace MusCatalog.View
+namespace MusCatalog.Controls
 {
     /// <summary>
     /// The button with a letter content
@@ -10,12 +10,10 @@ namespace MusCatalog.View
     public class LetterNavigationButton: Button
     {
         FontFamily letterFont = new FontFamily("Stencil");
-        bool bSelected = false;
-        const int width = 32;
-        const int height = 32;
-        const double scaleCoeff = 1.5;
+        private const double SCALE_COEFF = 1.5;
+        bool isSelected;
 
-        public LetterNavigationButton(string text, int w = width, int h = height)
+        public LetterNavigationButton(string text, int w = 32, int h = 32)
         {
             Content = text;
             Background = Brushes.Black;
@@ -31,9 +29,9 @@ namespace MusCatalog.View
         /// </summary>
         public void Select()
         {
-            Width *= scaleCoeff;
-            Height *= scaleCoeff;
-            bSelected = true;
+            Width *= SCALE_COEFF;
+            Height *= SCALE_COEFF;
+            isSelected = true;
         }
 
         /// <summary>
@@ -42,11 +40,11 @@ namespace MusCatalog.View
         /// </summary>
         public void DeSelect()
         {
-            if (bSelected)
+            if (isSelected)
             {
-                Width /= scaleCoeff;
-                Height /= scaleCoeff;
-                bSelected = false;
+                Width /= SCALE_COEFF;
+                Height /= SCALE_COEFF;
+                isSelected = false;
             }
         }
     }

@@ -1,11 +1,11 @@
-﻿using MusCatalog.Model;
-using MusCatalog.ViewModel;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
+using MusCatalog.Model;
+using MusCatalog.Utils;
 
-namespace MusCatalog
+namespace MusCatalog.Converters
 {
     /// <summary>
     /// Converter:          Performer   =>  (optionally reduced) image with performer's photo or default photo
@@ -31,7 +31,7 @@ namespace MusCatalog
                 string performerPhotoPath = FileLocator.GetPathImagePerformer(perf);
 
                 // if the photo exists
-                if ( performerPhotoPath != "")
+                if (performerPhotoPath != "")
                 {
                     // optimization: reduce original image (set DecodePixelHeight property)
                     // and release the original image by returning new WriteableBitmap
@@ -45,13 +45,11 @@ namespace MusCatalog
                     }
                     bi.UriSource = new Uri(performerPhotoPath);
                     bi.EndInit();
-
+                    
                     return new WriteableBitmap(bi);
                 }
-                else
-                {
-                    return NoPerformerPhoto;
-                }
+
+                return NoPerformerPhoto;
             }
 
             // or maybe the converter's yielding an album photo path
@@ -77,10 +75,8 @@ namespace MusCatalog
 
                     return new WriteableBitmap(bi);
                 }
-                else
-                {
-                    return NoAlbumPhoto;
-                }
+
+                return NoAlbumPhoto;
             }
             
             return "";

@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
-namespace MusCatalog.View
+namespace MusCatalog.Controls
 {
     /// <summary>
     /// Interaction logic for RateStarsControl.xaml.

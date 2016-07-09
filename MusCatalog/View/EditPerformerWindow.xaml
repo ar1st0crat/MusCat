@@ -4,6 +4,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:MusCatalog"
         xmlns:vm="clr-namespace:MusCatalog.ViewModel"
+        xmlns:converters="clr-namespace:MusCatalog.Converters"
         Title="Performer Info"
         SizeToContent="WidthAndHeight">
     <Window.Background>
@@ -17,7 +18,7 @@
         <!-- GUI parameters -->
         <sys:Double x:Key="PerformerPhotoWidth">400</sys:Double>
         <!-- Converters -->
-        <local:PhotoConverter x:Key="PerformerPhotoConverter" />
+        <converters:PhotoConverter x:Key="PerformerPhotoConverter" />
     </Window.Resources>
 
     <Grid>

@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:MusCatalog"
+        xmlns:converters="clr-namespace:MusCatalog.Converters"
         Title="Performer Info"
         Height="700"
         SizeToContent="Width">
@@ -16,7 +17,7 @@
     
     <Window.Resources>
         <sys:Double x:Key="PerformerPhotoWidth">400</sys:Double>
-        <local:PhotoConverter x:Key="PerformerPhotoConverter" />
+        <converters:PhotoConverter x:Key="PerformerPhotoConverter" />
     </Window.Resources>
     
     <Grid>

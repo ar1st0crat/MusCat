@@ -1,12 +1,12 @@
-﻿using MusCatalog.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
+using MusCatalog.Model;
 
-namespace MusCatalog
+namespace MusCatalog.Utils
 {
     /// <summary>
     /// Class providing static functions for locating paths in file system:

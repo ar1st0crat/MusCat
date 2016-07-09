@@ -1,7 +1,7 @@
-﻿using NAudio.Wave;
-using System;
+﻿using System;
+using NAudio.Wave;
 
-namespace MusCatalog
+namespace MusCatalog.Utils
 {
     enum PlaybackState
     {

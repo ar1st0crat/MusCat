@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        xmlns:local="clr-namespace:MusCatalog"
-        xmlns:view="clr-namespace:MusCatalog.View"
         xmlns:vm="clr-namespace:MusCatalog.ViewModel"
+        xmlns:converters="clr-namespace:MusCatalog.Converters"
+        xmlns:controls="clr-namespace:MusCatalog.Controls"
         Title="MusCat"
         Height="780" Width="1000"
         Icon="{StaticResource AppIcon}">
@@ -51,10 +51,10 @@
         <sys:Double x:Key="SelectedPerformerPhotoHeight">150</sys:Double>
         
         <!-- converters -->
-        <local:PhotoConverter x:Key="PhotoConverter"/>
-        <local:RateConverter x:Key="RateConverter"/>
-        <local:AlbumCountConverter x:Key="AlbumCountConverter"/>
-        <local:YearsConverter x:Key="YearsConverter"/>
+        <converters:PhotoConverter x:Key="PhotoConverter"/>
+        <converters:RateConverter x:Key="RateConverter"/>
+        <converters:AlbumCountConverter x:Key="AlbumCountConverter"/>
+        <converters:YearsConverter x:Key="YearsConverter"/>
         
         <!-- style for an album rate textblock: we show "Not rated" only if the rate is null;
              otherwise, the textblock is hidden and the 5-star panel is visible -->
@@ -97,7 +97,7 @@
                                TextWrapping="WrapWithOverflow" TextAlignment="Center"
                                FontSize="12" Foreground="DarkGreen" FontFamily="Segoe UI"/>
                     <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <view:RateStarsControl Height="20" Width="100" Rate="{Binding Path=Album.Rate}" IsEnabled="False" />
+                        <controls:RateStarsControl Height="20" Width="100" Rate="{Binding Path=Album.Rate}" IsEnabled="False" />
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
                                 <Style.Triggers>
@@ -163,7 +163,7 @@
                                    Content="{Binding Path=AlbumCollectionRate, Converter={StaticResource RateConverter}}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Style="{StaticResource PerformerRateStyle}">
-                            <view:RateStarsControl Width="75" Height="15" Rate="{Binding Path=AlbumCollectionRate}" IsEnabled="False" />
+                            <controls:RateStarsControl Width="75" Height="15" Rate="{Binding Path=AlbumCollectionRate}" IsEnabled="False" />
                         </StackPanel>
                     </DockPanel>
                     <Label Content="{Binding Path=AlbumCount, Converter={StaticResource AlbumCountConverter}}" FontSize="16" Foreground="LightPink" FontFamily="Arial Narrow" Padding="1" />
@@ -210,7 +210,7 @@
                                    FontSize="16" Foreground="Black" FontFamily="Arial Narrow"  Padding="1" HorizontalAlignment="Center" />
                             <StackPanel Style="{StaticResource PerformerRateStyle}"
                                         Orientation="Horizontal" HorizontalAlignment="Center" >
-                                <view:RateStarsControl Width="75" Height="15" Rate="{Binding Path=AlbumCollectionRate}" IsEnabled="False" />
+                                <controls:RateStarsControl Width="75" Height="15" Rate="{Binding Path=AlbumCollectionRate}" IsEnabled="False" />
                             </StackPanel>
                         </StackPanel>
                 </StackPanel>

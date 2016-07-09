@@ -1,11 +1,9 @@
-﻿using MusCatalog.Model;
-using NAudio.Wave;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Data;
+using MusCatalog.Model;
 
-namespace MusCatalog
+namespace MusCatalog.Utils
 {
     class Radio
     {

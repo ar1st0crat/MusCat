@@ -1,10 +1,10 @@
-﻿using MusCatalog.Model;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
+using MusCatalog.Model;
 
-namespace MusCatalog
+namespace MusCatalog.Converters
 {
     /// <summary>
     /// For a particular performer YearsConverter yields string of active years, e.g. "1970 - 2010"

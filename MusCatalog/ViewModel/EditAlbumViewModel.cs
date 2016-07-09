@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using MusCatalog.Model;
+using MusCatalog.Utils;
 using MusCatalog.View;
 using System;
 using System.Collections.ObjectModel;
@@ -8,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
 namespace MusCatalog.ViewModel

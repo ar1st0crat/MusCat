@@ -94,8 +94,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\AlbumCountConverter.cs" />
-    <Compile Include="Logic\Mp3Parser.cs" />
-    <Compile Include="Logic\Radio.cs" />
+    <Compile Include="Utils\Mp3Parser.cs" />
+    <Compile Include="Utils\Radio.cs" />
     <Compile Include="Model\Album.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
       <SubType>Code</SubType>
@@ -160,9 +160,9 @@
     <Compile Include="View\PerformerWindow.xaml.cs">
       <DependentUpon>PerformerWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Logic\FileLocator.cs" />
-    <Compile Include="View\LetterNavigationButton.cs" />
-    <Compile Include="Logic\AudioPlayer.cs" />
+    <Compile Include="Utils\FileLocator.cs" />
+    <Compile Include="Controls\LetterNavigationButton.cs" />
+    <Compile Include="Utils\AudioPlayer.cs" />
     <Compile Include="Converters\PhotoConverter.cs" />
     <Compile Include="View\RadioPlayerWindow.xaml.cs">
       <DependentUpon>RadioPlayerWindow.xaml</DependentUpon>
@@ -172,7 +172,7 @@
       <DependentUpon>AlbumWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\YearsConverter.cs" />
-    <Compile Include="View\RateStarsControl.xaml.cs">
+    <Compile Include="Controls\RateStarsControl.xaml.cs">
       <DependentUpon>RateStarsControl.xaml</DependentUpon>
     </Compile>
     <Page Include="View\ChoiceWindow.xaml">
@@ -211,11 +211,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\RateStarsControl.xaml">
+    <Page Include="Controls\RateStarsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\SongSlider.xaml">
+    <Page Include="Controls\SongSlider.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,7 +1,6 @@
 ﻿<Application x:Class="MusCatalog.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              Startup="AppInitialize">
     <Application.Resources>
         <ResourceDictionary>
@@ -17,7 +16,7 @@
             <BitmapImage x:Key="AppIcon" UriSource="Images/MusCat.ico" />
             <!-- reusable control styles -->
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/MusCatalog;component/View/SongSlider.xaml"/>
+                <ResourceDictionary Source="/MusCatalog;component/Controls/SongSlider.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

@@ -1,4 +1,5 @@
 ﻿using MusCatalog.Model;
+using MusCatalog.Utils;
 using MusCatalog.View;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
