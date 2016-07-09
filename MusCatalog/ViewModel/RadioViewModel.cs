@@ -190,11 +190,11 @@ namespace MusCatalog.ViewModel
         }
 
         /// <summary>
-        /// Freeze media player when the window is closing to avoid a memory leak
+        /// StopAndDispose media player when the window is closing to avoid a memory leak
         /// </summary>
         public void Close()
         {
-            radio.Player.Freeze();
+            radio.Player.StopAndDispose();
         }
 
         #region INotifyPropertyChanged event and method

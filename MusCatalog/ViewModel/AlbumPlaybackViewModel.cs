@@ -213,12 +213,12 @@ namespace MusCatalog.ViewModel
         #endregion
 
         /// <summary>
-        /// Freeze media player when the window is closing to avoid a memory leak
+        /// StopAndDispose media player when the window is closing to avoid a memory leak
         /// and unsubscribe from the RateUpdated event for the same reason
         /// </summary>
         public void Close()
         {
-            player.Freeze();
+            player.StopAndDispose();
         }
 
         /// <summary>

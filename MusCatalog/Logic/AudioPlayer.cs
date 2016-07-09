@@ -16,9 +16,9 @@ namespace MusCatalog
     class AudioPlayer
     {
         // NAudio component for a song playback
-        WaveOut waveOut = null;
+        WaveOut waveOut;
         // Underlying mp3 file reader
-        Mp3FileReader mp3Reader = null;
+        Mp3FileReader mp3Reader;
 
         public PlaybackState SongPlaybackState { get; set; }
         public bool IsManualStop { get; set; }
@@ -41,10 +41,8 @@ namespace MusCatalog
         /// <exception cref="Exception">Thrown if an mp3 file can't be opened</exception>
         public void Play(string filename)
         {
-            if (waveOut != null)
-            {
-                Freeze();
-            }
+            // if some track is currently playing, then stop it and dispose waveOut and mp3FileReader
+            StopAndDispose();
             
             waveOut = new WaveOut();
 
@@ -53,13 +51,14 @@ namespace MusCatalog
             waveOut.Init(mp3Reader);
             waveOut.Play();
 
+            // update player state
             SongPlaybackState = PlaybackState.PLAY;
             IsManualStop = false;
         }
 
-        public void Stop(bool bManual = true)
+        public void Stop(bool manualStop = true)
         {
-            IsManualStop = bManual;
+            IsManualStop = manualStop;
             waveOut.Stop();
             SongPlaybackState = PlaybackState.STOP;
         }
@@ -107,9 +106,9 @@ namespace MusCatalog
         }
 
         /// <summary>
-        /// Dispose waveOut and Mp3FileReader
+        /// Stop playing current track and dispose waveOut and Mp3FileReader
         /// </summary>
-        public void Freeze()
+        public void StopAndDispose()
         {
             if (waveOut != null)
             {
