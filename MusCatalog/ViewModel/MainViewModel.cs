@@ -538,13 +538,13 @@ namespace MusCatalog.ViewModel
                 return;
             }
 
-            // lazy load songs of selected album
+            // lazily load songs of selected album
             SelectedPerformer.SelectedAlbum.LoadSongs();
 
             AlbumWindow albumWindow = new AlbumWindow();
             var albumViewModel = new AlbumPlaybackViewModel(SelectedPerformer.SelectedAlbum);
 
-            // TODO: unsubscribe to avoid memory leak!
+            // user can change album rate in Album View Window, so we "stay in touch"
             albumViewModel.RateUpdated += AlbumRateUpdated;
             albumWindow.DataContext = albumViewModel;
             albumWindow.Show();

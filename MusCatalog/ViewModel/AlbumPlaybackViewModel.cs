@@ -198,7 +198,6 @@ namespace MusCatalog.ViewModel
         /// <summary>
         /// Rewind the song to the position specified by PlaybackPercentage (property bound to playback slider's value)
         /// </summary>
-        /// <param name="sender">playback slider</param>
         public void SeekPlaybackPosition()
         {
             // if the slider value was changed with timer (not by user) or the song is stopped
@@ -215,7 +214,6 @@ namespace MusCatalog.ViewModel
 
         /// <summary>
         /// StopAndDispose media player when the window is closing to avoid a memory leak
-        /// and unsubscribe from the RateUpdated event for the same reason
         /// </summary>
         public void Close()
         {
@@ -234,11 +232,17 @@ namespace MusCatalog.ViewModel
                 context.SaveChanges();
 
                 // raise event to allow for correct updating of MainViewModel
-                if (RateUpdated != null)
+                // (thread-safe way, according to ECMA)
+                EventHandler handler;
+                lock (this)
                 {
-                    RateUpdated(Album.Performer, null);
+                    handler = RateUpdated;
                 }
-            }
+                if (handler != null)
+                {
+                    handler(Album.Performer, EventArgs.Empty);
+                }
+        }
         }
 
         public event EventHandler RateUpdated;

@@ -45,6 +45,7 @@ namespace MusCatalog.Converters
                     }
                     bi.UriSource = new Uri(performerPhotoPath);
                     bi.EndInit();
+                    bi.Freeze();
                     
                     return new WriteableBitmap(bi);
                 }
@@ -72,6 +73,7 @@ namespace MusCatalog.Converters
                     }
                     bi.UriSource = new Uri(albumPhotoPath);
                     bi.EndInit();
+                    bi.Freeze();
 
                     return new WriteableBitmap(bi);
                 }
