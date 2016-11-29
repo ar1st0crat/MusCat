@@ -17,6 +17,7 @@
             <!-- reusable control styles -->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/MusCatalog;component/Controls/SongSlider.xaml"/>
+                <ResourceDictionary Source="/MusCatalog;component/Controls/ScrollBar.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

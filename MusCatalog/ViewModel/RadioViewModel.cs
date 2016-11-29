@@ -18,9 +18,6 @@ namespace MusCatalog.ViewModel
         // Radio Station
         private Radio radio = new Radio();
 
-        // Play song in seperate thread
-        private Thread playThread;
-
         #region INPC properties
 
         private BitmapImage playbackImage = imagePause;

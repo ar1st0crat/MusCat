@@ -27,44 +27,46 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="0" Grid.Row="0" Margin="10">
-            <WrapPanel HorizontalAlignment="Center">
-                <Button Command="{Binding Path=LoadImageFromFileCommand}" Content="Load from file..." Margin="15,10,3,10" Padding="5"/>
-                <Button Command="{Binding Path=LoadImageFromClipboardCommand}" Content="Load from clipboard" Margin="0,10,3,10"/>
-            </WrapPanel>
-            <Image x:Name="PerformerPhoto" Source="{Binding Path=Performer, Converter={StaticResource PerformerPhotoConverter}, ConverterParameter={StaticResource PerformerPhotoWidth}}"
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <StackPanel Grid.Column="0" Grid.Row="0" Margin="10">
+                <WrapPanel HorizontalAlignment="Center">
+                    <Button Command="{Binding Path=LoadImageFromFileCommand}" Content="Load from file..." Margin="15,10,3,10" Padding="5"/>
+                    <Button Command="{Binding Path=LoadImageFromClipboardCommand}" Content="Load from clipboard" Margin="0,10,3,10"/>
+                </WrapPanel>
+                <Image x:Name="PerformerPhoto" Source="{Binding Path=Performer, Converter={StaticResource PerformerPhotoConverter}, ConverterParameter={StaticResource PerformerPhotoWidth}}"
                    HorizontalAlignment="Left" VerticalAlignment="Top" Width="{StaticResource PerformerPhotoWidth}"/>
-            <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
-                <Label Content="Name: " Foreground="WhiteSmoke"/>
-                <TextBox Text="{Binding Performer.Name}" Width="300" FontFamily="Stencil" FontSize="20" HorizontalAlignment="Center"/>
-            </WrapPanel>
-            <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Label Content="Country: " Foreground="WhiteSmoke"/>
-                <ComboBox x:Name="CountryList"
+                <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
+                    <Label Content="Name: " Foreground="WhiteSmoke"/>
+                    <TextBox Text="{Binding Performer.Name}" Width="300" FontFamily="Stencil" FontSize="20" HorizontalAlignment="Center"/>
+                </WrapPanel>
+                <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Label Content="Country: " Foreground="WhiteSmoke"/>
+                    <ComboBox x:Name="CountryList"
                           ItemsSource="{Binding Countries}" SelectedItem="{Binding Performer.Country}" SelectedValue="{Binding Performer.CountryID}"
                           Width="290" FontSize="16" HorizontalAlignment="Center"
                           DisplayMemberPath="Name" SelectedValuePath="ID" IsSynchronizedWithCurrentItem="False"/>
-            </WrapPanel>
-            <ListBox Name="GenreList" ItemsSource="{Binding Genres}"
+                </WrapPanel>
+                <ListBox Name="GenreList" ItemsSource="{Binding Genres}"
                      Background="Transparent" BorderBrush="Transparent">
-                <ListBox.ItemTemplate>
+                    <ListBox.ItemTemplate>
                         <DataTemplate>
                             <ListBoxItem Foreground="White">
                                 <CheckBox Content="{Binding Name}" />
                             </ListBoxItem>
                         </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-            <Label Content="Lineup:" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
-            <ListBox ItemsSource="{Binding Performer.Lineups}"
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <Label Content="Lineup:" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
+                <ListBox ItemsSource="{Binding Performer.Lineups}"
                      Background="Transparent" BorderBrush="Transparent">
-            </ListBox>
-            <Button Command="{Binding SavePerformerCommand}" Content="Save performer information" Margin="10" Padding="5"/>
-        </StackPanel>
+                </ListBox>
+                <Button Command="{Binding SavePerformerCommand}" Content="Save performer information" Margin="10" Padding="5"/>
+            </StackPanel>
+        </ScrollViewer>
         <StackPanel Grid.Column="1">
-            <TextBox Text="{Binding Performer.Info}" Width="350" Height="600" Margin="15" Background="Black"
+                <TextBox Text="{Binding Performer.Info}" Width="350" Height="600" Margin="15" Background="Black"
                      TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
                      Foreground="White" Opacity=".35" />
-        </StackPanel>
+            </StackPanel>
     </Grid>
 </Window>

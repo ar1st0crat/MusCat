@@ -94,52 +94,44 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\AlbumCountConverter.cs" />
-    <Compile Include="Utils\Mp3Parser.cs" />
-    <Compile Include="Utils\Radio.cs" />
     <Compile Include="Model\Album.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\Country.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\Genre.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\Lineup.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\MusCatModel.Context.cs">
-      <DependentUpon>MusCatModel.Context.tt</DependentUpon>
-      <SubType>Code</SubType>
-      <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MusCatModel.Context.tt</DependentUpon>
     </Compile>
     <Compile Include="Model\MusCatModel.cs">
-      <DependentUpon>MusCatModel.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MusCatModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Model\MusCatModel.Designer.cs">
-      <DependentUpon>MusCatModel.edmx</DependentUpon>
-      <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MusCatModel.edmx</DependentUpon>
     </Compile>
     <Compile Include="Model\Musician.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\Performer.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\Song.cs">
       <DependentUpon>MusCatModel.tt</DependentUpon>
-      <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Utils\Mp3Parser.cs" />
+    <Compile Include="Utils\Radio.cs" />
     <Compile Include="ViewModel\AlbumPlaybackViewModel.cs" />
     <Compile Include="ViewModel\AlbumViewModel.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
@@ -175,6 +167,10 @@
     <Compile Include="Controls\RateStarsControl.xaml.cs">
       <DependentUpon>RateStarsControl.xaml</DependentUpon>
     </Compile>
+    <Page Include="Controls\ScrollBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\ChoiceWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -238,19 +234,12 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Model\MusCatModel.Context.tt">
-      <DependentUpon>MusCatModel.edmx</DependentUpon>
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>MusCatModel.Context.cs</LastGenOutput>
-    </None>
+    <EntityDeploy Include="Model\MusCatModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>MusCatModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
     <None Include="Model\MusCatModel.edmx.diagram">
       <DependentUpon>MusCatModel.edmx</DependentUpon>
-    </None>
-    <None Include="Model\MusCatModel.tt">
-      <DependentUpon>MusCatModel.edmx</DependentUpon>
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>MusCatModel.cs</LastGenOutput>
-      <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -269,6 +258,16 @@
     <Content Include="Database\MusCat_log.ldf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <DependentUpon>MusCat.mdf</DependentUpon>
+    </Content>
+    <Content Include="Model\MusCatModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>MusCatModel.edmx</DependentUpon>
+      <LastGenOutput>MusCatModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Model\MusCatModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>MusCatModel.edmx</DependentUpon>
+      <LastGenOutput>MusCatModel.cs</LastGenOutput>
     </Content>
     <Resource Include="Images\no_photo.png" />
     <Resource Include="Images\MusCat.ico" />
@@ -299,12 +298,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <EntityDeploy Include="Model\MusCatModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>MusCatModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

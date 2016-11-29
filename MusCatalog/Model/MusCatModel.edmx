@@ -4,52 +4,14 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="MusCatModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
-        <EntityContainer Name="MusCatModelStoreContainer">
-          <EntitySet Name="Albums" EntityType="MusCatModel.Store.Albums" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="Countries" EntityType="MusCatModel.Store.Countries" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="Genres" EntityType="MusCatModel.Store.Genres" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="Lineups" EntityType="MusCatModel.Store.Lineups" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="Musicians" EntityType="MusCatModel.Store.Musicians" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="PerformerGenres" EntityType="MusCatModel.Store.PerformerGenres" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="Performers" EntityType="MusCatModel.Store.Performers" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="Songs" EntityType="MusCatModel.Store.Songs" store:Type="Tables" Schema="dbo" />
-          <AssociationSet Name="FK_Albums_Performers" Association="MusCatModel.Store.FK_Albums_Performers">
-            <End Role="Performers" EntitySet="Performers" />
-            <End Role="Albums" EntitySet="Albums" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Lineups_Musicians" Association="MusCatModel.Store.FK_Lineups_Musicians">
-            <End Role="Musicians" EntitySet="Musicians" />
-            <End Role="Lineups" EntitySet="Lineups" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Lineups_Performers" Association="MusCatModel.Store.FK_Lineups_Performers">
-            <End Role="Performers" EntitySet="Performers" />
-            <End Role="Lineups" EntitySet="Lineups" />
-          </AssociationSet>
-          <AssociationSet Name="FK_PerformerGenres_Genres" Association="MusCatModel.Store.FK_PerformerGenres_Genres">
-            <End Role="Genres" EntitySet="Genres" />
-            <End Role="PerformerGenres" EntitySet="PerformerGenres" />
-          </AssociationSet>
-          <AssociationSet Name="FK_PerformerGenres_ToPerformers" Association="MusCatModel.Store.FK_PerformerGenres_ToPerformers">
-            <End Role="Performers" EntitySet="Performers" />
-            <End Role="PerformerGenres" EntitySet="PerformerGenres" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Performers_Countries" Association="MusCatModel.Store.FK_Performers_Countries">
-            <End Role="Countries" EntitySet="Countries" />
-            <End Role="Performers" EntitySet="Performers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Songs_Albums" Association="MusCatModel.Store.FK_Songs_Albums">
-            <End Role="Albums" EntitySet="Albums" />
-            <End Role="Songs" EntitySet="Songs" />
-          </AssociationSet>
-        </EntityContainer>
+      <Schema Namespace="MusCatModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Albums">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="PerformerID" Type="bigint" Nullable="false" />
           <Property Name="ID" Type="bigint" Nullable="false" />
-          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="40" />
+          <Property Name="Name" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="ReleaseYear" Type="smallint" Nullable="false" />
           <Property Name="TotalTime" Type="varchar" MaxLength="6" />
           <Property Name="Info" Type="text" />
@@ -60,14 +22,14 @@
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="tinyint" Nullable="false" />
-          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="20" />
+          <Property Name="Name" Type="varchar" MaxLength="20" Nullable="false" />
         </EntityType>
         <EntityType Name="Genres">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="tinyint" Nullable="false" />
-          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="25" />
+          <Property Name="Name" Type="varchar" MaxLength="25" Nullable="false" />
         </EntityType>
         <EntityType Name="Lineups">
           <Key>
@@ -83,8 +45,8 @@
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="40" />
+          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="Info" Type="text" />
           <Property Name="YearBorn" Type="smallint" />
           <Property Name="YearDied" Type="smallint" />
@@ -103,7 +65,7 @@
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="bigint" Nullable="false" />
-          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="30" />
+          <Property Name="Name" Type="varchar" MaxLength="30" Nullable="false" />
           <Property Name="Info" Type="text" />
           <Property Name="CountryID" Type="tinyint" />
         </EntityType>
@@ -114,15 +76,15 @@
           <Property Name="AlbumID" Type="bigint" Nullable="false" />
           <Property Name="ID" Type="bigint" Nullable="false" />
           <Property Name="TrackNo" Type="tinyint" Nullable="false" />
-          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="50" />
-          <Property Name="TimeLength" Type="varchar" Nullable="false" MaxLength="6" />
+          <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="TimeLength" Type="varchar" MaxLength="6" Nullable="false" />
           <Property Name="Rate" Type="tinyint" />
         </EntityType>
         <Association Name="FK_Albums_Performers">
-          <End Role="Performers" Type="MusCatModel.Store.Performers" Multiplicity="1">
+          <End Role="Performers" Type="Self.Performers" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="Albums" Type="MusCatModel.Store.Albums" Multiplicity="*" />
+          <End Role="Albums" Type="Self.Albums" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Performers">
               <PropertyRef Name="ID" />
@@ -133,10 +95,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Lineups_Musicians">
-          <End Role="Musicians" Type="MusCatModel.Store.Musicians" Multiplicity="1">
+          <End Role="Musicians" Type="Self.Musicians" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="Lineups" Type="MusCatModel.Store.Lineups" Multiplicity="*" />
+          <End Role="Lineups" Type="Self.Lineups" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Musicians">
               <PropertyRef Name="ID" />
@@ -147,10 +109,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Lineups_Performers">
-          <End Role="Performers" Type="MusCatModel.Store.Performers" Multiplicity="1">
+          <End Role="Performers" Type="Self.Performers" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="Lineups" Type="MusCatModel.Store.Lineups" Multiplicity="*" />
+          <End Role="Lineups" Type="Self.Lineups" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Performers">
               <PropertyRef Name="ID" />
@@ -161,10 +123,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_PerformerGenres_Genres">
-          <End Role="Genres" Type="MusCatModel.Store.Genres" Multiplicity="1">
+          <End Role="Genres" Type="Self.Genres" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="PerformerGenres" Type="MusCatModel.Store.PerformerGenres" Multiplicity="*" />
+          <End Role="PerformerGenres" Type="Self.PerformerGenres" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Genres">
               <PropertyRef Name="ID" />
@@ -175,10 +137,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_PerformerGenres_ToPerformers">
-          <End Role="Performers" Type="MusCatModel.Store.Performers" Multiplicity="1">
+          <End Role="Performers" Type="Self.Performers" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="PerformerGenres" Type="MusCatModel.Store.PerformerGenres" Multiplicity="*" />
+          <End Role="PerformerGenres" Type="Self.PerformerGenres" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Performers">
               <PropertyRef Name="ID" />
@@ -189,8 +151,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Performers_Countries">
-          <End Role="Countries" Type="MusCatModel.Store.Countries" Multiplicity="0..1" />
-          <End Role="Performers" Type="MusCatModel.Store.Performers" Multiplicity="*" />
+          <End Role="Countries" Type="Self.Countries" Multiplicity="0..1" />
+          <End Role="Performers" Type="Self.Performers" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Countries">
               <PropertyRef Name="ID" />
@@ -201,10 +163,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Songs_Albums">
-          <End Role="Albums" Type="MusCatModel.Store.Albums" Multiplicity="1">
+          <End Role="Albums" Type="Self.Albums" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="Songs" Type="MusCatModel.Store.Songs" Multiplicity="*" />
+          <End Role="Songs" Type="Self.Songs" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Albums">
               <PropertyRef Name="ID" />
@@ -214,87 +176,78 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Function Name="DeleteAlbumByID" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="Original_AID" Type="int" Mode="In" />
-        </Function>
-        <Function Name="DeletePerformerByID" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="Original_PID" Type="int" Mode="In" />
-        </Function>
-        <Function Name="UpdateAlbumsWithoutTime" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <EntityContainer Name="MusCatModelStoreContainer">
+          <EntitySet Name="Albums" EntityType="Self.Albums" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Countries" EntityType="Self.Countries" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Genres" EntityType="Self.Genres" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Lineups" EntityType="Self.Lineups" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Musicians" EntityType="Self.Musicians" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PerformerGenres" EntityType="Self.PerformerGenres" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Performers" EntityType="Self.Performers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Songs" EntityType="Self.Songs" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Albums_Performers" Association="Self.FK_Albums_Performers">
+            <End Role="Performers" EntitySet="Performers" />
+            <End Role="Albums" EntitySet="Albums" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Lineups_Musicians" Association="Self.FK_Lineups_Musicians">
+            <End Role="Musicians" EntitySet="Musicians" />
+            <End Role="Lineups" EntitySet="Lineups" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Lineups_Performers" Association="Self.FK_Lineups_Performers">
+            <End Role="Performers" EntitySet="Performers" />
+            <End Role="Lineups" EntitySet="Lineups" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PerformerGenres_Genres" Association="Self.FK_PerformerGenres_Genres">
+            <End Role="Genres" EntitySet="Genres" />
+            <End Role="PerformerGenres" EntitySet="PerformerGenres" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PerformerGenres_ToPerformers" Association="Self.FK_PerformerGenres_ToPerformers">
+            <End Role="Performers" EntitySet="Performers" />
+            <End Role="PerformerGenres" EntitySet="PerformerGenres" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Performers_Countries" Association="Self.FK_Performers_Countries">
+            <End Role="Countries" EntitySet="Countries" />
+            <End Role="Performers" EntitySet="Performers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Songs_Albums" Association="Self.FK_Songs_Albums">
+            <End Role="Albums" EntitySet="Albums" />
+            <End Role="Songs" EntitySet="Songs" />
+          </AssociationSet>
+        </EntityContainer>
       </Schema>
     </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
-      <Schema Namespace="MusCatModel" Alias="Self" p1:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:p1="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityContainer Name="MusCatEntities" p1:LazyLoadingEnabled="true">
-          <EntitySet Name="Albums" EntityType="MusCatModel.Album" />
-          <EntitySet Name="Countries" EntityType="MusCatModel.Country" />
-          <EntitySet Name="Genres" EntityType="MusCatModel.Genre" />
-          <EntitySet Name="Lineups" EntityType="MusCatModel.Lineup" />
-          <EntitySet Name="Musicians" EntityType="MusCatModel.Musician" />
-          <EntitySet Name="Performers" EntityType="MusCatModel.Performer" />
-          <EntitySet Name="Songs" EntityType="MusCatModel.Song" />
-          <AssociationSet Name="FK_Albums_Performers" Association="MusCatModel.FK_Albums_Performers">
-            <End Role="Performers" EntitySet="Performers" />
-            <End Role="Albums" EntitySet="Albums" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Songs_Albums" Association="MusCatModel.FK_Songs_Albums">
-            <End Role="Albums" EntitySet="Albums" />
-            <End Role="Songs" EntitySet="Songs" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Performers_Countries" Association="MusCatModel.FK_Performers_Countries">
-            <End Role="Countries" EntitySet="Countries" />
-            <End Role="Performers" EntitySet="Performers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Lineups_Musicians" Association="MusCatModel.FK_Lineups_Musicians">
-            <End Role="Musicians" EntitySet="Musicians" />
-            <End Role="Lineups" EntitySet="Lineups" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Lineups_Performers" Association="MusCatModel.FK_Lineups_Performers">
-            <End Role="Performers" EntitySet="Performers" />
-            <End Role="Lineups" EntitySet="Lineups" />
-          </AssociationSet>
-          <AssociationSet Name="PerformerGenres" Association="MusCatModel.PerformerGenres">
-            <End Role="Genres" EntitySet="Genres" />
-            <End Role="Performers" EntitySet="Performers" />
-          </AssociationSet>
-          <FunctionImport Name="DeleteAlbumByID">
-            <Parameter Name="Original_AID" Mode="In" Type="Int32" />
-          </FunctionImport>
-          <FunctionImport Name="DeletePerformerByID">
-            <Parameter Name="Original_PID" Mode="In" Type="Int32" />
-          </FunctionImport>
-          <FunctionImport Name="UpdateAlbumsWithoutTime" />
-        </EntityContainer>
+      <Schema Namespace="MusCatModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityType Name="Album">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="PerformerID" Type="Int64" Nullable="false" />
           <Property Name="ID" Type="Int64" Nullable="false" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="40" Unicode="false" FixedLength="false" />
+          <Property Name="Name" Type="String" MaxLength="40" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ReleaseYear" Type="Int16" Nullable="false" />
-          <Property Name="TotalTime" Type="String" MaxLength="6" Unicode="false" FixedLength="false" />
-          <Property Name="Info" Type="String" MaxLength="Max" Unicode="false" FixedLength="false" />
+          <Property Name="TotalTime" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="Info" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="Rate" Type="Byte" />
-          <NavigationProperty Name="Performer" Relationship="MusCatModel.FK_Albums_Performers" FromRole="Albums" ToRole="Performers" />
-          <NavigationProperty Name="Songs" Relationship="MusCatModel.FK_Songs_Albums" FromRole="Albums" ToRole="Songs" />
+          <NavigationProperty Name="Performer" Relationship="Self.FK_Albums_Performers" FromRole="Albums" ToRole="Performers" />
+          <NavigationProperty Name="Songs" Relationship="Self.FK_Songs_Albums" FromRole="Albums" ToRole="Songs" />
         </EntityType>
         <EntityType Name="Country">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="Byte" Nullable="false" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="20" Unicode="false" FixedLength="false" />
-          <NavigationProperty Name="Performers" Relationship="MusCatModel.FK_Performers_Countries" FromRole="Countries" ToRole="Performers" />
+          <Property Name="Name" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Performers" Relationship="Self.FK_Performers_Countries" FromRole="Countries" ToRole="Performers" />
         </EntityType>
         <EntityType Name="Genre">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="Byte" Nullable="false" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="25" Unicode="false" FixedLength="false" />
-          <NavigationProperty Name="Performers" Relationship="MusCatModel.PerformerGenres" FromRole="Genres" ToRole="Performers" />
+          <Property Name="Name" Type="String" MaxLength="25" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Performers" Relationship="Self.PerformerGenres" FromRole="Genres" ToRole="Performers" />
         </EntityType>
         <EntityType Name="Lineup">
           <Key>
@@ -305,33 +258,33 @@
           <Property Name="MusicianID" Type="Int64" Nullable="false" />
           <Property Name="YearStart" Type="Int16" />
           <Property Name="YearEnd" Type="Int16" />
-          <NavigationProperty Name="Musician" Relationship="MusCatModel.FK_Lineups_Musicians" FromRole="Lineups" ToRole="Musicians" />
-          <NavigationProperty Name="Performer" Relationship="MusCatModel.FK_Lineups_Performers" FromRole="Lineups" ToRole="Performers" />
+          <NavigationProperty Name="Musician" Relationship="Self.FK_Lineups_Musicians" FromRole="Lineups" ToRole="Musicians" />
+          <NavigationProperty Name="Performer" Relationship="Self.FK_Lineups_Performers" FromRole="Lineups" ToRole="Performers" />
         </EntityType>
         <EntityType Name="Musician">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="40" Unicode="false" FixedLength="false" />
-          <Property Name="Info" Type="String" MaxLength="Max" Unicode="false" FixedLength="false" />
+          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="40" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Info" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="YearBorn" Type="Int16" />
           <Property Name="YearDied" Type="Int16" />
           <Property Name="PerformerID" Type="Int64" />
-          <NavigationProperty Name="Lineups" Relationship="MusCatModel.FK_Lineups_Musicians" FromRole="Musicians" ToRole="Lineups" />
+          <NavigationProperty Name="Lineups" Relationship="Self.FK_Lineups_Musicians" FromRole="Musicians" ToRole="Lineups" />
         </EntityType>
         <EntityType Name="Performer">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="Int64" Nullable="false" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="30" Unicode="false" FixedLength="false" />
-          <Property Name="Info" Type="String" MaxLength="Max" Unicode="false" FixedLength="false" />
+          <Property Name="Name" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Info" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="CountryID" Type="Byte" />
-          <NavigationProperty Name="Albums" Relationship="MusCatModel.FK_Albums_Performers" FromRole="Performers" ToRole="Albums" />
-          <NavigationProperty Name="Country" Relationship="MusCatModel.FK_Performers_Countries" FromRole="Performers" ToRole="Countries" />
-          <NavigationProperty Name="Lineups" Relationship="MusCatModel.FK_Lineups_Performers" FromRole="Performers" ToRole="Lineups" />
-          <NavigationProperty Name="Genres" Relationship="MusCatModel.PerformerGenres" FromRole="Performers" ToRole="Genres" />
+          <NavigationProperty Name="Albums" Relationship="Self.FK_Albums_Performers" FromRole="Performers" ToRole="Albums" />
+          <NavigationProperty Name="Country" Relationship="Self.FK_Performers_Countries" FromRole="Performers" ToRole="Countries" />
+          <NavigationProperty Name="Lineups" Relationship="Self.FK_Lineups_Performers" FromRole="Performers" ToRole="Lineups" />
+          <NavigationProperty Name="Genres" Relationship="Self.PerformerGenres" FromRole="Performers" ToRole="Genres" />
         </EntityType>
         <EntityType Name="Song">
           <Key>
@@ -340,16 +293,16 @@
           <Property Name="AlbumID" Type="Int64" Nullable="false" />
           <Property Name="ID" Type="Int64" Nullable="false" />
           <Property Name="TrackNo" Type="Byte" Nullable="false" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
-          <Property Name="TimeLength" Type="String" Nullable="false" MaxLength="6" Unicode="false" FixedLength="false" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="TimeLength" Type="String" MaxLength="6" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="Rate" Type="Byte" />
-          <NavigationProperty Name="Album" Relationship="MusCatModel.FK_Songs_Albums" FromRole="Songs" ToRole="Albums" />
+          <NavigationProperty Name="Album" Relationship="Self.FK_Songs_Albums" FromRole="Songs" ToRole="Albums" />
         </EntityType>
         <Association Name="FK_Albums_Performers">
-          <End Role="Performers" Type="MusCatModel.Performer" Multiplicity="1">
+          <End Role="Performers" Type="Self.Performer" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="Albums" Type="MusCatModel.Album" Multiplicity="*" />
+          <End Role="Albums" Type="Self.Album" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Performers">
               <PropertyRef Name="ID" />
@@ -360,10 +313,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Songs_Albums">
-          <End Role="Albums" Type="MusCatModel.Album" Multiplicity="1">
+          <End Role="Albums" Type="Self.Album" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="Songs" Type="MusCatModel.Song" Multiplicity="*" />
+          <End Role="Songs" Type="Self.Song" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Albums">
               <PropertyRef Name="ID" />
@@ -374,8 +327,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Performers_Countries">
-          <End Role="Countries" Type="MusCatModel.Country" Multiplicity="0..1" />
-          <End Role="Performers" Type="MusCatModel.Performer" Multiplicity="*" />
+          <End Role="Countries" Type="Self.Country" Multiplicity="0..1" />
+          <End Role="Performers" Type="Self.Performer" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Countries">
               <PropertyRef Name="ID" />
@@ -386,10 +339,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Lineups_Musicians">
-          <End Role="Musicians" Type="MusCatModel.Musician" Multiplicity="1">
+          <End Role="Musicians" Type="Self.Musician" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="Lineups" Type="MusCatModel.Lineup" Multiplicity="*" />
+          <End Role="Lineups" Type="Self.Lineup" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Musicians">
               <PropertyRef Name="ID" />
@@ -400,10 +353,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Lineups_Performers">
-          <End Role="Performers" Type="MusCatModel.Performer" Multiplicity="1">
+          <End Role="Performers" Type="Self.Performer" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="Lineups" Type="MusCatModel.Lineup" Multiplicity="*" />
+          <End Role="Lineups" Type="Self.Lineup" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Performers">
               <PropertyRef Name="ID" />
@@ -414,9 +367,42 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="PerformerGenres">
-          <End Role="Genres" Type="MusCatModel.Genre" Multiplicity="*" />
-          <End Role="Performers" Type="MusCatModel.Performer" Multiplicity="*" />
+          <End Role="Genres" Type="Self.Genre" Multiplicity="*" />
+          <End Role="Performers" Type="Self.Performer" Multiplicity="*" />
         </Association>
+        <EntityContainer Name="MusCatEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Albums" EntityType="Self.Album" />
+          <EntitySet Name="Countries" EntityType="Self.Country" />
+          <EntitySet Name="Genres" EntityType="Self.Genre" />
+          <EntitySet Name="Lineups" EntityType="Self.Lineup" />
+          <EntitySet Name="Musicians" EntityType="Self.Musician" />
+          <EntitySet Name="Performers" EntityType="Self.Performer" />
+          <EntitySet Name="Songs" EntityType="Self.Song" />
+          <AssociationSet Name="FK_Albums_Performers" Association="Self.FK_Albums_Performers">
+            <End Role="Performers" EntitySet="Performers" />
+            <End Role="Albums" EntitySet="Albums" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Songs_Albums" Association="Self.FK_Songs_Albums">
+            <End Role="Albums" EntitySet="Albums" />
+            <End Role="Songs" EntitySet="Songs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Performers_Countries" Association="Self.FK_Performers_Countries">
+            <End Role="Countries" EntitySet="Countries" />
+            <End Role="Performers" EntitySet="Performers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Lineups_Musicians" Association="Self.FK_Lineups_Musicians">
+            <End Role="Musicians" EntitySet="Musicians" />
+            <End Role="Lineups" EntitySet="Lineups" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Lineups_Performers" Association="Self.FK_Lineups_Performers">
+            <End Role="Performers" EntitySet="Performers" />
+            <End Role="Lineups" EntitySet="Lineups" />
+          </AssociationSet>
+          <AssociationSet Name="PerformerGenres" Association="Self.PerformerGenres">
+            <End Role="Genres" EntitySet="Genres" />
+            <End Role="Performers" EntitySet="Performers" />
+          </AssociationSet>
+        </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -504,9 +490,6 @@
               <ScalarProperty Name="ID" ColumnName="PerformerID" />
             </EndProperty>
           </AssociationSetMapping>
-          <FunctionImportMapping FunctionImportName="DeleteAlbumByID" FunctionName="MusCatModel.Store.DeleteAlbumByID" />
-          <FunctionImportMapping FunctionImportName="DeletePerformerByID" FunctionName="MusCatModel.Store.DeletePerformerByID" />
-          <FunctionImportMapping FunctionImportName="UpdateAlbumsWithoutTime" FunctionName="MusCatModel.Store.UpdateAlbumsWithoutTime" />
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
@@ -521,8 +504,9 @@
     <Options>
       <DesignerInfoPropertySet>
         <DesignerProperty Name="ValidateOnBuild" Value="true" />
-        <DesignerProperty Name="EnablePluralization" Value="False" />
-        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="true" />
         <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
       </DesignerInfoPropertySet>
     </Options>

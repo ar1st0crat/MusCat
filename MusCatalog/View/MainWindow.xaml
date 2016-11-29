@@ -12,7 +12,7 @@
     <Window.Background>
         <LinearGradientBrush>
             <GradientStop Color="#001122" Offset="0" />
-            <GradientStop Color="#ffffff" Offset="2" />
+            <GradientStop Color="#ff77bb" Offset="2.5" />
         </LinearGradientBrush>
     </Window.Background>
     
@@ -56,52 +56,6 @@
         <converters:AlbumCountConverter x:Key="AlbumCountConverter"/>
         <converters:YearsConverter x:Key="YearsConverter"/>
 
-        <!-- custom style of scroll bars (horizontal and vertical) -->
-        <Style x:Key="ScrollBarThumbStyle" TargetType="{x:Type Thumb}">
-            <Setter Property="IsTabStop" Value="False"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Thumb}">
-                        <Ellipse Fill="OldLace" Margin="2" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <ControlTemplate x:Key="VerticalScrollBar" TargetType="{x:Type ScrollBar}">
-            <Track Name="PART_Track" IsDirectionReversed="True">
-                <Track.Thumb>
-                    <Thumb Style="{StaticResource ScrollBarThumbStyle}" />
-                </Track.Thumb>
-            </Track>
-        </ControlTemplate>
-
-        <ControlTemplate x:Key="HorizontalScrollBar" TargetType="{x:Type ScrollBar}">
-            <Track Name="PART_Track">
-                <Track.Thumb>
-                    <Thumb Style="{StaticResource ScrollBarThumbStyle}" />
-                </Track.Thumb>
-            </Track>
-        </ControlTemplate>
-
-        <Style TargetType="ScrollBar">
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="OverridesDefaultStyle" Value="true"/>
-            <Style.Triggers>
-                <Trigger Property="Orientation" Value="Horizontal">
-                    <Setter Property="Width" Value="Auto"/>
-                    <Setter Property="Height" Value="12" />
-                    <Setter Property="Template" Value="{StaticResource HorizontalScrollBar}" />
-                </Trigger>
-                <Trigger Property="Orientation" Value="Vertical">
-                    <Setter Property="Width" Value="12"/>
-                    <Setter Property="Height" Value="Auto" />
-                    <Setter Property="Template" Value="{StaticResource VerticalScrollBar}" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
         <!-- menu items style -->
         <Style TargetType="{x:Type MenuItem}">
             <Setter Property="Foreground" Value="Black" />
@@ -112,7 +66,6 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
 
         <!-- style for an album rate textblock: we show "Not rated" only if the rate is null;
              otherwise, the textblock is hidden and the 5-star panel is visible -->
@@ -137,23 +90,33 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" 
-                               TextWrapping="WrapWithOverflow" FontSize="12" Foreground="Black" FontFamily="Segoe UI" Margin="0,-1,0,-1"
-                               Text="{Binding Path=Album.ID, StringFormat=#{0}}"/>
-                    <Image Grid.Row="1" VerticalAlignment="Top" Margin="5"
+                               Text="{Binding Path=Album.ID, StringFormat=#{0}}"
+                               TextWrapping="WrapWithOverflow" 
+                               FontSize="12" FontFamily="Segoe UI" 
+                               Foreground="Black" 
+                               Margin="0,-1,0,-1" />
+                    <Image Grid.Row="1" 
+                           Source="{Binding Path=Album, Converter={StaticResource PhotoConverter}, ConverterParameter={StaticResource AlbumImageHeight}, UpdateSourceTrigger=PropertyChanged}"
                            Height="{StaticResource AlbumImageHeight}" Width="{StaticResource AlbumImageWidth}"
-                           Source="{Binding Path=Album, Converter={StaticResource PhotoConverter}, ConverterParameter={StaticResource AlbumImageHeight}, UpdateSourceTrigger=PropertyChanged}">
+                           VerticalAlignment="Top" 
+                           Margin="5">
                         <Image.Effect>
                             <DropShadowEffect Color="Black" BlurRadius="15"/>
                         </Image.Effect>
                     </Image>
-                    <TextBlock Grid.Row="2" Margin="1" Width="150"
+                    <TextBlock Grid.Row="2" 
                                Text="{Binding Path=Album.Name}"
-                               VerticalAlignment="Center" TextAlignment="Center" TextWrapping="WrapWithOverflow"
-                               FontSize="14" Foreground="Black" FontFamily="Segoe UI"/>
-                    <TextBlock Grid.Row="3" Margin="1,1,1,3" Width="110"
+                               TextAlignment="Center" TextWrapping="WrapWithOverflow"
+                               VerticalAlignment="Center" 
+                               Margin="1" Width="150"
+                               FontSize="14" FontFamily="Segoe UI"
+                               Foreground="LightYellow" />
+                    <TextBlock Grid.Row="3" 
                                Text="{Binding Path=Album.ReleaseYear}"
                                TextWrapping="WrapWithOverflow" TextAlignment="Center"
-                               FontSize="12" Foreground="DarkGreen" FontFamily="Segoe UI"/>
+                               Margin="1" Width="110"
+                               FontSize="12" FontFamily="Segoe UI"
+                               Foreground="#ffbb88" />
                     <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
                         <controls:RateStarsControl Height="20" Width="100" Rate="{Binding Path=Album.Rate}" IsEnabled="False" />
                         <StackPanel.Style>
@@ -178,7 +141,7 @@
         <Style TargetType="{x:Type ListBoxItem}" x:Key="AlbumContainerStyle">
             <Setter Property="ContentTemplate" Value="{StaticResource AlbumTemplate}" />
             <Style.Resources>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="LightBlue"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="LightYellow"/>
             </Style.Resources>
         </Style>
 
@@ -194,7 +157,7 @@
         <!-- performer template (not selected by user) -->
         <DataTemplate x:Key="PerformerTemplate">
             <StackPanel Orientation="Horizontal">
-                <!-- uncomment this if you want performer's photo to be show as rectangle  -->
+                <!-- uncomment this if you want performer's photo to be shown as rectangle  -->
                 <!--
                 <Image Height="{StaticResource PerformerPhotoHeight}" Width="{StaticResource PerformerPhotoWidth}" Margin="15,10,15,25" 
                        Source="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
@@ -232,9 +195,11 @@
 
         <!-- when performer is selected by user, the country of origin and the list of albums are additionally shown -->
         <DataTemplate x:Key="SelectedPerformerTemplate">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+            <Grid>
+            <Rectangle RadiusX="7" RadiusY="7" Fill="#ffddee" Margin="5" Opacity="0.5" Grid.Column="0" />
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Background="Transparent" Grid.Column="0">
                 <StackPanel Margin="5,5,35,5" HorizontalAlignment="Center">
-                    <!-- uncomment this if you want performer's photo to be show as rectangle  -->
+                    <!-- uncomment this if you want performer's photo to be shown as rectangle  -->
                     <!--
                     <Image Height="{StaticResource SelectedPerformerPhotoHeight}" Width="{StaticResource SelectedPerformerPhotoWidth}" Margin="15,10,15,5"
                            Source="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
@@ -272,12 +237,14 @@
                             </StackPanel>
                         </StackPanel>
                 </StackPanel>
-                <ListBox x:Name="SelectedAlbums" Background="OldLace"
+                <ListBox x:Name="SelectedAlbums"
                          ItemsSource="{Binding Path=Albums}"                        
                          ItemContainerStyle="{StaticResource AlbumContainerStyle}"
                          SelectedItem="{Binding Path=SelectedAlbum}"
                          Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext}"
-                         HorizontalAlignment="Stretch" BorderThickness="0">
+                         HorizontalAlignment="Stretch" 
+                         Background="Transparent"
+                         BorderThickness="0">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal" IsItemsHost="True" />
@@ -302,19 +269,32 @@
                     </ListBox.ContextMenu>
                 </ListBox>
             </StackPanel>
+            </Grid>
         </DataTemplate>
         
         <!-- performer style -->
         <Style TargetType="{x:Type ListBoxItem}" x:Key="PerformerContainerStyle">
             <Setter Property="ContentTemplate" Value="{StaticResource PerformerTemplate}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Grid>
+                            <Border x:Name="Border" Background="Transparent"/>
+                            <ContentPresenter></ContentPresenter>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="ListBoxItem.IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="BorderThickness" Value="0" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="ContentTemplate" Value="{StaticResource SelectedPerformerTemplate}" />
                 </Trigger>
             </Style.Triggers>
-            <Style.Resources>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="OldLace" />
-            </Style.Resources>
         </Style>
     </Window.Resources>
     
@@ -359,8 +339,11 @@
                  ItemContainerStyle="{StaticResource PerformerContainerStyle}"
                  IsSynchronizedWithCurrentItem="False"
                  SelectedItem="{Binding Path=SelectedPerformer}"
-                 Width="auto" HorizontalAlignment="Stretch" 
-                 BorderThickness="0" Background="Transparent">
+                 Width="auto" 
+                 HorizontalAlignment="Stretch" 
+                 HorizontalContentAlignment="Stretch" 
+                 BorderThickness="0" 
+                 Background="Transparent">
             <ListBox.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="View..." Command="{Binding Path=ViewPerformerCommand}">
@@ -381,17 +364,27 @@
             <Expander ExpandDirection="Right">
                 <WrapPanel>
                     <Label Content="Find performer" Foreground="White" FontSize="14" />
-                    <TextBox x:Name="PerformerSearch" Text="{Binding Path=PerformerPattern, UpdateSourceTrigger=PropertyChanged}"
-                             Width="120" Margin="10,0,3,0" FontFamily="Stencil" FontSize="14" Height="20" />
-                    <Button Command="{Binding PerformerSearchCommand}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
-                            BorderBrush="Transparent" Background="Transparent" Margin="0,0,10,0">
+                    <TextBox x:Name="PerformerSearch" 
+                             Text="{Binding Path=PerformerPattern, UpdateSourceTrigger=PropertyChanged}"
+                             Width="120" Height="20"
+                             Margin="10,0,3,0" 
+                             FontFamily="Stencil" FontSize="14" />
+                    <Button Command="{Binding PerformerSearchCommand}" 
+                            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
+                            BorderBrush="Transparent" Background="Transparent" 
+                            Margin="0,0,10,0">
                         <Image Source="{StaticResource ImagePlayButton}" Height="25"/>
                     </Button>
                     <Label Content="Find album" Foreground="White" FontSize="14" />
-                    <TextBox x:Name="AlbumSearch" Text="{Binding AlbumPattern, UpdateSourceTrigger=PropertyChanged}"
-                             Width="120" Margin="10,0,3,0" FontFamily="Stencil" FontSize="14" Height="20" />
-                    <Button Command="{Binding AlbumSearchCommand}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
-                            BorderBrush="Transparent" Background="Transparent" Margin="0,0,10,0">
+                    <TextBox x:Name="AlbumSearch" 
+                             Text="{Binding AlbumPattern, UpdateSourceTrigger=PropertyChanged}"
+                             Width="120" Height="20"
+                             Margin="10,0,3,0" 
+                             FontFamily="Stencil" FontSize="14" />
+                    <Button Command="{Binding AlbumSearchCommand}" 
+                            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
+                            BorderBrush="Transparent" Background="Transparent" 
+                            Margin="0,0,10,0">
                         <Image Source="{StaticResource ImagePlayButton}" Height="25"/>
                     </Button>
                 </WrapPanel>

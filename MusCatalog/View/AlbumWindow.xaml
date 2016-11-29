@@ -59,7 +59,7 @@
                             Value="{Binding Path=PlaybackPercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             Width="300" VerticalAlignment="Center">
                         <!-- this code was added only to follow the pure MVVM -->
-                        <!-- th triggers aren't necessary: we could add only one simple handler of the Thumb.DragCompleted event -->
+                        <!-- the triggers aren't necessary: we could add only one simple handler of the Thumb.DragCompleted event -->
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="ValueChanged">
                                 <i:InvokeCommandAction Command="{Binding Path=SeekPlaybackPositionCommand}"/>
@@ -78,14 +78,26 @@
         
         <Style TargetType="{x:Type ListBoxItem}" x:Key="SongStyle">
             <Setter Property="ContentTemplate" Value="{StaticResource SongTemplate}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Grid HorizontalAlignment="Center">
+                            <Border x:Name="Border" Background="Transparent"/>
+                            <ContentPresenter></ContentPresenter>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="ListBoxItem.IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="BorderThickness" Value="0" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="ContentTemplate" Value="{StaticResource SelectedSongTemplate}" />
                 </Trigger>
             </Style.Triggers>
-            <Style.Resources>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
-            </Style.Resources>
         </Style>
     </Window.Resources>
     
@@ -131,14 +143,22 @@
                 </Label>
             </DockPanel>
             <StackPanel>
-                <TextBlock Text="{Binding Path=Album.Performer.Name}" TextWrapping="Wrap" TextAlignment="Center"
-                           FontFamily="Stencil" Foreground="AntiqueWhite" FontSize="22"
-                           HorizontalAlignment="Center" Margin="20,20,20,10" />
-                <TextBlock Text="{Binding Path=Album.Name}" TextWrapping="Wrap" TextAlignment="Center"
-                           FontFamily="Arial Narrow" Foreground="AntiqueWhite" FontSize="20" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Path=Album.Performer.Name}" 
+                           TextWrapping="Wrap" TextAlignment="Center"
+                           FontFamily="Stencil" FontSize="22"
+                           Foreground="AntiqueWhite" 
+                           Margin="20,20,20,10"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Path=Album.Name}" 
+                           TextWrapping="Wrap" TextAlignment="Center"
+                           FontFamily="Arial Narrow" FontSize="20"
+                           Foreground="AntiqueWhite"
+                           HorizontalAlignment="Center" />
                 <TextBlock Text="{Binding Path=Album.ReleaseYear}"
-                           FontFamily="Broadway" Foreground="AntiqueWhite" FontSize="18"
-                           HorizontalAlignment="Center" Margin="20,10,20,25"/>
+                           FontFamily="Broadway" FontSize="18"
+                           Foreground="AntiqueWhite"
+                           Margin="20,10,20,25"
+                           HorizontalAlignment="Center" />
             </StackPanel>
         </StackPanel>
         
@@ -149,7 +169,8 @@
                  IsSynchronizedWithCurrentItem="False"
                  HorizontalAlignment="Left" VerticalAlignment="Top"
                  HorizontalContentAlignment="Center"
-                 Margin="10,25,10,10" Padding="20,20,20,20"
+                 Margin="10,25,10,10" 
+                 Padding="20,20,20,20"
                  Width="auto" Height="auto"
                  BorderBrush="Transparent">
             <ListBox.Background>

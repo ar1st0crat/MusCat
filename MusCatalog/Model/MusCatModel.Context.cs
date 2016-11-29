@@ -12,9 +12,6 @@ namespace MusCatalog.Model
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
-    using System.Data.Objects;
-    using System.Data.Objects.DataClasses;
-    using System.Linq;
     
     public partial class MusCatEntities : DbContext
     {
@@ -35,28 +32,5 @@ namespace MusCatalog.Model
         public DbSet<Musician> Musicians { get; set; }
         public DbSet<Performer> Performers { get; set; }
         public DbSet<Song> Songs { get; set; }
-    
-        public virtual int DeleteAlbumByID(Nullable<int> original_AID)
-        {
-            var original_AIDParameter = original_AID.HasValue ?
-                new ObjectParameter("Original_AID", original_AID) :
-                new ObjectParameter("Original_AID", typeof(int));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("DeleteAlbumByID", original_AIDParameter);
-        }
-    
-        public virtual int DeletePerformerByID(Nullable<int> original_PID)
-        {
-            var original_PIDParameter = original_PID.HasValue ?
-                new ObjectParameter("Original_PID", original_PID) :
-                new ObjectParameter("Original_PID", typeof(int));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("DeletePerformerByID", original_PIDParameter);
-        }
-    
-        public virtual int UpdateAlbumsWithoutTime()
-        {
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("UpdateAlbumsWithoutTime");
-        }
     }
 }

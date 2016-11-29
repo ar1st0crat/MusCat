@@ -10,7 +10,6 @@
 namespace MusCatalog.Model
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Text.RegularExpressions;
 
@@ -20,7 +19,7 @@ namespace MusCatalog.Model
         private string name;
         private string timeLength;
         private byte? rate;
-        
+
         public long AlbumID { get; set; }
         public long ID { get; set; }
         public byte TrackNo
@@ -30,13 +29,13 @@ namespace MusCatalog.Model
             {
                 trackNo = value;
                 RaisePropertyChanged("TrackNo");
-            } 
+            }
         }
         public string Name
         {
             get { return name; }
             set
-            { 
+            {
                 name = value;
                 RaisePropertyChanged("Name");
             }
@@ -59,7 +58,7 @@ namespace MusCatalog.Model
                 RaisePropertyChanged("Rate");
             }
         }
-    
+
         public virtual Album Album { get; set; }
 
         #region INotifyPropertyChanged event and method
@@ -82,7 +81,7 @@ namespace MusCatalog.Model
         public string Error
         {
             get
-            { 
+            {
                 return this["Name"] + this["TimeLength"];
             }
         }

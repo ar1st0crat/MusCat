@@ -25,21 +25,23 @@
             <ColumnDefinition Width="420" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        
-        <StackPanel Grid.Column="0" Grid.Row="0">
-            <Image Source="{Binding Path=Performer, Converter={StaticResource PerformerPhotoConverter}, ConverterParameter={StaticResource PerformerPhotoWidth}}"
+
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <StackPanel Grid.Column="0" Grid.Row="0">
+                <Image Source="{Binding Path=Performer, Converter={StaticResource PerformerPhotoConverter}, ConverterParameter={StaticResource PerformerPhotoWidth}}"
                    HorizontalAlignment="Left" VerticalAlignment="Top"
                    Margin="10,20,0,0" Width="{StaticResource PerformerPhotoWidth}"/>
-            <Label Content="{Binding Performer.Name}" Foreground="White" FontFamily="Stencil" FontSize="28" HorizontalAlignment="Center"/>
-            <Label Content="{Binding Performer.Country.Name}" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
-            <ListBox ItemsSource="{Binding Performer.Styles}"
+                <Label Content="{Binding Performer.Name}" Foreground="White" FontFamily="Stencil" FontSize="28" HorizontalAlignment="Center"/>
+                <Label Content="{Binding Performer.Country.Name}" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
+                <ListBox ItemsSource="{Binding Performer.Styles}"
                      Background="Transparent" BorderBrush="Transparent">
-            </ListBox>
-            <Label Content="Lineup:" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
-            <ListBox ItemsSource="{Binding Performer.Lineups}"
+                </ListBox>
+                <Label Content="Lineup:" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
+                <ListBox ItemsSource="{Binding Performer.Lineups}"
                      Background="Transparent" BorderBrush="Transparent">
-            </ListBox>
-        </StackPanel>
+                </ListBox>
+            </StackPanel>
+        </ScrollViewer>
         <StackPanel Grid.Column="1">
             <!--
             <TextBox Text="{Binding Performer.Info}" Margin="15" MaxWidth="400"
