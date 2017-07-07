@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Data.Entity;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -44,21 +45,16 @@ namespace MusCatalog.ViewModel
             }
         }
 
-        public ObservableCollection<Song> Songs
-        {
-            get { return AlbumView.Songs; }
-        }
+        public ObservableCollection<Song> Songs => AlbumView.Songs;
         public Song SelectedSong { get; set; }
-
-        // bitmaps for stars
-        private static BitmapImage imageStar = App.Current.TryFindResource("ImageStar") as BitmapImage;
-        private static BitmapImage imageHalfStar = App.Current.TryFindResource("ImageHalfStar") as BitmapImage;
-        private static BitmapImage imageEmptyStar = App.Current.TryFindResource("ImageEmptyStar") as BitmapImage;
 
         public ObservableCollection<string> ReleaseYearsCollection { get; set; }
 
+        private const int StartingYear = 1900;
+        private const int EndingYear = 2050;
+
         #region Commands
-        
+
         public RelayCommand ParseMp3Command { get; private set; }
         public RelayCommand FixNamesCommand { get; private set; }
         public RelayCommand FixTimesCommand { get; private set; }
@@ -92,7 +88,7 @@ namespace MusCatalog.ViewModel
 
             // fill combobox with release years
             ReleaseYearsCollection = new ObservableCollection<string>();
-            for (int i = 1900; i < 2051; i++)
+            for (var i = StartingYear; i < EndingYear; i++)
             {
                 ReleaseYearsCollection.Add(i.ToString());
             }
@@ -106,42 +102,49 @@ namespace MusCatalog.ViewModel
                 return;
             }
 
-            Mp3Parser parser = new Mp3Parser();
+            var parser = new Mp3Parser();
             parser.ParseMp3Collection(fbd.SelectedPath, Album, Songs);
             AlbumTotalTime = parser.FixTimes(Songs);
         }
 
         public void SaveSong()
         {
-            if (SelectedSong != null)
+            if (SelectedSong == null)
             {
-                if (SelectedSong.Error != "")
-                {
-                    MessageBox.Show("Invalid data!");
-                    return;
-                }
-                using (var context = new MusCatEntities())
-                {
-                    context.Entry(context.Songs.Find(SelectedSong.ID)).CurrentValues.SetValues(SelectedSong);
-                    context.SaveChanges();
-                }
+                return;
+            }
+
+            if (SelectedSong.Error != "")
+            {
+                MessageBox.Show("Invalid data!");
+                return;
+            }
+
+            using (var context = new MusCatEntities())
+            {
+                context.Entry(context.Songs.Find(SelectedSong.ID))
+                       .CurrentValues
+                       .SetValues(SelectedSong);
+                context.SaveChanges();
             }
         }
 
         public void DeleteSong()
         {
             if (MessageBox.Show(string.Format("Are you sure you want to delete the song\n'{0}'\nby '{1}'?",
-                                            SelectedSong.Name, SelectedSong.Album.Performer.Name),
-                                            "Confirmation",
-                                            MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                                    SelectedSong.Name, SelectedSong.Album.Performer.Name),
+                                    "Confirmation",
+                                    MessageBoxButton.YesNo) != MessageBoxResult.Yes)
             {
-                using (var context = new MusCatEntities())
-                {
-                    context.Songs.Remove(context.Songs.SingleOrDefault(x => x.ID == SelectedSong.ID));
-                    context.SaveChanges();
+                return;
+            }
 
-                    Songs.Remove(SelectedSong);
-                }
+            using (var context = new MusCatEntities())
+            {
+                context.Songs.Remove(context.Songs.SingleOrDefault(x => x.ID == SelectedSong.ID));
+                context.SaveChanges();
+
+                Songs.Remove(SelectedSong);
             }
         }
 
@@ -153,36 +156,40 @@ namespace MusCatalog.ViewModel
             {
                 newTrackNo = (byte)(Songs.LastOrDefault().TrackNo + 1);
             }
-            Songs.Add(new Song { ID = -1, TrackNo = newTrackNo, AlbumID = Album.ID });
+
+            Songs.Add(new Song
+            {
+                ID = -1, TrackNo = newTrackNo, AlbumID = Album.ID
+            });
         }
 
         public void SaveAlbumInformation()
         {
             using (var context = new MusCatEntities())
             {
-                context.Entry(Album).State = System.Data.EntityState.Modified;
+                context.Entry(Album).State = EntityState.Modified;
                 context.SaveChanges();
             }
         }
 
         public void FixNames()
         {
-            Mp3Parser parser = new Mp3Parser();
+            var parser = new Mp3Parser();
             parser.FixNames(Songs);
         }
 
         public void FixTimes()
         {
-            Mp3Parser parser = new Mp3Parser();
+            var parser = new Mp3Parser();
             AlbumTotalTime = parser.FixTimes( Songs );
         }
 
         public void ClearAll()
         {
             if (MessageBox.Show(string.Format("Are you sure you want to delete all songs in the album\n '{0}' \nby '{1}'?",
-                                            Album.Name, Album.Performer.Name),
-                                            "Confirmation",
-                                            MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                                    Album.Name, Album.Performer.Name),
+                                    "Confirmation",
+                                    MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 Songs.Clear();
             }
@@ -201,10 +208,10 @@ namespace MusCatalog.ViewModel
                     }
                     else
                     {
-                        // check validness of song data
+                        // check validity of song data
                         if (song.Error != "")
                         {
-                            MessageBox.Show(String.Format("Invalid data in song {0}!", song.TrackNo));
+                            MessageBox.Show(string.Format("Invalid data in song {0}!", song.TrackNo));
                             continue;
                         }
                         context.Entry(context.Songs.Find(song.ID)).CurrentValues.SetValues(song);
@@ -216,18 +223,18 @@ namespace MusCatalog.ViewModel
 
         public string ChooseImageSavePath()
         {
-            var filepaths = FileLocator.MakePathImageAlbum(Album);
+            var filepaths = FileLocator.MakeAlbumImagePathlist(Album);
 
-            if (filepaths.Count > 1)
+            if (filepaths.Count == 0)
             {
-                ChoiceWindow choice = new ChoiceWindow();
-                choice.SetChoiceList(filepaths);
-                choice.ShowDialog();
-
-                return choice.ChoiceResult;
+                return filepaths[0];
             }
 
-            return filepaths[0];
+            var choice = new ChoiceWindow();
+            choice.SetChoiceList(filepaths);
+            choice.ShowDialog();
+
+            return choice.ChoiceResult;
         }
 
         public void PrepareFileForSaving(string filepath)
@@ -250,7 +257,7 @@ namespace MusCatalog.ViewModel
                 return;
             }
 
-            string filepath = ChooseImageSavePath();
+            var filepath = ChooseImageSavePath();
             if (filepath == null)
             {
                 return;
@@ -263,7 +270,7 @@ namespace MusCatalog.ViewModel
 
                 using (var fileStream = new FileStream(filepath, FileMode.CreateNew))
                 {
-                    BitmapEncoder encoder = new JpegBitmapEncoder();
+                    var encoder = new JpegBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(image));
                     encoder.Save(fileStream);
                 }
@@ -279,29 +286,31 @@ namespace MusCatalog.ViewModel
 
         public void LoadAlbumImageFromFile()
         {
-            OpenFileDialog ofd = new OpenFileDialog();
+            var ofd = new OpenFileDialog();
             var result = ofd.ShowDialog();
-            if (result.HasValue && result.Value == true)
+            if (!result.HasValue || result.Value != true)
             {
-                string filepath = ChooseImageSavePath();
-                if (filepath == null)
-                {
-                    return;
-                }
-
-                try
-                {
-                    PrepareFileForSaving(filepath);
-                    File.Copy(ofd.FileName, filepath);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-
-                RaisePropertyChanged("Album");
-                AlbumView.RaisePropertyChanged("Album");
+                return;
             }
+
+            var filepath = ChooseImageSavePath();
+            if (filepath == null)
+            {
+                return;
+            }
+
+            try
+            {
+                PrepareFileForSaving(filepath);
+                File.Copy(ofd.FileName, filepath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            RaisePropertyChanged("Album");
+            AlbumView.RaisePropertyChanged("Album");
         }
 
         #region INotifyPropertyChanged event and method
@@ -330,11 +339,12 @@ namespace MusCatalog.ViewModel
         {
             get 
             {
-                string error = string.Empty;
+                var error = string.Empty;
+
                 switch (columnName)
                 {
                     case "AlbumTotalTime":
-                        Regex regex = new Regex(@"^\d+:\d{2}$");
+                        var regex = new Regex(@"^\d+:\d{2}$");
                         if (!regex.IsMatch(AlbumTotalTime))
                         {
                             error = "Total time should be in the format mm:ss";

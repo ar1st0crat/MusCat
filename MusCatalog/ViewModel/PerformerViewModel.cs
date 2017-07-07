@@ -10,7 +10,7 @@ namespace MusCatalog.ViewModel
 
         private byte? albumCollectionRate;
         public byte? AlbumCollectionRate
-        { 
+        {
             get { return albumCollectionRate; }
             set
             {
@@ -21,7 +21,7 @@ namespace MusCatalog.ViewModel
 
         private int albumCount;
         public int AlbumCount
-        { 
+        {
             get { return albumCount; }
             set
             {

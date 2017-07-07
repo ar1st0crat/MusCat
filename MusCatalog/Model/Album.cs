@@ -9,14 +9,13 @@
 
 namespace MusCatalog.Model
 {
-    using System;
     using System.Collections.Generic;
-    
+
     public partial class Album
     {
         public Album()
         {
-            this.Songs = new HashSet<Song>();
+            Songs = new HashSet<Song>();
         }
     
         public long PerformerID { get; set; }
@@ -25,7 +24,7 @@ namespace MusCatalog.Model
         public short ReleaseYear { get; set; }
         public string TotalTime { get; set; }
         public string Info { get; set; }
-        public Nullable<byte> Rate { get; set; }
+        public byte? Rate { get; set; }
     
         public virtual Performer Performer { get; set; }
         public virtual ICollection<Song> Songs { get; set; }

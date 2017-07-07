@@ -4,13 +4,16 @@
         Title="ChoiceWindow"
         Height="300" Width="300">
     <StackPanel>
-        <TextBlock Text="Please choose one of the following possible paths. The folder will be created automatically" TextWrapping="Wrap" TextAlignment="Center"
+        <TextBlock Text="Please choose one of the following possible paths. The folder will be created automatically"
+                   TextWrapping="Wrap" TextAlignment="Center"
                    Margin="10,20,10,10"/>
-        <ListBox x:Name="ChoiseListBox" ItemsSource="{Binding}" Margin="10,10,10,10" />
+        <ListBox x:Name="ChoiseListBox"
+                 ItemsSource="{Binding}"
+                 Margin="10,10,10,10" />
         <DockPanel Margin="10,10,10,20">
             <Button Height="50" Width="130"
                     Foreground="White" Background="Indigo" 
-                    Click="OKButtonClick">
+                    Click="OkButtonClick">
                 <TextBlock>OK</TextBlock>
             </Button>
             <Button Height="50" Width="140" DockPanel.Dock="Right"

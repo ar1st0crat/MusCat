@@ -13,7 +13,7 @@ namespace MusCatalog.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            byte? rate = value as Nullable<byte>;
+            var rate = value as byte?;
 
             if (rate.HasValue)
             {
@@ -25,21 +25,16 @@ namespace MusCatalog.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string val = value.ToString();
-            byte converted = 0;
-            if (val.Contains('/'))
+            var rate = value.ToString();
+            
+            if (rate.Contains('/'))
             {
-                val = val.Substring(0, val.IndexOf('/'));
+                rate = rate.Substring(0, rate.IndexOf('/'));
             }
 
-            if (byte.TryParse(val, out converted))
-            {
-                return converted;
-            }
-            else
-            {
-                return 0;
-            }
+            byte parsedRate;
+
+            return byte.TryParse(rate, out parsedRate) ? parsedRate : 0;
         }
     }
 }

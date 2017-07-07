@@ -11,13 +11,16 @@ namespace MusCatalog.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            int albumCount = (int)value;
+            var albumCount = (int)value;
 
             switch (albumCount)
             {
-                case 0: return "No albums";
-                case 1: return "1 album";
-                default: return albumCount + " albums";
+                case 0:
+                    return "No albums";
+                case 1:
+                    return "1 album";
+                default:
+                    return albumCount + " albums";
             }
         }
 

@@ -9,22 +9,21 @@
 
 namespace MusCatalog.Model
 {
-    using System;
     using System.Collections.Generic;
     
     public partial class Musician
     {
         public Musician()
         {
-            this.Lineups = new HashSet<Lineup>();
+            Lineups = new HashSet<Lineup>();
         }
     
         public long ID { get; set; }
         public string Name { get; set; }
         public string Info { get; set; }
-        public Nullable<short> YearBorn { get; set; }
-        public Nullable<short> YearDied { get; set; }
-        public Nullable<long> PerformerID { get; set; }
+        public short? YearBorn { get; set; }
+        public short? YearDied { get; set; }
+        public long? PerformerID { get; set; }
     
         public virtual ICollection<Lineup> Lineups { get; set; }
     }

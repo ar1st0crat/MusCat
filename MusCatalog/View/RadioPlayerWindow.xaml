@@ -52,17 +52,20 @@
             </Grid.ColumnDefinitions>
             
             <!-- The panel of a previous song in radio tracklist -->
-            <StackPanel DataContext="{Binding PreviousSong}" Grid.Column="0"
-                        VerticalAlignment="Center" Margin="15,60,15,60">
+            <StackPanel Grid.Column="0"
+                        DataContext="{Binding PreviousSong}" 
+                        VerticalAlignment="Center"
+                        Margin="15,60,15,60">
                 <Label Content="Previous" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
                 <!-- The cover of an album containing previous song in radio tracklist -->
-                <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter}, ConverterParameter={StaticResource AlbumImageHeight}}"
+                <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter},
+                                                    ConverterParameter={StaticResource AlbumImageHeight}}"
                        Height="{StaticResource AlbumImageHeight}">
                     <!-- The album cover is clickable -->
                     <Image.InputBindings>
                         <MouseBinding Gesture="LeftClick"
                                       Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
-                                                Path=DataContext.PreviousSongCommand}" />
+                                                        Path=DataContext.PreviousSongCommand}" />
                     </Image.InputBindings>
                     <Image.Effect>
                         <DropShadowEffect Color="Black" BlurRadius="15"/>
@@ -70,13 +73,21 @@
                 </Image>
                 <!-- Text info regarding the performer and album of previous song in radio tracklist -->
                 <TextBlock Text="{Binding Path=Album.Performer.Name}"
-                           TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
-                           Foreground="White" FontSize="18" FontFamily="Stencil" Margin="3,12,3,3"/>
+                           TextWrapping="Wrap" TextAlignment="Center"
+                           HorizontalAlignment="Center"
+                           Foreground="White"
+                           FontSize="18" FontFamily="Stencil"
+                           Margin="3,12,3,3"/>
                 <TextBlock Text="{Binding Path=Album.Name}"
-                           TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
-                           Foreground="LightGreen" FontWeight="Bold" Margin="3"/>
+                           TextWrapping="Wrap" TextAlignment="Center"
+                           HorizontalAlignment="Center"
+                           Foreground="LightGreen"
+                           FontWeight="Bold"
+                           Margin="3"/>
                 <WrapPanel HorizontalAlignment="Center">
-                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Foreground="OldLace" Margin="5">
+                    <TextBlock TextWrapping="Wrap" TextAlignment="Center"
+                               Foreground="OldLace"
+                               Margin="5">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}{0} [{1}]">
                                 <Binding Path="Name" />
@@ -89,34 +100,41 @@
             
             <!-- The central panel of currently played song in radio tracklist -->
             <StackPanel Grid.Column="1">
-                <Label Content="Currently playing" FontSize="16" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
+                <Label Content="Currently playing"
+                       FontSize="16"
+                       Foreground="AntiqueWhite"
+                       HorizontalAlignment="Center"/>
                 <DockPanel HorizontalAlignment="Center">
                     <!-- Images in playback control panel -->
                     <Image Source="{Binding PlaybackImage, UpdateSourceTrigger=PropertyChanged}"
-                           Width="32" Margin="0,0,0,10">
+                           Width="32"
+                           Margin="0,0,0,10">
                         <Image.InputBindings>
                             <MouseBinding Gesture="LeftClick" Command="{Binding Path=PlaybackCommand}" />
                         </Image.InputBindings>
                     </Image>
                     <Image Source="{StaticResource ImageStopButton}"
-                           Width="32" Margin="0,0,0,10">
+                           Width="32"
+                           Margin="0,0,0,10">
                         <Image.InputBindings>
                             <MouseBinding Gesture="LeftClick" Command="{Binding Path=StopCommand}" />
                         </Image.InputBindings>
                     </Image>
-                    <Slider Value="{Binding Path=SongVolume, Mode=TwoWay}" Width="75" VerticalAlignment="Center" />
+                    <Slider Value="{Binding Path=SongVolume, Mode=TwoWay}"
+                            Width="75"
+                            VerticalAlignment="Center" />
                 </DockPanel>
                 <StackPanel DataContext="{Binding CurrentSong}">
                     <!-- The cover of an album containing currently played song -->
                     <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter},
                                                         ConverterParameter={StaticResource CurrentAlbumImageHeight}}"
-                                    Height="{StaticResource CurrentAlbumImageHeight}"
-                                    Cursor="Hand">
+                           Height="{StaticResource CurrentAlbumImageHeight}"
+                           Cursor="Hand">
                         <!-- The album cover is clickable -->
                         <Image.InputBindings>
                             <MouseBinding Gesture="LeftClick"
                                           Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
-                                                    Path=DataContext.ShowAlbumCommand}" />
+                                                            Path=DataContext.ShowAlbumCommand}" />
                         </Image.InputBindings>
                         <Image.Effect>
                             <DropShadowEffect Color="Black" BlurRadius="20"/>
@@ -125,12 +143,21 @@
                     <!-- Text info regarding the performer and album of currently played song -->
                     <TextBlock Text="{Binding Path=Album.Performer.Name}" 
                                TextWrapping="Wrap" TextAlignment="Center"
-                               Foreground="White" FontSize="22" FontFamily="Stencil" HorizontalAlignment="Center" Margin="3,12,3,3"/>
+                               Foreground="White"
+                               FontSize="22" FontFamily="Stencil"
+                               HorizontalAlignment="Center"
+                               Margin="3,12,3,3"/>
                     <TextBlock Text="{Binding Path=Album.Name}" 
                                TextWrapping="Wrap" TextAlignment="Center"
-                               FontSize="16" Foreground="LightGreen" FontWeight="Bold" HorizontalAlignment="Center" Margin="3"/>
+                               FontSize="16" FontWeight="Bold"
+                               Foreground="LightGreen"
+                               HorizontalAlignment="Center"
+                               Margin="3"/>
                     <WrapPanel HorizontalAlignment="Center">
-                        <TextBlock TextWrapping="Wrap" TextAlignment="Center" Margin="5" FontSize="18" Foreground="OldLace">
+                        <TextBlock TextWrapping="Wrap" TextAlignment="Center"
+                                   Margin="5"
+                                   FontSize="18"
+                                   Foreground="OldLace">
                             <TextBlock.Text>
                                 <MultiBinding StringFormat="{}{0} [{1}]">
                                     <Binding Path="Name" />
@@ -143,17 +170,22 @@
             </StackPanel>
             
             <!-- The panel of a next song in radio tracklist -->
-            <StackPanel DataContext="{Binding NextSong}" Grid.Column="2"
-                        VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="15,60,15,60">
-                <Label Content="Next" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
+            <StackPanel Grid.Column="2"
+                        DataContext="{Binding NextSong}"
+                        VerticalAlignment="Center"
+                        Margin="15,60,15,60">
+                <Label Content="Next"
+                       Foreground="AntiqueWhite"
+                       HorizontalAlignment="Center"/>
                 <!-- The cover of an album containing next song in radio tracklist -->
-                <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter}, ConverterParameter={StaticResource AlbumImageHeight}}"
+                <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter},
+                                                    ConverterParameter={StaticResource AlbumImageHeight}}"
                        Height="{StaticResource AlbumImageHeight}">
                     <!-- The album cover is clickable -->
                     <Image.InputBindings>
                         <MouseBinding Gesture="LeftClick"
                                       Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
-                                                Path=DataContext.NextSongCommand}" />
+                                                        Path=DataContext.NextSongCommand}" />
                     </Image.InputBindings>
                     <Image.Effect>
                         <DropShadowEffect Color="Black" BlurRadius="15"/>
@@ -161,13 +193,21 @@
                 </Image>
                 <!-- Text info regarding the performer and album of next song in radio tracklist -->
                 <TextBlock Text="{Binding Path=Album.Performer.Name}"
-                           TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
-                           Foreground="White" FontSize="18" FontFamily="Stencil" Margin="3,12,3,3"/>
+                           TextWrapping="Wrap" TextAlignment="Center"
+                           HorizontalAlignment="Center"
+                           Foreground="White"
+                           FontSize="18" FontFamily="Stencil"
+                           Margin="3,12,3,3" />
                 <TextBlock Text="{Binding Path=Album.Name}" 
-                           TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center"
-                           Foreground="LightGreen" FontWeight="Bold" Margin="3"/>
+                           TextWrapping="Wrap" TextAlignment="Center"
+                           HorizontalAlignment="Center"
+                           Foreground="LightGreen"
+                           FontWeight="Bold"
+                           Margin="3"/>
                 <WrapPanel HorizontalAlignment="Center">
-                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Foreground="OldLace" Margin="5">
+                    <TextBlock TextWrapping="Wrap" TextAlignment="Center"
+                               Foreground="OldLace"
+                               Margin="5">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}{0} [{1}]">
                                 <Binding Path="Name" />
@@ -181,21 +221,28 @@
         
         <!-- Lower panel with filters and archive songlist -->
         <DockPanel Margin="15,15,15,40">
-            <!-- Filters -->
-            <Expander Header="Filters" FontFamily="Broadway" Foreground="AntiqueWhite" FontSize="26" Margin="0,0,50,0">
+            <!-- Archive -->
+            <Expander Header="Archive"
+                      FontFamily="Broadway" FontSize="26"
+                      Foreground="AntiqueWhite"
+                      Margin="0,0,50,0">
                 <StackPanel>
-                    <CheckBox Content="Short songs" Margin="20,0,0,0" FontSize="20" Foreground="AntiqueWhite" Name="ShortSongs" />
-                    <CheckBox Content="Decades" Margin="20,0,0,0" FontSize="20" Foreground="AntiqueWhite" Name="Decades" />
-                    <CheckBox Content="Genres" Margin="20,0,0,0" FontSize="20" Foreground="AntiqueWhite" Name="Genres" />
-                    <CheckBox Content="Performers" Margin="20,0,0,0" FontSize="20" Foreground="AntiqueWhite" Name="Performers" />
+                    
                 </StackPanel>
             </Expander>
-            <!-- Archive radio tracklist -->
-            <Expander Header="Archive" FontFamily="Broadway" Foreground="AntiqueWhite" FontSize="26" Width="auto" HorizontalAlignment="Right">
+            <!-- Upcoming songs radio tracklist -->
+            <Expander Header="Upcoming"
+                      FontFamily="Broadway" FontSize="26"
+                      Foreground="AntiqueWhite"
+                      Width="auto"
+                      HorizontalAlignment="Right">
                 <StackPanel>
                     <ListBox ItemsSource="{Binding Path=RadioArchive}"
-                             Margin="20,0,20,0" VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="14" FontFamily="Arial Narrow"
-                             Background="Transparent" BorderBrush="Transparent" SelectedIndex="-1">
+                             Margin="20,0,20,0"
+                             VerticalAlignment="Top" HorizontalAlignment="Right"
+                             FontSize="14" FontFamily="Arial Narrow"
+                             Background="Transparent" BorderBrush="Transparent"
+                             SelectedIndex="-1">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <DockPanel Margin="0,-5,0,-5">

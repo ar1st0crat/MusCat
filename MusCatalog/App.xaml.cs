@@ -12,7 +12,7 @@ namespace MusCatalog
         void AppInitialize( object sender, StartupEventArgs e)
         {
             FileLocator.Initialize();
-            MainWindow mainWindow = new MainWindow();
+            var mainWindow = new MainWindow();
             mainWindow.Show();
         }
     }

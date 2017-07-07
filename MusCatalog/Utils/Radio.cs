@@ -5,67 +5,40 @@ using MusCatalog.Model;
 
 namespace MusCatalog.Utils
 {
+    /// <summary>
+    /// Radio station class
+    /// </summary>
     class Radio
     {
         // the list of recently played songs
-        private ObservableCollection<Song> songlist = new ObservableCollection<Song>();
-        private int nCurrentSong = 0;
+        private int _curSong;
 
         // the number of recently played songs which we're tracking
-        public const int MAX_SONGS_IN_ARCHIVE = 25;
+        public const int MaxSongsInArchive = 25;
 
         // audio player
-        private AudioPlayer player = new AudioPlayer();
-        public AudioPlayer Player
-        {
-            get { return player; }
-        }
+        public AudioPlayer Player { get; } = new AudioPlayer();
 
-        public ObservableCollection<Song> SongArchive
-        {
-            get { return songlist; }
-        }
+        // collection of recently played songs
+        public ObservableCollection<Song> SongArchive { get; } = new ObservableCollection<Song>();
+
 
         public Song CurrentSong()
         {
-            if (nCurrentSong >= 0 && nCurrentSong < songlist.Count)
-            {
-                return songlist[nCurrentSong];
-            }
-            else
-            {
-                return null;
-            }
+            return _curSong >= 0 && _curSong < SongArchive.Count ? SongArchive[_curSong] : null;
         }
 
         public Song PrevSong()
         {
-            if (nCurrentSong > 0)
-            {
-                return songlist[nCurrentSong - 1];
-            }
-            else
-            {
-                return null;
-            }
+            return _curSong > 0 ? SongArchive[_curSong - 1] : null;
         }
 
         public Song NextSong()
         {
-            if (nCurrentSong < songlist.Count - 1)
-            {
-                return songlist[nCurrentSong + 1];
-            }
-            else
-            {
-                return null;
-            }
+            return _curSong < SongArchive.Count - 1 ? SongArchive[_curSong + 1] : null;
         }
 
-        public void AddSong()
-        {
-            songlist.Add(SelectRandomSong());
-        }
+        public void AddSong() => SongArchive.Add(SelectRandomSong());
 
         /// <summary>
         /// if the current song isn't the first one in a songlist
@@ -73,27 +46,27 @@ namespace MusCatalog.Utils
         /// </summary>
         public void MoveToPrevSong()
         {
-            if (nCurrentSong > 0)
+            if (_curSong > 0)
             {
-                nCurrentSong--;
+                _curSong--;
             }
         }
 
         public void MoveToNextSong()
         {
             // check if the archive ("songlist story") is full 
-            if (songlist.Count >= MAX_SONGS_IN_ARCHIVE)
+            if (SongArchive.Count >= MaxSongsInArchive)
             {
-                songlist.RemoveAt(0);       // if we remove the first element then we don't have to increase nCurrentSong
+                SongArchive.RemoveAt(0);       // if we remove the first element then we don't have to increase currentSongNo
             }
             else
             {
-                nCurrentSong++;             // otherwise - increase nCurrentSong
+                _curSong++;             // otherwise - increase currentSongNo
             }
 
             // if the next song is the last one in the playlist
             // then we should select new upcoming song and add it to the playlist
-            if (nCurrentSong == songlist.Count - 1)
+            if (_curSong == SongArchive.Count - 1)
             {
                 AddSong();
             }
@@ -101,19 +74,19 @@ namespace MusCatalog.Utils
 
         public void PlayCurrentSong()
         {
-            string fileSong = FileLocator.FindSongPath(songlist[nCurrentSong]);
+            var fileSong = FileLocator.FindSongPath(SongArchive[_curSong]);
 
             try
             {
-                player.Play(fileSong);
+                Player.Play(fileSong);
             }
             catch (Exception)
             {
-                songlist.RemoveAt(nCurrentSong--);
+                SongArchive.RemoveAt(_curSong--);
 
                 // if the next song is the last one in the playlist
                 // then we should select new upcoming song and add it to the playlist
-                if (nCurrentSong == songlist.Count - 1)
+                if (_curSong == SongArchive.Count - 1)
                 {
                     AddSong();
                 }
@@ -128,16 +101,16 @@ namespace MusCatalog.Utils
         /// The song is guaranteed to be present in user's file system
         /// </summary>
         /// <returns>Songs object selected randomly from the database</returns>
-        public Song SelectRandomSong(bool bOnlyShortSongs=false)
+        public Song SelectRandomSong(bool onlyShortSongs = false)
         {
-            Song song = null;
+            Song song;
 
             using (var context = new MusCatEntities())
             {
-                Random songSelector = new Random();
+                var songSelector = new Random();
 
                 // find out the maximum song ID in the database
-                var maxSID = context.Songs.Max(s => s.ID);
+                var maxSid = context.Songs.Max(s => s.ID);
 
                 // we keep select song randomly until the song file is actually present in our file system...
                 // ...and while it isn't present in our archive of recently played songs
@@ -147,22 +120,24 @@ namespace MusCatalog.Utils
                     do
                     {
                         // generate random song ID
-                        var songNo = songSelector.Next() % maxSID;
+                        var songNo = songSelector.Next() % maxSid;
 
                         // the problem here is that our generated ID isn't necessarily present in the database
                         // however there will be at least one song with songID that is greater or equal than this ID
                         selectedsongs = (from s in context.Songs
                                          where s.ID >= songNo
-                                         select s).Take(1);
+                                         select s)
+                                         .Take(1);
 
                         // if the filter "Short songs is 'on'" we do additional filtering
-                        if (bOnlyShortSongs)
+                        if (onlyShortSongs)
                         {
                             selectedsongs = selectedsongs.Where(
-                                    s => s.TimeLength.Length <= 4 && s.TimeLength.CompareTo("1:30") < 0);
+                                    s => s.TimeLength.Length <= 4 && 
+                                    string.Compare(s.TimeLength, "1:30", StringComparison.Ordinal) < 0);
                         }
                     }
-                    while (selectedsongs.Count() < 1);
+                    while (!selectedsongs.Any());
 
                     // select the first song from the set of selected songs
                     song = selectedsongs.First();
@@ -177,8 +152,8 @@ namespace MusCatalog.Utils
                                             where p.ID == song.Album.PerformerID
                                             select p).First();
                 }
-                while (songlist.Where(s => s.ID == song.ID).Count() > 0      // true, if the archive already contains this song
-                    || FileLocator.FindSongPath(song) == "");             // true, if the file with this song doesn't exist
+                while (SongArchive.Any(s => s.ID == song.ID)      // true, if the archive already contains this song
+                    || FileLocator.FindSongPath(song) == "");     // true, if the file with this song doesn't exist
             }
 
             return song;

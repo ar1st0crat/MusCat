@@ -1,6 +1,5 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:MusCatalog.Controls">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!-- custom style of scroll bars (horizontal and vertical) -->
     <Style x:Key="ScrollBarThumbStyle" TargetType="{x:Type Thumb}">
         <Setter Property="IsTabStop" Value="False"/>

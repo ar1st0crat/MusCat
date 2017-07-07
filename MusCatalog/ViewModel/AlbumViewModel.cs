@@ -7,30 +7,30 @@ namespace MusCatalog.ViewModel
 {
     public class AlbumViewModel : INotifyPropertyChanged
     {
-        private Album album; 
+        private Album _album; 
         public Album Album
         {
-            get { return album; }
+            get { return _album; }
             set
             {
-                album = value;
+                _album = value;
                 RaisePropertyChanged("Album");
             }
         }
 
-        private ObservableCollection<Song> songs = new ObservableCollection<Song>();
+        private ObservableCollection<Song> _songs = new ObservableCollection<Song>();
         public ObservableCollection<Song> Songs
         {
-            get { return songs; }
+            get { return _songs; }
             set
             {
-                songs = value;
+                _songs = value;
                 RaisePropertyChanged("Songs");
             }
         }
 
         /// <summary>
-        /// Lazty load songs
+        /// Load songs lazily
         /// </summary>
         public void LoadSongs()
         {
@@ -44,7 +44,7 @@ namespace MusCatalog.ViewModel
                 foreach (var song in albumSongs)
                 {
                     song.Album = Album;
-                    songs.Add(song);
+                    _songs.Add(song);
                 }
             }
         }

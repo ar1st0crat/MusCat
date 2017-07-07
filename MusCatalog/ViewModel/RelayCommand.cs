@@ -5,8 +5,8 @@ namespace MusCatalog.ViewModel
 {
     class RelayCommand : ICommand
     {
-        private Action _action;
-        private Action<object> _actionParameterized;
+        private readonly Action _action;
+        private readonly Action<object> _actionParameterized;
 
         public RelayCommand(Action action)
         {

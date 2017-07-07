@@ -13,8 +13,8 @@ namespace MusCatalog.Converters
     /// </summary>
     public class PhotoConverter: IValueConverter
     {
-        private const string NoPerformerPhoto = @"../Images/no_photo.png";
-        private const string NoAlbumPhoto = @"../Images/vinyl_blue.png";
+        private const string NoPerformerImage = @"../Images/no_photo.png";
+        private const string NoAlbumImage = @"../Images/vinyl_blue.png";
 
         /// <summary>
         /// Basic convertion
@@ -24,64 +24,63 @@ namespace MusCatalog.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             // if the current converter is yielding a performer photo path
-            Performer perf = value as Performer;
+            var performer = value as Performer;
 
-            if (perf != null)
+            if (performer != null)
             {
-                string performerPhotoPath = FileLocator.GetPathImagePerformer(perf);
+                var performerImagePath = FileLocator.GetPerformerImagePath(performer);
 
-                // if the photo exists
-                if (performerPhotoPath != "")
+                if (performerImagePath == "")
                 {
-                    // optimization: reduce original image (set DecodePixelHeight property)
-                    // and release the original image by returning new WriteableBitmap
-                    BitmapImage bi = new BitmapImage();
-                    bi.BeginInit();
-                    bi.CacheOption = BitmapCacheOption.OnLoad;
-                    bi.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                    if (parameter != null)
-                    {
-                        bi.DecodePixelHeight = (int)(double)parameter;
-                    }
-                    bi.UriSource = new Uri(performerPhotoPath);
-                    bi.EndInit();
-                    bi.Freeze();
-                    
-                    return new WriteableBitmap(bi);
+                    return NoPerformerImage;
                 }
 
-                return NoPerformerPhoto;
+                // optimization: reduce original image (set DecodePixelHeight property)
+                // and release the original image by returning new WriteableBitmap
+                var performerImage = new BitmapImage();
+                performerImage.BeginInit();
+                performerImage.CacheOption = BitmapCacheOption.OnLoad;
+                performerImage.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                if (parameter != null)
+                {
+                    performerImage.DecodePixelHeight = (int)(double)parameter;
+                }
+                performerImage.UriSource = new Uri(performerImagePath);
+                performerImage.EndInit();
+                performerImage.Freeze();
+                    
+                return new WriteableBitmap(performerImage);
             }
 
             // or maybe the converter's yielding an album photo path
-            Album alb = value as Album;
+            var album = value as Album;
 
-            if (alb != null)
+            if (album == null)
             {
-                string albumPhotoPath = FileLocator.GetPathImageAlbum(alb);
-
-                if (albumPhotoPath != "")
-                {
-                    // optimization is the same as for performer photo image
-                    BitmapImage bi = new BitmapImage();
-                    bi.BeginInit();
-                    bi.CacheOption = BitmapCacheOption.OnLoad;
-                    bi.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                    if (parameter != null)
-                    {
-                        bi.DecodePixelHeight = (int)(double)parameter;
-                    }
-                    bi.UriSource = new Uri(albumPhotoPath);
-                    bi.EndInit();
-                    bi.Freeze();
-
-                    return new WriteableBitmap(bi);
-                }
-
-                return NoAlbumPhoto;
+                return "";
             }
-            
-            return "";
+
+            var albumImagePath = FileLocator.GetAlbumImagePath(album);
+
+            if (albumImagePath == "")
+            {
+                return NoAlbumImage;
+            }
+
+            // optimization is the same as for performer photo image
+            var albumImage = new BitmapImage();
+            albumImage.BeginInit();
+            albumImage.CacheOption = BitmapCacheOption.OnLoad;
+            albumImage.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+            if (parameter != null)
+            {
+                albumImage.DecodePixelHeight = (int)(double)parameter;
+            }
+            albumImage.UriSource = new Uri(albumImagePath);
+            albumImage.EndInit();
+            albumImage.Freeze();
+
+            return new WriteableBitmap(albumImage);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

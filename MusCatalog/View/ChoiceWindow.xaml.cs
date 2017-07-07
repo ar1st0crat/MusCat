@@ -8,25 +8,21 @@ namespace MusCatalog.View
     /// </summary>
     public partial class ChoiceWindow : Window
     {
-        private string choiceResult = null;
-        public string ChoiceResult
-        {
-            get { return choiceResult; }
-        }
+        public string ChoiceResult { get; private set; }
 
         public ChoiceWindow()
         {
             InitializeComponent();
         }
 
-        public void SetChoiceList( List<string> list )
+        public void SetChoiceList(List<string> list)
         {
-            this.ChoiseListBox.ItemsSource = list;
+            ChoiseListBox.ItemsSource = list;
         }
 
-        private void OKButtonClick(object sender, RoutedEventArgs e)
+        private void OkButtonClick(object sender, RoutedEventArgs e)
         {
-            choiceResult = this.ChoiseListBox.SelectedItem.ToString();
+            ChoiceResult = ChoiseListBox.SelectedItem.ToString();
             Close();
         }
 

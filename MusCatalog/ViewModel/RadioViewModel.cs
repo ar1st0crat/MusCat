@@ -12,45 +12,42 @@ namespace MusCatalog.ViewModel
     class RadioViewModel : INotifyPropertyChanged
     {
         // Bitmaps for playback buttons
-        private static BitmapImage imagePlay = App.Current.Resources[ "ImagePlayButton" ] as BitmapImage;
-        private static BitmapImage imagePause = App.Current.Resources[ "ImagePauseButton" ] as BitmapImage;
+        private static readonly BitmapImage ImagePlay = App.Current.Resources["ImagePlayButton"] as BitmapImage;
+        private static readonly BitmapImage ImagePause = App.Current.Resources["ImagePauseButton"] as BitmapImage;
         
         // Radio Station
-        private Radio radio = new Radio();
+        private readonly Radio _radio = new Radio();
 
         #region INPC properties
 
-        private BitmapImage playbackImage = imagePause;
+        private BitmapImage _playbackImage = ImagePause;
         public BitmapImage PlaybackImage
         {
-            get { return playbackImage; }
+            get { return _playbackImage; }
             set
             {
-                playbackImage = value;
+                _playbackImage = value;
                 RaisePropertyChanged("PlaybackImage");
             }
         }
-        private float songVolume = 5.0f;
+        private float _songVolume = 5.0f;
         public float SongVolume
         {
             get
             {
-                return songVolume;
+                return _songVolume;
             }
             set
             {
-                songVolume = value;
-                radio.Player.SetVolume((float)value / 10.0f);
+                _songVolume = value;
+                _radio.Player.SetVolume(value / 10.0f);
                 RaisePropertyChanged("SongVolume");
             }
         }
         public Song PreviousSong { get; set; }
         public Song CurrentSong { get; set; }
         public Song NextSong { get; set; }
-        public ObservableCollection<Song> RadioArchive
-        {
-            get { return radio.SongArchive; }
-        }
+        public ObservableCollection<Song> RadioArchive => _radio.SongArchive;
 
         // commands
         public ICommand PlaybackCommand { get; private set; }
@@ -75,9 +72,9 @@ namespace MusCatalog.ViewModel
 
             // we add two songs to the playlist right away:
             // 1. The song for current playback
-            radio.AddSong();
+            _radio.AddSong();
             // 2. The upcoming song
-            radio.AddSong();
+            _radio.AddSong();
             // Update properties
             UpdateSongs();
             // Start playing the first song right away
@@ -89,9 +86,9 @@ namespace MusCatalog.ViewModel
         /// </summary>
         private void UpdateSongs()
         {
-            PreviousSong = radio.PrevSong();
-            CurrentSong = radio.CurrentSong();
-            NextSong = radio.NextSong();
+            PreviousSong = _radio.PrevSong();
+            CurrentSong = _radio.CurrentSong();
+            NextSong = _radio.NextSong();
 
             RaisePropertyChanged("PreviousSong");
             RaisePropertyChanged("CurrentSong");
@@ -100,7 +97,7 @@ namespace MusCatalog.ViewModel
 
         public void PlayNextSong()
         {
-            radio.MoveToNextSong();
+            _radio.MoveToNextSong();
             // after we added new upcoming song we must play the current song
             // (this song was "upcoming" before we added new song to the playlist)
             PlayCurrentSong();
@@ -108,16 +105,16 @@ namespace MusCatalog.ViewModel
 
         public void PlayPreviousSong()
         {
-            radio.MoveToPrevSong();
+            _radio.MoveToPrevSong();
             // after switching to previous song we play it right away
             PlayCurrentSong();
         }
 
         private void PlayCurrentSong()
         {
-            if (radio.Player.SongPlaybackState != PlaybackState.STOP)
+            if (_radio.Player.SongPlaybackState != PlaybackState.Stop)
             {
-                radio.Player.Stop();
+                _radio.Player.Stop();
             }
 
             // play song using BackgroundWorker
@@ -125,10 +122,10 @@ namespace MusCatalog.ViewModel
 
             bw.DoWork += (o, e) =>
             {
-                radio.PlayCurrentSong();
+                _radio.PlayCurrentSong();
 
                 // loop while song was not stopped (naturally or manually)
-                while (!radio.Player.IsStopped())
+                while (!_radio.Player.IsStopped())
                 {
                     Thread.Sleep(1000);
                 }
@@ -137,7 +134,7 @@ namespace MusCatalog.ViewModel
             // When the song was stopped (naturally or manually)
             bw.RunWorkerCompleted += (o, e) =>
             {
-                if (!radio.Player.IsManualStop)
+                if (!_radio.Player.IsStoppedManually)
                 {
                     // ...if naturally, then switch to next song in radio tracklist
                     PlayNextSong();
@@ -147,43 +144,48 @@ namespace MusCatalog.ViewModel
             bw.RunWorkerAsync();
 
             UpdateSongs();
-            PlaybackImage = imagePause;
+            PlaybackImage = ImagePause;
         }
         
         public void SongPlaybackAction()
         {
-            switch (radio.Player.SongPlaybackState)
+            switch (_radio.Player.SongPlaybackState)
             {
-                case PlaybackState.PLAY:
-                    radio.Player.Pause();
-                    PlaybackImage = imagePlay;
+                case PlaybackState.Play:
+                    _radio.Player.Pause();
+                    PlaybackImage = ImagePlay;
                     break;
-                case PlaybackState.PAUSE:
-                    radio.Player.Resume();
-                    PlaybackImage = imagePause;
+                case PlaybackState.Pause:
+                    _radio.Player.Resume();
+                    PlaybackImage = ImagePause;
                     break;
-                case PlaybackState.STOP:
+                case PlaybackState.Stop:
                     PlayCurrentSong();
-                    PlaybackImage = imagePause;
+                    PlaybackImage = ImagePause;
                     break;
             }
         }
 
         public void Stop()
         {
-            radio.Player.Stop();
-            PlaybackImage = imagePlay;
+            _radio.Player.Stop();
+            PlaybackImage = ImagePlay;
         }
 
         public void ViewAlbumContainingCurrentSong()
         {
-            var albumView = new AlbumViewModel { Album = radio.CurrentSong().Album };
+            var albumView = new AlbumViewModel
+            {
+                Album = _radio.CurrentSong().Album
+            };
 
-            // lazy load songs of selected album
+            // load songs of selected album lazily
             albumView.LoadSongs();
 
-            AlbumWindow albumWindow = new AlbumWindow();
-            albumWindow.DataContext = new AlbumPlaybackViewModel(albumView);
+            var albumWindow = new AlbumWindow
+            {
+                DataContext = new AlbumPlaybackViewModel(albumView)
+            };
             albumWindow.Show();
         }
 
@@ -192,7 +194,7 @@ namespace MusCatalog.ViewModel
         /// </summary>
         public void Close()
         {
-            radio.Player.StopAndDispose();
+            _radio.Player.StopAndDispose();
         }
 
         #region INotifyPropertyChanged event and method

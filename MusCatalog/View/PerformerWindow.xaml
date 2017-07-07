@@ -2,7 +2,6 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        xmlns:local="clr-namespace:MusCatalog"
         xmlns:converters="clr-namespace:MusCatalog.Converters"
         Title="Performer Info"
         Height="700"
@@ -26,30 +25,40 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-            <StackPanel Grid.Column="0" Grid.Row="0">
+        <ScrollViewer Grid.Column="0" Grid.Row="0"
+                      HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <StackPanel >
                 <Image Source="{Binding Path=Performer, Converter={StaticResource PerformerPhotoConverter}, ConverterParameter={StaticResource PerformerPhotoWidth}}"
-                   HorizontalAlignment="Left" VerticalAlignment="Top"
-                   Margin="10,20,0,0" Width="{StaticResource PerformerPhotoWidth}"/>
-                <Label Content="{Binding Performer.Name}" Foreground="White" FontFamily="Stencil" FontSize="28" HorizontalAlignment="Center"/>
-                <Label Content="{Binding Performer.Country.Name}" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
+                       HorizontalAlignment="Left" VerticalAlignment="Top"
+                       Margin="10,20,0,0"
+                       Width="{StaticResource PerformerPhotoWidth}"/>
+                <Label Content="{Binding Performer.Name}"
+                       Foreground="White"
+                       FontFamily="Stencil" FontSize="28"
+                       HorizontalAlignment="Center"/>
+                <Label Content="{Binding Performer.Country.Name}"
+                       Foreground="White"
+                       FontSize="16"
+                       HorizontalAlignment="Center" Margin="0,15,0,15"/>
                 <ListBox ItemsSource="{Binding Performer.Styles}"
-                     Background="Transparent" BorderBrush="Transparent">
+                         Background="Transparent" BorderBrush="Transparent">
                 </ListBox>
-                <Label Content="Lineup:" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,15,0,15"/>
+                <Label Content="Lineup:"
+                       Foreground="White"
+                       FontSize="16"
+                       HorizontalAlignment="Center" Margin="0,15,0,15"/>
                 <ListBox ItemsSource="{Binding Performer.Lineups}"
-                     Background="Transparent" BorderBrush="Transparent">
+                         Background="Transparent" BorderBrush="Transparent">
                 </ListBox>
             </StackPanel>
         </ScrollViewer>
         <StackPanel Grid.Column="1">
-            <!--
-            <TextBox Text="{Binding Performer.Info}" Margin="15" MaxWidth="400"
+            <TextBox Text="{Binding Performer.Info}"
+                     TextWrapping="Wrap" AcceptsReturn="True" 
+                     Width="auto" Height="650" MaxWidth="500"
+                     Margin="15" 
                      Foreground="White" Background="Transparent" BorderBrush="Transparent"
-                     TextWrapping="Wrap"  VerticalScrollBarVisibility="Visible" />
-            -->
-            <TextBox Text="{Binding Performer.Info}" Width="auto" MaxWidth="500" Height="650" Margin="15" Background="Transparent" BorderBrush="Transparent"
-                     TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Foreground="White" />
+                     VerticalScrollBarVisibility="Auto" />
         </StackPanel>
     </Grid>
 </Window>

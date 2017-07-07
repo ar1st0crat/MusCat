@@ -24,7 +24,7 @@ namespace MusCatalog.ViewModel
             }
         }
 
-        public byte? SelectedCountryID { get; set; }
+        public byte? SelectedCountryId { get; set; }
         public Country SelectedCountry { get; set; }
         public ObservableCollection<Country> Countries { get; set; }
         public ObservableCollection<Genre> Genres { get; set; }
@@ -63,11 +63,11 @@ namespace MusCatalog.ViewModel
 
         private string ChooseImageSavePath()
         {
-            var filepaths = FileLocator.MakePathImagePerformer(Performer);
+            var filepaths = FileLocator.MakePerformerImagePathlist(Performer);
             
             if (filepaths.Count > 1)
             {
-                ChoiceWindow choice = new ChoiceWindow();
+                var choice = new ChoiceWindow();
                 choice.SetChoiceList(filepaths);
                 choice.ShowDialog();
 
@@ -100,28 +100,31 @@ namespace MusCatalog.ViewModel
 
         public void LoadPerformerImageFromFile()
         {
-            OpenFileDialog ofd = new OpenFileDialog();
+            var ofd = new OpenFileDialog();
             var result = ofd.ShowDialog();
-            if (result.HasValue && result.Value == true)
+            if (!result.HasValue || result.Value != true)
             {
-                string filepath = ChooseImageSavePath();
-                if (filepath == null)
-                {
-                    return;
-                }
+                return;
+            }
 
-                try
-                {
-                    PrepareFileForSaving(filepath);
-                    File.Copy(ofd.FileName, filepath);
+            var filepath = ChooseImageSavePath();
 
-                    RaisePropertyChanged("Performer");
-                    PerformerView.RaisePropertyChanged("Performer");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+            if (filepath == null)
+            {
+                return;
+            }
+
+            try
+            {
+                PrepareFileForSaving(filepath);
+                File.Copy(ofd.FileName, filepath);
+
+                RaisePropertyChanged("Performer");
+                PerformerView.RaisePropertyChanged("Performer");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -133,7 +136,8 @@ namespace MusCatalog.ViewModel
                 return;
             }
 
-            string filepath = ChooseImageSavePath();
+            var filepath = ChooseImageSavePath();
+
             if (filepath == null)
             {
                 return;
@@ -146,7 +150,7 @@ namespace MusCatalog.ViewModel
 
                 using (var fileStream = new FileStream(filepath, FileMode.Create))
                 {
-                    BitmapEncoder encoder = new JpegBitmapEncoder();
+                    var encoder = new JpegBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(image));
                     encoder.Save(fileStream);
                 }

@@ -9,14 +9,13 @@
 
 namespace MusCatalog.Model
 {
-    using System;
     using System.Collections.Generic;
-    
+
     public partial class Genre
     {
         public Genre()
         {
-            this.Performers = new HashSet<Performer>();
+            Performers = new HashSet<Performer>();
         }
     
         public byte ID { get; set; }

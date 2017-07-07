@@ -7,17 +7,22 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.ComponentModel.DataAnnotations;
+
 namespace MusCatalog.Model
 {
-    using System;
     using System.ComponentModel;
     using System.Text.RegularExpressions;
 
     public partial class Song : INotifyPropertyChanged, IDataErrorInfo
     {
         private byte trackNo;
+
+        [StringLength(50)]
         private string name;
+
         private string timeLength;
+
         private byte? rate;
 
         public long AlbumID { get; set; }
@@ -49,7 +54,7 @@ namespace MusCatalog.Model
                 RaisePropertyChanged("TimeLength");
             }
         }
-        public Nullable<byte> Rate
+        public byte? Rate
         {
             get { return rate; }
             set
@@ -90,18 +95,21 @@ namespace MusCatalog.Model
         {
             get
             {
-                string error = string.Empty;
+                var error = string.Empty;
                 switch (columnName)
                 {
                     case "TimeLength":
-                        Regex regex = new Regex(@"^\d+:\d{2}$");
+                    {
+                        var regex = new Regex(@"^\d+:\d{2}$");
+
                         if (!regex.IsMatch(TimeLength))
                         {
                             error = "Time length should be in the format mm:ss";
                         }
                         break;
-
+                    }
                     case "Name":
+                    {
                         if (Name.Length > 50)
                         {
                             error = "Song title should contain not more than 50 symbols";
@@ -111,6 +119,7 @@ namespace MusCatalog.Model
                             error = "Song title can't be empty";
                         }
                         break;
+                    }
                 }
                 return error;
             }

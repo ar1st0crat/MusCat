@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Entity;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Threading;
@@ -24,18 +25,15 @@ namespace MusCatalog.ViewModel
             }
         }
 
-        public ObservableCollection<Song> Songs
-        {
-            get { return AlbumView.Songs; }
-        }
+        public ObservableCollection<Song> Songs => AlbumView.Songs;
 
-        private Song selectedSong;
+        private Song _selectedSong;
         public Song SelectedSong
         {
-            get { return selectedSong; }
+            get { return _selectedSong; }
             set
             {
-                selectedSong = value;
+                _selectedSong = value;
                 RaisePropertyChanged("SelectedSong");
                 PlaySong();
             }
@@ -44,31 +42,31 @@ namespace MusCatalog.ViewModel
         public int SelectedSongIndex { get; set; }
 
         // Bitmaps for playback buttons
-        private static BitmapImage imagePlay = App.Current.TryFindResource("ImagePlayButton") as BitmapImage;
-        private static BitmapImage imagePause = App.Current.TryFindResource("ImagePauseButton") as BitmapImage;
+        private static readonly BitmapImage ImagePlay = App.Current.TryFindResource("ImagePlayButton") as BitmapImage;
+        private static readonly BitmapImage ImagePause = App.Current.TryFindResource("ImagePauseButton") as BitmapImage;
 
-        private BitmapImage playbackImage = imagePause;
+        private BitmapImage _playbackImage = ImagePause;
         public BitmapImage PlaybackImage
         {
-            get { return playbackImage; }
+            get { return _playbackImage; }
             set
             {
-                playbackImage = value;
+                _playbackImage = value;
                 RaisePropertyChanged("PlaybackImage");
             }
         }
 
         // Audio player
-        AudioPlayer player = new AudioPlayer();
+        readonly AudioPlayer _player = new AudioPlayer();
 
         // Song time percentage
-        private double playbackPercentage = 0.0;
+        private double _playbackPercentage;
         public double PlaybackPercentage
         {
-            get { return playbackPercentage; }
+            get { return _playbackPercentage; }
             set
             {
-                playbackPercentage = value;
+                _playbackPercentage = value;
                 RaisePropertyChanged("PlaybackPercentage");
             }
         }
@@ -83,7 +81,8 @@ namespace MusCatalog.ViewModel
 
         // This variable is set to true while the slider thumb is being dragged
         // (Binding the event "Thumb.DragCompleted" in XAML to some command doesn't work for some reason)
-        private bool bDragged = false;
+        private bool _isDragged;
+
 
         public AlbumPlaybackViewModel(AlbumViewModel viewmodel)
         {
@@ -92,9 +91,9 @@ namespace MusCatalog.ViewModel
             PlaybackCommand = new RelayCommand(PlaybackSongAction);
             UpdateRateCommand = new RelayCommand(UpdateRate);
             SeekPlaybackPositionCommand = new RelayCommand(SeekPlaybackPosition);
-            // toggle the bDragged variable
-            StartDragCommand = new RelayCommand(() => bDragged = true);             
-            StopDragCommand = new RelayCommand(() => bDragged = false);
+            // toggle the _isDragged variable
+            StartDragCommand = new RelayCommand(() => _isDragged = true);             
+            StopDragCommand = new RelayCommand(() => _isDragged = false);
             
             // set main album view model
             AlbumView = viewmodel;
@@ -107,12 +106,12 @@ namespace MusCatalog.ViewModel
         /// </summary>
         public void PlaybackSongAction()
         {
-            switch (player.SongPlaybackState)
+            switch (_player.SongPlaybackState)
             {
-                case PlaybackState.PLAY:
+                case PlaybackState.Play:
                     PauseSong();
                     break;
-                case PlaybackState.PAUSE:
+                case PlaybackState.Pause:
                     ResumeSong();
                     break;
             }
@@ -120,12 +119,12 @@ namespace MusCatalog.ViewModel
 
         private void PlaySong()
         {
-            if (player.SongPlaybackState != PlaybackState.STOP)
+            if (_player.SongPlaybackState != PlaybackState.Stop)
             {
                 StopSong();
             }
 
-            string songfile = FileLocator.FindSongPath(SelectedSong);
+            var songfile = FileLocator.FindSongPath(SelectedSong);
 
             // play song using BackgroundWorker
             var bw = new BackgroundWorker();
@@ -135,33 +134,33 @@ namespace MusCatalog.ViewModel
 
                 try
                 {
-                    player.Play(songfile);
+                    _player.Play(songfile);
                 }
                 catch (Exception)
                 {
                     // if the exception was thrown, show message
                     MessageBox.Show("Sorry, song could not be played");
                     // and manually set STOP flag in order to not proceed to next song
-                    player.IsManualStop = true;
+                    _player.IsStoppedManually = true;
                     return;
                 }
                 
                 // loop while song was not stopped (naturally or manually)
-                while (!player.IsStopped())
+                while (!_player.IsStopped())
                 {
                     // update the slider value
-                    PlaybackPercentage = player.TimePercent() * 10.0;
+                    PlaybackPercentage = _player.TimePercent() * 10.0;
                     Thread.Sleep(1000);
                 }
 
-                PlaybackImage = imagePause;
+                PlaybackImage = ImagePause;
             };
 
             // when song was stopped... 
             bw.RunWorkerCompleted += (o, e) =>
             {
                 // if song was stopped by user then do nothing
-                if (player.IsManualStop == true)
+                if (_player.IsStoppedManually == true)
                 {
                     return;
                 }
@@ -180,19 +179,19 @@ namespace MusCatalog.ViewModel
 
         private void PauseSong()
         {
-            player.Pause();
-            PlaybackImage = imagePlay;
+            _player.Pause();
+            PlaybackImage = ImagePlay;
         }
 
         private void ResumeSong()
         {
-            player.Resume();
-            PlaybackImage = imagePause;
+            _player.Resume();
+            PlaybackImage = ImagePause;
         }
 
         private void StopSong()
         {
-            player.Stop();
+            _player.Stop();
         }
 
         /// <summary>
@@ -201,13 +200,13 @@ namespace MusCatalog.ViewModel
         public void SeekPlaybackPosition()
         {
             // if the slider value was changed with timer (not by user) or the song is stopped
-            if (!bDragged || player.SongPlaybackState == PlaybackState.STOP)
+            if (!_isDragged || _player.SongPlaybackState == PlaybackState.Stop)
             {
                 // then do nothing
                 return;
             }
 
-            player.Seek(PlaybackPercentage / 10.0);
+            _player.Seek(PlaybackPercentage / 10.0);
         }
 
         #endregion
@@ -217,7 +216,7 @@ namespace MusCatalog.ViewModel
         /// </summary>
         public void Close()
         {
-            player.StopAndDispose();
+            _player.StopAndDispose();
         }
 
         /// <summary>
@@ -228,7 +227,7 @@ namespace MusCatalog.ViewModel
         {
             using (var context = new MusCatEntities())
             {
-                context.Entry(Album).State = System.Data.EntityState.Modified;
+                context.Entry(Album).State = EntityState.Modified;
                 context.SaveChanges();
 
                 // raise event to allow for correct updating of MainViewModel
@@ -238,11 +237,8 @@ namespace MusCatalog.ViewModel
                 {
                     handler = RateUpdated;
                 }
-                if (handler != null)
-                {
-                    handler(Album.Performer, EventArgs.Empty);
-                }
-        }
+                handler?.Invoke(Album.Performer, EventArgs.Empty);
+            }
         }
 
         public event EventHandler RateUpdated;

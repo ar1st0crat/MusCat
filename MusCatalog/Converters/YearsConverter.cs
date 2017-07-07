@@ -13,29 +13,18 @@ namespace MusCatalog.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Performer perf = value as Performer;
+            var performer = value as Performer;
 
-            if (perf == null)
+            if (performer == null || performer.Albums.Count == 0)
             {
                 return "";
             }
+            
+            var yearStart = performer.Albums.Min(t => t.ReleaseYear);
+            var yearEnd = performer.Albums.Max(t => t.ReleaseYear);
 
-            if (perf.Albums.Count == 0)
-            {
-                return "";
-            }
-
-            short yearStart = perf.Albums.Min(t => t.ReleaseYear);
-            short yearEnd = perf.Albums.Max(t => t.ReleaseYear);
-
-            if (yearEnd != yearStart)
-            {
-                return string.Format("{0} - {1}", yearStart, yearEnd);
-            }
-            else
-            {
-                return yearStart.ToString();
-            }
+            return yearEnd != yearStart ? 
+                string.Format("{0} - {1}", yearStart, yearEnd) : yearStart.ToString();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

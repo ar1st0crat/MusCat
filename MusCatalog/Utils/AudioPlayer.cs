@@ -5,9 +5,9 @@ namespace MusCatalog.Utils
 {
     enum PlaybackState
     {
-        PLAY,
-        PAUSE,
-        STOP
+        Play,
+        Pause,
+        Stop
     }
 
     /// <summary>
@@ -16,22 +16,22 @@ namespace MusCatalog.Utils
     class AudioPlayer
     {
         // NAudio component for a song playback
-        WaveOut waveOut;
+        WaveOut _waveOut;
         // Underlying mp3 file reader
-        Mp3FileReader mp3Reader;
+        Mp3FileReader _mp3Reader;
 
         public PlaybackState SongPlaybackState { get; set; }
-        public bool IsManualStop { get; set; }
+        public bool IsStoppedManually { get; set; }
         
         public AudioPlayer()
         {
-            SongPlaybackState = PlaybackState.STOP;
-            IsManualStop = false;
+            SongPlaybackState = PlaybackState.Stop;
+            IsStoppedManually = false;
         }
 
-        public void SetVolume(float vol)
+        public void SetVolume(float volume)
         {
-            waveOut.Volume = vol;
+            _waveOut.Volume = volume;
         }
 
         /// <summary>
@@ -44,35 +44,35 @@ namespace MusCatalog.Utils
             // if some track is currently playing, then stop it and dispose waveOut and mp3FileReader
             StopAndDispose();
             
-            waveOut = new WaveOut();
+            _waveOut = new WaveOut();
 
             // here we may face some problems depending on particular mp3 file (exception is possible)
-            mp3Reader = new Mp3FileReader(filename);
-            waveOut.Init(mp3Reader);
-            waveOut.Play();
+            _mp3Reader = new Mp3FileReader(filename);
+            _waveOut.Init(_mp3Reader);
+            _waveOut.Play();
 
             // update player state
-            SongPlaybackState = PlaybackState.PLAY;
-            IsManualStop = false;
+            SongPlaybackState = PlaybackState.Play;
+            IsStoppedManually = false;
         }
 
         public void Stop(bool manualStop = true)
         {
-            IsManualStop = manualStop;
-            waveOut.Stop();
-            SongPlaybackState = PlaybackState.STOP;
+            IsStoppedManually = manualStop;
+            _waveOut.Stop();
+            SongPlaybackState = PlaybackState.Stop;
         }
 
         public void Pause()
         {
-            waveOut.Pause();
-            SongPlaybackState = PlaybackState.PAUSE;
+            _waveOut.Pause();
+            SongPlaybackState = PlaybackState.Pause;
         }
 
         public void Resume()
         {
-            waveOut.Resume();
-            SongPlaybackState = PlaybackState.PLAY;
+            _waveOut.Resume();
+            SongPlaybackState = PlaybackState.Play;
         }
 
         /// <summary>
@@ -81,14 +81,14 @@ namespace MusCatalog.Utils
         /// <param name="percent">Percent of elapsed time (0.0-100.0)</param>
         public void Seek(double percent)
         {
-            if (mp3Reader == null)
+            if (_mp3Reader == null)
             {
                 return;
             }
 
-            double totalSeconds = mp3Reader.TotalTime.TotalSeconds * percent;
-            TimeSpan seekPos = TimeSpan.FromSeconds(totalSeconds);
-            mp3Reader.CurrentTime = seekPos;
+            var totalSeconds = _mp3Reader.TotalTime.TotalSeconds * percent;
+            var seekPos = TimeSpan.FromSeconds(totalSeconds);
+            _mp3Reader.CurrentTime = seekPos;
         }
 
         /// <summary>
@@ -97,12 +97,12 @@ namespace MusCatalog.Utils
         /// <returns>The percent of elapsed time (0.0-100.0)</returns>
         public double TimePercent()
         {
-            if (mp3Reader == null)
+            if (_mp3Reader == null)
             {
                 return 0.0;
             }
 
-            return mp3Reader.CurrentTime.TotalSeconds / mp3Reader.TotalTime.TotalSeconds;
+            return _mp3Reader.CurrentTime.TotalSeconds / _mp3Reader.TotalTime.TotalSeconds;
         }
 
         /// <summary>
@@ -110,27 +110,29 @@ namespace MusCatalog.Utils
         /// </summary>
         public void StopAndDispose()
         {
-            if (waveOut != null)
+            if (_waveOut == null)
             {
-                if (waveOut.PlaybackState != NAudio.Wave.PlaybackState.Stopped)
-                {
-                    Stop();
-                }
+                return;
+            }
 
-                waveOut.Dispose();
-                waveOut = null;
+            if (_waveOut.PlaybackState != NAudio.Wave.PlaybackState.Stopped)
+            {
+                Stop();
+            }
+
+            _waveOut.Dispose();
+            _waveOut = null;
                 
-                if (mp3Reader != null)
-                {
-                    mp3Reader.Dispose();
-                    mp3Reader = null;
-                }
+            if (_mp3Reader != null)
+            {
+                _mp3Reader.Dispose();
+                _mp3Reader = null;
             }
         }
 
         public bool IsStopped()
         {
-            return waveOut.PlaybackState == NAudio.Wave.PlaybackState.Stopped;
+            return _waveOut.PlaybackState == NAudio.Wave.PlaybackState.Stopped;
         }
     }
 }

@@ -14,52 +14,39 @@ using System.Windows.Media;
 namespace MusCatalog.ViewModel
 {
     /// <summary>
-    /// The way we select performers in the main list
-    /// </summary>
-    enum PerformerFilters : byte
-    {
-        FilteredByFirstLetter,
-        FilteredByPattern,
-        FilteredByAlbumPattern
-    }
-
-    /// <summary>
     /// MainViewModel is responsible for CRUD operations with performers and albums
     /// (and other stuff from main menu such as Radio, Stats, Settings, Help)
     /// </summary>
     class MainViewModel : INotifyPropertyChanged
     {
-        private ObservableCollection<PerformerViewModel> performers = new ObservableCollection<PerformerViewModel>();
-        public ObservableCollection<PerformerViewModel> Performers
-        {
-            get { return performers; }
-        }
+        public ObservableCollection<PerformerViewModel> Performers { get; } = 
+            new ObservableCollection<PerformerViewModel>();
 
         public PerformerViewModel SelectedPerformer { get; set; }
         
-        private string performerPattern;
+        private string _performerPattern;
         public string PerformerPattern
         {
-            get { return performerPattern; }
+            get { return _performerPattern; }
             set
             {
-                performerPattern = value;
+                _performerPattern = value;
                 RaisePropertyChanged("PerformerPattern");
             }
         }
 
-        private string albumPattern;
+        private string _albumPattern;
         public string AlbumPattern
         {
-            get { return albumPattern; }
+            get { return _albumPattern; }
             set
             {
-                albumPattern = value;
+                _albumPattern = value;
                 RaisePropertyChanged("AlbumPattern");
             }
         }
 
-        PerformerFilters Filter = PerformerFilters.FilteredByFirstLetter;
+        private PerformerFilters _filter = PerformerFilters.FilterByFirstLetter;
 
         #region Commands
 
@@ -91,29 +78,28 @@ namespace MusCatalog.ViewModel
         public string FirstLetter = "A";
 
         // References to "selected" and "deselected" buttons in upper navigation panel
-        private LetterNavigationButton prevButton = null;
-        private LetterNavigationButton pressedButton = null;
-
-
+        private LetterNavigationButton _previousButton;
+        private LetterNavigationButton _pressedButton;
+        
         public void CreateUpperNavigationPanel()
         {
             LetterCollection = new ObservableCollection<LetterNavigationButton>();
 
             // create the upper navigation panel
-            foreach (char c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+            foreach (var c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
             {
-                LetterNavigationButton b = new LetterNavigationButton(c.ToString());
-                b.Click += SetFirstLetter;
-                LetterCollection.Add(b);
+                var button = new LetterNavigationButton(c.ToString());
+                button.Click += SetFirstLetter;
+                LetterCollection.Add(button);
             }
 
-            LetterNavigationButton bOther = new LetterNavigationButton("Other", 70);
-            bOther.Click += SetFirstLetter;
-            LetterCollection.Add(bOther);
+            var buttonOther = new LetterNavigationButton("Other", 70);
+            buttonOther.Click += SetFirstLetter;
+            LetterCollection.Add(buttonOther);
 
             // Start with the "A-letter"-list
-            prevButton = LetterCollection[0];
-            prevButton.Select();
+            _previousButton = LetterCollection[0];
+            _previousButton.Select();
         }
 
         /// <summary>
@@ -121,13 +107,14 @@ namespace MusCatalog.ViewModel
         /// </summary>
         private void SetFirstLetter(object sender, RoutedEventArgs e)
         {
-            pressedButton = (LetterNavigationButton)sender;
-            prevButton.DeSelect();
-            pressedButton.Select();
-            prevButton = pressedButton;
-            FirstLetter = pressedButton.Content.ToString();
-            Filter = PerformerFilters.FilteredByFirstLetter;
-            SelectedPage = 0;
+            _pressedButton = (LetterNavigationButton)sender;
+            _previousButton.DeSelect();
+            _pressedButton.Select();
+            _previousButton = _pressedButton;
+            _filter = PerformerFilters.FilterByFirstLetter;
+            _selectedPage = 0;
+
+            FirstLetter = _pressedButton.Content.ToString();
             SelectPerformersByFirstLetter();
         }
 
@@ -136,13 +123,13 @@ namespace MusCatalog.ViewModel
         /// </summary>
         private void ResetButtons()
         {
-            if (pressedButton != null)
+            if (_pressedButton != null)
             {
-                pressedButton.DeSelect();
+                _pressedButton.DeSelect();
             }
             else
             {
-                prevButton.DeSelect();
+                _previousButton.DeSelect();
             }
         }
 
@@ -153,49 +140,53 @@ namespace MusCatalog.ViewModel
         // Page numbers in lower navigation panel
         public ObservableCollection<UIElement> PageCollection { get; set; }
         
-        int SelectedPage = 0;
-        int PerformersPerPage = 10;
+        private int _selectedPage = 0;
+        private const int PerformersPerPage = 10;
 
         private void CreatePageNavigationPanel(int totalCount)
         {
             PageCollection.Clear();
 
             var total = Math.Ceiling((double)totalCount / PerformersPerPage);
-            
-            if (total > 1)
+
+            if (!(total > 1))
             {
-                for (int i = 0; i < total; i++)
-                {
-                    var nb = new TextBlock();
-                    nb.Tag = i;
-                    nb.Text = (i + 1).ToString();
-                    nb.TextDecorations = TextDecorations.Underline;
-                    nb.Cursor = Cursors.Hand;
-                    nb.Margin = new Thickness(5, 0, 0, 0);
-                    nb.Foreground = Brushes.Yellow;
-                    nb.Background = Brushes.Transparent;
-                    nb.MouseDown += NavigatePage;
-
-                    PageCollection.Add(nb);
-                }
-
-                ((TextBlock)PageCollection.ElementAt(SelectedPage)).TextDecorations = null;
+                return;
             }
+
+            for (var i = 0; i < total; i++)
+            {
+                var nb = new TextBlock
+                {
+                    Tag = i,
+                    Text = (i + 1).ToString(),
+                    TextDecorations = TextDecorations.Underline,
+                    Cursor = Cursors.Hand,
+                    Margin = new Thickness(5, 0, 0, 0),
+                    Foreground = Brushes.Yellow,
+                    Background = Brushes.Transparent
+                };
+                nb.MouseDown += NavigatePage;
+
+                PageCollection.Add(nb);
+            }
+
+            ((TextBlock)PageCollection.ElementAt(_selectedPage)).TextDecorations = null;
         }
         
         private void NavigatePage(object sender, RoutedEventArgs e)
         {
-            SelectedPage = (int)((TextBlock)sender).Tag;
+            _selectedPage = (int)((TextBlock)sender).Tag;
 
-            switch (Filter)
+            switch (_filter)
             {
-                case PerformerFilters.FilteredByFirstLetter:
+                case PerformerFilters.FilterByFirstLetter:
                     SelectPerformersByFirstLetter();
                     break;
-                case PerformerFilters.FilteredByPattern:
+                case PerformerFilters.FilterByPattern:
                     SelectPerformersByPattern();
                     break;
-                case PerformerFilters.FilteredByAlbumPattern:
+                case PerformerFilters.FilterByAlbumPattern:
                     SelectPerformersByAlbumPattern();
                     break;
             }
@@ -208,26 +199,38 @@ namespace MusCatalog.ViewModel
             // setting up all commands (quite a lot of them)
             GeneralViewCommand = new RelayCommand(() =>
             {
-                if (SelectedPerformer != null && SelectedPerformer.SelectedAlbum != null)
+                if (SelectedPerformer?.SelectedAlbum != null)
+                {
                     ViewSelectedAlbum();
+                }
                 else
+                {
                     ViewSelectedPerformer();
+                }
             });
 
             GeneralDeleteCommand = new RelayCommand(() =>
             {
-                if (SelectedPerformer != null && SelectedPerformer.SelectedAlbum != null)
+                if (SelectedPerformer?.SelectedAlbum != null)
+                {
                     RemoveSelectedAlbum();
+                }
                 else
+                {
                     RemoveSelectedPerformer();
+                }
             });
 
             GeneralEditCommand = new RelayCommand(() =>
             {
-                if (SelectedPerformer != null && SelectedPerformer.SelectedAlbum != null)
+                if (SelectedPerformer?.SelectedAlbum != null)
+                {
                     EditAlbum();
+                }
                 else
+                {
                     EditPerformer();
+                }
             });
 
             ViewPerformerCommand = new RelayCommand(ViewSelectedPerformer);
@@ -263,42 +266,36 @@ namespace MusCatalog.ViewModel
         ///     otherwise - the total rate is simply an average of album rates
         ///     
         /// </summary>
-        /// <param name="albums">The list of performer's albums</param>
+        /// <param name="albums">Collection of performer's albums</param>
         /// <returns>The total rate of performer's album collection</returns>
-        private byte? CalculateAlbumCollectionRate(List<Album> albums)
+        private byte? CalculateAlbumCollectionRate(IEnumerable<Album> albums)
         {
-            byte? avgRate = null;
+            var ratedCount = albums.Count(t => t.Rate.HasValue);
 
-            int ratedCount = albums.Count(t => t.Rate.HasValue);
-            if (ratedCount > 0)
+            if (ratedCount <= 0)
             {
-                int sumRate = albums.Sum(t =>
-                {
-                    if (t.Rate.HasValue)
-                        return t.Rate.Value;
-                    else
-                        return 0;
-                });
-
-                if (ratedCount > 2)
-                {
-                    byte minRate = albums.Min(r => r.Rate).Value;
-                    byte maxRate = albums.Max(r => r.Rate).Value;
-                    sumRate -= (minRate + maxRate);
-                    ratedCount -= 2;
-                }
-
-                avgRate = (byte)Math.Round((double)sumRate / ratedCount, MidpointRounding.AwayFromZero);
+                return null;
             }
 
-            return avgRate;
+            var sumRate = albums.Sum(t => t.Rate ?? 0);
+
+            if (ratedCount > 2)
+            {
+                var minRate = albums.Min(r => r.Rate).Value;
+                var maxRate = albums.Max(r => r.Rate).Value;
+                sumRate -= (minRate + maxRate);
+                ratedCount -= 2;
+            }
+
+            return (byte)Math.Round((double)sumRate / ratedCount, 
+                                        MidpointRounding.AwayFromZero);
         }
 
         /// <summary>
         /// Create Performer View Models for each performer (order albums, calculate rate and count the number of albums)
         /// </summary>
         /// <param name="performersSelected">Pre-selected collection of performers to work with</param>
-        private void MakePerformerViewModels(IQueryable<Performer> performersSelected)
+        private void FillPerformerViewModels(IQueryable<Performer> performersSelected)
         {
             // tryin' it out 
             GC.Collect();
@@ -306,36 +303,38 @@ namespace MusCatalog.ViewModel
 
             CreatePageNavigationPanel(performersSelected.Count());
 
-            var performersPaged = performersSelected.Skip(SelectedPage * PerformersPerPage)
-                                                    .Take(PerformersPerPage)
-                                                    .ToList();
-            performers.Clear();
+            var performersPaged = 
+                performersSelected.Skip(_selectedPage * PerformersPerPage)
+                                  .Take(PerformersPerPage)
+                                  .ToList();
+            Performers.Clear();
 
-            foreach (var perf in performersPaged)
+            foreach (var performer in performersPaged)
             {
-                var performerView = new PerformerViewModel { Performer = perf };
+                var performerView = new PerformerViewModel { Performer = performer };
 
-                /// Fill performer's albumlist
+                // Fill performer's albumlist
                 List<Album> albums;
 
-                // If no album pattern filter is specified, then copy --all-- albums to PerformerViewModel
-                if (Filter != PerformerFilters.FilteredByAlbumPattern)
+                // If no album pattern filter is specified, then copy **all** albums to PerformerViewModel
+                if (_filter != PerformerFilters.FilterByAlbumPattern)
                 {
-                    albums = perf.Albums.OrderBy(a => a.ReleaseYear)
-                                        .ThenBy(a => a.Name)
-                                        .ToList();
+                    albums = performer.Albums.OrderBy(a => a.ReleaseYear)
+                                             .ThenBy(a => a.Name)
+                                             .ToList();
                     foreach (var album in albums)
                     {
                         performerView.Albums.Add(new AlbumViewModel { Album = album });
                     }
                 }
-                // Otherwise, --filter out albums to show-- according to album search string
+                // Otherwise, **filter out albums to show** according to album search pattern
                 else
                 {
-                    albums = perf.Albums.Where(a => a.Name.ToUpper().Contains(AlbumPattern.ToUpper()))
-                                                                    .OrderBy(a => a.ReleaseYear)
-                                                                    .ThenBy(a => a.Name)
-                                                                    .ToList();
+                    albums = performer.Albums
+                                      .Where(a => a.Name.ToLower().Contains(AlbumPattern.ToLower()))
+                                                                  .OrderBy(a => a.ReleaseYear)
+                                                                  .ThenBy(a => a.Name)
+                                                                  .ToList();
                     foreach (var album in albums)
                     {
                         performerView.Albums.Add(new AlbumViewModel { Album = album });
@@ -347,14 +346,13 @@ namespace MusCatalog.ViewModel
                 performerView.AlbumCollectionRate = CalculateAlbumCollectionRate(albums);
 
                 // Finally, add fully created performer view model to the list
-                performers.Add(performerView);
+                Performers.Add(performerView);
             }
         }
 
         /// <summary>
         /// Select performers whose name starts with string FirstLetter (or not a letter - "Other" case)
         /// </summary>
-        /// <param name="letter">The first letter of a performer's name ("A", "B", "C", ..., "Z") or "Other"</param>
         public void SelectPerformersByFirstLetter()
         {
             using (var context = new MusCatEntities())
@@ -363,32 +361,34 @@ namespace MusCatalog.ViewModel
 
                 // query can be of two kinds:
 
-                // 1) single letters ('A', 'B', 'C', ..., 'Z')
+                // 1) single letters ('a', 'b', 'c', ..., 'z')
                 if (FirstLetter.Length == 1)
                 {
-                    performersSelected = from p in context.Performers.Include("Country").Include("Albums")
-                                         where p.Name.ToUpper().StartsWith(FirstLetter)
-                                         orderby p.Name
-                                         select p;
+                    performersSelected = 
+                        from p in context.Performers.Include("Country").Include("Albums")
+                        where p.Name.ToLower().StartsWith(FirstLetter)
+                        orderby p.Name
+                        select p;
                 }
                 // 2) The "Other" option
                 //    (all performers whose name doesn't start with capital English letter, e.g. "10CC", "Пикник", etc.)
                 else
                 {
-                    performersSelected = from p in context.Performers.Include("Country").Include("Albums")
-                                         where p.Name.ToUpper().Substring(0, 1).CompareTo("A") < 0 ||
-                                               p.Name.ToUpper().Substring(0, 1).CompareTo("Z") > 0
-                                         orderby p.Name
-                                         select p;
+                    performersSelected = 
+                        from p in context.Performers.Include("Country").Include("Albums")
+                        where string.Compare(p.Name.ToLower().Substring(0, 1), "a", StringComparison.Ordinal) < 0 ||
+                              string.Compare(p.Name.ToLower().Substring(0, 1), "z", StringComparison.Ordinal) > 0
+                        orderby p.Name
+                        select p;
                 }
 
-                if (Filter != PerformerFilters.FilteredByFirstLetter)
+                if (_filter != PerformerFilters.FilterByFirstLetter)
                 {
-                    Filter = PerformerFilters.FilteredByFirstLetter;
-                    SelectedPage = 0;
+                    _filter = PerformerFilters.FilterByFirstLetter;
+                    _selectedPage = 0;
                 }
 
-                MakePerformerViewModels(performersSelected);
+                FillPerformerViewModels(performersSelected);
             }
         }
 
@@ -401,18 +401,19 @@ namespace MusCatalog.ViewModel
             using (var context = new MusCatEntities())
             {
                 // main query in this case
-                var performersSelected = from p in context.Performers.Include("Country").Include("Albums")
-                                         where p.Name.ToUpper().Contains(PerformerPattern.ToUpper())
-                                         orderby p.Name
-                                         select p;
+                var performersSelected = 
+                    from p in context.Performers.Include("Country").Include("Albums")
+                    where p.Name.ToLower().Contains(PerformerPattern.ToLower())
+                    orderby p.Name
+                    select p;
 
-                if (Filter != PerformerFilters.FilteredByPattern)
+                if (_filter != PerformerFilters.FilterByPattern)
                 {
-                    SelectedPage = 0;
-                    Filter = PerformerFilters.FilteredByPattern;
+                    _selectedPage = 0;
+                    _filter = PerformerFilters.FilterByPattern;
                 }
 
-                MakePerformerViewModels(performersSelected);
+                FillPerformerViewModels(performersSelected);
 
                 // deselect all buttons in upper navigation panel
                 ResetButtons();
@@ -429,19 +430,18 @@ namespace MusCatalog.ViewModel
             using (var context = new MusCatEntities())
             {
                 // main query in this case
-                var performersSelected = context.Performers.Include("Country")
-                                                .Where(p => p.Albums
-                                                .Where(a => a.Name.Contains(AlbumPattern))
-                                                .Count() > 0)
-                                                .OrderBy(p => p.Name);
+                var performersSelected = 
+                    context.Performers.Include("Country")
+                                      .Where(p => p.Albums.Any(a => a.Name.Contains(AlbumPattern)))
+                                      .OrderBy(p => p.Name);
 
-                if (Filter != PerformerFilters.FilteredByAlbumPattern)
+                if (_filter != PerformerFilters.FilterByAlbumPattern)
                 {
-                    SelectedPage = 0;
-                    Filter = PerformerFilters.FilteredByAlbumPattern;
+                    _selectedPage = 0;
+                    _filter = PerformerFilters.FilterByAlbumPattern;
                 }
 
-                MakePerformerViewModels(performersSelected);
+                FillPerformerViewModels(performersSelected);
 
                 // deselect all buttons in upper navigation panel
                 ResetButtons();
@@ -458,90 +458,104 @@ namespace MusCatalog.ViewModel
                 return;
             }
 
-            PerformerWindow perfWindow = new PerformerWindow();
-            perfWindow.DataContext = SelectedPerformer;
-            perfWindow.Show();
+            var performerWindow = new PerformerWindow
+            {
+                DataContext = SelectedPerformer
+            };
+            performerWindow.Show();
         }
 
         public void EditPerformer()
         {
             if (SelectedPerformer == null)
             {
-                MessageBox.Show( "Please select performer to edit!" );
+                MessageBox.Show("Please select performer to edit!");
                 return;
             }
 
-            EditPerformerViewModel viewmodel = new EditPerformerViewModel(SelectedPerformer);
-            EditPerformerWindow perfWindow = new EditPerformerWindow();
-            perfWindow.DataContext = viewmodel;
-            perfWindow.Show();
+            var viewmodel = new EditPerformerViewModel(SelectedPerformer);
+            var performerWindow = new EditPerformerWindow
+            {
+                DataContext = viewmodel
+            };
+            performerWindow.Show();
         }
 
         public void AddPerformer()
         {
             // set initial information of a newly added performer
-            Performer perf = new Performer { Name = "Unknown performer" };
+            var performer = new Performer { Name = "Unknown performer" };
 
             using (var context = new MusCatEntities())
             {
-                perf.ID = context.Performers.Max(p => p.ID) + 1;
-                context.Performers.Add(perf);
+                performer.ID = context.Performers.Max(p => p.ID) + 1;
+                context.Performers.Add(performer);
                 context.SaveChanges();
 
-                EditPerformerViewModel viewmodel = new EditPerformerViewModel(new PerformerViewModel { Performer = perf });
-                EditPerformerWindow perfWindow = new EditPerformerWindow();
-                perfWindow.DataContext = viewmodel;
-                perfWindow.ShowDialog();
+                var viewmodel = new EditPerformerViewModel(new PerformerViewModel
+                {
+                    Performer = performer
+                });
+
+                var performerWindow = new EditPerformerWindow
+                {
+                    DataContext = viewmodel
+                };
+
+                performerWindow.ShowDialog();
 
                 // clear all performers shown in the main window
-                performers.Clear();
+                Performers.Clear();
                 ResetButtons();
-                SelectedPage = 0;
                 PageCollection.Clear();
 
+                _selectedPage = 0;
+
                 // and show only newly added performer (to focus user's attention on said performer)
-                performers.Add(new PerformerViewModel { Performer = perf });
+                Performers.Add(new PerformerViewModel
+                {
+                    Performer = performer
+                });
             }
         }
 
         public void RemoveSelectedPerformer()
         {
-            var perf = SelectedPerformer.Performer;
+            var performer = SelectedPerformer.Performer;
 
-            if (perf == null)
+            if (performer == null)
             {
                 MessageBox.Show("Please select performer to remove");
             }
-            else if (MessageBox.Show(string.Format("Are you sure you want to delete '{0}'?", perf.Name),
+            else if (MessageBox.Show(string.Format("Are you sure you want to delete '{0}'?", performer.Name),
                                         "Confirmation",
                                         MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 using (var context = new MusCatEntities())
                 {
-                    //context.DeletePerformerByID((int?)(perf.ID));                         // option1: stored procedure
-                    var performerToDelete = context.Performers                              // option2: LINQ query
-                                                   .Where(p => p.ID == perf.ID)
-                                                   .SingleOrDefault<Performer>();
-                    context.Performers.Remove(performerToDelete);
+                    var performerToRemove = 
+                        context.Performers.SingleOrDefault(p => p.ID == performer.ID);
+
+                    context.Performers.Remove(performerToRemove);
                     context.SaveChanges();
 
-                    performers.Remove(SelectedPerformer);
+                    Performers.Remove(SelectedPerformer);
                 }
             }
         }
 
         public void ViewSelectedAlbum()
         {
-            if (SelectedPerformer == null || SelectedPerformer.SelectedAlbum == null)
+            if (SelectedPerformer?.SelectedAlbum == null)
             {
                 MessageBox.Show("Please select album to show!");
                 return;
             }
 
-            // lazily load songs of selected album
+            // load songs of selected album lazily
             SelectedPerformer.SelectedAlbum.LoadSongs();
 
-            AlbumWindow albumWindow = new AlbumWindow();
+            var albumWindow = new AlbumWindow();
             var albumViewModel = new AlbumPlaybackViewModel(SelectedPerformer.SelectedAlbum);
 
             // user can change album rate in Album View Window, so we "stay in touch"
@@ -552,21 +566,22 @@ namespace MusCatalog.ViewModel
 
         public void EditAlbum()
         {
-            if (SelectedPerformer == null || SelectedPerformer.SelectedAlbum == null)
+            if (SelectedPerformer?.SelectedAlbum == null)
             {
                 MessageBox.Show("Please select album to edit!");
                 return;
             }
-
-            // lazy load songs of selected album
+            
             SelectedPerformer.SelectedAlbum.LoadSongs();
 
-            EditAlbumWindow albumWindow = new EditAlbumWindow();
-            albumWindow.DataContext = new EditAlbumViewModel(SelectedPerformer.SelectedAlbum);
+            var albumWindow = new EditAlbumWindow
+            {
+                DataContext = new EditAlbumViewModel(SelectedPerformer.SelectedAlbum)
+            };
             albumWindow.ShowDialog();
 
             SelectedPerformer.AlbumCollectionRate =
-                    CalculateAlbumCollectionRate(SelectedPerformer.Performer.Albums.ToList());
+                    CalculateAlbumCollectionRate(SelectedPerformer.Performer.Albums);
         }
 
         public void AddAlbum()
@@ -578,51 +593,68 @@ namespace MusCatalog.ViewModel
             }
 
             // set initial information of a newly added album
-            Album a = new Album {   Name = "New Album",
-                                    TotalTime = "00:00",
-                                    PerformerID = SelectedPerformer.Performer.ID,
-                                    ReleaseYear = (short)DateTime.Now.Year };
+            var album = new Album
+            {
+                Name = "New Album",
+                TotalTime = "00:00",
+                PerformerID = SelectedPerformer.Performer.ID,
+                ReleaseYear = (short)DateTime.Now.Year
+            };
 
             using (var context = new MusCatEntities())
             {
-                a.ID = context.Albums.Max(alb => alb.ID) + 1;
-                context.Albums.Add(a);
+                album.ID = context.Albums.Max(a => a.ID) + 1;
+                context.Albums.Add(album);
                 context.SaveChanges();
 
-                a.Performer = SelectedPerformer.Performer;
+                album.Performer = SelectedPerformer.Performer;
 
-                AlbumViewModel albumView = new AlbumViewModel { Album = a };
-                
-                EditAlbumWindow editAlbum = new EditAlbumWindow();
-                editAlbum.DataContext = new EditAlbumViewModel(albumView);
+                var albumView = new AlbumViewModel
+                {
+                    Album = album
+                };
+
+                var editAlbum = new EditAlbumWindow
+                {
+                    DataContext = new EditAlbumViewModel(albumView)
+                };
+
                 editAlbum.ShowDialog();
 
+                var albums = SelectedPerformer.Albums;
+
                 // Insert the view model of a newly added album at the right place in performer's collection
-                int j = SelectedPerformer.Albums.Count;
-                for (int i = 0; i < SelectedPerformer.Albums.Count; i++)
+                var albumPos = albums.Count;
+
+                for (var i = 0; i < albums.Count; i++)
                 {
-                    // firstly, let's see where newly asdded album fits by its year of release
-                    if (a.ReleaseYear <= SelectedPerformer.Albums[i].Album.ReleaseYear)
+                    // firstly, let's see where newly added album fits by its year of release
+                    if (album.ReleaseYear > albums[i].Album.ReleaseYear)
                     {
-                        // then, there can be several albums with the same year of release
-                        // so loop through them to find the place for insertion (by album name)
-                        j = i;
-                        while (SelectedPerformer.Albums[j].Album.ReleaseYear == a.ReleaseYear &&
-                                a.Name.CompareTo(SelectedPerformer.Albums[j].Album.Name) > 0 &&
-                                j < SelectedPerformer.Albums.Count)
-                        {
-                            j++;
-                        }
-                        break;
+                        continue;
                     }
+
+                    // then, there can be several albums with the same year of release
+                    // so loop through them to find the place for insertion (by album name)
+                    albumPos = i;
+                    while (albums[albumPos].Album.ReleaseYear == album.ReleaseYear 
+                           &&
+                           string.Compare(album.Name, albums[albumPos].Album.Name, StringComparison.Ordinal) > 0
+                           &&
+                           albumPos < albums.Count)
+                    {
+                        albumPos++;
+                    }
+
+                    break;
                 }
 
-                SelectedPerformer.Albums.Insert(j, albumView);
+                SelectedPerformer.Albums.Insert(albumPos, albumView);
 
                 // to update view
                 SelectedPerformer.AlbumCount = SelectedPerformer.Albums.Count();
                 SelectedPerformer.AlbumCollectionRate = 
-                    CalculateAlbumCollectionRate(SelectedPerformer.Performer.Albums.ToList());
+                    CalculateAlbumCollectionRate(SelectedPerformer.Performer.Albums);
             }
         }
 
@@ -631,6 +663,7 @@ namespace MusCatalog.ViewModel
             if (SelectedPerformer == null)
             {
                 MessageBox.Show("Please select performer first!");
+                return;
             }
 
             var selectedAlbum = SelectedPerformer.SelectedAlbum;
@@ -638,33 +671,37 @@ namespace MusCatalog.ViewModel
             if (selectedAlbum == null)
             {
                 MessageBox.Show("Please select album to remove");
+                return;
             }
-            else if (MessageBox.Show(string.Format("Are you sure you want to delete\n '{0}' \nby '{1}'?",
-                                            selectedAlbum.Album.Name, selectedAlbum.Album.Performer.Name),
-                                            "Confirmation",
-                                            MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-            {
-                using (var context = new MusCatEntities())
-                {
-                    //context.DeleteAlbumByID((int?)(selectedAlbum.ID));               // option1: stored procedure
-                    var albumToDelete = context.Albums                                 // option2: LINQ query
-                                               .Where(a => a.ID == selectedAlbum.Album.ID)
-                                               .SingleOrDefault<Album>();
-                    context.Albums.Remove(albumToDelete);
-                    context.SaveChanges();
 
-                    SelectedPerformer.Albums.Remove(selectedAlbum);
+            if (MessageBox.Show(string.Format("Are you sure you want to delete\n '{0}' \nby '{1}'?",
+                                    selectedAlbum.Album.Name,
+                                    selectedAlbum.Album.Performer.Name),
+                                    "Confirmation",
+                                    MessageBoxButton.YesNo) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            using (var context = new MusCatEntities())
+            {
+                var albumToRemove = 
+                    context.Albums.SingleOrDefault(a => a.ID == selectedAlbum.Album.ID);
+
+                context.Albums.Remove(albumToRemove);
+                context.SaveChanges();
+
+                SelectedPerformer.Albums.Remove(selectedAlbum);
                     
-                    // to update view
-                    SelectedPerformer.AlbumCount = SelectedPerformer.Albums.Count();
-                }
+                // to update view
+                SelectedPerformer.AlbumCount = SelectedPerformer.Albums.Count();
             }
         }
 
         public void StartRadio()
         {
-            RadioPlayerWindow radio = new RadioPlayerWindow();
-            radio.Show();
+            var radioWindow = new RadioPlayerWindow();
+            radioWindow.Show();
         }
 
         /// <summary>
@@ -674,12 +711,13 @@ namespace MusCatalog.ViewModel
         /// <param name="e">Empty</param>
         public void AlbumRateUpdated(object sender, EventArgs e)
         {
-            var perf = sender as Performer;
-            foreach (var performerView in performers)
+            var performer = sender as Performer;
+            foreach (var performerView in Performers)
             {
-                if (performerView.Performer.ID == perf.ID)
+                if (performerView.Performer.ID == performer.ID)
                 {
-                    performerView.AlbumCollectionRate = CalculateAlbumCollectionRate(perf.Albums.ToList());
+                    performerView.AlbumCollectionRate = 
+                        CalculateAlbumCollectionRate(performer.Albums);
                     return;
                 }
             }

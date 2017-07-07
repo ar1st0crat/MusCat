@@ -96,8 +96,11 @@
                                Foreground="Black" 
                                Margin="0,-1,0,-1" />
                     <Image Grid.Row="1" 
-                           Source="{Binding Path=Album, Converter={StaticResource PhotoConverter}, ConverterParameter={StaticResource AlbumImageHeight}, UpdateSourceTrigger=PropertyChanged}"
-                           Height="{StaticResource AlbumImageHeight}" Width="{StaticResource AlbumImageWidth}"
+                           Source="{Binding Path=Album, Converter={StaticResource PhotoConverter},
+                                            ConverterParameter={StaticResource AlbumImageHeight},
+                                            UpdateSourceTrigger=PropertyChanged}"
+                           Height="{StaticResource AlbumImageHeight}"
+                           Width="{StaticResource AlbumImageWidth}"
                            VerticalAlignment="Top" 
                            Margin="5">
                         <Image.Effect>
@@ -118,7 +121,9 @@
                                FontSize="12" FontFamily="Segoe UI"
                                Foreground="#ffbb88" />
                     <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <controls:RateStarsControl Height="20" Width="100" Rate="{Binding Path=Album.Rate}" IsEnabled="False" />
+                        <controls:RateStarsControl Rate="{Binding Path=Album.Rate}"
+                                                   Height="20" Width="100"
+                                                   IsEnabled="False" />
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
                                 <Style.Triggers>
@@ -132,7 +137,9 @@
                     <TextBlock Grid.Row="4"
                                Style="{StaticResource RateTextBlock}"
                                Text="{Binding Path=Album, Converter={StaticResource RateConverter}}"
-                               FontSize="12" Foreground="Black" HorizontalAlignment="Center" Margin="5"/>
+                               FontSize="12"
+                               Foreground="Black"
+                               HorizontalAlignment="Center" Margin="5"/>
                 </Grid>
             </StackPanel>
         </DataTemplate>
@@ -171,24 +178,37 @@
                 <Ellipse Width="95" Height="95" Margin="15,10,15,15">
                     <Ellipse.Fill>
                         <ImageBrush ImageSource="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
-                                            ConverterParameter={StaticResource PerformerPhotoHeight},
-                                            UpdateSourceTrigger=PropertyChanged}"
-                                        Stretch="UniformToFill"/>
+                                                          ConverterParameter={StaticResource PerformerPhotoHeight},
+                                                          UpdateSourceTrigger=PropertyChanged}"
+                                    Stretch="UniformToFill"/>
                     </Ellipse.Fill>
                 </Ellipse>
                 <StackPanel>
-                    <Label FontSize="24" Foreground="LightYellow" FontFamily="Stencil" Content="{Binding Path=Performer.Name}" Padding="0,5,0,0" />
+                    <Label Content="{Binding Path=Performer.Name}"
+                           FontSize="24" FontFamily="Stencil" 
+                           Foreground="LightYellow"
+                           Padding="0,5,0,0" />
                     <DockPanel>
                         <StackPanel Margin="0,0,2,0">
-                            <Label x:Name="RateLabel" FontSize="18" Foreground="White" FontFamily="Arial Narrow" Padding="1,1,10,1"
-                                   Content="{Binding Path=AlbumCollectionRate, Converter={StaticResource RateConverter}}" />
+                            <Label Content="{Binding Path=AlbumCollectionRate, Converter={StaticResource RateConverter}}"
+                                   Foreground="White"
+                                   FontSize="18" FontFamily="Arial Narrow"
+                                   Padding="1,1,10,1" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Style="{StaticResource PerformerRateStyle}">
-                            <controls:RateStarsControl Width="75" Height="15" Rate="{Binding Path=AlbumCollectionRate}" IsEnabled="False" />
+                            <controls:RateStarsControl Rate="{Binding Path=AlbumCollectionRate}"
+                                                       Width="75" Height="15"
+                                                       IsEnabled="False" />
                         </StackPanel>
                     </DockPanel>
-                    <Label Content="{Binding Path=AlbumCount, Converter={StaticResource AlbumCountConverter}}" FontSize="16" Foreground="LightPink" FontFamily="Arial Narrow" Padding="1" />
-                    <Label Content="{Binding Path=Performer, Converter={StaticResource YearsConverter}}" FontSize="16" Foreground="LightGreen" FontFamily="Arial Narrow" Padding="1" />
+                    <Label Content="{Binding Path=AlbumCount, Converter={StaticResource AlbumCountConverter}}"
+                           FontSize="16" FontFamily="Arial Narrow"
+                           Foreground="LightPink"
+                           Padding="1" />
+                    <Label Content="{Binding Path=Performer, Converter={StaticResource YearsConverter}}"
+                           FontSize="16" FontFamily="Arial Narrow"
+                           Foreground="LightGreen"
+                           Padding="1" />
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
@@ -196,79 +216,93 @@
         <!-- when performer is selected by user, the country of origin and the list of albums are additionally shown -->
         <DataTemplate x:Key="SelectedPerformerTemplate">
             <Grid>
-            <Rectangle RadiusX="7" RadiusY="7" Fill="#ffddee" Margin="5" Opacity="0.5" Grid.Column="0" />
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Background="Transparent" Grid.Column="0">
-                <StackPanel Margin="5,5,35,5" HorizontalAlignment="Center">
-                    <!-- uncomment this if you want performer's photo to be shown as rectangle  -->
-                    <!--
-                    <Image Height="{StaticResource SelectedPerformerPhotoHeight}" Width="{StaticResource SelectedPerformerPhotoWidth}" Margin="15,10,15,5"
-                           Source="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
-                                            ConverterParameter={StaticResource SelectedPerformerPhotoHeight},
-                                            UpdateSourceTrigger=PropertyChanged}">
-                        <Image.Clip>
-                            <EllipseGeometry RadiusX="100" RadiusY="75" Center="100,75"/>
-                        </Image.Clip>
-                    </Image>
-                    -->
-                    <Ellipse Width="200" Height="140" Margin="15,10,15,5">
-                        <Ellipse.Fill>
-                            <ImageBrush ImageSource="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
+                <Rectangle Grid.Column="0"
+                           RadiusX="7" RadiusY="7"
+                           Margin="5"
+                           Fill="#ffddee" Opacity="0.5" />
+                <StackPanel Grid.Column="0"
+                            Orientation="Horizontal" VerticalAlignment="Top"
+                            Background="Transparent" >
+                    <StackPanel Margin="5,5,35,5" HorizontalAlignment="Center">
+                        <!-- uncomment this if you want performer's photo to be shown as rectangle  -->
+                        <!--
+                        <Image Height="{StaticResource SelectedPerformerPhotoHeight}" Width="{StaticResource SelectedPerformerPhotoWidth}" Margin="15,10,15,5"
+                               Source="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
+                                                ConverterParameter={StaticResource SelectedPerformerPhotoHeight},
+                                                UpdateSourceTrigger=PropertyChanged}">
+                            <Image.Clip>
+                                <EllipseGeometry RadiusX="100" RadiusY="75" Center="100,75"/>
+                            </Image.Clip>
+                        </Image>
+                        -->
+                        <Ellipse Width="200" Height="140" Margin="15,10,15,5">
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
                                             ConverterParameter={StaticResource SelectedPerformerPhotoHeight},
                                             UpdateSourceTrigger=PropertyChanged}"
                                         Stretch="UniformToFill"/>
-                        </Ellipse.Fill>
-                    </Ellipse>
-                    <Label Content="{Binding Path=AlbumCollectionRate, Converter={StaticResource RateConverter}}"
-                           FontSize="20" Foreground="DarkGreen" Background="Orange" FontFamily="Arial Narrow" Padding="10" Margin="0,-35,0,0" HorizontalAlignment="Right">
-                        <Label.RenderTransform>
-                            <RotateTransform Angle="-25"/>
-                        </Label.RenderTransform>
-                        <Label.Effect>
-                            <DropShadowEffect Color="Black" BlurRadius="10"/>
-                        </Label.Effect>
-                    </Label>
-                    <Label FontSize="26" Foreground="Black" FontFamily="Stencil" Content="{Binding Performer.Name}" Margin="0,-10,0,0" HorizontalAlignment="Center" />
-                    <StackPanel HorizontalAlignment="Center" Margin="0,-5,0,15">
+                            </Ellipse.Fill>
+                        </Ellipse>
+                        <Label Content="{Binding Path=AlbumCollectionRate, Converter={StaticResource RateConverter}}"
+                               FontSize="20" FontFamily="Arial Narrow"
+                               Foreground="DarkGreen" Background="Orange"
+                               Padding="10" Margin="0,-35,0,0"
+                               HorizontalAlignment="Right">
+                            <Label.RenderTransform>
+                                <RotateTransform Angle="-25"/>
+                            </Label.RenderTransform>
+                            <Label.Effect>
+                                <DropShadowEffect Color="Black" BlurRadius="10"/>
+                            </Label.Effect>
+                        </Label>
+                        <Label Content="{Binding Performer.Name}"
+                               FontSize="26" FontFamily="Stencil"
+                               Foreground="Black"
+                               Margin="0,-10,0,0" HorizontalAlignment="Center" />
+                        <StackPanel HorizontalAlignment="Center" Margin="0,-5,0,15">
                             <Label Content="{Binding Performer.Country.Name}"
-                                   FontSize="16" Foreground="Black" FontFamily="Arial Narrow"  Padding="1" HorizontalAlignment="Center" />
+                                   FontSize="16" FontFamily="Arial Narrow"
+                                   Foreground="Black"
+                                   Padding="1" HorizontalAlignment="Center" />
                             <StackPanel Style="{StaticResource PerformerRateStyle}"
                                         Orientation="Horizontal" HorizontalAlignment="Center" >
-                                <controls:RateStarsControl Width="75" Height="15" Rate="{Binding Path=AlbumCollectionRate}" IsEnabled="False" />
+                                <controls:RateStarsControl Rate="{Binding Path=AlbumCollectionRate}"
+                                                           Width="75" Height="15"
+                                                           IsEnabled="False" />
                             </StackPanel>
                         </StackPanel>
-                </StackPanel>
-                <ListBox x:Name="SelectedAlbums"
-                         ItemsSource="{Binding Path=Albums}"                        
-                         ItemContainerStyle="{StaticResource AlbumContainerStyle}"
-                         SelectedItem="{Binding Path=SelectedAlbum}"
-                         Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext}"
-                         HorizontalAlignment="Stretch" 
-                         Background="Transparent"
-                         BorderThickness="0">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" IsItemsHost="True" />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="View album..."
+                    </StackPanel>
+                    <ListBox ItemsSource="{Binding Path=Albums}"                        
+                             ItemContainerStyle="{StaticResource AlbumContainerStyle}"
+                             SelectedItem="{Binding Path=SelectedAlbum}"
+                             Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
+                                           Path=DataContext}"
+                             HorizontalAlignment="Stretch" 
+                             Background="Transparent" BorderThickness="0">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" IsItemsHost="True" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="View album..."
                                       Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
                                                         Path=PlacementTarget.Tag.ViewAlbumCommand}">
-                                <MenuItem.Icon>
-                                    <Image Source="{StaticResource ImagePlayButton}" Width="20" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="Edit album..."
+                                    <MenuItem.Icon>
+                                        <Image Source="{StaticResource ImagePlayButton}" Width="20" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Edit album..."
                                       Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
                                                         Path=PlacementTarget.Tag.EditAlbumCommand}"/>
-                            <MenuItem Header="Remove"
+                                <MenuItem Header="Remove"
                                       Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
                                                         Path=PlacementTarget.Tag.DeleteAlbumCommand}"/>
-                        </ContextMenu>
-                    </ListBox.ContextMenu>
-                </ListBox>
-            </StackPanel>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
+                    </ListBox>
+                </StackPanel>
             </Grid>
         </DataTemplate>
         
@@ -324,7 +358,9 @@
             <MenuItem Command="{Binding Path=HelpCommand}" Header="Help" Foreground="Wheat"/>
         </Menu>
         <!-- upper navigation panel-->
-        <WrapPanel Grid.Row="1" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <WrapPanel Grid.Row="1" 
+                   Margin="10" 
+                   HorizontalAlignment="Center" VerticalAlignment="Center">
             <ItemsControl ItemsSource="{Binding Path=LetterCollection}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -334,16 +370,14 @@
             </ItemsControl>
         </WrapPanel>
         <!-- main area (list of performers) -->
-        <ListBox x:Name="Performerlist" Grid.Row="2"
+        <ListBox Grid.Row="2"
                  ItemsSource="{Binding Path=Performers}"
                  ItemContainerStyle="{StaticResource PerformerContainerStyle}"
                  IsSynchronizedWithCurrentItem="False"
                  SelectedItem="{Binding Path=SelectedPerformer}"
                  Width="auto" 
-                 HorizontalAlignment="Stretch" 
-                 HorizontalContentAlignment="Stretch" 
-                 BorderThickness="0" 
-                 Background="Transparent">
+                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" 
+                 BorderThickness="0" Background="Transparent">
             <ListBox.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="View..." Command="{Binding Path=ViewPerformerCommand}">
@@ -364,8 +398,7 @@
             <Expander ExpandDirection="Right">
                 <WrapPanel>
                     <Label Content="Find performer" Foreground="White" FontSize="14" />
-                    <TextBox x:Name="PerformerSearch" 
-                             Text="{Binding Path=PerformerPattern, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding Path=PerformerPattern, UpdateSourceTrigger=PropertyChanged}"
                              Width="120" Height="20"
                              Margin="10,0,3,0" 
                              FontFamily="Stencil" FontSize="14" />
@@ -376,8 +409,7 @@
                         <Image Source="{StaticResource ImagePlayButton}" Height="25"/>
                     </Button>
                     <Label Content="Find album" Foreground="White" FontSize="14" />
-                    <TextBox x:Name="AlbumSearch" 
-                             Text="{Binding AlbumPattern, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding AlbumPattern, UpdateSourceTrigger=PropertyChanged}"
                              Width="120" Height="20"
                              Margin="10,0,3,0" 
                              FontFamily="Stencil" FontSize="14" />
