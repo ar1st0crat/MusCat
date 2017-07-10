@@ -1,0 +1,25 @@
+﻿<Application x:Class="MusCat.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Startup="AppInitialize">
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- star images -->
+            <BitmapImage x:Key="ImageStar" UriSource="Images/star.png" />
+            <BitmapImage x:Key="ImageHalfStar" UriSource="Images/star_half.png" />
+            <BitmapImage x:Key="ImageEmptyStar" UriSource="Images/star_empty.png" />
+            <!-- playback button images -->
+            <BitmapImage x:Key="ImagePlayButton" UriSource="Images/play.png" />
+            <BitmapImage x:Key="ImagePauseButton" UriSource="Images/pause.png" />
+            <BitmapImage x:Key="ImageStopButton" UriSource="Images/stop.png" />
+            <!-- application icon -->
+            <BitmapImage x:Key="AppIcon" UriSource="Images/MusCat.ico" />
+            <!-- reusable control styles -->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/MusCat;component/Controls/SongSlider.xaml"/>
+                <ResourceDictionary Source="/MusCat;component/Controls/ScrollBar.xaml"/>
+                <ResourceDictionary Source="/MusCat;component/Controls/Button.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
