@@ -4,9 +4,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
 using MusCat.Model;
 using MusCat.View;
 using MusCat.Utils;
@@ -47,6 +44,7 @@ namespace MusCat.ViewModel
         }
 
         private PerformerFilters _filter = PerformerFilters.FilterByFirstLetter;
+        private string _filterCriterion;
 
         #region Commands
 
@@ -63,116 +61,13 @@ namespace MusCat.ViewModel
         public RelayCommand DeleteAlbumCommand { get; private set; }
         public RelayCommand PerformerSearchCommand { get; private set; }
         public RelayCommand IndexLetterCommand { get; private set; }
+        public RelayCommand IndexPageCommand { get; private set; }
         public RelayCommand AlbumSearchCommand { get; private set; }
         public RelayCommand EditMusiciansCommand { get; private set; }
         public RelayCommand StartRadioCommand { get; private set; }
         public RelayCommand StatsCommand { get; private set; }
         public RelayCommand SettingsCommand { get; private set; }
         public RelayCommand HelpCommand { get; private set; }
-
-        #endregion
-
-        #region Upper navigation panel
-
-        // Letters in upper navigation panel
-        public ObservableCollection<IndexLetterViewModel> LetterCollection { get; set; } =
-            new ObservableCollection<IndexLetterViewModel>();
-
-        private string _indexLetter;// = "A";
-        public string IndexLetter
-        {
-            get { return _indexLetter; }
-            set
-            {
-                SelectPerformersByFirstLetter(value);
-                _indexLetter = value;
-                RaisePropertyChanged("IndexLetter");
-            }
-        }
-        
-        public void CreateUpperNavigationPanel()
-        {
-            // create the upper navigation panel
-            foreach (var c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-            {
-                LetterCollection.Add(new IndexLetterViewModel
-                {
-                    Text = c.ToString(),
-                    Width = 32,
-                    Height = 32,
-                    IsActive = false
-                });
-            }
-
-            LetterCollection.Add(new IndexLetterViewModel
-            {
-                Text = "Other",
-                Width = 70,
-                Height = 32,
-                IsActive = false
-            });
-
-            LetterCollection[0].IsActive = true;
-        }
-
-        #endregion
-
-        #region Lower navigation panel (page navigation)
-
-        // Page numbers in lower navigation panel
-        public ObservableCollection<UIElement> PageCollection { get; set; }
-        
-        private int _selectedPage = 0;
-        private const int PerformersPerPage = 10;
-
-        private void CreatePageNavigationPanel(int totalCount)
-        {
-            PageCollection.Clear();
-
-            var total = Math.Ceiling((double)totalCount / PerformersPerPage);
-
-            if (!(total > 1))
-            {
-                return;
-            }
-
-            for (var i = 0; i < total; i++)
-            {
-                var nb = new TextBlock
-                {
-                    Tag = i,
-                    Text = (i + 1).ToString(),
-                    TextDecorations = TextDecorations.Underline,
-                    Cursor = Cursors.Hand,
-                    Margin = new Thickness(5, 0, 0, 0),
-                    Foreground = Brushes.Yellow,
-                    Background = Brushes.Transparent
-                };
-                nb.MouseDown += NavigatePage;
-
-                PageCollection.Add(nb);
-            }
-
-            ((TextBlock)PageCollection.ElementAt(_selectedPage)).TextDecorations = null;
-        }
-        
-        private void NavigatePage(object sender, RoutedEventArgs e)
-        {
-            _selectedPage = (int)((TextBlock)sender).Tag;
-
-            switch (_filter)
-            {
-                case PerformerFilters.FilterByFirstLetter:
-                    SelectPerformersByFirstLetter(IndexLetter);
-                    break;
-                case PerformerFilters.FilterByPattern:
-                    SelectPerformersByPattern();
-                    break;
-                case PerformerFilters.FilterByAlbumPattern:
-                    SelectPerformersByAlbumPattern();
-                    break;
-            }
-        }
 
         #endregion
 
@@ -218,10 +113,12 @@ namespace MusCat.ViewModel
             IndexLetterCommand = new RelayCommand(param =>
             {
                 _filter = PerformerFilters.FilterByFirstLetter;
-                LetterCollection.First(l => l.Text == IndexLetter).IsActive = false;
+                ActivateUpperPanel(false);
                 IndexLetter = param.ToString();
-                LetterCollection.First(l => l.Text == IndexLetter).IsActive = true;
+                ActivateUpperPanel(true);
             });
+
+            IndexPageCommand = new RelayCommand(NavigatePage);
 
             ViewPerformerCommand = new RelayCommand(ViewSelectedPerformer);
             ViewAlbumCommand = new RelayCommand(ViewSelectedAlbum);
@@ -239,50 +136,123 @@ namespace MusCat.ViewModel
             SettingsCommand = new RelayCommand(() => { });
             HelpCommand = new RelayCommand(() => { });
 
-            PageCollection = new ObservableCollection<UIElement>();
-
             // create navigation panel
             CreateUpperNavigationPanel();
             // and select the initial set of performers (starting with "A")
             IndexLetter = "A";
         }
 
-        /// <summary>
-        /// The total rate of performer's album collection is calculated based on the following statistics of album rates:
-        /// 
-        ///     if the number of albums is more than 2, then the worst rate and the best rate are discarded
-        ///     and the total rate is an average of remaining rates
-        ///     
-        ///     otherwise - the total rate is simply an average of album rates
-        ///     
-        /// </summary>
-        /// <param name="albums">Collection of performer's albums</param>
-        /// <returns>The total rate of performer's album collection</returns>
-        private byte? CalculateAlbumCollectionRate(IEnumerable<Album> albums)
+        #region Upper navigation panel
+
+        // Letters in upper navigation panel
+        public ObservableCollection<IndexViewModel> LetterCollection { get; set; } =
+            new ObservableCollection<IndexViewModel>();
+
+        private string _indexLetter;
+        public string IndexLetter
         {
-            var ratedCount = albums.Count(t => t.Rate.HasValue);
-
-            if (ratedCount <= 0)
+            get { return _indexLetter; }
+            set
             {
-                return null;
+                _indexLetter = value;
+                SelectPerformersByFirstLetter();
+                RaisePropertyChanged("IndexLetter");
+            }
+        }
+        
+        private void CreateUpperNavigationPanel()
+        {
+            // create the upper navigation panel
+            foreach (var c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+            {
+                LetterCollection.Add(new IndexViewModel
+                {
+                    Text = c.ToString(),
+                    IsActive = false
+                });
             }
 
-            var sumRate = albums.Sum(t => t.Rate ?? 0);
-
-            if (ratedCount > 2)
+            LetterCollection.Add(new IndexViewModel
             {
-                var minRate = albums.Min(r => r.Rate).Value;
-                var maxRate = albums.Max(r => r.Rate).Value;
-                sumRate -= (minRate + maxRate);
-                ratedCount -= 2;
-            }
+                Text = "Other",
+                IsActive = false
+            });
 
-            return (byte)Math.Round((double)sumRate / ratedCount, 
-                                        MidpointRounding.AwayFromZero);
+            LetterCollection[0].IsActive = true;
         }
 
+        private void ActivateUpperPanel(bool active)
+        {
+            LetterCollection.First(l => l.Text == IndexLetter).IsActive = active;
+        }
+        
+        #endregion
+
+        #region Lower navigation panel (page navigation)
+
+        // Page numbers in lower navigation panel
+        public ObservableCollection<IndexViewModel> PageCollection { get; set; } =
+            new ObservableCollection<IndexViewModel>();
+        
+        private int _selectedPage = 0;
+        private const int PerformersPerPage = 10;
+
         /// <summary>
-        /// Create Performer View Models for each performer (order albums, calculate rate and count the number of albums)
+        /// Pagination panel is created each time user updates search filters
+        /// </summary>
+        /// <param name="totalCount">Number of performers in resulting set</param>
+        private void CreatePageNavigationPanel(int totalCount)
+        {
+            PageCollection.Clear();
+
+            var total = (int)Math.Ceiling((double)totalCount / PerformersPerPage);
+            
+            if (total <= 1)
+            {
+                return;
+            }
+
+            PageCollection = new ObservableCollection<IndexViewModel>(
+                Enumerable.Range(1, total)
+                    .Select(p => new IndexViewModel
+                    {
+                        Text = p.ToString(),
+                        IsActive = false
+                    }))
+                    {
+                        [_selectedPage] = {IsActive = true}
+                    };
+            
+            RaisePropertyChanged("PageCollection");
+        }
+        
+        private void NavigatePage(object page)
+        {
+            PageCollection[_selectedPage].IsActive = false;
+
+            _selectedPage = int.Parse(page.ToString()) - 1;
+            
+            switch (_filter)
+            {
+                case PerformerFilters.FilterByFirstLetter:
+                    SelectPerformersByFirstLetter();
+                    break;
+                case PerformerFilters.FilterByPattern:
+                    SelectPerformersByPattern();
+                    break;
+                case PerformerFilters.FilterByAlbumPattern:
+                    SelectPerformersByAlbumPattern();
+                    break;
+            }
+        }
+
+        #endregion
+        
+        #region CRUD
+
+        /// <summary>
+        /// Create Performer View Models for each performer
+        /// (order albums, calculate rate and count the number of albums)
         /// </summary>
         /// <param name="performersSelected">Pre-selected collection of performers to work with</param>
         private void FillPerformerViewModels(IQueryable<Performer> performersSelected)
@@ -333,8 +303,8 @@ namespace MusCat.ViewModel
 
                 // Recalculate total rate and number of albums of performer
                 performerView.AlbumCount = albums.Count();
-                performerView.AlbumCollectionRate = CalculateAlbumCollectionRate(albums);
-
+                performerView.UpdateAlbumCollectionRate();
+                
                 // Finally, add fully created performer view model to the list
                 Performers.Add(performerView);
             }
@@ -343,7 +313,7 @@ namespace MusCat.ViewModel
         /// <summary>
         /// Select performers whose name starts with string FirstLetter (or not a letter - "Other" case)
         /// </summary>
-        public void SelectPerformersByFirstLetter(string letter)
+        public void SelectPerformersByFirstLetter()
         {
             using (var context = new MusCatEntities())
             {
@@ -352,11 +322,11 @@ namespace MusCat.ViewModel
                 // query can be of two kinds:
 
                 // 1) single letters ('a', 'b', 'c', ..., 'z')
-                if (letter.Length == 1)
+                if (IndexLetter.Length == 1)
                 {
                     performersSelected = 
                         from p in context.Performers.Include("Country").Include("Albums")
-                        where p.Name.ToLower().StartsWith(letter)
+                        where p.Name.ToLower().StartsWith(IndexLetter)
                         orderby p.Name
                         select p;
                 }
@@ -372,9 +342,13 @@ namespace MusCat.ViewModel
                         select p;
                 }
 
-                if (_indexLetter != letter)
+                if (_filter != PerformerFilters.FilterByFirstLetter ||
+                    _filterCriterion != IndexLetter)
                 {
                     _selectedPage = 0;
+
+                    _filter = PerformerFilters.FilterByFirstLetter;
+                    _filterCriterion = IndexLetter;
                 }
 
                 FillPerformerViewModels(performersSelected);
@@ -387,6 +361,8 @@ namespace MusCat.ViewModel
         /// </summary>
         public void SelectPerformersByPattern()
         {
+            ActivateUpperPanel(false);
+
             using (var context = new MusCatEntities())
             {
                 // main query in this case
@@ -396,23 +372,27 @@ namespace MusCat.ViewModel
                     orderby p.Name
                     select p;
 
-                MessageBox.Show(performersSelected.Count() + "");
-
-                if (_filter != PerformerFilters.FilterByPattern)
+                if (_filter != PerformerFilters.FilterByPattern || 
+                    _filterCriterion != PerformerPattern)
                 {
                     _selectedPage = 0;
-                    _filter = PerformerFilters.FilterByPattern;
-                }
 
+                    _filter = PerformerFilters.FilterByPattern;
+                    _filterCriterion = PerformerPattern;
+                }
+                
                 FillPerformerViewModels(performersSelected);
             }
         }
 
         /// <summary>
-        /// Select performers having albums whose name contains search pattern (specified in lower navigation panel)
+        /// Select performers having albums whose name contains search pattern
+        /// (specified in lower navigation panel)
         /// </summary>
         public void SelectPerformersByAlbumPattern()
         {
+            ActivateUpperPanel(false);
+
             using (var context = new MusCatEntities())
             {
                 // main query in this case
@@ -421,10 +401,13 @@ namespace MusCat.ViewModel
                                       .Where(p => p.Albums.Any(a => a.Name.Contains(AlbumPattern)))
                                       .OrderBy(p => p.Name);
 
-                if (_filter != PerformerFilters.FilterByAlbumPattern)
+                if (_filter != PerformerFilters.FilterByAlbumPattern ||
+                    _filterCriterion != AlbumPattern)
                 {
                     _selectedPage = 0;
+
                     _filter = PerformerFilters.FilterByAlbumPattern;
+                    _filterCriterion = AlbumPattern;
                 }
 
                 FillPerformerViewModels(performersSelected);
@@ -443,6 +426,7 @@ namespace MusCat.ViewModel
             {
                 DataContext = SelectedPerformer
             };
+
             performerWindow.Show();
         }
 
@@ -459,6 +443,7 @@ namespace MusCat.ViewModel
             {
                 DataContext = viewmodel
             };
+
             performerWindow.Show();
         }
 
@@ -538,10 +523,11 @@ namespace MusCat.ViewModel
             SelectedPerformer.SelectedAlbum.LoadSongs();
 
             var albumWindow = new AlbumWindow();
-            var albumViewModel = new AlbumPlaybackViewModel(SelectedPerformer.SelectedAlbum);
+            var albumViewModel = new AlbumPlaybackViewModel(SelectedPerformer.SelectedAlbum)
+            {
+                Performer = SelectedPerformer
+            };
 
-            // user can change album rate in Album View Window, so we "stay in touch"
-            albumViewModel.RateUpdated += AlbumRateUpdated;
             albumWindow.DataContext = albumViewModel;
             albumWindow.Show();
         }
@@ -560,10 +546,10 @@ namespace MusCat.ViewModel
             {
                 DataContext = new EditAlbumViewModel(SelectedPerformer.SelectedAlbum)
             };
+
             albumWindow.ShowDialog();
 
-            SelectedPerformer.AlbumCollectionRate =
-                    CalculateAlbumCollectionRate(SelectedPerformer.Performer.Albums);
+            SelectedPerformer.UpdateAlbumCollectionRate();
         }
 
         public void AddAlbum()
@@ -635,8 +621,7 @@ namespace MusCat.ViewModel
 
                 // to update view
                 SelectedPerformer.AlbumCount = SelectedPerformer.Albums.Count();
-                SelectedPerformer.AlbumCollectionRate = 
-                    CalculateAlbumCollectionRate(SelectedPerformer.Performer.Albums);
+                SelectedPerformer.UpdateAlbumCollectionRate();
             }
         }
 
@@ -677,8 +662,13 @@ namespace MusCat.ViewModel
                     
                 // to update view
                 SelectedPerformer.AlbumCount = SelectedPerformer.Albums.Count();
+                SelectedPerformer.UpdateAlbumCollectionRate();
             }
         }
+
+        #endregion
+        
+        #region main menu
 
         public void StartRadio()
         {
@@ -695,24 +685,7 @@ namespace MusCat.ViewModel
             radioWindow.Show();
         }
 
-        /// <summary>
-        /// Handler of the RateUpdated event
-        /// </summary>
-        /// <param name="sender">Performer whose album has been updated</param>
-        /// <param name="e">Empty</param>
-        public void AlbumRateUpdated(object sender, EventArgs e)
-        {
-            var performer = sender as Performer;
-            foreach (var performerView in Performers)
-            {
-                if (performerView.Performer.ID == performer.ID)
-                {
-                    performerView.AlbumCollectionRate = 
-                        CalculateAlbumCollectionRate(performer.Albums);
-                    return;
-                }
-            }
-        }
+        #endregion
 
         #region INotifyPropertyChanged event and method
 

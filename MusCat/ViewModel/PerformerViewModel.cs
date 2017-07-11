@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using MusCat.Model;
+using MusCat.Utils;
 
 namespace MusCat.ViewModel
 {
@@ -8,42 +10,50 @@ namespace MusCat.ViewModel
     {
         public Performer Performer { get; set; }
 
-        private byte? albumCollectionRate;
+        private byte? _albumCollectionRate;
         public byte? AlbumCollectionRate
         {
-            get { return albumCollectionRate; }
+            get { return _albumCollectionRate; }
             set
             {
-                albumCollectionRate = value;
+                _albumCollectionRate = value;
                 RaisePropertyChanged("AlbumCollectionRate");
             }
         }
 
-        private int albumCount;
+        private int _albumCount;
         public int AlbumCount
         {
-            get { return albumCount; }
+            get { return _albumCount; }
             set
             {
-                albumCount = value;
+                _albumCount = value;
                 RaisePropertyChanged("AlbumCount");
             }
         }
 
         public AlbumViewModel SelectedAlbum { get; set; }
 
-        private ObservableCollection<AlbumViewModel> albums = new ObservableCollection<AlbumViewModel>();
+        private ObservableCollection<AlbumViewModel> _albums = new ObservableCollection<AlbumViewModel>();
         public ObservableCollection<AlbumViewModel> Albums
         {
-            get { return albums; }
+            get { return _albums; }
             set
             {
-                albums = value;
+                _albums = value;
                 RaisePropertyChanged("Albums");
             }
         }
 
+        private readonly RateCalculator _rateCalculator = new RateCalculator();
 
+        public void UpdateAlbumCollectionRate()
+        {
+            var albums = _albums.Select(a => a.Album);
+
+            AlbumCollectionRate = _rateCalculator.Calculate(albums);
+        }
+        
         #region INotifyPropertyChanged event and method
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -2,21 +2,9 @@
 
 namespace MusCat.ViewModel
 {
-    class IndexLetterViewModel : INotifyPropertyChanged
+    class IndexViewModel : INotifyPropertyChanged
     {
         public string Text { get; set; }
-
-        private int _width;
-        public int Width
-        {
-            get { return _width; }
-            set
-            {
-                _width = value;
-                RaisePropertyChanged("Width");
-            }
-        }
-        public int Height { get; set; }
 
         private bool _isActive;
         public bool IsActive

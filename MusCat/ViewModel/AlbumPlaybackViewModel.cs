@@ -13,6 +13,8 @@ namespace MusCat.ViewModel
 {
     class AlbumPlaybackViewModel : INotifyPropertyChanged
     {
+        public PerformerViewModel Performer { get; set; }
+
         public AlbumViewModel AlbumView { get; set; }
         
         public Album Album
@@ -230,18 +232,9 @@ namespace MusCat.ViewModel
                 context.Entry(Album).State = EntityState.Modified;
                 context.SaveChanges();
 
-                // raise event to allow for correct updating of MainViewModel
-                // (thread-safe way, according to ECMA)
-                EventHandler handler;
-                lock (this)
-                {
-                    handler = RateUpdated;
-                }
-                handler?.Invoke(Album.Performer, EventArgs.Empty);
+                Performer.UpdateAlbumCollectionRate();
             }
         }
-
-        public event EventHandler RateUpdated;
 
         #region INotifyPropertyChanged event and method
 

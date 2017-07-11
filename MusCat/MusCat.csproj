@@ -111,9 +111,10 @@
     <Compile Include="Model\Song.cs" />
     <Compile Include="Utils\Mp3Parser.cs" />
     <Compile Include="Utils\Radio.cs" />
+    <Compile Include="Utils\RateCalculator.cs" />
     <Compile Include="ViewModel\AlbumPlaybackViewModel.cs" />
     <Compile Include="ViewModel\AlbumViewModel.cs" />
-    <Compile Include="ViewModel\IndexLetterViewModel.cs" />
+    <Compile Include="ViewModel\IndexViewModel.cs" />
     <Compile Include="ViewModel\PerformerFilters.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
     <Compile Include="ViewModel\EditAlbumViewModel.cs" />

@@ -93,7 +93,7 @@
                                Text="{Binding Path=Album.ID, StringFormat=#{0}}"
                                TextWrapping="WrapWithOverflow" 
                                FontSize="12" FontFamily="Segoe UI" 
-                               Foreground="Black" 
+                               Foreground="Black"
                                Margin="0,-1,0,-1" />
                     <Image Grid.Row="1" 
                            Source="{Binding Path=Album, Converter={StaticResource PhotoConverter},
@@ -355,6 +355,23 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+
+        <!-- style for index pages -->
+        <Style x:Key="IndexPageStyle" TargetType="TextBlock">
+            <Style.Triggers>
+                <!-- when page is activated -->
+                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                    <Setter Property="TextDecorations" Value="None" />
+                    <Setter Property="FontSize" Value="18" />
+                    <Setter Property="Margin" Value="5,-3,5,12" />
+                </DataTrigger>
+                <!-- inactive state -->
+                <DataTrigger Binding="{Binding IsActive}" Value="False">
+                    <Setter Property="Margin" Value="2,0,2,0" />
+                    <Setter Property="TextDecorations" Value="Underline" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
     
     <Grid>
@@ -465,6 +482,23 @@
                             <StackPanel Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                            <Hyperlink Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
+                                       Path=DataContext.IndexPageCommand}"
+                                       CommandParameter="{Binding Text}"
+                                       TextDecorations="None">
+                                <TextBlock Text="{Binding Text}"
+                                           Style="{StaticResource IndexPageStyle}"
+                                           Foreground="Yellow" Background="Transparent"
+                                           Cursor="Hand"
+                                           VerticalAlignment="Center">
+                                </TextBlock>
+                            </Hyperlink>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </WrapPanel>
         </DockPanel>
