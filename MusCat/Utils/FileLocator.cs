@@ -19,8 +19,8 @@ namespace MusCat.Utils
     static class FileLocator
     {
         // Pathlist contains root paths where to look for media files
-        // Pathlist is stored in paths.xml
-        private static readonly List<string> Pathlist = new List<string>();
+        // Pathlist is taken from file paths.xml
+        private static readonly List<string> Pathlist = new List<string> { "C:", "D:" };
 
         /// <summary>
         /// During initialization FileLocator loads data from file "config\paths.xml".
@@ -48,6 +48,8 @@ namespace MusCat.Utils
 
             using (var reader = XmlReader.Create(@"config\paths.xml"))
             {
+                Pathlist.Clear();
+
                 while (reader.Read())
                 {
                     if (!reader.IsStartElement() || reader.Name != "path")
@@ -282,7 +284,7 @@ namespace MusCat.Utils
         /// </summary>
         /// <param name="s">File path string</param>
         /// <returns>Normalized file path string</returns>
-        private static string NormalizePath(this string s)
+        internal static string NormalizePath(this string s)
         {
             return s.Where(c => !Path.GetInvalidFileNameChars().Contains(c))
                     .Aggregate("", (current, c) => current + char.ToLowerInvariant(c));
