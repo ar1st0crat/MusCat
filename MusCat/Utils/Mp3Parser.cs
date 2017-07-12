@@ -83,12 +83,15 @@ namespace MusCat.Utils
         ///     "  Well ,  song(yeAh ?yeah!)  "         =>      "Well, Song (Yeah? Yeah!)"
         ///     "wow...  it(is so cool...)  "           =>      "Wow... It (Is So Cool...)"
         ///     "   (There's   been)  some, right?))  " =>      "(There's Been) Some, Right?))"
-        ///     "Hush! it's (\"an\") experiment..."     =>      "Hush! It's (\"An\") Experiment..."
+        ///     "Hush! it's    ( \"an\" ( ! ) ) experiment.. ."    
+        ///                                              =>      "Hush! It's (\"An\" (!)) Experiment..."
         /// 
         /// </summary>
         /// <param name="songs">Collection of songs</param>
         public void FixNames(ObservableCollection<Song> songs)
         {
+            var punctuation = new[] { '.', ',', '?', '!', ':', ';', '(', ')', '/', '\\'};//, '"' };
+
             byte trackNo = 1;
 
             foreach (var song in songs)
@@ -104,22 +107,16 @@ namespace MusCat.Utils
                     continue;
                 }
                 
-                // remove all spaces but leave spaces between letters!
-
-                var punctuation = new[] { '.', ',', '?', '!', ':', '(', ')', '"' };
+                // remove all odd spaces but leave spaces between letters! (including '\'', '-' and '&')
+                
                 title = string.Join(" ", title.Split(new[] {"  "}, StringSplitOptions.RemoveEmptyEntries));
 
                 for (var i = 1; i < title.Length - 1; i++)
                 {
-                    if (title[i] != ' ')
+                    if (title.SpaceSurroundedByLetters(i))
                     {
-                        continue;
+                        title = title.Remove(i--, 1);
                     }
-                    if (char.IsLetterOrDigit(title[i - 1]) && char.IsLetterOrDigit(title[i + 1]))
-                    {
-                        continue;
-                    }
-                    title = title.Remove(i--, 1);
                 }
 
                 title = punctuation.Aggregate(title, (current, p) => current.Replace(p.ToString(), p + " "));
@@ -134,10 +131,10 @@ namespace MusCat.Utils
 
                 title = string.Join(" ", parts);
 
-                // subtle postprocessing of parentheses and quotes    %-o
+                // subtle postprocessing of parentheses and slashes    %-o
                 title = title.Replace("( ", " (")
-                             .Replace("\" ", "\"")
-                             .Replace(" \"", "\"")
+                             .Replace("/", " /")
+                             .Replace("\\", " \\")
                              .Trim();
 
                 // final cleanup

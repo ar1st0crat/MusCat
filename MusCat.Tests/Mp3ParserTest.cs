@@ -144,7 +144,8 @@ namespace MusCat.Tests
                 new Song { Name="  Well ,  song(yeAh ?yeah!)  " },
                 new Song { Name="wow...  it(is so cool...)  " },
                 new Song { Name="   ((There's )   been)  some, right?))  " },
-                new Song { Name="Hush! it's    ( \"an \" ) experiment.. ." }
+                new Song { Name="Hush! it's    ( \"an\" ( ! ) ) experiment.. ." },
+                new Song { Name="Tell me \"yes\"" }
             };
             // ACT
             _parser.FixNames(songs);
@@ -152,7 +153,8 @@ namespace MusCat.Tests
             Assert.That(songs[0].Name, Is.EqualTo("Well, Song (Yeah? Yeah!)"));
             Assert.That(songs[1].Name, Is.EqualTo("Wow... It (Is So Cool...)"));
             Assert.That(songs[2].Name, Is.EqualTo("((There's) Been) Some, Right?))"));
-            Assert.That(songs[3].Name, Is.EqualTo("Hush! It's (\"An\") Experiment..."));
+            Assert.That(songs[3].Name, Is.EqualTo("Hush! It's (\"An\" (!)) Experiment..."));
+            Assert.That(songs[4].Name, Is.EqualTo("Tell Me \"Yes\""));
         }
     }
 }
