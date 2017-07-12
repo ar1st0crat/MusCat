@@ -238,6 +238,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <DependentUpon>MusCat.mdf</DependentUpon>
     </Content>
+    <Resource Include="Images\remove.png" />
+    <Resource Include="Images\replace.png" />
     <Resource Include="Images\no_photo.png" />
     <Resource Include="Images\MusCat.ico" />
     <Resource Include="Images\pause.png" />

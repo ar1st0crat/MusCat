@@ -264,13 +264,16 @@ namespace MusCat.Utils
                 foreach (var dir in albumDirectories)
                 {
                     var album = Path.GetFileName(dir);
+                    var files = Directory.GetFiles(dir);
 
                     // Check if album name contains punctuation and eliminate it!
                     // Normalize string - remove spaces and punctuation!
 
-                    if (album.NormalizePath().Contains(song.Album.Name.NormalizePath()))
+                    if (album.NormalizePath().Contains(song.Album.Name.NormalizePath()) &&
+                        // !!!check this as well:
+                        song.TrackNo > 0 && song.TrackNo <= files.Length)
                     {
-                        return Directory.GetFiles(dir)[song.TrackNo - 1];
+                        return files[song.TrackNo - 1];
                     }
                 }
             }

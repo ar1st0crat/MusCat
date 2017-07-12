@@ -44,16 +44,20 @@ namespace MusCat.ViewModel
                 RaisePropertyChanged("SongVolume");
             }
         }
-        public Song PreviousSong { get; set; }
-        public Song CurrentSong { get; set; }
-        public Song NextSong { get; set; }
+
+        public Song PreviousSong => _radio.PrevSong;
+        public Song CurrentSong => _radio.CurrentSong;
+        public Song NextSong => _radio.NextSong;
         public ObservableCollection<Song> RadioArchive => _radio.SongArchive;
+        public ObservableCollection<Song> RadioUpcoming => _radio.UpcomingSongs;
 
         // commands
         public ICommand PlaybackCommand { get; private set; }
         public ICommand StopCommand { get; private set; }
         public ICommand PreviousSongCommand { get; private set; }
         public ICommand NextSongCommand { get; private set; }
+        public ICommand ChangeSongCommand { get; private set; }
+        public ICommand RemoveSongCommand { get; private set; }
         public ICommand ShowAlbumCommand { get; private set; }
         public ICommand WindowClosingCommand { get; private set; }
 
@@ -62,22 +66,42 @@ namespace MusCat.ViewModel
 
         public RadioViewModel()
         {
-            // setting up all commands
+            // ===================== setting up all commands ============================
+
             PlaybackCommand = new RelayCommand(SongPlaybackAction);
-            StopCommand = new RelayCommand(Stop);
             PreviousSongCommand = new RelayCommand(PlayPreviousSong);
             NextSongCommand = new RelayCommand(PlayNextSong);
             ShowAlbumCommand = new RelayCommand(ViewAlbumContainingCurrentSong);
-            WindowClosingCommand = new RelayCommand(Close);
 
-            // we add two songs to the playlist right away:
-            // 1. The song for current playback
-            _radio.AddSong();
-            // 2. The upcoming song
-            _radio.AddSong();
-            // Update properties
-            UpdateSongs();
-            // Start playing the first song right away
+            ChangeSongCommand = new RelayCommand(id =>
+            {
+                _radio.ChangeSong((long)id);
+                UpdateSongs();
+            });
+
+            RemoveSongCommand = new RelayCommand(id =>
+            {
+                _radio.RemoveSong((long)id);
+                UpdateSongs();
+            });
+
+            StopCommand = new RelayCommand(() =>
+            {
+                _radio.Player.Stop();
+                PlaybackImage = ImagePlay;
+            });
+
+            // StopAndDispose media player when the window is closing
+            // to avoid a memory leak
+            WindowClosingCommand = new RelayCommand(() =>
+            {
+                _radio.Player.StopAndDispose();
+            });
+
+            // ===========================================================================
+            
+            _radio.MakeSonglist();
+
             PlayCurrentSong();
         }
 
@@ -86,27 +110,20 @@ namespace MusCat.ViewModel
         /// </summary>
         private void UpdateSongs()
         {
-            PreviousSong = _radio.PrevSong();
-            CurrentSong = _radio.CurrentSong();
-            NextSong = _radio.NextSong();
-
             RaisePropertyChanged("PreviousSong");
             RaisePropertyChanged("CurrentSong");
             RaisePropertyChanged("NextSong");
         }
 
-        public void PlayNextSong()
+        private void PlayNextSong()
         {
             _radio.MoveToNextSong();
-            // after we added new upcoming song we must play the current song
-            // (this song was "upcoming" before we added new song to the playlist)
             PlayCurrentSong();
         }
 
-        public void PlayPreviousSong()
+        private void PlayPreviousSong()
         {
             _radio.MoveToPrevSong();
-            // after switching to previous song we play it right away
             PlayCurrentSong();
         }
 
@@ -147,7 +164,7 @@ namespace MusCat.ViewModel
             PlaybackImage = ImagePause;
         }
         
-        public void SongPlaybackAction()
+        private void SongPlaybackAction()
         {
             switch (_radio.Player.SongPlaybackState)
             {
@@ -166,35 +183,21 @@ namespace MusCat.ViewModel
             }
         }
 
-        public void Stop()
-        {
-            _radio.Player.Stop();
-            PlaybackImage = ImagePlay;
-        }
-
-        public void ViewAlbumContainingCurrentSong()
+        private void ViewAlbumContainingCurrentSong()
         {
             var albumView = new AlbumViewModel
             {
-                Album = _radio.CurrentSong().Album
+                Album = _radio.CurrentSong.Album
             };
 
-            // load songs of selected album lazily
             albumView.LoadSongs();
 
             var albumWindow = new AlbumWindow
             {
                 DataContext = new AlbumPlaybackViewModel(albumView)
             };
-            albumWindow.Show();
-        }
 
-        /// <summary>
-        /// StopAndDispose media player when the window is closing to avoid a memory leak
-        /// </summary>
-        public void Close()
-        {
-            _radio.Player.StopAndDispose();
+            albumWindow.Show();
         }
 
         #region INotifyPropertyChanged event and method

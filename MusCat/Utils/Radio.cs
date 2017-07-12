@@ -10,71 +10,78 @@ namespace MusCat.Utils
     /// </summary>
     class Radio
     {
-        // the list of recently played songs
-        private int _curSong;
-
-        // the number of recently played songs which we're tracking
-        public const int MaxSongsInArchive = 25;
+        public const int MaxSongs = 10;
 
         // audio player
         public AudioPlayer Player { get; } = new AudioPlayer();
 
         // collection of recently played songs
         public ObservableCollection<Song> SongArchive { get; } = new ObservableCollection<Song>();
+        // collection of upcoming songs
+        public ObservableCollection<Song> UpcomingSongs { get; } = new ObservableCollection<Song>();
 
+        public Song CurrentSong { get; private set; } = new Song();
 
-        public Song CurrentSong()
-        {
-            return _curSong >= 0 && _curSong < SongArchive.Count ? SongArchive[_curSong] : null;
-        }
+        public Song PrevSong => SongArchive.Any() ? SongArchive.Last() : null;
 
-        public Song PrevSong()
-        {
-            return _curSong > 0 ? SongArchive[_curSong - 1] : null;
-        }
+        public Song NextSong => UpcomingSongs.First();
 
-        public Song NextSong()
-        {
-            return _curSong < SongArchive.Count - 1 ? SongArchive[_curSong + 1] : null;
-        }
+        public void AddSong() => UpcomingSongs.Add(SelectRandomSong());
 
-        public void AddSong() => SongArchive.Add(SelectRandomSong());
+        public void AddToArchive() => SongArchive.Add(CurrentSong);
+
 
         /// <summary>
-        /// if the current song isn't the first one in a songlist
-        /// we can safely decrease the current position in the songlist
+        /// Make initial playlist and select random song as the current one
         /// </summary>
-        public void MoveToPrevSong()
+        public void MakeSonglist()
         {
-            if (_curSong > 0)
-            {
-                _curSong--;
-            }
-        }
+            CurrentSong = SelectRandomSong();
 
-        public void MoveToNextSong()
-        {
-            // check if the archive ("songlist story") is full 
-            if (SongArchive.Count >= MaxSongsInArchive)
-            {
-                SongArchive.RemoveAt(0);       // if we remove the first element then we don't have to increase currentSongNo
-            }
-            else
-            {
-                _curSong++;             // otherwise - increase currentSongNo
-            }
-
-            // if the next song is the last one in the playlist
-            // then we should select new upcoming song and add it to the playlist
-            if (_curSong == SongArchive.Count - 1)
+            for (var i = 0; i < MaxSongs; i++)
             {
                 AddSong();
             }
         }
 
+        public void MoveToPrevSong()
+        {
+            if (!SongArchive.Any())
+            {
+                return;
+            }
+
+            // shrink list of upcoming songs
+            UpcomingSongs.Insert(0, CurrentSong);
+            UpcomingSongs.Remove(UpcomingSongs.Last());
+
+            // reassign current song (take last song from archive)
+            CurrentSong = SongArchive.Last();
+
+            // update archive
+            SongArchive.Remove(SongArchive.Last());
+        }
+
+        public void MoveToNextSong()
+        {
+            // update archive
+            if (SongArchive.Count >= MaxSongs)
+            {
+                SongArchive.RemoveAt(0);
+            }
+            SongArchive.Add(CurrentSong);
+
+            // reassign current song (take first item from list of upcoming songs)
+            CurrentSong = UpcomingSongs.First();
+
+            // update the list of upcoming songs
+            UpcomingSongs.RemoveAt(0);
+            AddSong();
+        }
+
         public void PlayCurrentSong()
         {
-            var fileSong = FileLocator.FindSongPath(SongArchive[_curSong]);
+            var fileSong = FileLocator.FindSongPath(CurrentSong);
 
             try
             {
@@ -82,14 +89,7 @@ namespace MusCat.Utils
             }
             catch (Exception)
             {
-                SongArchive.RemoveAt(_curSong--);
-
-                // if the next song is the last one in the playlist
-                // then we should select new upcoming song and add it to the playlist
-                if (_curSong == SongArchive.Count - 1)
-                {
-                    AddSong();
-                }
+                AddSong();
 
                 MoveToNextSong();
                 PlayCurrentSong();
@@ -101,12 +101,13 @@ namespace MusCat.Utils
         /// The song is guaranteed to be present in user's file system
         /// </summary>
         /// <returns>Songs object selected randomly from the database</returns>
-        public Song SelectRandomSong(bool onlyShortSongs = false)
+        public Song SelectRandomSong()
         {
             Song song;
             var songSelector = new Random();
 
-            const int MaxAttempts = 50;
+            // the only way to find out how many mp3 files are actually on user's drive is to try...
+            const int maxAttempts = 50;
             var attempts = 0;
 
             using (var context = new MusCatEntities())
@@ -114,57 +115,60 @@ namespace MusCat.Utils
                 // find out the maximum song ID in the database
                 var maxSid = context.Songs.Max(s => s.ID);
 
-                // we keep select song randomly until the song file is actually present in our file system...
-                // ...and while it isn't present in our archive of recently played songs
+                // keep selecting song randomly until the song file is actually present in the file system...
+                // ...and while it isn't present in archive of recently played songs and upcoming songs
                 do
                 {
-                    IQueryable<Song> selectedsongs;
-                    do
-                    {
-                        // generate random song ID
-                        var songNo = songSelector.Next() % maxSid;
+                    var songId = songSelector.Next() % maxSid;
 
-                        // the problem here is that our generated ID isn't necessarily present in the database
-                        // however there will be at least one song with songID that is greater or equal than this ID
-                        selectedsongs = (from s in context.Songs
-                                         where s.ID >= songNo
-                                         select s)
-                                         .Take(1);
-
-                        // if the filter "Short songs is 'on'" we do additional filtering
-                        if (onlyShortSongs)
-                        {
-                            selectedsongs = selectedsongs.Where(
-                                    s => s.TimeLength.Length <= 4 && 
-                                    string.Compare(s.TimeLength, "1:30", StringComparison.Ordinal) < 0);
-                        }
-                    }
-                    while (!selectedsongs.Any());
-
-                    // select the first song from the set of selected songs
-                    song = selectedsongs.First();
+                    song = context.Songs.First(s => s.ID >= songId);
 
                     // include the corresponding album of our song
-                    song.Album = (from a in context.Albums
-                                  where a.ID == song.AlbumID
-                                  select a).First();
+                    song.Album = context.Albums.First(a => a.ID == song.AlbumID);
 
                     // do the same thing with performer for included album
-                    song.Album.Performer = (from p in context.Performers
-                                            where p.ID == song.Album.PerformerID
-                                            select p).First();
+                    song.Album.Performer = context.Performers.First(p => p.ID == song.Album.PerformerID);
 
                     attempts++;
-                    if (attempts > MaxAttempts)
+                    if (attempts > maxAttempts)
                     {
-                        return null;
+                        return null;    // no songs - no radio (((
                     }
                 }
-                while (SongArchive.Any(s => s.ID == song.ID)      // true, if the archive already contains this song
-                    || FileLocator.FindSongPath(song) == "");     // true, if the file with this song doesn't exist
+                while (SongArchive.Any(s => s.ID == song.ID)    // true, if the archive already contains this song
+                    || UpcomingSongs.Any(s => s.ID == song.ID)  // true, if it is already in songlist
+                    || song.ID == CurrentSong.ID                // true, if it's currently playing
+                    || FileLocator.FindSongPath(song) == "");   // true, if the file with this song doesn't exist
             }
 
             return song;
+        }
+
+        public void ChangeSong(long songId)
+        {
+            for (var i = 0; i < MaxSongs; i++)
+            {
+                if (UpcomingSongs[i].ID != songId)
+                {
+                    continue;
+                }
+                UpcomingSongs[i] = SelectRandomSong();
+                return;
+            }
+        }
+
+        public void RemoveSong(long songId)
+        {
+            for (var i = 0; i < MaxSongs; i++)
+            {
+                if (UpcomingSongs[i].ID != songId)
+                {
+                    continue;
+                }
+                UpcomingSongs.RemoveAt(i);
+                UpcomingSongs.Add(SelectRandomSong());
+                return;
+            }
         }
     }
 }

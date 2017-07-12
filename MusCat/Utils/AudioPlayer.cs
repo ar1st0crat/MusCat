@@ -132,7 +132,7 @@ namespace MusCat.Utils
 
         public bool IsStopped()
         {
-            return _waveOut.PlaybackState == NAudio.Wave.PlaybackState.Stopped;
+            return _waveOut?.PlaybackState == NAudio.Wave.PlaybackState.Stopped;
         }
     }
 }

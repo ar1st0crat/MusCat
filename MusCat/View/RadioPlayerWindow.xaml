@@ -9,8 +9,8 @@
         SizeToContent="WidthAndHeight">
     <Window.Background>
         <LinearGradientBrush>
-            <GradientStop Color="CornflowerBlue" Offset="0" />
-            <GradientStop Color="Black" Offset="1.2" />
+            <GradientStop Color="Black" Offset="0.7" />
+            <GradientStop Color="DarkGray" Offset="0" />
         </LinearGradientBrush>
     </Window.Background>
 
@@ -227,16 +227,6 @@
                       Foreground="AntiqueWhite"
                       Margin="0,0,50,0">
                 <StackPanel>
-                    
-                </StackPanel>
-            </Expander>
-            <!-- Upcoming songs radio tracklist -->
-            <Expander Header="Upcoming"
-                      FontFamily="Broadway" FontSize="26"
-                      Foreground="AntiqueWhite"
-                      Width="auto"
-                      HorizontalAlignment="Right">
-                <StackPanel>
                     <ListBox ItemsSource="{Binding Path=RadioArchive}"
                              Margin="20,0,20,0"
                              VerticalAlignment="Top" HorizontalAlignment="Right"
@@ -246,6 +236,58 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <DockPanel Margin="0,-5,0,-5">
+                                    <Label Content="{Binding Path=Album.Performer.Name}" Foreground="LightPink"/>
+                                    <Label Content="{Binding Path=Name}" Foreground="White"/>
+                                    <Label Content="{Binding Path=TimeLength}" Foreground="LightGreen" />
+                                </DockPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListBoxItem}">
+                                <Setter Property="Focusable" Value="False"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                </StackPanel>
+            </Expander>
+            <!-- Upcoming songs radio tracklist -->
+            <Expander Header="Upcoming"
+                      FontFamily="Broadway" FontSize="26"
+                      Foreground="AntiqueWhite"
+                      Width="auto"
+                      HorizontalAlignment="Right">
+                <StackPanel>
+                    <ListBox ItemsSource="{Binding Path=RadioUpcoming}"
+                             Margin="20,0,20,0"
+                             VerticalAlignment="Top" HorizontalAlignment="Right"
+                             FontSize="14" FontFamily="Arial Narrow"
+                             Background="Transparent" BorderBrush="Transparent"
+                             SelectedIndex="-1">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel Margin="0,-5,0,-5">
+                                    <Image Source="{StaticResource ImageReplaceButton}"
+                                           Width="15"
+                                           Cursor="Hand"
+                                           Margin="2,5,5,2">
+                                        <Image.InputBindings>
+                                            <MouseBinding Gesture="LeftClick"
+                                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
+                                                                            Path=DataContext.ChangeSongCommand}"
+                                                          CommandParameter="{Binding ID}" />
+                                        </Image.InputBindings>
+                                    </Image>
+                                    <Image Source="{StaticResource ImageRemoveButton}"
+                                           Width="15"
+                                           Cursor="Hand"
+                                           Margin="2,5,5,2">
+                                        <Image.InputBindings>
+                                            <MouseBinding Gesture="LeftClick"
+                                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
+                                                                            Path=DataContext.RemoveSongCommand}"
+                                                          CommandParameter="{Binding ID}" />
+                                        </Image.InputBindings>
+                                    </Image>
                                     <Label Content="{Binding Path=Album.Performer.Name}" Foreground="LightPink"/>
                                     <Label Content="{Binding Path=Name}" Foreground="White"/>
                                     <Label Content="{Binding Path=TimeLength}" Foreground="LightGreen" />
