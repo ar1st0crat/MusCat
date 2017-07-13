@@ -18,6 +18,7 @@ namespace MusCat.View
         public void SetChoiceList(List<string> list)
         {
             ChoiseListBox.ItemsSource = list;
+            ChoiseListBox.SelectedIndex = 0;
         }
 
         private void OkButtonClick(object sender, RoutedEventArgs e)

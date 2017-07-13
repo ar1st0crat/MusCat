@@ -64,17 +64,17 @@ namespace MusCat.ViewModel
         private string ChooseImageSavePath()
         {
             var filepaths = FileLocator.MakePerformerImagePathlist(Performer);
-            
-            if (filepaths.Count > 1)
-            {
-                var choice = new ChoiceWindow();
-                choice.SetChoiceList(filepaths);
-                choice.ShowDialog();
 
-                return choice.ChoiceResult;
+            if (filepaths.Count == 1)
+            {
+                return filepaths[0];
             }
 
-            return filepaths[0];
+            var choice = new ChoiceWindow();
+            choice.SetChoiceList(filepaths);
+            choice.ShowDialog();
+
+            return choice.ChoiceResult;
         }
         
         public void SavePerformerInformation()

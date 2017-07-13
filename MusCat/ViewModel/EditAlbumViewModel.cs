@@ -175,7 +175,7 @@ namespace MusCat.ViewModel
 
             if (Songs.Any())
             {
-                newTrackNo = (byte)(Songs.LastOrDefault().TrackNo + 1);
+                newTrackNo = (byte)(Songs.Last().TrackNo + 1);
             }
 
             Songs.Add(new Song
@@ -252,7 +252,7 @@ namespace MusCat.ViewModel
         {
             var filepaths = FileLocator.MakeAlbumImagePathlist(Album);
 
-            if (filepaths.Count == 0)
+            if (filepaths.Count == 1)
             {
                 return filepaths[0];
             }
