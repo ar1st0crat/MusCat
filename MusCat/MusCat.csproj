@@ -231,13 +231,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Database\MusCat.mdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Database\MusCat_log.ldf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <DependentUpon>MusCat.mdf</DependentUpon>
-    </Content>
     <Resource Include="Images\remove.png" />
     <Resource Include="Images\replace.png" />
     <Resource Include="Images\no_photo.png" />

@@ -279,9 +279,11 @@ namespace MusCat.ViewModel
                 // If no album pattern filter is specified, then copy **all** albums to PerformerViewModel
                 if (_filter != PerformerFilters.FilterByAlbumPattern)
                 {
-                    albums = performer.Albums.OrderBy(a => a.ReleaseYear)
-                                             .ThenBy(a => a.Name)
-                                             .ToList();
+                    albums = performer.Albums
+                                      .OrderBy(a => a.ReleaseYear)
+                                      .ThenBy(a => a.Name)
+                                      .ToList();
+
                     foreach (var album in albums)
                     {
                         performerView.Albums.Add(new AlbumViewModel { Album = album });
@@ -313,7 +315,7 @@ namespace MusCat.ViewModel
         /// <summary>
         /// Select performers whose name starts with string FirstLetter (or not a letter - "Other" case)
         /// </summary>
-        public void SelectPerformersByFirstLetter()
+        private void SelectPerformersByFirstLetter()
         {
             using (var context = new MusCatEntities())
             {
@@ -359,7 +361,7 @@ namespace MusCat.ViewModel
         /// Select performers whose name contains the search pattern PerformerPattern
         /// (specified in lower navigation panel)
         /// </summary>
-        public void SelectPerformersByPattern()
+        private void SelectPerformersByPattern()
         {
             ActivateUpperPanel(false);
 
@@ -389,7 +391,7 @@ namespace MusCat.ViewModel
         /// Select performers having albums whose name contains search pattern
         /// (specified in lower navigation panel)
         /// </summary>
-        public void SelectPerformersByAlbumPattern()
+        private void SelectPerformersByAlbumPattern()
         {
             ActivateUpperPanel(false);
 
@@ -511,7 +513,7 @@ namespace MusCat.ViewModel
             }
         }
 
-        public void ViewSelectedAlbum()
+        private void ViewSelectedAlbum()
         {
             if (SelectedPerformer?.SelectedAlbum == null)
             {
@@ -532,7 +534,7 @@ namespace MusCat.ViewModel
             albumWindow.Show();
         }
 
-        public void EditAlbum()
+        private void EditAlbum()
         {
             if (SelectedPerformer?.SelectedAlbum == null)
             {
@@ -552,7 +554,7 @@ namespace MusCat.ViewModel
             SelectedPerformer.UpdateAlbumCollectionRate();
         }
 
-        public void AddAlbum()
+        private void AddAlbum()
         {
             if (SelectedPerformer == null)
             {
@@ -625,7 +627,7 @@ namespace MusCat.ViewModel
             }
         }
 
-        public void RemoveSelectedAlbum()
+        private async void RemoveSelectedAlbum()
         {
             if (SelectedPerformer == null)
             {
@@ -656,7 +658,7 @@ namespace MusCat.ViewModel
                     context.Albums.SingleOrDefault(a => a.ID == selectedAlbum.Album.ID);
 
                 context.Albums.Remove(albumToRemove);
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 SelectedPerformer.Albums.Remove(selectedAlbum);
                     
@@ -670,7 +672,7 @@ namespace MusCat.ViewModel
         
         #region main menu
 
-        public void StartRadio()
+        private void StartRadio()
         {
             var radio = new Radio();
 

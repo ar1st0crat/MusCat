@@ -73,15 +73,15 @@ namespace MusCat.ViewModel
             NextSongCommand = new RelayCommand(PlayNextSong);
             ShowAlbumCommand = new RelayCommand(ViewAlbumContainingCurrentSong);
 
-            ChangeSongCommand = new RelayCommand(id =>
+            ChangeSongCommand = new RelayCommand(async id =>
             {
-                _radio.ChangeSong((long)id);
+                await _radio.ChangeSongAsync((long)id);
                 UpdateSongs();
             });
 
-            RemoveSongCommand = new RelayCommand(id =>
+            RemoveSongCommand = new RelayCommand(async id =>
             {
-                _radio.RemoveSong((long)id);
+                await _radio.RemoveSongAsync((long)id);
                 UpdateSongs();
             });
 
@@ -100,9 +100,12 @@ namespace MusCat.ViewModel
 
             // ===========================================================================
             
-            _radio.MakeSonglist();
-
-            PlayCurrentSong();
+            _radio.MakeSonglistAsync()
+                  .ContinueWith(task =>
+                  {
+                      UpdateSongs();
+                      PlayCurrentSong();
+                  });
         }
 
         /// <summary>
@@ -115,12 +118,21 @@ namespace MusCat.ViewModel
             RaisePropertyChanged("NextSong");
         }
 
+        /// <summary>
+        /// Switching to next song is done asynchronously
+        /// since it involves selecting new random song for a list of upcoming songs
+        /// (which may take some time)
+        /// </summary>
         private void PlayNextSong()
         {
-            _radio.MoveToNextSong();
-            PlayCurrentSong();
+            _radio.MoveToNextSongAsync()
+                  .ContinueWith(task => PlayCurrentSong());
         }
 
+        /// <summary>
+        /// Switching to previous song is done synchronously
+        /// since his operation is very cheap (just recombinate songs in collections)
+        /// </summary>
         private void PlayPreviousSong()
         {
             _radio.MoveToPrevSong();
@@ -139,7 +151,11 @@ namespace MusCat.ViewModel
 
             bw.DoWork += (o, e) =>
             {
-                _radio.PlayCurrentSong();
+                _radio.StartPlayingAsync().ContinueWith(task =>
+                {
+                    UpdateSongs();
+                    PlaybackImage = ImagePause;
+                });
 
                 // loop while song was not stopped (naturally or manually)
                 while (!_radio.Player.IsStopped())
@@ -159,9 +175,6 @@ namespace MusCat.ViewModel
             };
 
             bw.RunWorkerAsync();
-
-            UpdateSongs();
-            PlaybackImage = ImagePause;
         }
         
         private void SongPlaybackAction()

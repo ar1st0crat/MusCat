@@ -39,7 +39,9 @@ namespace MusCat.ViewModel
             {
                 Songs.Clear();
 
-                var albumSongs = context.Songs.Where(s => s.AlbumID == Album.ID).ToList();
+                var albumSongs = context.Songs
+                                        .Where(s => s.AlbumID == Album.ID)
+                                        .ToList();
 
                 foreach (var song in albumSongs)
                 {
