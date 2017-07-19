@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using MusCat.Model;
@@ -26,6 +26,11 @@ namespace MusCat.ViewModel
                 RaisePropertyChanged("Album");
             }
         }
+
+        public string AlbumHeader => string.Format("{0} - {1} ({2})", 
+                                                        Album.Performer.Name,
+                                                        Album.Name,
+                                                        Album.ReleaseYear);
 
         public ObservableCollection<Song> Songs => AlbumView.Songs;
 
@@ -152,7 +157,7 @@ namespace MusCat.ViewModel
                 {
                     // update the slider value
                     PlaybackPercentage = _player.TimePercent() * 10.0;
-                    Thread.Sleep(1000);
+                    Task.Delay(1000).Wait();
                 }
 
                 PlaybackImage = ImagePause;
@@ -162,7 +167,7 @@ namespace MusCat.ViewModel
             bw.RunWorkerCompleted += (o, e) =>
             {
                 // if song was stopped by user then do nothing
-                if (_player.IsStoppedManually == true)
+                if (_player.IsStoppedManually)
                 {
                     return;
                 }

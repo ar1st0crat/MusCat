@@ -5,9 +5,9 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:converters="clr-namespace:MusCat.Converters"
         xmlns:controls="clr-namespace:MusCat.Controls"
-        Title="Album Info"
         SizeToContent="WidthAndHeight"
-        BorderBrush="AliceBlue">
+        BorderBrush="AliceBlue"
+        Title="{Binding AlbumHeader}">
     <Window.Background>
         <LinearGradientBrush>
             <GradientStop Color="#001122" Offset="0" />

@@ -267,7 +267,7 @@ namespace MusCat.Utils
                     var files = Directory.GetFiles(dir);
 
                     // Check if album name contains punctuation and eliminate it!
-                    // Normalize string - remove spaces and punctuation!
+                    // Normalize string - remove punctuation!
 
                     if (album.NormalizePath().Contains(song.Album.Name.NormalizePath()) &&
                         // !!!check this as well:
@@ -284,12 +284,18 @@ namespace MusCat.Utils
         /// <summary>
         /// Extension method that normalizes file path strings:
         /// remove all spaces and punctuations, convert each letter to lowercase
+        /// 
+        /// Note.
+        /// Method Path.GetInvalidFileNameChars() returns '.', ':', etc.
+        /// Although those are legal path characters often folders do not contain them
+        /// so the char.IsPunctuation() method is used here.
+        /// 
         /// </summary>
         /// <param name="s">File path string</param>
         /// <returns>Normalized file path string</returns>
         internal static string NormalizePath(this string s)
         {
-            return s.Where(c => !Path.GetInvalidFileNameChars().Contains(c))
+            return s.Where(c => !char.IsPunctuation(c))
                     .Aggregate("", (current, c) => current + char.ToLowerInvariant(c));
         }
     }

@@ -37,7 +37,7 @@ namespace MusCat.Utils
 
         public void AddToArchive() => SongArchive.Add(CurrentSong);
 
-        public void AddSong() => UpcomingSongs.Add(SelectRandomSong());
+        public void AddRandomSong() => UpcomingSongs.Add(SelectRandomSong());
 
 
         private readonly object _lock = new object();
@@ -59,7 +59,7 @@ namespace MusCat.Utils
 
             for (var i = 0; i < MaxSongs; i++)
             {
-                AddSong();
+                AddRandomSong();
             }
         }
 
@@ -77,7 +77,7 @@ namespace MusCat.Utils
 
             // update the list of upcoming songs
             UpcomingSongs.RemoveAt(0);
-            AddSong();
+            AddRandomSong();
         }
 
         public void MoveToPrevSong()
@@ -108,7 +108,7 @@ namespace MusCat.Utils
             }
             catch (Exception)
             {
-                AddSong();
+                AddRandomSong();
                 MoveToNextSong();
                 StartPlaying();
             }
@@ -152,7 +152,7 @@ namespace MusCat.Utils
         /// The method selects random song from a local database.
         /// The song is guaranteed to be present in user's file system
         /// </summary>
-        /// <returns>Songs object selected randomly from the database</returns>
+        /// <returns>Song object selected randomly from the database</returns>
         public Song SelectRandomSong()
         {
             Song song;
@@ -206,18 +206,29 @@ namespace MusCat.Utils
         public async Task MakeSonglistAsync()
         {
             CurrentSong = await SelectRandomSongAsync().ConfigureAwait(false);
-            
-            var songAdders = new Task[MaxSongs];
 
-            // just fire them all at once (order doesn't matter)
+            // addding songs 1 by 1 prevents the situation when songs can be duplicated
+
             for (var i = 0; i < MaxSongs; i++)
             {
-                songAdders[i] = AddRandomSongAsync();
+                await AddRandomSongAsync().ConfigureAwait(false);
             }
 
-            await Task.WhenAll(songAdders).ConfigureAwait(false);
+            // Alternative code (however, it allows duplicate songs (((:
+
+            //var songAdders = new Task[MaxSongs];
+
+            //// just fire them all at once (order doesn't matter)
+            //for (var i = 0; i < MaxSongs; i++)
+            //{
+            //    songAdders[i] = AddRandomSongAsync();
+            //}
+
+            //await Task.WhenAll(songAdders).ConfigureAwait(false);
+
 
             // just was playing' with ))
+
             // Parallel.For(0, MaxSongs, i => AddRandomSong());
             // Parallel.For(0, MaxSongs, i => AddRandomSongAsync().RunSynchronously());
         }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using MusCat.Model;
@@ -146,7 +146,6 @@ namespace MusCat.ViewModel
                 _radio.Player.Stop();
             }
 
-            // play song using BackgroundWorker
             var bw = new BackgroundWorker();
 
             bw.DoWork += (o, e) =>
@@ -160,7 +159,7 @@ namespace MusCat.ViewModel
                 // loop while song was not stopped (naturally or manually)
                 while (!_radio.Player.IsStopped())
                 {
-                    Thread.Sleep(1000);
+                    Task.Delay(1000).Wait();
                 }
             };
 
@@ -173,7 +172,7 @@ namespace MusCat.ViewModel
                     PlayNextSong();
                 }
             };
-
+            
             bw.RunWorkerAsync();
         }
         
@@ -203,16 +202,18 @@ namespace MusCat.ViewModel
                 Album = _radio.CurrentSong.Album
             };
 
-            albumView.LoadSongs();
-
-            var albumWindow = new AlbumWindow
+            Task.Run(() => albumView.LoadSongs()).ContinueWith(task =>
             {
-                DataContext = new AlbumPlaybackViewModel(albumView)
-            };
+                var albumWindow = new AlbumWindow
+                {
+                    DataContext = new AlbumPlaybackViewModel(albumView)
+                };
 
-            albumWindow.Show();
+                albumWindow.Show();
+            }, 
+            TaskScheduler.FromCurrentSynchronizationContext());
         }
-
+        
         #region INotifyPropertyChanged event and method
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -12,9 +12,9 @@ namespace MusCat.Tests
         public void TestNormalizePathString()
         {
             // 1
-            Assert.That("  It's More... [2002]".NormalizePath(),Is.EqualTo("  it's more... [2002]"));
+            Assert.That("  In & Out Of... [1971]".NormalizePath(), Is.EqualTo("  in  out of 1971"));
             // 2
-            Assert.That("1976 - 33 1/3 ok ^ :".NormalizePath(), Is.EqualTo("1976 - 33 13 ok ^ "));
+            Assert.That("1976 - 33 1/3 ok ^ :".NormalizePath(), Is.EqualTo("1976  33 13 ok ^ "));
         }
 
         [Test]
