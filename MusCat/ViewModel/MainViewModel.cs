@@ -677,7 +677,7 @@ namespace MusCat.ViewModel
             var radio = new Radio();
 
             // if radioplayer can't find songs to play then why even try opening radio window? 
-            if (radio.SelectRandomSong() == null)
+            if (!radio.CheckSongFiles())
             {
                 MessageBox.Show("Seems like there's not enough music files on your drives");
                 return;

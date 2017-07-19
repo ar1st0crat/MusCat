@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Data;
 using MusCat.Model;
 
 namespace MusCat.Utils
@@ -24,29 +23,19 @@ namespace MusCat.Utils
         private readonly Random _songSelector = new Random();
 
         // collection of recently played songs
-        public ObservableCollection<Song> SongArchive { get; } = new ObservableCollection<Song>();
+        public List<Song> SongArchive { get; } = new List<Song>();
 
         // collection of upcoming songs
-        public ObservableCollection<Song> UpcomingSongs { get; } = new ObservableCollection<Song>();
+        public List<Song> UpcomingSongs { get; } = new List<Song>();
 
         public Song CurrentSong { get; private set; } = new Song();
-
-        public Song PrevSong => SongArchive.Any() ? SongArchive.Last() : null;
-
-        public Song NextSong => UpcomingSongs.Any() ? UpcomingSongs.First() : null;
+        public Song PrevSong => SongArchive.LastOrDefault();
+        public Song NextSong => UpcomingSongs.FirstOrDefault();
 
         public void AddToArchive() => SongArchive.Add(CurrentSong);
 
         public void AddRandomSong() => UpcomingSongs.Add(SelectRandomSong());
 
-
-        private readonly object _lock = new object();
-        
-        public Radio()
-        {
-            BindingOperations.EnableCollectionSynchronization(SongArchive, _lock);
-            BindingOperations.EnableCollectionSynchronization(UpcomingSongs, _lock);
-        }
 
         #region synchronous operations
 
@@ -157,10 +146,6 @@ namespace MusCat.Utils
         {
             Song song;
 
-            // the only way to find out how many mp3 files are actually on user's drive is to try...
-            const int maxAttempts = 50;
-            var attempts = 0;
-
             using (var context = new MusCatEntities())
             {
                 // find out the maximum song ID in the database
@@ -179,12 +164,6 @@ namespace MusCat.Utils
 
                     // do the same thing with performer for included album
                     song.Album.Performer = context.Performers.First(p => p.ID == song.Album.PerformerID);
-
-                    attempts++;
-                    if (attempts > maxAttempts)
-                    {
-                        return null;    // no songs - no radio (((
-                    }
                 }
                 while (SongArchive.Any(s => s.ID == song.ID)    // true, if the archive already contains this song
                     || UpcomingSongs.Any(s => s.ID == song.ID)  // true, if it is already in songlist
@@ -193,6 +172,41 @@ namespace MusCat.Utils
             }
 
             return song;
+        }
+
+        public bool CheckSongFiles()
+        {
+            Song song;
+
+            // the only way to find out how many mp3 files are actually on user's drive is to try...
+            const int maxAttempts = 50;
+            var attempts = 0;
+
+            using (var context = new MusCatEntities())
+            {
+                var maxSid = context.Songs.Max(s => s.ID);
+
+                // keep selecting song randomly until the song file is actually present in the file system...
+                // ...and while it isn't present in archive of recently played songs and upcoming songs
+                do
+                {
+                    var songId = _songSelector.Next() % maxSid;
+
+                    song = context.Songs.First(s => s.ID >= songId);
+                    song.Album = context.Albums.First(a => a.ID == song.AlbumID);
+                    song.Album.Performer = context.Performers.First(p => p.ID == song.Album.PerformerID);
+
+                    attempts++;
+                    if (attempts > maxAttempts)
+                    {
+                        return false;    // no songs - no radio (((
+                    }
+                }
+                while (UpcomingSongs.Any(s => s.ID == song.ID) ||  // true, if it is already in songlist
+                       FileLocator.FindSongPath(song) == "");      // true, if the file with this song doesn't exist
+            }
+
+            return true;
         }
 
         #endregion
@@ -214,7 +228,7 @@ namespace MusCat.Utils
                 await AddRandomSongAsync().ConfigureAwait(false);
             }
 
-            // Alternative code (however, it allows duplicate songs (((:
+            // ====== Alternative code (however, it allows duplicate songs (((: ======
 
             //var songAdders = new Task[MaxSongs];
 
@@ -227,7 +241,7 @@ namespace MusCat.Utils
             //await Task.WhenAll(songAdders).ConfigureAwait(false);
 
 
-            // just was playing' with ))
+            // ====================== just was playing' with )) ======================
 
             // Parallel.For(0, MaxSongs, i => AddRandomSong());
             // Parallel.For(0, MaxSongs, i => AddRandomSongAsync().RunSynchronously());
@@ -256,22 +270,6 @@ namespace MusCat.Utils
             UpcomingSongs.RemoveAt(0);
 
             await AddRandomSongAsync().ConfigureAwait(false);
-        }
-
-        public async Task StartPlayingAsync()
-        {
-            var fileSong = FileLocator.FindSongPath(CurrentSong);
-
-            try
-            {
-                Player.Play(fileSong);
-            }
-            catch (Exception)
-            {
-                await AddRandomSongAsync().ConfigureAwait(false);
-                await MoveToNextSongAsync().ConfigureAwait(false);
-                await StartPlayingAsync().ConfigureAwait(false);
-            }
         }
 
         public async Task ChangeSongAsync(long songId)

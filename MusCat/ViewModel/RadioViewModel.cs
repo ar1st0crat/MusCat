@@ -48,8 +48,8 @@ namespace MusCat.ViewModel
         public Song PreviousSong => _radio.PrevSong;
         public Song CurrentSong => _radio.CurrentSong;
         public Song NextSong => _radio.NextSong;
-        public ObservableCollection<Song> RadioArchive => _radio.SongArchive;
-        public ObservableCollection<Song> RadioUpcoming => _radio.UpcomingSongs;
+        public ObservableCollection<Song> RadioArchive => new ObservableCollection<Song>(_radio.SongArchive);
+        public ObservableCollection<Song> RadioUpcoming => new ObservableCollection<Song>(_radio.UpcomingSongs);
 
         // commands
         public ICommand PlaybackCommand { get; private set; }
@@ -116,6 +116,8 @@ namespace MusCat.ViewModel
             RaisePropertyChanged("PreviousSong");
             RaisePropertyChanged("CurrentSong");
             RaisePropertyChanged("NextSong");
+            RaisePropertyChanged("RadioArchive");
+            RaisePropertyChanged("RadioUpcoming");
         }
 
         /// <summary>
@@ -150,17 +152,17 @@ namespace MusCat.ViewModel
 
             bw.DoWork += (o, e) =>
             {
-                _radio.StartPlayingAsync().ContinueWith(task =>
-                {
-                    UpdateSongs();
-                    PlaybackImage = ImagePause;
-                });
-
+                _radio.StartPlaying();
+                
+                UpdateSongs();
+                PlaybackImage = ImagePause;
+                
                 // loop while song was not stopped (naturally or manually)
-                while (!_radio.Player.IsStopped())
+                do
                 {
                     Task.Delay(1000).Wait();
                 }
+                while (!_radio.Player.IsStopped());
             };
 
             // When the song was stopped (naturally or manually)
