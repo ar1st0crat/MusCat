@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Data.Entity;
 using System.Windows;
 using MusCat.Model;
+using MusCat.Repository;
 using MusCat.View;
 using MusCat.Utils;
 
@@ -16,6 +19,8 @@ namespace MusCat.ViewModel
     /// </summary>
     class MainViewModel : INotifyPropertyChanged
     {
+        private readonly PerformerRepository _repository = new PerformerRepository();
+
         public ObservableCollection<PerformerViewModel> Performers { get; } = 
             new ObservableCollection<PerformerViewModel>();
 
@@ -90,7 +95,7 @@ namespace MusCat.ViewModel
             {
                 if (SelectedPerformer?.SelectedAlbum != null)
                 {
-                    RemoveSelectedAlbum();
+                    RemoveSelectedAlbumAsync();
                 }
                 else
                 {
@@ -127,9 +132,9 @@ namespace MusCat.ViewModel
             EditPerformerCommand = new RelayCommand(EditPerformer);
             EditAlbumCommand = new RelayCommand(EditAlbum);
             DeletePerformerCommand = new RelayCommand(RemoveSelectedPerformer);
-            DeleteAlbumCommand = new RelayCommand(RemoveSelectedAlbum);
-            PerformerSearchCommand = new RelayCommand(SelectPerformersByPattern);
-            AlbumSearchCommand = new RelayCommand(SelectPerformersByAlbumPattern);
+            DeleteAlbumCommand = new RelayCommand(() => RemoveSelectedAlbumAsync());
+            PerformerSearchCommand = new RelayCommand(() => SelectPerformersByPattern());
+            AlbumSearchCommand = new RelayCommand(() => SelectPerformersByAlbumPattern());
             EditMusiciansCommand = new RelayCommand(() => { });
             StartRadioCommand = new RelayCommand(StartRadio);
             StatsCommand = new RelayCommand(() => { });
@@ -155,7 +160,7 @@ namespace MusCat.ViewModel
             set
             {
                 _indexLetter = value;
-                SelectPerformersByFirstLetter();
+                SelectPerformersByFirstLetter();        // fire and forget
                 RaisePropertyChanged("IndexLetter");
             }
         }
@@ -232,6 +237,7 @@ namespace MusCat.ViewModel
 
             _selectedPage = int.Parse(page.ToString()) - 1;
             
+            // in each case just fire and forget
             switch (_filter)
             {
                 case PerformerFilters.FilterByFirstLetter:
@@ -254,32 +260,28 @@ namespace MusCat.ViewModel
         /// Create Performer View Models for each performer
         /// (order albums, calculate rate and count the number of albums)
         /// </summary>
-        /// <param name="performersSelected">Pre-selected collection of performers to work with</param>
-        private void FillPerformerViewModels(IQueryable<Performer> performersSelected)
+        /// <param name="performers">Pre-selected collection of performers to work with</param>
+        /// <param name="totalCount">Total (not only in one page) number of selected performers</param>
+        private async Task FillPerformerViewModelsAsync(IEnumerable<Performer> performers, int totalCount)
         {
             // tryin' it out 
             GC.Collect();
             GC.WaitForPendingFinalizers();
-
-            CreatePageNavigationPanel(performersSelected.Count());
-
-            var performersPaged = 
-                performersSelected.Skip(_selectedPage * PerformersPerPage)
-                                  .Take(PerformersPerPage)
-                                  .ToList();
+            
+            CreatePageNavigationPanel(totalCount);
+            
             Performers.Clear();
 
-            foreach (var performer in performersPaged)
+            foreach (var performer in performers)
             {
                 var performerView = new PerformerViewModel { Performer = performer };
 
                 // Fill performer's albumlist
-                List<Album> albums;
 
                 // If no album pattern filter is specified, then copy **all** albums to PerformerViewModel
                 if (_filter != PerformerFilters.FilterByAlbumPattern)
                 {
-                    albums = performer.Albums
+                    var albums = performer.Albums
                                       .OrderBy(a => a.ReleaseYear)
                                       .ThenBy(a => a.Name)
                                       .ToList();
@@ -292,11 +294,12 @@ namespace MusCat.ViewModel
                 // Otherwise, **filter out albums to show** according to album search pattern
                 else
                 {
-                    albums = performer.Albums
+                    var albums = performer.Albums
                                       .Where(a => a.Name.ToLower().Contains(AlbumPattern.ToLower()))
-                                                                  .OrderBy(a => a.ReleaseYear)
-                                                                  .ThenBy(a => a.Name)
-                                                                  .ToList();
+                                      .OrderBy(a => a.ReleaseYear)
+                                      .ThenBy(a => a.Name)
+                                      .ToList();
+
                     foreach (var album in albums)
                     {
                         performerView.Albums.Add(new AlbumViewModel { Album = album });
@@ -304,116 +307,84 @@ namespace MusCat.ViewModel
                 }
 
                 // Recalculate total rate and number of albums of performer
-                performerView.AlbumCount = albums.Count();
+                performerView.AlbumCount = performerView.Albums.Count();
                 performerView.UpdateAlbumCollectionRate();
                 
                 // Finally, add fully created performer view model to the list
                 Performers.Add(performerView);
+
+                // Wow, animation! )))))
+                await Task.Delay(150);
             }
         }
 
         /// <summary>
         /// Select performers whose name starts with string FirstLetter (or not a letter - "Other" case)
         /// </summary>
-        private void SelectPerformersByFirstLetter()
+        private async Task SelectPerformersByFirstLetter()
         {
-            using (var context = new MusCatEntities())
+            if (_filter != PerformerFilters.FilterByFirstLetter || _filterCriterion != IndexLetter)
             {
-                IQueryable<Performer> performersSelected;
+                _selectedPage = 0;
 
-                // query can be of two kinds:
-
-                // 1) single letters ('a', 'b', 'c', ..., 'z')
-                if (IndexLetter.Length == 1)
-                {
-                    performersSelected = 
-                        from p in context.Performers.Include("Country").Include("Albums")
-                        where p.Name.ToLower().StartsWith(IndexLetter)
-                        orderby p.Name
-                        select p;
-                }
-                // 2) The "Other" option
-                //    (all performers whose name doesn't start with capital English letter, e.g. "10CC", "Пикник", etc.)
-                else
-                {
-                    performersSelected = 
-                        from p in context.Performers.Include("Country").Include("Albums")
-                        where string.Compare(p.Name.ToLower().Substring(0, 1), "a", StringComparison.Ordinal) < 0 ||
-                              string.Compare(p.Name.ToLower().Substring(0, 1), "z", StringComparison.Ordinal) > 0
-                        orderby p.Name
-                        select p;
-                }
-
-                if (_filter != PerformerFilters.FilterByFirstLetter ||
-                    _filterCriterion != IndexLetter)
-                {
-                    _selectedPage = 0;
-
-                    _filter = PerformerFilters.FilterByFirstLetter;
-                    _filterCriterion = IndexLetter;
-                }
-
-                FillPerformerViewModels(performersSelected);
+                _filter = PerformerFilters.FilterByFirstLetter;
+                _filterCriterion = IndexLetter;
             }
+
+            var performers = await
+                _repository.GetByFirstLetterAsync(IndexLetter, _selectedPage, PerformersPerPage);
+
+            var totalCount = await _repository.CountByFirstLetterAsync(IndexLetter);
+
+            await FillPerformerViewModelsAsync(performers, totalCount);
         }
 
         /// <summary>
         /// Select performers whose name contains the search pattern PerformerPattern
         /// (specified in lower navigation panel)
         /// </summary>
-        private void SelectPerformersByPattern()
+        private async Task SelectPerformersByPattern()
         {
             ActivateUpperPanel(false);
-
-            using (var context = new MusCatEntities())
+            
+            if (_filter != PerformerFilters.FilterByPattern || _filterCriterion != PerformerPattern)
             {
-                // main query in this case
-                var performersSelected = 
-                    from p in context.Performers.Include("Country").Include("Albums")
-                    where p.Name.ToLower().Contains(PerformerPattern.ToLower())
-                    orderby p.Name
-                    select p;
+                _selectedPage = 0;
 
-                if (_filter != PerformerFilters.FilterByPattern || 
-                    _filterCriterion != PerformerPattern)
-                {
-                    _selectedPage = 0;
-
-                    _filter = PerformerFilters.FilterByPattern;
-                    _filterCriterion = PerformerPattern;
-                }
-                
-                FillPerformerViewModels(performersSelected);
+                _filter = PerformerFilters.FilterByPattern;
+                _filterCriterion = PerformerPattern;
             }
+
+            var performers = await
+                _repository.GetBySubstringAsync(PerformerPattern, _selectedPage, PerformersPerPage);
+
+            var totalCount = await _repository.CountBySubstringAsync(PerformerPattern);
+
+            await FillPerformerViewModelsAsync(performers, totalCount);
         }
 
         /// <summary>
         /// Select performers having albums whose name contains search pattern
         /// (specified in lower navigation panel)
         /// </summary>
-        private void SelectPerformersByAlbumPattern()
+        private async Task SelectPerformersByAlbumPattern()
         {
             ActivateUpperPanel(false);
 
-            using (var context = new MusCatEntities())
+            if (_filter != PerformerFilters.FilterByAlbumPattern || _filterCriterion != AlbumPattern)
             {
-                // main query in this case
-                var performersSelected = 
-                    context.Performers.Include("Country")
-                                      .Where(p => p.Albums.Any(a => a.Name.Contains(AlbumPattern)))
-                                      .OrderBy(p => p.Name);
+                _selectedPage = 0;
 
-                if (_filter != PerformerFilters.FilterByAlbumPattern ||
-                    _filterCriterion != AlbumPattern)
-                {
-                    _selectedPage = 0;
-
-                    _filter = PerformerFilters.FilterByAlbumPattern;
-                    _filterCriterion = AlbumPattern;
-                }
-
-                FillPerformerViewModels(performersSelected);
+                _filter = PerformerFilters.FilterByAlbumPattern;
+                _filterCriterion = AlbumPattern;
             }
+
+            var performers = await
+                _repository.GetByAlbumSubstringAsync(AlbumPattern, _selectedPage, PerformersPerPage);
+
+            var totalCount = await _repository.CountByAlbumSubstringAsync(AlbumPattern);
+
+            await FillPerformerViewModelsAsync(performers, totalCount);
         }
 
         public void ViewSelectedPerformer()
@@ -627,7 +598,7 @@ namespace MusCat.ViewModel
             }
         }
 
-        private async void RemoveSelectedAlbum()
+        private async void RemoveSelectedAlbumAsync()
         {
             if (SelectedPerformer == null)
             {
@@ -654,8 +625,8 @@ namespace MusCat.ViewModel
 
             using (var context = new MusCatEntities())
             {
-                var albumToRemove = 
-                    context.Albums.SingleOrDefault(a => a.ID == selectedAlbum.Album.ID);
+                var albumToRemove = await
+                    context.Albums.SingleOrDefaultAsync(a => a.ID == selectedAlbum.Album.ID);
 
                 context.Albums.Remove(albumToRemove);
                 await context.SaveChangesAsync();

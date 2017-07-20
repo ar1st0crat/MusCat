@@ -239,7 +239,7 @@ namespace MusCat.ViewModel
                 context.Entry(Album).State = EntityState.Modified;
                 context.SaveChanges();
 
-                Performer.UpdateAlbumCollectionRate();
+                Performer?.UpdateAlbumCollectionRate();
             }
         }
 

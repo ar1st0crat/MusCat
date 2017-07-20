@@ -109,6 +109,7 @@
     <Compile Include="Model\Musician.cs" />
     <Compile Include="Model\Performer.cs" />
     <Compile Include="Model\Song.cs" />
+    <Compile Include="Repository\PerformerRepository.cs" />
     <Compile Include="Utils\Mp3Parser.cs" />
     <Compile Include="Utils\ParserStringUtils.cs" />
     <Compile Include="Utils\Radio.cs" />
