@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using MusCat.Model;
@@ -9,35 +11,124 @@ namespace MusCat.Utils
     /// <summary>
     /// Radio station class
     /// 
-    /// Class provides basic operations and their asynchronous analogs
+    /// Class provides basic methods for making and playing tracklists 
+    /// and their asynchronous analogs
     /// 
     /// </summary>
     class Radio
     {
         public const int MaxSongs = 10;
 
-        // audio player
-        public AudioPlayer Player { get; } = new AudioPlayer();
+        // Audio player
+        private readonly AudioPlayer _player = new AudioPlayer();
 
-        // randomizer
+        // Background worker - player
+        private readonly BackgroundWorker _worker = new BackgroundWorker();
+        private bool _isStopped;
+
+        // Delegate that will be invoked when a new song starts playing
+        public Action Update { get; set; }
+
+        // Randomizer
         private readonly Random _songSelector = new Random();
 
-        // collection of recently played songs
+        // Collection of recently played songs
         public List<Song> SongArchive { get; } = new List<Song>();
 
-        // collection of upcoming songs
+        // Collection of upcoming songs
         public List<Song> UpcomingSongs { get; } = new List<Song>();
 
         public Song CurrentSong { get; private set; } = new Song();
         public Song PrevSong => SongArchive.LastOrDefault();
         public Song NextSong => UpcomingSongs.FirstOrDefault();
 
-        public void AddToArchive() => SongArchive.Add(CurrentSong);
+        /// <summary>
+        /// There's one general background worker associated with the radio
+        /// whise purpose is to play whatever active song in the background thread
+        /// </summary>
+        public Radio()
+        {
+            _worker.DoWork += async (o, e) =>
+            {
+                while (!_isStopped)
+                {
+                    Task.Delay(1000).Wait();
 
-        public void AddRandomSong() => UpcomingSongs.Add(SelectRandomSong());
+                    if (_player.IsStopped() && !_player.IsStoppedManually)
+                    {
+                        await MoveToNextSongAsync();
+                    }
+                }
+            };
+        }
+
+        #region playback functions
+
+        public void Start()
+        {
+            StartPlaying();
+            
+            _isStopped = false;
+            _worker.RunWorkerAsync();
+        }
+
+        public void Stop()
+        {
+            _isStopped = true;
+            _player.StopAndDispose();
+        }
+
+        public void StartPlaying()
+        {
+            if (_player.SongPlaybackState != PlaybackState.Stop)
+            {
+                _player.Stop();
+            }
+
+            var fileSong = FileLocator.FindSongPath(CurrentSong);
+
+            try
+            {
+                _player.Play(fileSong);
+            }
+            catch (Exception)
+            {
+                AddRandomSong();
+                MoveToNextSong();
+                StartPlaying();
+            }
+        }
+
+        public void PausePlaying()
+        {
+            _player.Pause();
+        }
+
+        public void ResumePlaying()
+        {
+            _player.Resume();
+        }
+
+        public void StopPlaying()
+        {
+            _player.Stop();
+        }
+
+        public void SetVolume(float volume)
+        {
+            _player.SetVolume(volume);
+        }
+
+        public PlaybackState SongPlaybackState => _player.SongPlaybackState;
+
+        #endregion
 
 
         #region synchronous operations
+
+        public void AddToArchive() => SongArchive.Add(CurrentSong);
+
+        public void AddRandomSong() => UpcomingSongs.Add(SelectRandomSong());
 
         /// <summary>
         /// Make initial playlist and select random song as the current one
@@ -54,6 +145,8 @@ namespace MusCat.Utils
 
         public void MoveToNextSong()
         {
+            _player.Stop();
+
             // update archive
             if (SongArchive.Count >= MaxSongs)
             {
@@ -67,6 +160,10 @@ namespace MusCat.Utils
             // update the list of upcoming songs
             UpcomingSongs.RemoveAt(0);
             AddRandomSong();
+
+            Update?.Invoke();
+
+            StartPlaying();
         }
 
         public void MoveToPrevSong()
@@ -85,24 +182,12 @@ namespace MusCat.Utils
 
             // update archive
             SongArchive.Remove(SongArchive.Last());
+
+            Update?.Invoke();
+
+            StartPlaying();
         }
-
-        public void StartPlaying()
-        {
-            var fileSong = FileLocator.FindSongPath(CurrentSong);
-
-            try
-            {
-                Player.Play(fileSong);
-            }
-            catch (Exception)
-            {
-                AddRandomSong();
-                MoveToNextSong();
-                StartPlaying();
-            }
-        }
-
+        
         /// <summary>
         /// Method just replaces song (addressed by its ID) with the new randomly selected song 
         /// </summary>
@@ -156,12 +241,9 @@ namespace MusCat.Utils
                 do
                 {
                     var songId = _songSelector.Next() % maxSid;
-
                     song = context.Songs.First(s => s.ID >= songId);
-
                     // include the corresponding album of our song
                     song.Album = context.Albums.First(a => a.ID == song.AlbumID);
-
                     // do the same thing with performer for included album
                     song.Album.Performer = context.Performers.First(p => p.ID == song.Album.PerformerID);
                 }
@@ -227,6 +309,7 @@ namespace MusCat.Utils
             {
                 await AddRandomSongAsync().ConfigureAwait(false);
             }
+            
 
             // ====== Alternative code (however, it allows duplicate songs (((: ======
 
@@ -256,24 +339,27 @@ namespace MusCat.Utils
 
         public async Task MoveToNextSongAsync()
         {
-            // update archive
             if (SongArchive.Count >= MaxSongs)
             {
                 SongArchive.RemoveAt(0);
             }
             SongArchive.Add(CurrentSong);
 
-            // reassign current song (take first item from list of upcoming songs)
             CurrentSong = UpcomingSongs.First();
 
-            // update the list of upcoming songs
             UpcomingSongs.RemoveAt(0);
 
             await AddRandomSongAsync().ConfigureAwait(false);
+
+            Update?.Invoke();
+
+            StartPlaying();
         }
 
         public async Task ChangeSongAsync(long songId)
         {
+            await SelectRandomSongAsync();
+
             for (var i = 0; i < MaxSongs; i++)
             {
                 if (UpcomingSongs[i].ID != songId)
@@ -281,7 +367,7 @@ namespace MusCat.Utils
                     continue;
                 }
 
-                var song = await SelectRandomSongAsync();
+                var song = await SelectRandomSongAsync().ConfigureAwait(false);
 
                 UpcomingSongs[i] = song;
                 return;
@@ -297,16 +383,52 @@ namespace MusCat.Utils
                     continue;
                 }
 
-                await AddRandomSongAsync();
+                await AddRandomSongAsync().ConfigureAwait(false);
 
                 UpcomingSongs.RemoveAt(i);
                 return;
             }
         }
 
+        /// <summary>
+        /// Same as synchronous version but with async calls to EF
+        /// </summary>
         public async Task<Song> SelectRandomSongAsync()
         {
-            return await Task.Run(() => SelectRandomSong()).ConfigureAwait(false);
+            Song song;
+
+            using (var context = new MusCatEntities())
+            {
+                // find out the maximum song ID in the database
+                var maxSid = context.Songs.Max(s => s.ID);
+
+                // keep selecting song randomly until the song file is actually present in the file system...
+                // ...and while it isn't present in archive of recently played songs and upcoming songs
+                do
+                {
+                    var songId = _songSelector.Next() % maxSid;
+
+                    song = await context.Songs
+                                        .FirstAsync(s => s.ID >= songId)
+                                        .ConfigureAwait(false);
+
+                    // include the corresponding album of our song
+                    song.Album = await context.Albums
+                                              .FirstAsync(a => a.ID == song.AlbumID)
+                                              .ConfigureAwait(false);
+
+                    // do the same thing with performer for included album
+                    song.Album.Performer = await context.Performers
+                                                        .FirstAsync(p => p.ID == song.Album.PerformerID)
+                                                        .ConfigureAwait(false);
+                }
+                while (SongArchive.Any(s => s.ID == song.ID)    // true, if the archive already contains this song
+                    || UpcomingSongs.Any(s => s.ID == song.ID)  // true, if it is already in songlist
+                    || song.ID == CurrentSong.ID                // true, if it's currently playing
+                    || FileLocator.FindSongPath(song) == "");   // true, if the file with this song doesn't exist
+            }
+
+            return song;
         }
 
         #endregion

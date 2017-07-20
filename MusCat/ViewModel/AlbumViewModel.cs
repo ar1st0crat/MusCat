@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using MusCat.Model;
 
 namespace MusCat.ViewModel
@@ -51,6 +53,26 @@ namespace MusCat.ViewModel
             }
         }
 
+        /// <summary>
+        /// Async version of LoadSongs()
+        /// </summary>
+        public async Task LoadSongsAsync()
+        {
+            // load and prepare all songs from the album for further actions
+            using (var context = new MusCatEntities())
+            {
+                Songs.Clear();
+
+                var albumSongs = await 
+                        context.Songs.Where(s => s.AlbumID == Album.ID).ToListAsync();
+
+                foreach (var song in albumSongs)
+                {
+                    song.Album = Album;
+                    _songs.Add(song);
+                }
+            }
+        }
 
         #region INotifyPropertyChanged event and method
 
