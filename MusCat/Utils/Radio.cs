@@ -93,9 +93,7 @@ namespace MusCat.Utils
             }
             catch (Exception)
             {
-                AddRandomSong();
                 MoveToNextSong();
-                StartPlaying();
             }
         }
 
@@ -303,13 +301,13 @@ namespace MusCat.Utils
         {
             CurrentSong = await SelectRandomSongAsync().ConfigureAwait(false);
 
-            // addding songs 1 by 1 prevents the situation when songs can be duplicated
+            // adding songs 1 by 1 prevents the situation when songs can be duplicated
 
             for (var i = 0; i < MaxSongs; i++)
             {
                 await AddRandomSongAsync().ConfigureAwait(false);
             }
-            
+
 
             // ====== Alternative code (however, it allows duplicate songs (((: ======
 

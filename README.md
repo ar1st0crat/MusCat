@@ -38,6 +38,11 @@ The last part of a path should contain the name of an album and the year of albu
 
 In case of violation of the above-mentioned conventions nothing crucial happens - the only problem is that MusCat won't be able to find appropriate images and sounds and will replace them with built-in default files or simply show a corresponding message.
 
+For example, part of user's file system can look somewhat like this:
+
+![fs](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/fs.png)
+
+<hr/>
 
 Main Window
 
