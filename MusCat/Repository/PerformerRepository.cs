@@ -89,8 +89,6 @@ namespace MusCat.Repository
                                .CountAsync()
                                .ConfigureAwait(false);
                 }
-                // 2) The "Other" option
-                //    (all performers whose name doesn't start with capital English letter, e.g. "10CC", "Пикник", etc.)
                 else
                 {
                     return await

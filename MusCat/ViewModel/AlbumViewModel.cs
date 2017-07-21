@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using MusCat.Model;
 
 namespace MusCat.ViewModel
@@ -29,6 +30,13 @@ namespace MusCat.ViewModel
                 _songs = value;
                 RaisePropertyChanged("Songs");
             }
+        }
+
+        private readonly object _lock = new object();
+
+        public AlbumViewModel()
+        {
+            BindingOperations.EnableCollectionSynchronization(_songs, _lock);
         }
 
         /// <summary>
@@ -64,7 +72,9 @@ namespace MusCat.ViewModel
                 Songs.Clear();
 
                 var albumSongs = await 
-                        context.Songs.Where(s => s.AlbumID == Album.ID).ToListAsync();
+                        context.Songs.Where(s => s.AlbumID == Album.ID)
+                                     .ToListAsync()
+                                     .ConfigureAwait(false);
 
                 foreach (var song in albumSongs)
                 {

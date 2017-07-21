@@ -118,6 +118,7 @@ namespace MusCat.ViewModel
             RaisePropertyChanged("NextSong");
             RaisePropertyChanged("RadioArchive");
             RaisePropertyChanged("RadioUpcoming");
+            PlaybackImage = ImagePause;
         }
 
         /// <summary>
@@ -166,7 +167,7 @@ namespace MusCat.ViewModel
                 Album = _radio.CurrentSong.Album
             };
 
-            Task.Run(() => albumView.LoadSongs()).ContinueWith(task =>
+            albumView.LoadSongsAsync().ContinueWith(task =>
             {
                 var albumWindow = new AlbumWindow
                 {
