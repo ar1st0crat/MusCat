@@ -4,6 +4,9 @@
 
 The **MusCat** app (short for **Mus**ic **Cat**alog) is intended for all users who prefer to store their audio files locally and want to organize their music collections. The app stores data in a local database and provides a rich GUI functionality for viewing and editing all sorts of information regarding performers and their discographies.
 
+![pic1](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/1.png)
+
+
 ### Main features:
 
 * you can easily "CRUD" performers (artists), albums and songs using rich and intuitive GUI.
@@ -44,9 +47,6 @@ For example, part of user's file system can look somewhat like this:
 
 <hr/>
 
-Main Window
-
-![pic1](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/1.png)
 
 MusCat Radio
 

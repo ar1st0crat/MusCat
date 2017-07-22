@@ -1,5 +1,4 @@
-﻿using MusCat.Utils;
-using MusCat.View;
+﻿using MusCat.View;
 using System.Windows;
 
 namespace MusCat
@@ -9,9 +8,8 @@ namespace MusCat
     /// </summary>
     public partial class App : Application
     {
-        void AppInitialize( object sender, StartupEventArgs e)
+        void AppInitialize(object sender, StartupEventArgs e)
         {
-            FileLocator.Initialize();
             var mainWindow = new MainWindow();
             mainWindow.Show();
         }

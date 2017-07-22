@@ -140,6 +140,8 @@ namespace MusCat.ViewModel
             SettingsCommand = new RelayCommand(ShowSettings);
             HelpCommand = new RelayCommand(ShowHelp);
 
+            FileLocator.Initialize();
+
             // create navigation panel
             CreateUpperNavigationPanel();
             // and select the initial set of performers (starting with "A")
@@ -671,17 +673,14 @@ namespace MusCat.ViewModel
 
         private void ShowSettings()
         {
-            //var settingsWindow = new SettingsWindow();
-            //settingsWindow.Show();
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.ShowDialog();
         }
 
         private void ShowHelp()
         {
-            MessageBox.Show(
-@"     (c) 2017 ar1st0crat 
-
-           Please visit
-https://github.com/ar1st0crat/MusCat");
+            var helpWindow = new HelpWindow();
+            helpWindow.ShowDialog();
         }
 
         #endregion

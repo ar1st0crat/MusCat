@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Windows;
 using MusCat.Model;
+using MusCat.View;
 
 namespace MusCat.Utils
 {
@@ -20,7 +21,8 @@ namespace MusCat.Utils
     {
         // Pathlist contains root paths where to look for media files
         // Pathlist is taken from file paths.xml
-        private static readonly List<string> Pathlist = new List<string> { "C:", "D:" };
+        public static List<string> Pathlist = 
+            Directory.GetLogicalDrives().Select(p => p.TrimEnd('\\')).ToList();
 
         /// <summary>
         /// During initialization FileLocator loads data from file "config\paths.xml".
@@ -36,13 +38,11 @@ namespace MusCat.Utils
 
                 Directory.CreateDirectory("config");
 
-                using (var writer = XmlWriter.Create(@"config\paths.xml"))
+                var settingsWindow = new SettingsWindow();
+                if (settingsWindow.ShowDialog() == false)
                 {
-                    writer.WriteStartElement("pathlist");
-                    writer.WriteElementString("path", @"D:\Music");
-                    writer.WriteElementString("path", @"E:\Music");
-                    writer.WriteElementString("path", @"E:\Music\Other");
-                    writer.WriteEndElement();
+                    MessageBox.Show("Default path will be used: " + Pathlist.FirstOrDefault());
+                    return;
                 }
             }
 
