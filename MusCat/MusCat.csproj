@@ -117,7 +117,12 @@
     <Compile Include="Model\Musician.cs" />
     <Compile Include="Model\Performer.cs" />
     <Compile Include="Model\Song.cs" />
+    <Compile Include="Repository\Base\DisposableRepository.cs" />
+    <Compile Include="Repository\IPerformerRepository.cs" />
+    <Compile Include="Repository\Base\IRepository.cs" />
+    <Compile Include="Repository\IStatsRepository.cs" />
     <Compile Include="Repository\PerformerRepository.cs" />
+    <Compile Include="Repository\Base\Repository.cs" />
     <Compile Include="Repository\StatsRepository.cs" />
     <Compile Include="Utils\Mp3Parser.cs" />
     <Compile Include="Utils\ParserStringUtils.cs" />

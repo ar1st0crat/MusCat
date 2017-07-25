@@ -33,9 +33,9 @@ namespace MusCat.ViewModel
                 Color.FromRgb(125,190,240)
             };
 
-            PerformerCount = _repository.PerformerCount;
-            AlbumCount = _repository.AlbumCount;
-            SongCount = _repository.SongCount;
+            PerformerCount = _repository.Count<Performer>();
+            AlbumCount = _repository.Count<Album>();
+            SongCount = _repository.Count<Song>();
             
             GetStats();
         }
