@@ -59,3 +59,15 @@ Album window
 Filters demo
 
 ![pic3](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/4.png)
+
+Stats window
+
+![pic4](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/5.png)
+
+
+## Used libraries:
+
+- [EntityFramework](https://www.nuget.org/packages/EntityFramework)
+- [LiveCharts](https://lvcharts.net)
+- [NAudio](https://naudio.codeplex.com)
+- [TagLib](http://taglib.org)

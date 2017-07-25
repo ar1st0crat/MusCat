@@ -60,8 +60,16 @@
       <HintPath>..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NAudio, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NAudio.1.8.0\lib\net35\NAudio.dll</HintPath>
+    <Reference Include="LiveCharts, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiveCharts.0.9.7\lib\net45\LiveCharts.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="LiveCharts.Wpf, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiveCharts.Wpf.0.9.7\lib\net45\LiveCharts.Wpf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NAudio, Version=1.8.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.1.8.1\lib\net35\NAudio.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="policy.2.0.taglib-sharp">
@@ -110,6 +118,7 @@
     <Compile Include="Model\Performer.cs" />
     <Compile Include="Model\Song.cs" />
     <Compile Include="Repository\PerformerRepository.cs" />
+    <Compile Include="Repository\StatsRepository.cs" />
     <Compile Include="Utils\Mp3Parser.cs" />
     <Compile Include="Utils\ParserStringUtils.cs" />
     <Compile Include="Utils\Radio.cs" />
@@ -126,6 +135,7 @@
     <Compile Include="ViewModel\PerformerViewModel.cs" />
     <Compile Include="ViewModel\RadioViewModel.cs" />
     <Compile Include="ViewModel\SettingsViewModel.cs" />
+    <Compile Include="ViewModel\StatsViewModel.cs" />
     <Compile Include="View\ChoiceWindow.xaml.cs">
       <DependentUpon>ChoiceWindow.xaml</DependentUpon>
     </Compile>
@@ -157,6 +167,9 @@
     </Compile>
     <Compile Include="View\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\StatsWindow.xaml.cs">
+      <DependentUpon>StatsWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Controls\Button.xaml">
       <SubType>Designer</SubType>
@@ -215,6 +228,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\SettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\StatsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

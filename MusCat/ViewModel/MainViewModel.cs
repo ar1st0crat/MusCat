@@ -421,6 +421,53 @@ namespace MusCat.ViewModel
             performerWindow.Show();
         }
 
+        private void ViewSelectedAlbum()
+        {
+            if (SelectedPerformer?.SelectedAlbum == null)
+            {
+                MessageBox.Show("Please select album to show!");
+                return;
+            }
+
+            // load songs of selected album lazily
+            SelectedPerformer.SelectedAlbum.LoadSongsAsync()
+                .ContinueWith(task =>
+                {
+                    var albumWindow = new AlbumWindow();
+                    var albumViewModel = new AlbumPlaybackViewModel(SelectedPerformer.SelectedAlbum)
+                    {
+                        Performer = SelectedPerformer
+                    };
+
+                    albumWindow.DataContext = albumViewModel;
+                    albumWindow.Show();
+                },
+                TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        private void EditAlbum()
+        {
+            if (SelectedPerformer?.SelectedAlbum == null)
+            {
+                MessageBox.Show("Please select album to edit!");
+                return;
+            }
+
+            SelectedPerformer.SelectedAlbum.LoadSongsAsync()
+                .ContinueWith(task =>
+                {
+                    var albumWindow = new EditAlbumWindow
+                    {
+                        DataContext = new EditAlbumViewModel(SelectedPerformer.SelectedAlbum)
+                    };
+
+                    albumWindow.ShowDialog();
+
+                    SelectedPerformer.UpdateAlbumCollectionRate();
+                },
+                TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
         private async Task AddPerformerAsync()
         {
             // set initial information of a newly added performer
@@ -483,53 +530,6 @@ namespace MusCat.ViewModel
                     Performers.Remove(SelectedPerformer);
                 }
             }
-        }
-
-        private void ViewSelectedAlbum()
-        {
-            if (SelectedPerformer?.SelectedAlbum == null)
-            {
-                MessageBox.Show("Please select album to show!");
-                return;
-            }
-
-            // load songs of selected album lazily
-            SelectedPerformer.SelectedAlbum.LoadSongsAsync()
-                .ContinueWith(task =>
-                {
-                    var albumWindow = new AlbumWindow();
-                    var albumViewModel = new AlbumPlaybackViewModel(SelectedPerformer.SelectedAlbum)
-                    {
-                        Performer = SelectedPerformer
-                    };
-
-                    albumWindow.DataContext = albumViewModel;
-                    albumWindow.Show();
-                },
-                TaskScheduler.FromCurrentSynchronizationContext());
-        }
-
-        private void EditAlbum()
-        {
-            if (SelectedPerformer?.SelectedAlbum == null)
-            {
-                MessageBox.Show("Please select album to edit!");
-                return;
-            }
-
-            SelectedPerformer.SelectedAlbum.LoadSongsAsync()
-                .ContinueWith(task =>
-                {
-                    var albumWindow = new EditAlbumWindow
-                    {
-                        DataContext = new EditAlbumViewModel(SelectedPerformer.SelectedAlbum)
-                    };
-
-                    albumWindow.ShowDialog();
-
-                    SelectedPerformer.UpdateAlbumCollectionRate();
-                },
-                TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private async Task AddAlbumAsync()
@@ -667,8 +667,8 @@ namespace MusCat.ViewModel
 
         private void ShowStats()
         {
-            //var statsWindow = new StatsWindow();
-            //statsWindow.Show();
+            var statsWindow = new StatsWindow();
+            statsWindow.Show();
         }
 
         private void ShowSettings()
