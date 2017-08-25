@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,9 +20,6 @@ namespace MusCat.Services
 
         // Audio player
         private readonly AudioPlayer _player = new AudioPlayer();
-
-        // Background worker - player
-        private readonly BackgroundWorker _worker = new BackgroundWorker();
         private bool _isStopped;
 
         // Delegate that will be invoked when a new song starts playing
@@ -42,13 +38,16 @@ namespace MusCat.Services
         public Song PrevSong => SongArchive.LastOrDefault();
         public Song NextSong => UpcomingSongs.FirstOrDefault();
 
-        /// <summary>
-        /// There's one general background worker associated with the radio
-        /// whise purpose is to play whatever active song in the background thread
-        /// </summary>
-        public Radio()
+
+        #region playback functions
+
+        public void Start()
         {
-            _worker.DoWork += async (o, e) =>
+            StartPlaying();
+
+            // There's one general task associated with the radio
+            // whose purpose is to play whatever active song in the background thread
+            Task.Run(async () =>
             {
                 while (!_isStopped)
                 {
@@ -59,17 +58,7 @@ namespace MusCat.Services
                         await MoveToNextSongAsync();
                     }
                 }
-            };
-        }
-
-        #region playback functions
-
-        public void Start()
-        {
-            StartPlaying();
-            
-            _isStopped = false;
-            _worker.RunWorkerAsync();
+            });
         }
 
         public void Stop()

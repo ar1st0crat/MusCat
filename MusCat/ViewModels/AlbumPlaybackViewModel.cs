@@ -63,7 +63,6 @@ namespace MusCat.ViewModels
 
         // Audio player
         private readonly AudioPlayer _player = new AudioPlayer();
-        private readonly BackgroundWorker _worker = new BackgroundWorker();
         private bool _isStopped;
 
         // Song time percentage
@@ -117,12 +116,12 @@ namespace MusCat.ViewModels
         }
 
         /// <summary>
-        /// There's one general background worker associated with the album window
-        /// whise purpose is to play selected song in the background thread
+        /// There's one general task associated with the album window
+        /// whose purpose is to play selected song in the background thread
         /// </summary>
         private void InitPlayerWorker()
         {
-            _worker.DoWork += (o, e) =>
+            Task.Run(() =>
             {
                 while (!_isStopped)
                 {
@@ -133,9 +132,7 @@ namespace MusCat.ViewModels
                         UpdateSong();
                     }
                 }
-            };
-
-            _worker.RunWorkerAsync();
+            });
         }
 
         private void UpdateSong()
