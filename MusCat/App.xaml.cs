@@ -1,4 +1,4 @@
-﻿using MusCat.View;
+﻿using MusCat.Views;
 using System.Windows;
 
 namespace MusCat

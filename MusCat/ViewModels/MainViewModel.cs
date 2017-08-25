@@ -1,0 +1,704 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Data.Entity;
+using System.Windows;
+using MusCat.Entities;
+using MusCat.Repositories;
+using MusCat.Services;
+using MusCat.Utils;
+using MusCat.Views;
+
+namespace MusCat.ViewModels
+{
+    /// <summary>
+    /// MainViewModel is responsible for CRUD operations with performers and albums
+    /// (and other stuff from main menu such as Radio, Stats, Settings, Help)
+    /// </summary>
+    class MainViewModel : INotifyPropertyChanged
+    {
+        private readonly PerformerRepository _repository = new PerformerRepository();
+
+        public ObservableCollection<PerformerViewModel> Performers { get; } = 
+            new ObservableCollection<PerformerViewModel>();
+
+        public PerformerViewModel SelectedPerformer { get; set; }
+        
+        private string _performerPattern;
+        public string PerformerPattern
+        {
+            get { return _performerPattern; }
+            set
+            {
+                _performerPattern = value;
+                RaisePropertyChanged("PerformerPattern");
+            }
+        }
+
+        private string _albumPattern;
+        public string AlbumPattern
+        {
+            get { return _albumPattern; }
+            set
+            {
+                _albumPattern = value;
+                RaisePropertyChanged("AlbumPattern");
+            }
+        }
+
+        private PerformerFilters _filter = PerformerFilters.FilterByFirstLetter;
+        private string _filterCriterion;
+
+        #region Commands
+
+        public RelayCommand GeneralViewCommand { get; private set; }
+        public RelayCommand GeneralDeleteCommand { get; private set; }
+        public RelayCommand GeneralEditCommand { get; private set; }
+        public RelayCommand ViewPerformerCommand { get; private set; }
+        public RelayCommand ViewAlbumCommand { get; private set; }
+        public RelayCommand AddPerformerCommand { get; private set; }
+        public RelayCommand AddAlbumCommand { get; private set; }
+        public RelayCommand EditPerformerCommand { get; private set; }
+        public RelayCommand EditAlbumCommand { get; private set; }
+        public RelayCommand DeletePerformerCommand { get; private set; }
+        public RelayCommand DeleteAlbumCommand { get; private set; }
+        public RelayCommand PerformerSearchCommand { get; private set; }
+        public RelayCommand IndexLetterCommand { get; private set; }
+        public RelayCommand IndexPageCommand { get; private set; }
+        public RelayCommand AlbumSearchCommand { get; private set; }
+        public RelayCommand StartRadioCommand { get; private set; }
+        public RelayCommand StatsCommand { get; private set; }
+        public RelayCommand SettingsCommand { get; private set; }
+        public RelayCommand HelpCommand { get; private set; }
+
+        #endregion
+
+        public MainViewModel()
+        {
+            // setting up all commands (quite a lot of them)
+
+            GeneralViewCommand = new RelayCommand(() =>
+            {
+                if (SelectedPerformer?.SelectedAlbum != null)
+                {
+                    ViewSelectedAlbum();
+                }
+                else
+                {
+                    ViewSelectedPerformer();
+                }
+            });
+
+            GeneralDeleteCommand = new RelayCommand(async () =>
+            {
+                if (SelectedPerformer?.SelectedAlbum != null)
+                {
+                    await RemoveSelectedAlbumAsync();
+                }
+                else
+                {
+                    await RemoveSelectedPerformerAsync();
+                }
+            });
+
+            GeneralEditCommand = new RelayCommand(() =>
+            {
+                if (SelectedPerformer?.SelectedAlbum != null)
+                {
+                    EditAlbum();
+                }
+                else
+                {
+                    EditPerformer();
+                }
+            });
+
+            IndexLetterCommand = new RelayCommand(param =>
+            {
+                _filter = PerformerFilters.FilterByFirstLetter;
+                ActivateUpperPanel(false);
+                IndexLetter = param.ToString();
+                ActivateUpperPanel(true);
+            });
+
+            IndexPageCommand = new RelayCommand(NavigatePage);
+
+            ViewPerformerCommand = new RelayCommand(ViewSelectedPerformer);
+            ViewAlbumCommand = new RelayCommand(ViewSelectedAlbum);
+            EditPerformerCommand = new RelayCommand(EditPerformer);
+            EditAlbumCommand = new RelayCommand(EditAlbum);
+            AddPerformerCommand = new RelayCommand(async () => await AddPerformerAsync());
+            AddAlbumCommand = new RelayCommand(async () => await AddAlbumAsync());
+            DeletePerformerCommand = new RelayCommand(async () => await RemoveSelectedPerformerAsync());
+            DeleteAlbumCommand = new RelayCommand(async () => await RemoveSelectedAlbumAsync());
+            PerformerSearchCommand = new RelayCommand(async () => await SelectPerformersByPatternAsync());
+            AlbumSearchCommand = new RelayCommand(async () => await SelectPerformersByAlbumPatternAsync());
+            StartRadioCommand = new RelayCommand(StartRadio);
+            StatsCommand = new RelayCommand(ShowStats);
+            SettingsCommand = new RelayCommand(ShowSettings);
+            HelpCommand = new RelayCommand(ShowHelp);
+
+            FileLocator.Initialize();
+
+            // create navigation panel
+            CreateUpperNavigationPanel();
+            // and select the initial set of performers (starting with "A")
+            IndexLetter = "A";
+        }
+
+        #region Upper navigation panel
+
+        // Letters in upper navigation panel
+        public ObservableCollection<IndexViewModel> LetterCollection { get; set; } =
+            new ObservableCollection<IndexViewModel>();
+
+        private string _indexLetter;
+        public string IndexLetter
+        {
+            get { return _indexLetter; }
+            set
+            {
+                _indexLetter = value;
+                RaisePropertyChanged("IndexLetter");
+                SelectPerformersByFirstLetterAsync();        // fire and forget
+            }
+        }
+        
+        private void CreateUpperNavigationPanel()
+        {
+            // create the upper navigation panel
+            foreach (var c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+            {
+                LetterCollection.Add(new IndexViewModel
+                {
+                    Text = c.ToString(),
+                    IsActive = false
+                });
+            }
+
+            LetterCollection.Add(new IndexViewModel
+            {
+                Text = "Other",
+                IsActive = false
+            });
+
+            LetterCollection[0].IsActive = true;
+        }
+
+        private void ActivateUpperPanel(bool active)
+        {
+            LetterCollection.First(l => l.Text == IndexLetter).IsActive = active;
+        }
+        
+        #endregion
+
+        #region Lower navigation panel (page navigation)
+
+        // Page numbers in lower navigation panel
+        public ObservableCollection<IndexViewModel> PageCollection { get; set; } =
+            new ObservableCollection<IndexViewModel>();
+        
+        private int _selectedPage = 0;
+        private const int PerformersPerPage = 10;
+
+        /// <summary>
+        /// Pagination panel is created each time user updates search filters
+        /// </summary>
+        /// <param name="totalCount">Number of performers in resulting set</param>
+        private void CreatePageNavigationPanel(int totalCount)
+        {
+            PageCollection.Clear();
+
+            var total = (int)Math.Ceiling((double)totalCount / PerformersPerPage);
+            
+            if (total <= 1)
+            {
+                return;
+            }
+
+            PageCollection = new ObservableCollection<IndexViewModel>(
+                Enumerable.Range(1, total)
+                    .Select(p => new IndexViewModel
+                    {
+                        Text = p.ToString(),
+                        IsActive = false
+                    }))
+                    {
+                        [_selectedPage] = {IsActive = true}
+                    };
+            
+            RaisePropertyChanged("PageCollection");
+        }
+        
+        private void NavigatePage(object page)
+        {
+            PageCollection[_selectedPage].IsActive = false;
+
+            _selectedPage = int.Parse(page.ToString()) - 1;
+            
+            // in each case just fire and forget
+            switch (_filter)
+            {
+                case PerformerFilters.FilterByFirstLetter:
+                    SelectPerformersByFirstLetterAsync();
+                    break;
+                case PerformerFilters.FilterByPattern:
+                    SelectPerformersByPatternAsync();
+                    break;
+                case PerformerFilters.FilterByAlbumPattern:
+                    SelectPerformersByAlbumPatternAsync();
+                    break;
+            }
+        }
+
+        #endregion
+        
+        #region CRUD
+
+        /// <summary>
+        /// Create Performer View Models for each performer
+        /// (order albums, calculate rate and count the number of albums)
+        /// </summary>
+        /// <param name="performers">Pre-selected collection of performers to work with</param>
+        /// <param name="totalCount">Total (not only in one page) number of selected performers</param>
+        private async Task FillPerformerViewModelsAsync(IEnumerable<Performer> performers, int totalCount)
+        {
+            // hey, GC, would you mind?
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            
+            CreatePageNavigationPanel(totalCount);
+            
+            Performers.Clear();
+
+            foreach (var performer in performers)
+            {
+                var performerView = new PerformerViewModel { Performer = performer };
+
+                // Fill performer's albumlist
+
+                // If no album pattern filter is specified, then copy **all** albums to PerformerViewModel
+                if (_filter != PerformerFilters.FilterByAlbumPattern)
+                {
+                    var albums = performer.Albums
+                                          .OrderBy(a => a.ReleaseYear)
+                                          .ThenBy(a => a.Name)
+                                          .ToList();
+
+                    foreach (var album in albums)
+                    {
+                        performerView.Albums.Add(new AlbumViewModel { Album = album });
+                    }
+                }
+                // Otherwise, **filter out albums to show** according to album search pattern
+                else
+                {
+                    var albums = performer.Albums
+                                          .Where(a => a.Name.ToLower().Contains(AlbumPattern.ToLower()))
+                                          .OrderBy(a => a.ReleaseYear)
+                                          .ThenBy(a => a.Name)
+                                          .ToList();
+
+                    foreach (var album in albums)
+                    {
+                        performerView.Albums.Add(new AlbumViewModel { Album = album });
+                    }
+                }
+
+                // Recalculate total rate and number of albums of performer
+                performerView.AlbumCount = performerView.Albums.Count();
+                performerView.UpdateAlbumCollectionRate();
+                
+                // Finally, add fully created performer view model to the list
+                Performers.Add(performerView);
+
+                // Wow, animation! )))))
+                await Task.Delay(100);
+            }
+        }
+
+        /// <summary>
+        /// Select performers whose name starts with string FirstLetter (or not a letter - "Other" case)
+        /// </summary>
+        private async Task SelectPerformersByFirstLetterAsync()
+        {
+            if (_filter != PerformerFilters.FilterByFirstLetter || _filterCriterion != IndexLetter)
+            {
+                _selectedPage = 0;
+
+                _filter = PerformerFilters.FilterByFirstLetter;
+                _filterCriterion = IndexLetter;
+            }
+
+            var performers = await
+                _repository.GetByFirstLetterAsync(IndexLetter, _selectedPage, PerformersPerPage);
+
+            var totalCount = await _repository.CountByFirstLetterAsync(IndexLetter);
+
+            await FillPerformerViewModelsAsync(performers, totalCount);
+        }
+
+        /// <summary>
+        /// Select performers whose name contains the search pattern PerformerPattern
+        /// (specified in lower navigation panel)
+        /// </summary>
+        private async Task SelectPerformersByPatternAsync()
+        {
+            ActivateUpperPanel(false);
+            
+            if (_filter != PerformerFilters.FilterByPattern || _filterCriterion != PerformerPattern)
+            {
+                _selectedPage = 0;
+
+                _filter = PerformerFilters.FilterByPattern;
+                _filterCriterion = PerformerPattern;
+            }
+
+            var performers = await
+                _repository.GetBySubstringAsync(PerformerPattern, _selectedPage, PerformersPerPage);
+
+            var totalCount = await _repository.CountBySubstringAsync(PerformerPattern);
+
+            await FillPerformerViewModelsAsync(performers, totalCount);
+        }
+
+        /// <summary>
+        /// Select performers having albums whose name contains search pattern
+        /// (specified in lower navigation panel)
+        /// </summary>
+        private async Task SelectPerformersByAlbumPatternAsync()
+        {
+            ActivateUpperPanel(false);
+
+            if (_filter != PerformerFilters.FilterByAlbumPattern || _filterCriterion != AlbumPattern)
+            {
+                _selectedPage = 0;
+
+                _filter = PerformerFilters.FilterByAlbumPattern;
+                _filterCriterion = AlbumPattern;
+            }
+
+            var performers = await
+                _repository.GetByAlbumSubstringAsync(AlbumPattern, _selectedPage, PerformersPerPage);
+
+            var totalCount = await _repository.CountByAlbumSubstringAsync(AlbumPattern);
+
+            await FillPerformerViewModelsAsync(performers, totalCount);
+        }
+
+        private void ViewSelectedPerformer()
+        {
+            if (SelectedPerformer == null)
+            {
+                MessageBox.Show("Please select performer to show!");
+                return;
+            }
+
+            var performerWindow = new PerformerWindow
+            {
+                DataContext = SelectedPerformer
+            };
+
+            performerWindow.Show();
+        }
+
+        private void EditPerformer()
+        {
+            if (SelectedPerformer == null)
+            {
+                MessageBox.Show("Please select performer to edit!");
+                return;
+            }
+
+            var viewmodel = new EditPerformerViewModel(SelectedPerformer);
+            var performerWindow = new EditPerformerWindow
+            {
+                DataContext = viewmodel
+            };
+
+            performerWindow.Show();
+        }
+
+        private void ViewSelectedAlbum()
+        {
+            if (SelectedPerformer?.SelectedAlbum == null)
+            {
+                MessageBox.Show("Please select album to show!");
+                return;
+            }
+
+            // load songs of selected album lazily
+            SelectedPerformer.SelectedAlbum.LoadSongsAsync()
+                .ContinueWith(task =>
+                {
+                    var albumWindow = new AlbumWindow();
+                    var albumViewModel = new AlbumPlaybackViewModel(SelectedPerformer.SelectedAlbum)
+                    {
+                        Performer = SelectedPerformer
+                    };
+
+                    albumWindow.DataContext = albumViewModel;
+                    albumWindow.Show();
+                },
+                TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        private void EditAlbum()
+        {
+            if (SelectedPerformer?.SelectedAlbum == null)
+            {
+                MessageBox.Show("Please select album to edit!");
+                return;
+            }
+
+            SelectedPerformer.SelectedAlbum.LoadSongsAsync()
+                .ContinueWith(task =>
+                {
+                    var albumWindow = new EditAlbumWindow
+                    {
+                        DataContext = new EditAlbumViewModel(SelectedPerformer.SelectedAlbum)
+                    };
+
+                    albumWindow.ShowDialog();
+
+                    SelectedPerformer.UpdateAlbumCollectionRate();
+                },
+                TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        private async Task AddPerformerAsync()
+        {
+            // set initial information of a newly added performer
+            var performer = new Performer { Name = "Unknown performer" };
+
+            using (var context = new MusCatEntities())
+            {
+                performer.ID = context.Performers.Any() ? 
+                    context.Performers.Max(p => p.ID) + 1 : 1;
+
+                context.Performers.Add(performer);
+                await context.SaveChangesAsync();
+
+                var viewmodel = new EditPerformerViewModel(new PerformerViewModel
+                {
+                    Performer = performer
+                });
+
+                var performerWindow = new EditPerformerWindow
+                {
+                    DataContext = viewmodel
+                };
+
+                performerWindow.ShowDialog();
+
+                // clear all performers shown in the main window
+                Performers.Clear();
+                PageCollection.Clear();
+
+                _selectedPage = 0;
+
+                // and show only newly added performer (to focus user's attention on said performer)
+                Performers.Add(new PerformerViewModel
+                {
+                    Performer = performer
+                });
+            }
+        }
+
+        private async Task RemoveSelectedPerformerAsync()
+        {
+            var performer = SelectedPerformer.Performer;
+
+            if (performer == null)
+            {
+                MessageBox.Show("Please select performer to remove");
+            }
+            else if (MessageBox.Show(string.Format("Are you sure you want to delete '{0}'?", performer.Name),
+                                        "Confirmation",
+                                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                using (var context = new MusCatEntities())
+                {
+                    var performerToRemove = 
+                        context.Performers.SingleOrDefault(p => p.ID == performer.ID);
+
+                    context.Performers.Remove(performerToRemove);
+                    await context.SaveChangesAsync();
+
+                    Performers.Remove(SelectedPerformer);
+                }
+            }
+        }
+
+        private async Task AddAlbumAsync()
+        {
+            if (SelectedPerformer == null)
+            {
+                MessageBox.Show("Please select performer!");
+                return;
+            }
+
+            // set initial information of a newly added album
+            var album = new Album
+            {
+                Name = "New Album",
+                TotalTime = "00:00",
+                PerformerID = SelectedPerformer.Performer.ID,
+                ReleaseYear = (short)DateTime.Now.Year
+            };
+
+            using (var context = new MusCatEntities())
+            {
+                album.ID = await context.Albums.AnyAsync() ? 
+                    await context.Albums.MaxAsync(a => a.ID) + 1 : 1;
+
+                context.Albums.Add(album);
+                await context.SaveChangesAsync();
+
+                album.Performer = SelectedPerformer.Performer;
+
+                var albumView = new AlbumViewModel
+                {
+                    Album = album
+                };
+
+                var editAlbum = new EditAlbumWindow
+                {
+                    DataContext = new EditAlbumViewModel(albumView)
+                };
+
+                editAlbum.ShowDialog();
+
+                var albums = SelectedPerformer.Albums;
+
+                // Insert the view model of a newly added album at the right place in performer's collection
+                var albumPos = albums.Count;
+
+                for (var i = 0; i < albums.Count; i++)
+                {
+                    // firstly, let's see where newly added album fits by its year of release
+                    if (album.ReleaseYear > albums[i].Album.ReleaseYear)
+                    {
+                        continue;
+                    }
+
+                    // then, there can be several albums with the same year of release
+                    // so loop through them to find the place for insertion (by album name)
+                    albumPos = i;
+                    while (albums[albumPos].Album.ReleaseYear == album.ReleaseYear &&
+                           string.Compare(album.Name, albums[albumPos].Album.Name, StringComparison.Ordinal) > 0 &&
+                           albumPos < albums.Count)
+                    {
+                        albumPos++;
+                    }
+
+                    break;
+                }
+
+                SelectedPerformer.Albums.Insert(albumPos, albumView);
+
+                // to update view
+                SelectedPerformer.AlbumCount = SelectedPerformer.Albums.Count();
+                SelectedPerformer.UpdateAlbumCollectionRate();
+            }
+        }
+
+        private async Task RemoveSelectedAlbumAsync()
+        {
+            if (SelectedPerformer == null)
+            {
+                MessageBox.Show("Please select performer first!");
+                return;
+            }
+
+            var selectedAlbum = SelectedPerformer.SelectedAlbum;
+
+            if (selectedAlbum == null)
+            {
+                MessageBox.Show("Please select album to remove");
+                return;
+            }
+
+            if (MessageBox.Show(string.Format("Are you sure you want to delete\n '{0}' \nby '{1}'?",
+                                    selectedAlbum.Album.Name,
+                                    selectedAlbum.Album.Performer.Name),
+                                    "Confirmation",
+                                    MessageBoxButton.YesNo) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            using (var context = new MusCatEntities())
+            {
+                var albumToRemove = await
+                    context.Albums.SingleOrDefaultAsync(a => a.ID == selectedAlbum.Album.ID);
+
+                context.Albums.Remove(albumToRemove);
+                await context.SaveChangesAsync();
+
+                SelectedPerformer.Albums.Remove(selectedAlbum);
+
+                // to update view
+                SelectedPerformer.AlbumCount = SelectedPerformer.Albums.Count();
+                SelectedPerformer.UpdateAlbumCollectionRate();
+            }
+        }
+
+        #endregion
+        
+        #region main menu
+
+        private void StartRadio()
+        {
+            var radio = new Radio();
+
+            // if radioplayer can't find songs to play then why even try opening radio window? 
+            if (!radio.CheckSongFiles())
+            {
+                MessageBox.Show("Seems like there's not enough music files on your drives");
+                return;
+            }
+
+            var radioWindow = new RadioPlayerWindow();
+            radioWindow.Show();
+        }
+
+        private void ShowStats()
+        {
+            var statsWindow = new StatsWindow();
+            statsWindow.Show();
+        }
+
+        private void ShowSettings()
+        {
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.ShowDialog();
+        }
+
+        private void ShowHelp()
+        {
+            var helpWindow = new HelpWindow();
+            helpWindow.ShowDialog();
+        }
+
+        #endregion
+
+        #region INotifyPropertyChanged event and method
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
+    }
+}

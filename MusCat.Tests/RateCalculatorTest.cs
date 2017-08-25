@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using MusCat.Model;
+using MusCat.Entities;
+using MusCat.Services;
 using NUnit.Framework;
-using MusCat.Utils;
 
 namespace MusCat.Tests
 {

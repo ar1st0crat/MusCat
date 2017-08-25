@@ -68,8 +68,8 @@
       <HintPath>..\packages\LiveCharts.Wpf.0.9.7\lib\net45\LiveCharts.Wpf.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NAudio, Version=1.8.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NAudio.1.8.1\lib\net35\NAudio.dll</HintPath>
+    <Reference Include="NAudio, Version=1.8.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.1.8.2\lib\net35\NAudio.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="policy.2.0.taglib-sharp">
@@ -109,71 +109,72 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\AlbumCountConverter.cs" />
-    <Compile Include="Model\Album.cs" />
-    <Compile Include="Model\Country.cs" />
-    <Compile Include="Model\Genre.cs" />
-    <Compile Include="Model\Lineup.cs" />
-    <Compile Include="Model\MusCatEntities.cs" />
-    <Compile Include="Model\Musician.cs" />
-    <Compile Include="Model\Performer.cs" />
-    <Compile Include="Model\Song.cs" />
-    <Compile Include="Repository\Base\DisposableRepository.cs" />
-    <Compile Include="Repository\IPerformerRepository.cs" />
-    <Compile Include="Repository\Base\IRepository.cs" />
-    <Compile Include="Repository\IStatsRepository.cs" />
-    <Compile Include="Repository\PerformerRepository.cs" />
-    <Compile Include="Repository\Base\Repository.cs" />
-    <Compile Include="Repository\StatsRepository.cs" />
-    <Compile Include="Utils\Mp3Parser.cs" />
-    <Compile Include="Utils\ParserStringUtils.cs" />
-    <Compile Include="Utils\Radio.cs" />
-    <Compile Include="Utils\RateCalculator.cs" />
-    <Compile Include="ViewModel\AlbumPlaybackViewModel.cs" />
-    <Compile Include="ViewModel\AlbumViewModel.cs" />
-    <Compile Include="ViewModel\DialogResultHelper.cs" />
-    <Compile Include="ViewModel\IndexViewModel.cs" />
-    <Compile Include="ViewModel\PerformerFilters.cs" />
-    <Compile Include="ViewModel\RelayCommand.cs" />
-    <Compile Include="ViewModel\EditAlbumViewModel.cs" />
-    <Compile Include="ViewModel\EditPerformerViewModel.cs" />
-    <Compile Include="ViewModel\MainViewModel.cs" />
-    <Compile Include="ViewModel\PerformerViewModel.cs" />
-    <Compile Include="ViewModel\RadioViewModel.cs" />
-    <Compile Include="ViewModel\SettingsViewModel.cs" />
-    <Compile Include="ViewModel\StatsViewModel.cs" />
-    <Compile Include="View\ChoiceWindow.xaml.cs">
+    <Compile Include="Entities\Album.cs" />
+    <Compile Include="Entities\Country.cs" />
+    <Compile Include="Entities\Genre.cs" />
+    <Compile Include="Entities\Lineup.cs" />
+    <Compile Include="Entities\MusCatEntities.cs" />
+    <Compile Include="Entities\Musician.cs" />
+    <Compile Include="Entities\Performer.cs" />
+    <Compile Include="Entities\Song.cs" />
+    <Compile Include="Repositories\Base\DisposableRepository.cs" />
+    <Compile Include="Repositories\IPerformerRepository.cs" />
+    <Compile Include="Repositories\Base\IRepository.cs" />
+    <Compile Include="Repositories\IStatsRepository.cs" />
+    <Compile Include="Repositories\PerformerRepository.cs" />
+    <Compile Include="Repositories\Base\Repository.cs" />
+    <Compile Include="Repositories\SongRepository.cs" />
+    <Compile Include="Repositories\StatsRepository.cs" />
+    <Compile Include="Services\Mp3Parser.cs" />
+    <Compile Include="Services\ParserStringUtils.cs" />
+    <Compile Include="Services\Radio.cs" />
+    <Compile Include="Services\RateCalculator.cs" />
+    <Compile Include="ViewModels\AlbumPlaybackViewModel.cs" />
+    <Compile Include="ViewModels\AlbumViewModel.cs" />
+    <Compile Include="Utils\DialogResultHelper.cs" />
+    <Compile Include="ViewModels\IndexViewModel.cs" />
+    <Compile Include="ViewModels\PerformerFilters.cs" />
+    <Compile Include="Utils\RelayCommand.cs" />
+    <Compile Include="ViewModels\EditAlbumViewModel.cs" />
+    <Compile Include="ViewModels\EditPerformerViewModel.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\PerformerViewModel.cs" />
+    <Compile Include="ViewModels\RadioViewModel.cs" />
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
+    <Compile Include="ViewModels\StatsViewModel.cs" />
+    <Compile Include="Views\ChoiceWindow.xaml.cs">
       <DependentUpon>ChoiceWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\EditAlbumWindow.xaml.cs">
+    <Compile Include="Views\EditAlbumWindow.xaml.cs">
       <DependentUpon>EditAlbumWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\EditPerformerWindow.xaml.cs">
+    <Compile Include="Views\EditPerformerWindow.xaml.cs">
       <DependentUpon>EditPerformerWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\HelpWindow.xaml.cs">
+    <Compile Include="Views\HelpWindow.xaml.cs">
       <DependentUpon>HelpWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\PerformerWindow.xaml.cs">
+    <Compile Include="Views\PerformerWindow.xaml.cs">
       <DependentUpon>PerformerWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Utils\FileLocator.cs" />
-    <Compile Include="Utils\AudioPlayer.cs" />
+    <Compile Include="Services\FileLocator.cs" />
+    <Compile Include="Services\AudioPlayer.cs" />
     <Compile Include="Converters\PhotoConverter.cs" />
-    <Compile Include="View\RadioPlayerWindow.xaml.cs">
+    <Compile Include="Views\RadioPlayerWindow.xaml.cs">
       <DependentUpon>RadioPlayerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\RateConverter.cs" />
-    <Compile Include="View\AlbumWindow.xaml.cs">
+    <Compile Include="Views\AlbumWindow.xaml.cs">
       <DependentUpon>AlbumWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\YearsConverter.cs" />
     <Compile Include="Controls\RateStarsControl.xaml.cs">
       <DependentUpon>RateStarsControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\SettingsWindow.xaml.cs">
+    <Compile Include="Views\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\StatsWindow.xaml.cs">
+    <Compile Include="Views\StatsWindow.xaml.cs">
       <DependentUpon>StatsWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Controls\Button.xaml">
@@ -184,23 +185,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\ChoiceWindow.xaml">
+    <Page Include="Views\ChoiceWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\EditAlbumWindow.xaml">
+    <Page Include="Views\EditAlbumWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\EditPerformerWindow.xaml">
+    <Page Include="Views\EditPerformerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\HelpWindow.xaml">
+    <Page Include="Views\HelpWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\MainWindow.xaml">
+    <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -208,19 +209,19 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="View\MainWindow.xaml.cs">
+    <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="View\PerformerWindow.xaml">
+    <Page Include="Views\PerformerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\RadioPlayerWindow.xaml">
+    <Page Include="Views\RadioPlayerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\AlbumWindow.xaml">
+    <Page Include="Views\AlbumWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -232,11 +233,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\SettingsWindow.xaml">
+    <Page Include="Views\SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\StatsWindow.xaml">
+    <Page Include="Views\StatsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
