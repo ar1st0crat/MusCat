@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -7,7 +6,7 @@ using System.Threading.Tasks;
 using System.Data.Entity;
 using System.Windows;
 using MusCat.Entities;
-using MusCat.Repositories;
+using MusCat.Repositories.Base;
 using MusCat.Services;
 using MusCat.Utils;
 using MusCat.Views;
@@ -20,8 +19,8 @@ namespace MusCat.ViewModels
     /// </summary>
     class MainViewModel : INotifyPropertyChanged
     {
-        private readonly PerformerRepository _repository = new PerformerRepository();
-
+        private readonly UnitOfWork _unitOfWork = new UnitOfWork();
+        
         public ObservableCollection<PerformerViewModel> Performers { get; } = 
             new ObservableCollection<PerformerViewModel>();
 
@@ -170,11 +169,11 @@ namespace MusCat.ViewModels
         private void CreateUpperNavigationPanel()
         {
             // create the upper navigation panel
-            foreach (var c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+            foreach (var letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
             {
                 LetterCollection.Add(new IndexViewModel
                 {
-                    Text = c.ToString(),
+                    Text = letter.ToString(),
                     IsActive = false
                 });
             }
@@ -207,20 +206,18 @@ namespace MusCat.ViewModels
         /// <summary>
         /// Pagination panel is created each time user updates search filters
         /// </summary>
-        /// <param name="totalCount">Number of performers in resulting set</param>
-        private void CreatePageNavigationPanel(int totalCount)
+        /// <param name="totalPages">Number of pages for performers in resulting set</param>
+        private void CreatePageNavigationPanel(int totalPages)
         {
             PageCollection.Clear();
 
-            var total = (int)Math.Ceiling((double)totalCount / PerformersPerPage);
-            
-            if (total <= 1)
+            if (totalPages <= 1)
             {
                 return;
             }
 
             PageCollection = new ObservableCollection<IndexViewModel>(
-                Enumerable.Range(1, total)
+                Enumerable.Range(1, totalPages)
                     .Select(p => new IndexViewModel
                     {
                         Text = p.ToString(),
@@ -263,18 +260,17 @@ namespace MusCat.ViewModels
         /// (order albums, calculate rate and count the number of albums)
         /// </summary>
         /// <param name="performers">Pre-selected collection of performers to work with</param>
-        /// <param name="totalCount">Total (not only in one page) number of selected performers</param>
-        private async Task FillPerformerViewModelsAsync(IEnumerable<Performer> performers, int totalCount)
+        private async Task FillPerformerViewModelsAsync(PageCollection<Performer> performers)
         {
             // hey, GC, would you mind?
             GC.Collect();
             GC.WaitForPendingFinalizers();
             
-            CreatePageNavigationPanel(totalCount);
+            CreatePageNavigationPanel(performers.TotalPages);
             
             Performers.Clear();
 
-            foreach (var performer in performers)
+            foreach (var performer in performers.Items)
             {
                 var performerView = new PerformerViewModel { Performer = performer };
 
@@ -314,9 +310,6 @@ namespace MusCat.ViewModels
                 
                 // Finally, add fully created performer view model to the list
                 Performers.Add(performerView);
-
-                // Wow, animation! )))))
-                await Task.Delay(100);
             }
         }
 
@@ -333,12 +326,10 @@ namespace MusCat.ViewModels
                 _filterCriterion = IndexLetter;
             }
 
-            var performers = await
-                _repository.GetByFirstLetterAsync(IndexLetter, _selectedPage, PerformersPerPage);
-
-            var totalCount = await _repository.CountByFirstLetterAsync(IndexLetter);
-
-            await FillPerformerViewModelsAsync(performers, totalCount);
+            var performers = await _unitOfWork.PerformerRepository
+                .GetByFirstLetterAsync(IndexLetter, _selectedPage, PerformersPerPage);
+            
+            await FillPerformerViewModelsAsync(performers);
         }
 
         /// <summary>
@@ -357,12 +348,10 @@ namespace MusCat.ViewModels
                 _filterCriterion = PerformerPattern;
             }
 
-            var performers = await
-                _repository.GetBySubstringAsync(PerformerPattern, _selectedPage, PerformersPerPage);
-
-            var totalCount = await _repository.CountBySubstringAsync(PerformerPattern);
-
-            await FillPerformerViewModelsAsync(performers, totalCount);
+            var performers = await _unitOfWork.PerformerRepository
+                .GetBySubstringAsync(PerformerPattern, _selectedPage, PerformersPerPage);
+            
+            await FillPerformerViewModelsAsync(performers);
         }
 
         /// <summary>
@@ -381,12 +370,10 @@ namespace MusCat.ViewModels
                 _filterCriterion = AlbumPattern;
             }
 
-            var performers = await
-                _repository.GetByAlbumSubstringAsync(AlbumPattern, _selectedPage, PerformersPerPage);
-
-            var totalCount = await _repository.CountByAlbumSubstringAsync(AlbumPattern);
-
-            await FillPerformerViewModelsAsync(performers, totalCount);
+            var performers = await _unitOfWork.PerformerRepository
+                .GetByAlbumSubstringAsync(AlbumPattern, _selectedPage, PerformersPerPage);
+            
+            await FillPerformerViewModelsAsync(performers);
         }
 
         private void ViewSelectedPerformer()
@@ -437,7 +424,8 @@ namespace MusCat.ViewModels
                     var albumWindow = new AlbumWindow();
                     var albumViewModel = new AlbumPlaybackViewModel(SelectedPerformer.SelectedAlbum)
                     {
-                        Performer = SelectedPerformer
+                        Performer = SelectedPerformer,
+                        UnitOfWork = _unitOfWork
                     };
 
                     albumWindow.DataContext = albumViewModel;
@@ -692,11 +680,7 @@ namespace MusCat.ViewModels
 
         private void RaisePropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using MusCat.Entities;
+using MusCat.Repositories.Base;
 using MusCat.Services;
 using MusCat.Utils;
 
@@ -14,6 +14,8 @@ namespace MusCat.ViewModels
 {
     class AlbumPlaybackViewModel : INotifyPropertyChanged
     {
+        public UnitOfWork UnitOfWork { get; set; }
+
         public PerformerViewModel Performer { get; set; }
         public AlbumViewModel AlbumView { get; set; }
         
@@ -232,13 +234,8 @@ namespace MusCat.ViewModels
         /// </summary>
         private void UpdateRate()
         {
-            using (var context = new MusCatEntities())
-            {
-                context.Entry(Album).State = EntityState.Modified;
-                context.SaveChanges();
-
-                Performer?.UpdateAlbumCollectionRate();
-            }
+            UnitOfWork?.AlbumRepository.Edit(Album);
+            Performer?.UpdateAlbumCollectionRate();
         }
 
         #region INotifyPropertyChanged event and method
@@ -247,11 +244,7 @@ namespace MusCat.ViewModels
 
         private void RaisePropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion

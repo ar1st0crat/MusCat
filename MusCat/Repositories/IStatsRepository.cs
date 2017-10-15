@@ -14,9 +14,12 @@ namespace MusCat.Repositories
 
     interface IStatsRepository
     {
+        int PerformerCount { get; }
+        int AlbumCount { get; }
+        int SongCount { get; }
+
         Task<IEnumerable<Album>> GetLatestAlbumsAsync(int latestCount);
         Task<IEnumerable<IGrouping<string, Performer>>> GetPerformerCountriesAsync();
         Task<IEnumerable<DecadeAlbumsStats>> GetAlbumDecadesAsync();
-        int Count<T>();
     }
 }

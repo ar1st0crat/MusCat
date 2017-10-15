@@ -13,11 +13,11 @@ namespace MusCat.ViewModels
 {
     class StatsViewModel : INotifyPropertyChanged
     {
-        private readonly StatsRepository _repository = new StatsRepository();
+        private readonly StatsRepository _repository;
 
-        public int PerformerCount { get; set; }
-        public int AlbumCount { get; set; }
-        public int SongCount { get; set; }
+        public long PerformerCount { get; set; }
+        public long AlbumCount { get; set; }
+        public long SongCount { get; set; }
 
         public List<Album> LatestAlbums { get; set; }
 
@@ -35,10 +35,12 @@ namespace MusCat.ViewModels
 
         public StatsViewModel()
         {
-            PerformerCount = _repository.Count<Performer>();
-            AlbumCount = _repository.Count<Album>();
-            SongCount = _repository.Count<Song>();
-            
+            _repository = new StatsRepository();
+
+            PerformerCount = _repository.PerformerCount;
+            AlbumCount = _repository.AlbumCount;
+            SongCount = _repository.SongCount;
+
             GetStats();
         }
 
@@ -56,22 +58,22 @@ namespace MusCat.ViewModels
             Labels = decades.Select(d => d.Decade).ToArray();
 
             Decades = new SeriesCollection
-            {
-                new ColumnSeries
                 {
-                    Title = "Album count",
-                    Values = new ChartValues<int>(decades.Select(d => d.TotalCount)),
-                    DataLabels = true,
-                    Foreground = new SolidColorBrush(Colors.Gold)
-                },
-                new ColumnSeries
-                {
-                    Title = "Average rate",
-                    Values = new ChartValues<int>(decades.Select(d => d.MaxRatedCount)),
-                    DataLabels = true,
-                    Foreground = new SolidColorBrush(Colors.HotPink)
-                }
-            };
+                    new ColumnSeries
+                    {
+                        Title = "Album count",
+                        Values = new ChartValues<int>(decades.Select(d => d.TotalCount)),
+                        DataLabels = true,
+                        Foreground = new SolidColorBrush(Colors.Gold)
+                    },
+                    new ColumnSeries
+                    {
+                        Title = "Average rate",
+                        Values = new ChartValues<int>(decades.Select(d => d.MaxRatedCount)),
+                        DataLabels = true,
+                        Foreground = new SolidColorBrush(Colors.HotPink)
+                    }
+                };
 
             RaisePropertyChanged("Decades");
             RaisePropertyChanged("Labels");
@@ -93,9 +95,6 @@ namespace MusCat.ViewModels
             }
 
             RaisePropertyChanged("Countries");
-
-            // won't need it no more
-            _repository.Dispose();
         }
 
         #region INotifyPropertyChanged event and method
@@ -104,11 +103,7 @@ namespace MusCat.ViewModels
 
         private void RaisePropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion

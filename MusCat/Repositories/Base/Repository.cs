@@ -1,35 +1,43 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
+using MusCat.Entities;
 
 namespace MusCat.Repositories.Base
 {
-    abstract class Repository<TContext, TEntity> : DisposableRepository<TContext>, IRepository<TEntity>
-        where TEntity : class 
-        where TContext : DbContext, new()
+    abstract class Repository<T> : IRepository<T> where T : class
     {
-        public virtual IQueryable<TEntity> GetAll()
+        protected readonly MusCatEntities Context;
+
+        protected Repository(MusCatEntities context)
         {
-            return Context.Set<TEntity>();
+            Context = context;
+        }
+        
+        public virtual IEnumerable<T> GetAll()
+        {
+            return Context.Set<T>();
         }
 
-        public IQueryable<TEntity> FindBy(Expression<Func<TEntity, bool>> predicate)
+        public IEnumerable<T> Get(Expression<Func<T, bool>> predicate)
         {
-            return Context.Set<TEntity>().Where(predicate);
+            return Context.Set<T>().Where(predicate);
         }
 
-        public virtual void Add(TEntity entity)
+        public virtual void Add(T entity)
         {
-            Context.Set<TEntity>().Add(entity);
+            Context.Set<T>().Add(entity);
         }
 
-        public virtual void Delete(TEntity entity)
+        public virtual void Delete(T entity)
         {
-            Context.Set<TEntity>().Remove(entity);
+            Context.Set<T>().Remove(entity);
         }
 
-        public virtual void Edit(TEntity entity)
+        public virtual void Edit(T entity)
         {
             Context.Entry(entity).State = EntityState.Modified;
         }
@@ -37,6 +45,22 @@ namespace MusCat.Repositories.Base
         public virtual void Save()
         {
             Context.SaveChanges();
+        }
+
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await Context.Set<T>().ToListAsync().ConfigureAwait(false);
+        }
+
+        public async Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await Context.Set<T>().Where(predicate)
+                                .ToListAsync().ConfigureAwait(false);
+        }
+
+        public async Task SaveAsync()
+        {
+            await Context.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

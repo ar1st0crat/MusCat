@@ -117,7 +117,9 @@
     <Compile Include="Entities\Musician.cs" />
     <Compile Include="Entities\Performer.cs" />
     <Compile Include="Entities\Song.cs" />
-    <Compile Include="Repositories\Base\DisposableRepository.cs" />
+    <Compile Include="Repositories\AlbumRepository.cs" />
+    <Compile Include="Repositories\Base\PageCollection.cs" />
+    <Compile Include="Repositories\Base\UnitOfWork.cs" />
     <Compile Include="Repositories\IPerformerRepository.cs" />
     <Compile Include="Repositories\Base\IRepository.cs" />
     <Compile Include="Repositories\IStatsRepository.cs" />
