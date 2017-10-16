@@ -120,6 +120,7 @@
     <Compile Include="Repositories\AlbumRepository.cs" />
     <Compile Include="Repositories\Base\PageCollection.cs" />
     <Compile Include="Repositories\Base\UnitOfWork.cs" />
+    <Compile Include="Repositories\CountryRepository.cs" />
     <Compile Include="Repositories\IAlbumRepository.cs" />
     <Compile Include="Repositories\IPerformerRepository.cs" />
     <Compile Include="Repositories\Base\IRepository.cs" />
@@ -135,6 +136,7 @@
     <Compile Include="ViewModels\AlbumPlaybackViewModel.cs" />
     <Compile Include="ViewModels\AlbumViewModel.cs" />
     <Compile Include="Utils\DialogResultHelper.cs" />
+    <Compile Include="ViewModels\CountriesViewModel.cs" />
     <Compile Include="ViewModels\IndexViewModel.cs" />
     <Compile Include="ViewModels\PerformerFilters.cs" />
     <Compile Include="Utils\RelayCommand.cs" />
@@ -147,6 +149,9 @@
     <Compile Include="ViewModels\StatsViewModel.cs" />
     <Compile Include="Views\ChoiceWindow.xaml.cs">
       <DependentUpon>ChoiceWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CountriesWindow.xaml.cs">
+      <DependentUpon>CountriesWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\EditAlbumWindow.xaml.cs">
       <DependentUpon>EditAlbumWindow.xaml</DependentUpon>
@@ -189,6 +194,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ChoiceWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CountriesWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

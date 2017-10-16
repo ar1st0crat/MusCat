@@ -11,6 +11,7 @@ namespace MusCat.Repositories.Base
         private IPerformerRepository _performerRepository;
         private IAlbumRepository _albumRepository;
         private IRepository<Song> _songRepository;
+        private IRepository<Country> _countryRepository;
 
         public IPerformerRepository PerformerRepository => 
             _performerRepository ?? (_performerRepository = new PerformerRepository(_context));
@@ -20,6 +21,9 @@ namespace MusCat.Repositories.Base
 
         public IRepository<Song> SongRepository =>
             _songRepository ?? (_songRepository = new SongRepository(_context));
+
+        public IRepository<Country> CountryRepository =>
+            _countryRepository ?? (_countryRepository = new CountryRepository(_context));
 
 
         public void Save()

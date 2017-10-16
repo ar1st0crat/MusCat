@@ -236,6 +236,7 @@ namespace MusCat.ViewModels
         private void UpdateRate()
         {
             UnitOfWork?.AlbumRepository.Edit(Album);
+            UnitOfWork?.Save();
             Performer?.UpdateAlbumCollectionRate();
         }
 

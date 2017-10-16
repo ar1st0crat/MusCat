@@ -1,0 +1,74 @@
+﻿<Window x:Class="MusCat.Views.CountriesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:MusCat.ViewModels"
+        xmlns:utils="clr-namespace:MusCat.Utils"
+        mc:Ignorable="d"
+        utils:DialogResultHelper.DialogResult="{Binding DialogResult}"
+        Title="Countries"
+        SizeToContent="WidthAndHeight">
+    <Window.Background>
+        <LinearGradientBrush>
+            <GradientStop Color="#001122" Offset="0" />
+            <GradientStop Color="#ff77fb" Offset="2.1" />
+        </LinearGradientBrush>
+    </Window.Background>
+    <Window.DataContext>
+        <viewModels:CountriesViewModel />
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="10">
+            <TextBox Text="{Binding CountryInput}" 
+                     Width="180" Margin="0,5,0,5" />
+            <Button Style="{StaticResource MusCatButton}" 
+                    Command="{Binding AddCommand}"
+                    Margin="8,5,2,5">
+                <Image Source="../Images/remove.png" Height="10">
+                    <Image.LayoutTransform>
+                        <RotateTransform Angle="45" />
+                    </Image.LayoutTransform>
+                </Image>
+            </Button>
+            <Button Style="{StaticResource MusCatButton}"
+                    Command="{Binding ReplaceCommand}"
+                    Margin="2,5,2,5">
+                <Image Source="../Images/replace.png" Height="10" />
+            </Button>
+            <Button Style="{StaticResource MusCatButton}"
+                    Command="{Binding RemoveCommand}"
+                    Margin="2,5,2,5">
+                <Image Source="../Images/remove.png" Height="10" />
+            </Button>
+        </StackPanel>
+        <ListBox Grid.Row="1"
+                 ItemsSource="{Binding Countrylist}"
+                 SelectedIndex="{Binding SelectedCountryIndex}"
+                 Foreground="White"
+                 Background="Transparent"
+                 BorderBrush="Transparent"
+                 MinWidth="220"
+                 Margin="10">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Grid.Row="2"
+                Command="{Binding OkCommand}"
+                Style="{StaticResource MusCatButton}"
+                Margin="10">
+            OK
+        </Button>
+    </Grid>
+</Window>

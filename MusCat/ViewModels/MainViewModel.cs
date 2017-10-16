@@ -61,6 +61,8 @@ namespace MusCat.ViewModels
         public RelayCommand AddPerformerCommand { get; private set; }
         public RelayCommand AddAlbumCommand { get; private set; }
         public RelayCommand EditPerformerCommand { get; private set; }
+        public RelayCommand EditMusiciansCommand { get; private set; }
+        public RelayCommand EditCountriesCommand { get; private set; }
         public RelayCommand EditAlbumCommand { get; private set; }
         public RelayCommand DeletePerformerCommand { get; private set; }
         public RelayCommand DeleteAlbumCommand { get; private set; }
@@ -127,6 +129,8 @@ namespace MusCat.ViewModels
 
             ViewPerformerCommand = new RelayCommand(ViewSelectedPerformer);
             EditPerformerCommand = new RelayCommand(EditPerformer);
+            EditMusiciansCommand = new RelayCommand(() => { });
+            EditCountriesCommand = new RelayCommand(EditCountries);
             ViewAlbumCommand = new RelayCommand(async () => await ViewSelectedAlbumAsync());
             EditAlbumCommand = new RelayCommand(async () => await EditAlbumAsync());
             AddPerformerCommand = new RelayCommand(async () => await AddPerformerAsync());
@@ -613,6 +617,19 @@ namespace MusCat.ViewModels
 
             var radioWindow = new RadioPlayerWindow();
             radioWindow.Show();
+        }
+
+        private void EditCountries()
+        {
+            var countriesContext = new CountriesViewModel
+            {
+                UnitOfWork = _unitOfWork,
+                Countrylist = new ObservableCollection<Country>(_unitOfWork.CountryRepository.GetAll())
+            };
+            
+            var countriesWindow = new CountriesWindow { DataContext = countriesContext };
+
+            countriesWindow.ShowDialog();
         }
 
         private void ShowStats()

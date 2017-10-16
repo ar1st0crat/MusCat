@@ -388,6 +388,7 @@
                 <MenuItem Command="{Binding Path=EditPerformerCommand}" Header="Edit..." HorizontalAlignment="Left"/>
                 <MenuItem Command="{Binding Path=DeletePerformerCommand}" Header="Remove" HorizontalAlignment="Left"/>
                 <MenuItem Command="{Binding Path=EditMusiciansCommand}" Header="Musicians..." HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding Path=EditCountriesCommand}" Header="Countries..." HorizontalAlignment="Left"/>
             </MenuItem>
             <MenuItem Header="Album" Foreground="Wheat">
                 <MenuItem Command="{Binding Path=AddAlbumCommand}" Header="Add..." HorizontalAlignment="Left"/>
