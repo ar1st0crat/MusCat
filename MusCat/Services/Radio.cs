@@ -243,79 +243,25 @@ namespace MusCat.Services
             return song;
         }
 
+        /// <summary>
+        /// Method checks if the radio statio makes sense for current mediabase.
+        /// 
+        /// Eventually I simplified the code just to checking if the number of songs
+        /// exceeds three sizes of radioarchive.
+        /// </summary>
+        /// <returns>true, if there are enough songs to play in radio; false, otherwise</returns>
         public bool CheckSongFiles()
         {
-            Song song;
-
-            // the only way to find out how many mp3 files are actually on user's drive is to try...
-            const int maxAttempts = 50;
-            var attempts = 0;
-
             using (var context = new MusCatEntities())
             {
-                var maxSid = context.Songs.Max(s => s.ID);
-
-                // keep selecting song randomly until the song file is actually present in the file system...
-                // ...and while it isn't present in archive of recently played songs and upcoming songs
-                do
-                {
-                    var songId = _songSelector.Next() % maxSid;
-
-                    song = context.Songs.First(s => s.ID >= songId);
-                    song.Album = context.Albums.First(a => a.ID == song.AlbumID);
-                    song.Album.Performer = context.Performers.First(p => p.ID == song.Album.PerformerID);
-
-                    attempts++;
-                    if (attempts > maxAttempts)
-                    {
-                        return false;    // no songs - no radio (((
-                    }
-                }
-                while (UpcomingSongs.Any(s => s.ID == song.ID) ||  // true, if it is already in songlist
-                       FileLocator.FindSongPath(song) == "");      // true, if the file with this song doesn't exist
+                return context.Songs.Count() > 3 * MaxSongs;
             }
-
-            return true;
         }
 
         #endregion
 
 
         #region asynchronous operations 
-
-        /// <summary>
-        /// Make initial playlist and select random song as the current one
-        /// </summary>
-        public async Task MakeSonglistAsync()
-        {
-            CurrentSong = await SelectRandomSongAsync().ConfigureAwait(false);
-
-            // adding songs 1 by 1 prevents the situation when songs can be duplicated
-
-            for (var i = 0; i < MaxSongs; i++)
-            {
-                await AddRandomSongAsync().ConfigureAwait(false);
-            }
-
-
-            // ====== Alternative code (however, it allows duplicate songs (((: ======
-
-            //var songAdders = new Task[MaxSongs];
-
-            //// just fire them all at once (order doesn't matter)
-            //for (var i = 0; i < MaxSongs; i++)
-            //{
-            //    songAdders[i] = AddRandomSongAsync();
-            //}
-
-            //await Task.WhenAll(songAdders).ConfigureAwait(false);
-
-
-            // ====================== just was playing' with )) ======================
-
-            // Parallel.For(0, MaxSongs, i => AddRandomSong());
-            // Parallel.For(0, MaxSongs, i => AddRandomSongAsync().RunSynchronously());
-        }
 
         public async Task AddRandomSongAsync()
         {
@@ -416,6 +362,40 @@ namespace MusCat.Services
             }
 
             return song;
+        }
+
+        /// <summary>
+        /// Make initial playlist and select random song as the current one
+        /// </summary>
+        public async Task MakeSonglistAsync()
+        {
+            CurrentSong = await SelectRandomSongAsync().ConfigureAwait(false);
+
+            // adding songs 1 by 1 prevents the situation when songs can be duplicated
+
+            for (var i = 0; i < MaxSongs; i++)
+            {
+                await AddRandomSongAsync().ConfigureAwait(false);
+            }
+
+
+            // ====== Alternative code (however, it allows duplicate songs (((: ======
+
+            //var songAdders = new Task[MaxSongs];
+
+            //// just fire them all at once (order doesn't matter)
+            //for (var i = 0; i < MaxSongs; i++)
+            //{
+            //    songAdders[i] = AddRandomSongAsync();
+            //}
+
+            //await Task.WhenAll(songAdders).ConfigureAwait(false);
+
+
+            // ====================== just was playing' with )) ======================
+
+            // Parallel.For(0, MaxSongs, i => AddRandomSong());
+            // Parallel.For(0, MaxSongs, i => AddRandomSongAsync().RunSynchronously());
         }
 
         #endregion

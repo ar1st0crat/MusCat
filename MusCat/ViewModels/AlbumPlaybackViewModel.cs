@@ -114,6 +114,7 @@ namespace MusCat.ViewModels
             // set main album view model
             AlbumView = viewmodel;
 
+            _player.IsStoppedManually = true;
             InitPlayerWorker();
         }
 
