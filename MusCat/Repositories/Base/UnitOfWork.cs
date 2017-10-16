@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using MusCat.Entities;
 
 namespace MusCat.Repositories.Base
@@ -8,13 +9,13 @@ namespace MusCat.Repositories.Base
         private readonly MusCatEntities _context = new MusCatEntities();
 
         private IPerformerRepository _performerRepository;
-        private IRepository<Album> _albumRepository;
+        private IAlbumRepository _albumRepository;
         private IRepository<Song> _songRepository;
 
         public IPerformerRepository PerformerRepository => 
             _performerRepository ?? (_performerRepository = new PerformerRepository(_context));
 
-        public IRepository<Album> AlbumRepository => 
+        public IAlbumRepository AlbumRepository => 
             _albumRepository ?? (_albumRepository = new AlbumRepository(_context));
 
         public IRepository<Song> SongRepository =>
@@ -24,6 +25,11 @@ namespace MusCat.Repositories.Base
         public void Save()
         {
             _context.SaveChanges();
+        }
+
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync().ConfigureAwait(false);
         }
 
         private bool _disposed;

@@ -63,21 +63,6 @@ namespace MusCat.Entities
 
         public virtual Album Album { get; set; }
 
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        #endregion
-
         #region IDataErrorInfo methods
 
         public string Error => this["Name"] + this["TimeLength"];
@@ -118,5 +103,17 @@ namespace MusCat.Entities
         }
 
         #endregion
+
+        #region INotifyPropertyChanged event and method
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
+
     }
 }

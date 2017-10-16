@@ -2,10 +2,12 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using MusCat.Entities;
+using MusCat.Repositories.Base;
 using MusCat.Services;
 using MusCat.Utils;
 using MusCat.Views;
@@ -14,6 +16,8 @@ namespace MusCat.ViewModels
 {
     class EditPerformerViewModel : INotifyPropertyChanged
     {
+        public UnitOfWork UnitOfWork { get; set; }
+
         public PerformerViewModel PerformerView { get; set; }
         public Performer Performer
         {
@@ -40,11 +44,12 @@ namespace MusCat.ViewModels
             // setting up commands
             LoadImageFromFileCommand = new RelayCommand(LoadPerformerImageFromFile);
             LoadImageFromClipboardCommand = new RelayCommand(LoadPerformerImageFromClipboard);
-            SavePerformerCommand = new RelayCommand(SavePerformerInformation);
+            SavePerformerCommand = new RelayCommand(async() => await SavePerformerInformation());
 
             // load and set all necessary information to edit performer
             PerformerView = p;
 
+            // load countries and genres just here without any overdesigned repository classes
             using (var context = new MusCatEntities())
             {
                 Countries = new ObservableCollection<Country>();
@@ -62,6 +67,14 @@ namespace MusCat.ViewModels
             }
         }
 
+        public async Task SavePerformerInformation()
+        {
+            UnitOfWork.PerformerRepository.Edit(Performer);
+            await UnitOfWork.SaveAsync();
+        }
+
+        #region working with images
+
         private string ChooseImageSavePath()
         {
             var filepaths = FileLocator.MakePerformerImagePathlist(Performer);
@@ -78,15 +91,6 @@ namespace MusCat.ViewModels
             return choice.ChoiceResult;
         }
         
-        public void SavePerformerInformation()
-        {
-            using (var context = new MusCatEntities())
-            {
-                context.Entry(context.Performers.Find(Performer.ID)).CurrentValues.SetValues(Performer);
-                context.SaveChanges();
-            }
-        }
-
         private void PrepareFileForSaving(string filepath)
         {
             // ensure that necessary directory exists
@@ -164,6 +168,8 @@ namespace MusCat.ViewModels
             RaisePropertyChanged("Performer");
             PerformerView.RaisePropertyChanged("Performer");
         }
+
+        #endregion
 
         #region INotifyPropertyChanged event and method
 

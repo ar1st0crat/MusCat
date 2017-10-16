@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using MusCat.Entities;
+using MusCat.Repositories;
 using MusCat.Services;
 using MusCat.Utils;
 using MusCat.Views;
@@ -70,7 +71,7 @@ namespace MusCat.ViewModels
             PlaybackCommand = new RelayCommand(SongPlaybackAction);
             PreviousSongCommand = new RelayCommand(PlayPreviousSong);
             NextSongCommand = new RelayCommand(PlayNextSong);
-            ShowAlbumCommand = new RelayCommand(ViewAlbumContainingCurrentSong);
+            ShowAlbumCommand = new RelayCommand(async() => await ViewAlbumContainingCurrentSong());
 
             ChangeSongCommand = new RelayCommand(async id =>
             {
@@ -161,23 +162,29 @@ namespace MusCat.ViewModels
             }
         }
 
-        private void ViewAlbumContainingCurrentSong()
+        /// <summary>
+        /// Method opens Album window for displaying album cover and tracklist.
+        /// Since user chooses this option not very often, 
+        /// we instantiate album repository ad-hoc right in the body of the method.
+        /// </summary>
+        private async Task ViewAlbumContainingCurrentSong()
         {
             var albumView = new AlbumViewModel
             {
                 Album = _radio.CurrentSong.Album
             };
 
-            albumView.LoadSongsAsync().ContinueWith(task =>
-            {
-                var albumWindow = new AlbumWindow
-                {
-                    DataContext = new AlbumPlaybackViewModel(albumView)
-                };
+            var repository = new AlbumRepository(new MusCatEntities());
 
-                albumWindow.Show();
-            },
-            TaskScheduler.FromCurrentSynchronizationContext());
+            albumView.Songs = new ObservableCollection<Song>(
+                await repository.GetAlbumSongsAsync(_radio.CurrentSong.Album));
+
+            var albumWindow = new AlbumWindow
+            {
+                DataContext = new AlbumPlaybackViewModel(albumView)
+            };
+
+            albumWindow.Show();
         }
         
         #region INotifyPropertyChanged event and method

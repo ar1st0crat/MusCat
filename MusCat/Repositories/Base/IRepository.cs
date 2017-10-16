@@ -7,15 +7,18 @@ namespace MusCat.Repositories.Base
 {
     interface IRepository<T> where T : class
     {
+        // synchronous functionality
+
         IEnumerable<T> GetAll();
         IEnumerable<T> Get(Expression<Func<T, bool>> predicate);
         void Add(T entity);
         void Delete(T entity);
         void Edit(T entity);
-        void Save();
+
+        // asynchronous functionality
 
         Task<IEnumerable<T>> GetAllAsync();
         Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> predicate);
-        Task SaveAsync();
+        Task AddAsync(T entity);
     }
 }

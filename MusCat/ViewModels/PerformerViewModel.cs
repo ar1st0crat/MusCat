@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Data;
 using MusCat.Entities;
 using MusCat.Services;
 
@@ -53,7 +54,14 @@ namespace MusCat.ViewModels
 
             AlbumCollectionRate = _rateCalculator.Calculate(albums);
         }
-        
+
+        private readonly object _lock = new object();
+
+        public PerformerViewModel()
+        {
+            BindingOperations.EnableCollectionSynchronization(_albums, _lock);
+        }
+
         #region INotifyPropertyChanged event and method
 
         public event PropertyChangedEventHandler PropertyChanged;

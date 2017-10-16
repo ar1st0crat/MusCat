@@ -120,6 +120,7 @@
     <Compile Include="Repositories\AlbumRepository.cs" />
     <Compile Include="Repositories\Base\PageCollection.cs" />
     <Compile Include="Repositories\Base\UnitOfWork.cs" />
+    <Compile Include="Repositories\IAlbumRepository.cs" />
     <Compile Include="Repositories\IPerformerRepository.cs" />
     <Compile Include="Repositories\Base\IRepository.cs" />
     <Compile Include="Repositories\IStatsRepository.cs" />

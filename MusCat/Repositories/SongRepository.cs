@@ -1,4 +1,7 @@
-﻿using MusCat.Entities;
+﻿using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
+using MusCat.Entities;
 using MusCat.Repositories.Base;
 
 namespace MusCat.Repositories
@@ -9,9 +12,16 @@ namespace MusCat.Repositories
         {
         }
 
-        public Song GetRandomSongAsync()
+        public override async Task AddAsync(Song entity)
         {
-            return null;
+            // manual autoincrement
+            var lastId = await Context.Songs
+                                      .Select(s => s.ID)
+                                      .DefaultIfEmpty(0)
+                                      .MaxAsync()
+                                      .ConfigureAwait(false);
+            entity.ID = ++lastId;
+            Add(entity);
         }
     }
 }

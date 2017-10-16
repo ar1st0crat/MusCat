@@ -14,6 +14,18 @@ namespace MusCat.Repositories
         {
         }
 
+        public override async Task AddAsync(Performer entity)
+        {
+            // manual autoincrement
+            var lastId = await Context.Performers
+                                      .Select(p => p.ID)
+                                      .DefaultIfEmpty(0)
+                                      .MaxAsync()
+                                      .ConfigureAwait(false);
+            entity.ID = ++lastId;
+            Add(entity);
+        }
+
         public async Task<PageCollection<Performer>> 
             GetByFirstLetterAsync(string letter, int pageIndex = 0, int pageSize = 10)
         {
@@ -25,7 +37,7 @@ namespace MusCat.Repositories
             if (letter.Length == 1)
             {
                 performers = await
-                    Context.Performers.Include("Country").Include("Albums")
+                    Context.Performers.Include("Country")
                         .Where(p => p.Name.ToLower().StartsWith(letter))
                         .OrderBy(p => p.Name)
                         .Skip(pageIndex * pageSize)
@@ -38,7 +50,7 @@ namespace MusCat.Repositories
             else
             {
                 performers = await
-                    Context.Performers.Include("Country").Include("Albums")
+                    Context.Performers.Include("Country")
                         .Where(
                             p =>
                                 string.Compare(p.Name.ToLower().Substring(0, 1), "a", StringComparison.Ordinal) < 0 ||
@@ -54,7 +66,7 @@ namespace MusCat.Repositories
             {
                 Items = performers,
                 ItemsPerPage = pageSize,
-                TotalItems = await CountByFirstLetterAsync(letter)
+                TotalItems = await CountByFirstLetterAsync(letter).ConfigureAwait(false)
             };
         }
         
@@ -63,7 +75,7 @@ namespace MusCat.Repositories
         {
             return new PageCollection<Performer>
             {
-                Items = await Context.Performers.Include("Country").Include("Albums")
+                Items = await Context.Performers.Include("Country")
                                      .Where(p => p.Name.ToLower().Contains(substring.ToLower()))
                                      .OrderBy(p => p.Name)
                                      .Skip(pageIndex * pageSize)
@@ -71,7 +83,7 @@ namespace MusCat.Repositories
                                      .ToListAsync()
                                      .ConfigureAwait(false),
                 ItemsPerPage = pageSize,
-                TotalItems = await CountBySubstringAsync(substring)
+                TotalItems = await CountBySubstringAsync(substring).ConfigureAwait(false)
             };
         }
 
@@ -80,7 +92,7 @@ namespace MusCat.Repositories
         {
             return new PageCollection<Performer>
             {
-                Items = await Context.Performers.Include("Country").Include("Albums")
+                Items = await Context.Performers.Include("Country")
                                      .Where(p => p.Albums.Any(a => a.Name.Contains(substring)))
                                      .OrderBy(p => p.Name)
                                      .Skip(pageIndex * pageSize)
@@ -88,8 +100,32 @@ namespace MusCat.Repositories
                                      .ToListAsync()
                                      .ConfigureAwait(false),
                 ItemsPerPage = pageSize,
-                TotalItems = await CountByAlbumSubstringAsync(substring)
+                TotalItems = await CountByAlbumSubstringAsync(substring).ConfigureAwait(false)
             };
+        }
+
+        public async Task<IEnumerable<Album>>
+            GetPerformerAlbumsAsync(Performer performer, string albumPattern = null)
+        {
+            if (albumPattern != null)
+            {
+                return await Context.Albums
+                                    .Where(a => a.PerformerID == performer.ID)
+                                    .Where(a => a.Name.ToLower().Contains(albumPattern.ToLower()))
+                                    .OrderBy(a => a.ReleaseYear)
+                                    .ThenBy(a => a.Name)
+                                    .ToListAsync()
+                                    .ConfigureAwait(false);
+            }
+            else
+            {
+                return await Context.Albums
+                                    .Where(a => a.PerformerID == performer.ID)
+                                    .OrderBy(a => a.ReleaseYear)
+                                    .ThenBy(a => a.Name)
+                                    .ToListAsync()
+                                    .ConfigureAwait(false);
+            }
         }
 
         public async Task<int> CountByFirstLetterAsync(string letter)

@@ -42,25 +42,21 @@ namespace MusCat.Repositories.Base
             Context.Entry(entity).State = EntityState.Modified;
         }
 
-        public virtual void Save()
-        {
-            Context.SaveChanges();
-        }
-
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public virtual async Task<IEnumerable<T>> GetAllAsync()
         {
             return await Context.Set<T>().ToListAsync().ConfigureAwait(false);
         }
 
-        public async Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> predicate)
+        public virtual async Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> predicate)
         {
             return await Context.Set<T>().Where(predicate)
                                 .ToListAsync().ConfigureAwait(false);
         }
-
-        public async Task SaveAsync()
+        
+        public virtual async Task AddAsync(T entity)
         {
-            await Context.SaveChangesAsync().ConfigureAwait(false);
+            // default implementation is simply synchronous
+            Add(entity);
         }
     }
 }

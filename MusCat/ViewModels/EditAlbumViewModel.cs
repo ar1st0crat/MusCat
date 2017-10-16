@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data.Entity;
+using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using MusCat.Entities;
+using MusCat.Repositories.Base;
 using MusCat.Services;
 using MusCat.Utils;
 using MusCat.Views;
@@ -17,6 +18,8 @@ namespace MusCat.ViewModels
 {
     class EditAlbumViewModel : INotifyPropertyChanged, IDataErrorInfo
     {
+        public UnitOfWork UnitOfWork { get; set; }
+
         public AlbumViewModel AlbumView { get; set; }
         public Album Album
         {
@@ -55,9 +58,10 @@ namespace MusCat.ViewModels
 
         public ObservableCollection<string> ReleaseYearsCollection { get; set; }
 
+        // starting year is 1900
         private const int StartingYear = 1900;
-        private const int EndingYear = 2050;
-
+        // ending year will be defined at run-time as current year + 1
+        
         #region Commands
 
         public RelayCommand ParseMp3Command { get; private set; }
@@ -82,37 +86,27 @@ namespace MusCat.ViewModels
             ParseMp3Command = new RelayCommand(ParseMp3);
             FixNamesCommand = new RelayCommand(FixNames);
             FixTimesCommand = new RelayCommand(FixTimes);
-            ClearAllSongsCommand = new RelayCommand(ClearAll);
-            SaveAllSongsCommand = new RelayCommand(SaveAll);
             AddSongCommand = new RelayCommand(AddSong);
-            SaveSongCommand = new RelayCommand(SaveSong);
-            DeleteSongCommand = new RelayCommand(DeleteSong);
-            SaveAlbumInformationCommand = new RelayCommand(SaveAlbumInformation);
+            ClearAllSongsCommand = new RelayCommand(async () => await ClearAllAsync());
+            SaveAllSongsCommand = new RelayCommand(async () => await SaveAllAsync());
+            SaveSongCommand = new RelayCommand(async() => await SaveSongAsync());
+            DeleteSongCommand = new RelayCommand(async() => await DeleteSongAsync());
+            SaveAlbumInformationCommand = new RelayCommand(async () => await SaveAlbumInformationAsync());
             LoadAlbumImageFromFileCommand = new RelayCommand(LoadAlbumImageFromFile);
             LoadAlbumImageFromClipboardCommand = new RelayCommand(LoadAlbumImageFromClipboard);
 
-            // fill combobox with release years
+            // fill combobox with release years from given range
+
+            var endingYear = DateTime.Now.Year + 1;
+
             ReleaseYearsCollection = new ObservableCollection<string>();
-            for (var i = StartingYear; i < EndingYear; i++)
+            for (var i = StartingYear; i < endingYear; i++)
             {
                 ReleaseYearsCollection.Add(i.ToString());
             }
         }
 
-        public void ParseMp3()
-        {
-            var fbd = new System.Windows.Forms.FolderBrowserDialog();
-            if (fbd.ShowDialog() != System.Windows.Forms.DialogResult.OK)
-            {
-                return;
-            }
-
-            var parser = new Mp3Parser();
-            parser.ParseMp3Collection(fbd.SelectedPath, Album, Songs);
-            AlbumTotalTime = parser.FixTimes(Songs);
-        }
-
-        public void SaveSong()
+        public async Task SaveSongAsync()
         {
             if (SelectedSong == null)
             {
@@ -127,47 +121,31 @@ namespace MusCat.ViewModels
 
             if (SelectedSong.ID == -1)
             {
-                SaveAll();
+                await SaveAllAsync();
                 return;
             }
 
-            using (var context = new MusCatEntities())
-            {
-                context.Entry(context.Songs.Find(SelectedSong.ID))
-                       .CurrentValues
-                       .SetValues(SelectedSong);
-                context.SaveChanges();
-            }
+            UnitOfWork.SongRepository.Edit(SelectedSong);
+            await UnitOfWork.SaveAsync();
         }
 
-        public void DeleteSong()
+        public async Task DeleteSongAsync()
         {
-            if (SelectedSong.ID == -1)
-            {
-                Songs.Remove(SelectedSong);
-                return;
-            }
-
             if (MessageBox.Show(string.Format("Are you sure you want to delete the song\n'{0}'\nby '{1}'?",
-                                    SelectedSong.Name, SelectedSong.Album.Performer.Name),
+                                    SelectedSong.Name, Album.Performer.Name),
                                     "Confirmation",
                                     MessageBoxButton.YesNo) != MessageBoxResult.Yes)
             {
                 return;
             }
-            
-            if (SelectedSong.ID == -1)
+
+            if (SelectedSong.ID != -1)
             {
-                return;
+                UnitOfWork.SongRepository.Delete(SelectedSong);
+                await UnitOfWork.SaveAsync();
             }
 
-            using (var context = new MusCatEntities())
-            {
-                context.Songs.Remove(context.Songs.SingleOrDefault(x => x.ID == SelectedSong.ID));
-                context.SaveChanges();
-
-                Songs.Remove(SelectedSong);
-            }
+            Songs.Remove(SelectedSong);
         }
 
         public void AddSong()
@@ -187,13 +165,74 @@ namespace MusCat.ViewModels
             });
         }
 
-        public void SaveAlbumInformation()
+        public async Task ClearAllAsync()
         {
-            using (var context = new MusCatEntities())
+            if (MessageBox.Show(string.Format("Are you sure you want to delete all songs in the album\n '{0}' \nby '{1}'?",
+                                    Album.Name, Album.Performer.Name),
+                                    "Confirmation",
+                                    MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                context.Entry(Album).State = EntityState.Modified;
-                context.SaveChanges();
+                foreach (var song in Songs.Where(song => song.ID != -1))
+                {
+                    UnitOfWork.SongRepository.Delete(song);
+                }
+
+                await UnitOfWork.SaveAsync();
+
+                Songs.Clear();
             }
+        }
+
+        public async Task SaveAllAsync()
+        {
+            // first, check validity of song data
+
+            if (Songs.Any(s => s.Error != ""))
+            {
+                var message = Songs.Where(s => s.Error != "")
+                                   .Select(s => s.TrackNo.ToString())
+                                   .Aggregate((t, s) => t + ", " + s);
+                message = "Errors in songs #" + message;
+                MessageBox.Show(message);
+                return;
+            }
+
+            foreach (var song in Songs)
+            {
+                if (song.ID == -1)
+                {
+                    await UnitOfWork.SongRepository.AddAsync(song);
+                    // we save changes after adding each song
+                    // because manual autoincrementing always needs actual values of ID
+                    await UnitOfWork.SaveAsync();
+
+                }
+                else
+                {
+                    UnitOfWork.SongRepository.Edit(song);
+                }
+            }
+
+            await UnitOfWork.SaveAsync();
+        }
+
+        public async Task SaveAlbumInformationAsync()
+        {
+            UnitOfWork.AlbumRepository.Edit(Album);
+            await UnitOfWork.SaveAsync();
+        }
+
+        public void ParseMp3()
+        {
+            var fbd = new System.Windows.Forms.FolderBrowserDialog();
+            if (fbd.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+            {
+                return;
+            }
+
+            var parser = new Mp3Parser();
+            parser.ParseMp3Collection(fbd.SelectedPath, Album, Songs);
+            AlbumTotalTime = parser.FixTimes(Songs);
         }
 
         public void FixNames()
@@ -208,46 +247,7 @@ namespace MusCat.ViewModels
             AlbumTotalTime = parser.FixTimes(Songs);
         }
 
-        public void ClearAll()
-        {
-            if (MessageBox.Show(string.Format("Are you sure you want to delete all songs in the album\n '{0}' \nby '{1}'?",
-                                    Album.Name, Album.Performer.Name),
-                                    "Confirmation",
-                                    MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-            {
-                Songs.Clear();
-            }
-        }
-
-        public void SaveAll()
-        {
-            using (var context = new MusCatEntities())
-            {
-                var id = context.Songs.Any() ? context.Songs.Max(s => s.ID) + 1 : 1;
-
-                foreach (var song in Songs)
-                {
-                    if (song.ID == -1)
-                    {
-                        song.ID = id++;
-                        context.Songs.Add(song);
-                    }
-                    else
-                    {
-                        // check validity of song data
-                        if (song.Error != "")
-                        {
-                            MessageBox.Show(string.Format("Invalid data in song {0}!", song.TrackNo));
-                            continue;
-                        }
-                        context.Entry(context.Songs.Find(song.ID))
-                               .CurrentValues
-                               .SetValues(song);
-                    }
-                }
-                context.SaveChanges();
-            }
-        }
+        #region working with images
 
         public string ChooseImageSavePath()
         {
@@ -341,15 +341,6 @@ namespace MusCat.ViewModels
             AlbumView.RaisePropertyChanged("Album");
         }
 
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         #endregion
 
         #region IDataErrorInfo methods
@@ -391,6 +382,17 @@ namespace MusCat.ViewModels
                 }
                 return error;
             }
+        }
+
+        #endregion
+
+        #region INotifyPropertyChanged event and method
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion
