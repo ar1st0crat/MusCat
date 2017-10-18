@@ -82,6 +82,10 @@
             </StackPanel>
         </ScrollViewer>
         <StackPanel Grid.Column="1">
+            <Button Command="{Binding LoadBioCommand}"
+                    Style="{StaticResource MusCatButton}"
+                    Content ="Load bio from last.fm..."
+                    Margin="15,20,15,0" Padding="5"/>
             <TextBox Text="{Binding Performer.Info}"
                      TextWrapping="Wrap" AcceptsReturn="True"
                      Width="350" Height="600"

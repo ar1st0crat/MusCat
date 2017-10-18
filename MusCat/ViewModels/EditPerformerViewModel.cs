@@ -9,6 +9,7 @@ using Microsoft.Win32;
 using MusCat.Entities;
 using MusCat.Repositories.Base;
 using MusCat.Services;
+using MusCat.Services.Networking;
 using MusCat.Utils;
 using MusCat.Views;
 
@@ -37,23 +38,38 @@ namespace MusCat.ViewModels
         // commands
         public RelayCommand LoadImageFromFileCommand { get; private set; }
         public RelayCommand LoadImageFromClipboardCommand { get; private set; }
+        public RelayCommand LoadBioCommand { get; private set; }
         public RelayCommand SavePerformerCommand { get; private set; }
 
         public EditPerformerViewModel(PerformerViewModel performer)
         {
-            // setting up commands
             LoadImageFromFileCommand = new RelayCommand(LoadPerformerImageFromFile);
             LoadImageFromClipboardCommand = new RelayCommand(LoadPerformerImageFromClipboard);
-            SavePerformerCommand = new RelayCommand(async() => await SavePerformerInformation());
+            LoadBioCommand = new RelayCommand(async() => await LoadBioAsync());
+            SavePerformerCommand = new RelayCommand(async() => await SavePerformerInformationAsync());
 
-            // load and set all necessary information to edit performer
             PerformerView = performer;
         }
 
-        public async Task SavePerformerInformation()
+        private async Task SavePerformerInformationAsync()
         {
             UnitOfWork.PerformerRepository.Edit(Performer);
             await UnitOfWork.SaveAsync();
+        }
+
+        private async Task LoadBioAsync()
+        {
+            var bioLoader = new LastfmDataLoader();
+
+            try
+            {
+                Performer.Info = await bioLoader.LoadBioAsync(Performer);
+                RaisePropertyChanged("Performer");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         #region working with images
