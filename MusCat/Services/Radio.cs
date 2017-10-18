@@ -115,7 +115,7 @@ namespace MusCat.Services
 
         public void AddToArchive() => SongArchive.Add(CurrentSong);
 
-        public void AddRandomSong() => UpcomingSongs.Add(SelectRandomSong());
+        public void AddRandomSong() => UpcomingSongs.Add(SelectRandomSong() ?? CurrentSong);
 
         /// <summary>
         /// Make initial playlist and select random song as the current one
@@ -214,9 +214,11 @@ namespace MusCat.Services
         /// The song is guaranteed to be present in user's file system
         /// </summary>
         /// <returns>Song object selected randomly from the database</returns>
-        public Song SelectRandomSong()
+        public Song SelectRandomSong(int maxAttempts = 15)
         {
             Song song;
+
+            var attempts = 0;
 
             using (var context = new MusCatEntities())
             {
@@ -227,6 +229,11 @@ namespace MusCat.Services
                 // ...and while it isn't present in archive of recently played songs and upcoming songs
                 do
                 {
+                    if (attempts++ == maxAttempts)
+                    {
+                        return null;
+                    }
+
                     var songId = _songSelector.Next() % maxSid;
                     song = context.Songs.First(s => s.ID >= songId);
                     // include the corresponding album of our song
@@ -243,21 +250,6 @@ namespace MusCat.Services
             return song;
         }
 
-        /// <summary>
-        /// Method checks if the radio statio makes sense for current mediabase.
-        /// 
-        /// Eventually I simplified the code just to checking if the number of songs
-        /// exceeds three sizes of radioarchive.
-        /// </summary>
-        /// <returns>true, if there are enough songs to play in radio; false, otherwise</returns>
-        public bool CheckSongFiles()
-        {
-            using (var context = new MusCatEntities())
-            {
-                return context.Songs.Count() > 3 * MaxSongs;
-            }
-        }
-
         #endregion
 
 
@@ -267,7 +259,9 @@ namespace MusCat.Services
         {
             var song = await SelectRandomSongAsync().ConfigureAwait(false);
 
-            UpcomingSongs.Add(song);
+            // if for some reason could not find new song to play
+            // then just add currently playing track to upcoming songs
+            UpcomingSongs.Add(song ?? CurrentSong);
         }
 
         public async Task MoveToNextSongAsync()
@@ -277,15 +271,12 @@ namespace MusCat.Services
                 SongArchive.RemoveAt(0);
             }
             SongArchive.Add(CurrentSong);
-
             CurrentSong = UpcomingSongs.First();
-
             UpcomingSongs.RemoveAt(0);
 
             await AddRandomSongAsync().ConfigureAwait(false);
 
             Update?.Invoke();
-
             StartPlaying();
         }
 
@@ -326,9 +317,11 @@ namespace MusCat.Services
         /// <summary>
         /// Same as synchronous version but with async calls to EF
         /// </summary>
-        public async Task<Song> SelectRandomSongAsync()
+        public async Task<Song> SelectRandomSongAsync(int maxAttempts = 15)
         {
             Song song;
+
+            var attempts = 0;
 
             using (var context = new MusCatEntities())
             {
@@ -339,17 +332,20 @@ namespace MusCat.Services
                 // ...and while it isn't present in archive of recently played songs and upcoming songs
                 do
                 {
+                    if (attempts++ == maxAttempts)
+                    {
+                        return null;
+                    }
+
                     var songId = _songSelector.Next() % maxSid;
 
                     song = await context.Songs
                                         .FirstAsync(s => s.ID >= songId)
                                         .ConfigureAwait(false);
-
                     // include the corresponding album of our song
                     song.Album = await context.Albums
                                               .FirstAsync(a => a.ID == song.AlbumID)
                                               .ConfigureAwait(false);
-
                     // do the same thing with performer for included album
                     song.Album.Performer = await context.Performers
                                                         .FirstAsync(p => p.ID == song.Album.PerformerID)
@@ -377,26 +373,27 @@ namespace MusCat.Services
             {
                 await AddRandomSongAsync().ConfigureAwait(false);
             }
-
-
-            // ====== Alternative code (however, it allows duplicate songs (((: ======
-
-            //var songAdders = new Task[MaxSongs];
-
-            //// just fire them all at once (order doesn't matter)
-            //for (var i = 0; i < MaxSongs; i++)
-            //{
-            //    songAdders[i] = AddRandomSongAsync();
-            //}
-
-            //await Task.WhenAll(songAdders).ConfigureAwait(false);
-
-
-            // ====================== just was playing' with )) ======================
-
-            // Parallel.For(0, MaxSongs, i => AddRandomSong());
-            // Parallel.For(0, MaxSongs, i => AddRandomSongAsync().RunSynchronously());
         }
+
+        /* Alternative code
+         * 
+         * ============== (however, it allows duplicate songs (((: ===============
+         *
+         * //var songAdders = new Task[MaxSongs];
+         *
+         * //// just fire them all at once (order doesn't matter)
+         * //for (var i = 0; i < MaxSongs; i++)
+         * //{
+         * //    songAdders[i] = AddRandomSongAsync();
+         * //}
+         *
+         * //await Task.WhenAll(songAdders).ConfigureAwait(false);
+         *
+         * // ====================== just was playing' with )) ======================
+         *
+         * // Parallel.For(0, MaxSongs, i => AddRandomSong());
+         * // Parallel.For(0, MaxSongs, i => AddRandomSongAsync().RunSynchronously());
+         */
 
         #endregion
     }

@@ -113,7 +113,7 @@ namespace MusCat.ViewModels
                 }
                 else
                 {
-                    EditPerformer();
+                    await EditPerformerAsync();
                 }
             });
 
@@ -128,9 +128,9 @@ namespace MusCat.ViewModels
             IndexPageCommand = new RelayCommand(NavigatePage);
 
             ViewPerformerCommand = new RelayCommand(ViewSelectedPerformer);
-            EditPerformerCommand = new RelayCommand(EditPerformer);
-            EditMusiciansCommand = new RelayCommand(() => { });
+            EditPerformerCommand = new RelayCommand(async () => await EditPerformerAsync());
             EditCountriesCommand = new RelayCommand(EditCountries);
+            EditMusiciansCommand = new RelayCommand(() => { });
             ViewAlbumCommand = new RelayCommand(async () => await ViewSelectedAlbumAsync());
             EditAlbumCommand = new RelayCommand(async () => await EditAlbumAsync());
             AddPerformerCommand = new RelayCommand(async () => await AddPerformerAsync());
@@ -139,7 +139,7 @@ namespace MusCat.ViewModels
             DeleteAlbumCommand = new RelayCommand(async () => await RemoveSelectedAlbumAsync());
             PerformerSearchCommand = new RelayCommand(async () => await SelectPerformersByPatternAsync());
             AlbumSearchCommand = new RelayCommand(async () => await SelectPerformersByAlbumPatternAsync());
-            StartRadioCommand = new RelayCommand(StartRadio);
+            StartRadioCommand = new RelayCommand(async() => await StartRadioAsync());
             StatsCommand = new RelayCommand(ShowStats);
             SettingsCommand = new RelayCommand(ShowSettings);
             HelpCommand = new RelayCommand(ShowHelp);
@@ -395,7 +395,7 @@ namespace MusCat.ViewModels
             performerWindow.Show();
         }
 
-        private void EditPerformer()
+        private async Task EditPerformerAsync()
         {
             if (SelectedPerformer == null)
             {
@@ -403,7 +403,12 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            var viewmodel = new EditPerformerViewModel(SelectedPerformer) { UnitOfWork = _unitOfWork };
+            var viewmodel = new EditPerformerViewModel(SelectedPerformer)
+            {
+                UnitOfWork = _unitOfWork,
+                Countries = new ObservableCollection<Country>(
+                                    await _unitOfWork.CountryRepository.GetAllAsync())
+            };
             var performerWindow = new EditPerformerWindow { DataContext = viewmodel };
 
             performerWindow.Show();
@@ -465,9 +470,11 @@ namespace MusCat.ViewModels
 
             var viewmodel = new EditPerformerViewModel(new PerformerViewModel { Performer = performer })
             {
-                UnitOfWork = _unitOfWork
+                UnitOfWork = _unitOfWork,
+                Countries = new ObservableCollection<Country>(
+                    await _unitOfWork.CountryRepository.GetAllAsync())
             };
-
+            
             var performerWindow = new EditPerformerWindow { DataContext = viewmodel };
 
             performerWindow.ShowDialog();
@@ -604,12 +611,18 @@ namespace MusCat.ViewModels
         
         #region main menu
 
-        private void StartRadio()
+        private async Task StartRadioAsync()
         {
             var radio = new Radio();
 
-            // if radioplayer can't find songs to play then why even try opening radio window? 
-            if (!radio.CheckSongFiles())
+            // if radioplayer can't find songs to create playlist
+            // then why even try opening radio window? 
+
+            try
+            {
+                await radio.MakeSonglistAsync();
+            }
+            catch (Exception)
             {
                 MessageBox.Show("Seems like there's not enough music files on your drives");
                 return;

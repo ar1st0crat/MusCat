@@ -39,7 +39,7 @@ namespace MusCat.ViewModels
         public RelayCommand LoadImageFromClipboardCommand { get; private set; }
         public RelayCommand SavePerformerCommand { get; private set; }
 
-        public EditPerformerViewModel(PerformerViewModel p)
+        public EditPerformerViewModel(PerformerViewModel performer)
         {
             // setting up commands
             LoadImageFromFileCommand = new RelayCommand(LoadPerformerImageFromFile);
@@ -47,24 +47,7 @@ namespace MusCat.ViewModels
             SavePerformerCommand = new RelayCommand(async() => await SavePerformerInformation());
 
             // load and set all necessary information to edit performer
-            PerformerView = p;
-
-            // load countries and genres just here without any overdesigned repository classes
-            using (var context = new MusCatEntities())
-            {
-                Countries = new ObservableCollection<Country>();
-                Genres = new ObservableCollection<Genre>();
-
-                foreach (var country in context.Countries)
-                {
-                    Countries.Add(country);
-                }
-
-                foreach (var genre in context.Genres)
-                {
-                    Genres.Add(genre);
-                }
-            }
+            PerformerView = performer;
         }
 
         public async Task SavePerformerInformation()
