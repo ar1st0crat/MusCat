@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,7 +11,7 @@ using MusCat.Utils;
 
 namespace MusCat.ViewModels
 {
-    class AlbumPlaybackViewModel : INotifyPropertyChanged
+    class AlbumPlaybackViewModel : ViewModelBase
     {
         public UnitOfWork UnitOfWork { get; set; }
 
@@ -25,7 +24,7 @@ namespace MusCat.ViewModels
             set
             {
                 AlbumView.Album = value;
-                RaisePropertyChanged("Album");
+                RaisePropertyChanged();
             }
         }
 
@@ -43,7 +42,7 @@ namespace MusCat.ViewModels
             set
             {
                 _selectedSong = value;
-                RaisePropertyChanged("SelectedSong");
+                RaisePropertyChanged();
                 PlaySong();
             }
         }
@@ -59,7 +58,7 @@ namespace MusCat.ViewModels
             set
             {
                 _playbackImage = value;
-                RaisePropertyChanged("PlaybackImage");
+                RaisePropertyChanged();
             }
         }
 
@@ -75,7 +74,7 @@ namespace MusCat.ViewModels
             set
             {
                 _playbackPercentage = value;
-                RaisePropertyChanged("PlaybackPercentage");
+                RaisePropertyChanged();
             }
         }
 
@@ -169,7 +168,7 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            if (_player.SongPlaybackState != PlaybackState.Stop)
+            if (_player.SongPlaybackState != AudioPlayer.PlaybackState.Stop)
             {
                 _player.Stop();
             }
@@ -199,11 +198,11 @@ namespace MusCat.ViewModels
         {
             switch (_player.SongPlaybackState)
             {
-                case PlaybackState.Play:
+                case AudioPlayer.PlaybackState.Play:
                     _player.Pause();
                     PlaybackImage = ImagePlay;
                     break;
-                case PlaybackState.Pause:
+                case AudioPlayer.PlaybackState.Pause:
                     _player.Resume();
                     PlaybackImage = ImagePause;
                     break;
@@ -216,8 +215,9 @@ namespace MusCat.ViewModels
         /// </summary>
         private void SeekPlaybackPosition()
         {
-            // if the slider value was changed with timer (not by user) or the song is stopped
-            if (!_isDragged || _player.SongPlaybackState == PlaybackState.Stop)
+            // if the slider value was changed with timer (not by user) 
+            // or the song is stopped
+            if (!_isDragged || _player.SongPlaybackState == AudioPlayer.PlaybackState.Stop)
             {
                 // then do nothing
                 return;
@@ -239,16 +239,5 @@ namespace MusCat.ViewModels
             UnitOfWork?.Save();
             Performer?.UpdateAlbumCollectionRate();
         }
-
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
     }
 }

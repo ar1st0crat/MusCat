@@ -5,16 +5,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using MusCat.Entities;
 
-namespace MusCat.Services
+namespace MusCat.Services.Radio
 {
     /// <summary>
-    /// Radio station class
+    /// Radio station service
     /// 
     /// Class provides basic methods for making and playing tracklists 
     /// and their asynchronous analogs
     /// 
     /// </summary>
-    class Radio
+    class RadioService : IRadioService
     {
         public const int MaxSongs = 10;
 
@@ -69,7 +69,7 @@ namespace MusCat.Services
 
         public void StartPlaying()
         {
-            if (_player.SongPlaybackState != PlaybackState.Stop)
+            if (_player.SongPlaybackState != AudioPlayer.PlaybackState.Stop)
             {
                 _player.Stop();
             }
@@ -106,7 +106,7 @@ namespace MusCat.Services
             _player.SetVolume(volume);
         }
 
-        public PlaybackState SongPlaybackState => _player.SongPlaybackState;
+        public AudioPlayer.PlaybackState SongPlaybackState => _player.SongPlaybackState;
 
         #endregion
 

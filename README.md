@@ -15,6 +15,8 @@ The **MusCat** app (short for **Mus**ic **Cat**alog) is intended for all users w
 
 * you can launch the special *MusCat Radio* tool that will create a random playlist and play songs for you based on your mood.
 
+* you can fill the bio of an artist manually or in one click using the *Load Bio...* button. The app will load and parse the corresponding information from internet (currently from Last.fm pages).
+
 * you can paste album covers from clipboard.
 
 Since MusCat doesn't store multimedia data in a local database (neither it stores the relative paths to images and sounds) it uses several naming conventions to find necessary files in your local file system:
@@ -68,6 +70,8 @@ Stats window
 ## Used libraries:
 
 - [EntityFramework](https://www.nuget.org/packages/EntityFramework)
+- [AutoMapper](http://automapper.org/)
+- [AutoFac](https://autofac.org/)
 - [LiveCharts](https://lvcharts.net)
 - [NAudio](https://naudio.codeplex.com)
 - [TagLib](http://taglib.org)

@@ -11,7 +11,8 @@ namespace MusCat.ViewModels
 {
     class CountriesViewModel : INotifyPropertyChanged
     {
-        public UnitOfWork UnitOfWork { get; set; }
+        //public UnitOfWork UnitOfWork { get; set; }
+        private readonly UnitOfWork _unitOfWork;
 
         private ObservableCollection<Country> _countrylist;
         public ObservableCollection<Country> Countrylist
@@ -44,16 +45,15 @@ namespace MusCat.ViewModels
         }
 
 
-        public CountriesViewModel()
+        public CountriesViewModel(UnitOfWork unitOfWork)
         {
+            _unitOfWork = unitOfWork;
+            _countrylist = new ObservableCollection<Country>(_unitOfWork.CountryRepository.GetAll());
+
             AddCommand = new RelayCommand(AddCountry);
             RemoveCommand = new RelayCommand(RemoveCountry);
             ReplaceCommand = new RelayCommand(ReplaceCountry);
-
-            OkCommand = new RelayCommand(() =>
-            {
-                DialogResult = true;
-            });
+            OkCommand = new RelayCommand(() => { DialogResult = true; });
         }
 
         public void AddCountry()
@@ -71,16 +71,16 @@ namespace MusCat.ViewModels
             }
 
             var country = new Country { Name = CountryInput };
-            UnitOfWork.CountryRepository.Add(country);
-            UnitOfWork.Save();
+            _unitOfWork.CountryRepository.Add(country);
+            _unitOfWork.Save();
 
             Countrylist.Add(country);
         }
 
         public void RemoveCountry()
         {
-            UnitOfWork.CountryRepository.Delete(Countrylist[SelectedCountryIndex]);
-            UnitOfWork.Save();
+            _unitOfWork.CountryRepository.Delete(Countrylist[SelectedCountryIndex]);
+            _unitOfWork.Save();
 
             Countrylist.RemoveAt(SelectedCountryIndex);
         }
@@ -88,8 +88,8 @@ namespace MusCat.ViewModels
         public void ReplaceCountry()
         {
             Countrylist[SelectedCountryIndex].Name = CountryInput;
-            UnitOfWork.CountryRepository.Edit(Countrylist[SelectedCountryIndex]);
-            UnitOfWork.Save();
+            _unitOfWork.CountryRepository.Edit(Countrylist[SelectedCountryIndex]);
+            _unitOfWork.Save();
         }
 
         #region INotifyPropertyChanged event and method

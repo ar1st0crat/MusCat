@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using MusCat.Entities;
 using MusCat.Repositories.Base;
 using MusCat.Services;
+using MusCat.Services.Radio;
 using MusCat.Utils;
 using MusCat.Views;
 
@@ -17,7 +17,7 @@ namespace MusCat.ViewModels
     /// MainViewModel is responsible for CRUD operations with performers and albums
     /// (and other stuff from main menu such as Radio, Stats, Settings, Help)
     /// </summary>
-    class MainViewModel : INotifyPropertyChanged
+    class MainViewModel : ViewModelBase
     {
         private readonly UnitOfWork _unitOfWork = new UnitOfWork();
         
@@ -33,7 +33,7 @@ namespace MusCat.ViewModels
             set
             {
                 _performerPattern = value;
-                RaisePropertyChanged("PerformerPattern");
+                RaisePropertyChanged();
             }
         }
 
@@ -44,7 +44,7 @@ namespace MusCat.ViewModels
             set
             {
                 _albumPattern = value;
-                RaisePropertyChanged("AlbumPattern");
+                RaisePropertyChanged();
             }
         }
 
@@ -165,7 +165,7 @@ namespace MusCat.ViewModels
             set
             {
                 _indexLetter = value;
-                RaisePropertyChanged("IndexLetter");
+                RaisePropertyChanged();
                 SelectPerformersByFirstLetterAsync();   // fire and forget
             }
         }
@@ -491,7 +491,7 @@ namespace MusCat.ViewModels
 
         private async Task RemoveSelectedPerformerAsync()
         {
-            var performer = SelectedPerformer.Performer;
+            var performer = SelectedPerformer?.Performer;
 
             if (performer == null)
             {
@@ -613,7 +613,7 @@ namespace MusCat.ViewModels
 
         private async Task StartRadioAsync()
         {
-            var radio = new Radio();
+            var radio = new RadioService();
 
             // if radioplayer can't find songs to create playlist
             // then why even try opening radio window? 
@@ -634,20 +634,21 @@ namespace MusCat.ViewModels
 
         private void EditCountries()
         {
-            var countriesContext = new CountriesViewModel
+            var countriesWindow = new CountriesWindow
             {
-                UnitOfWork = _unitOfWork,
-                Countrylist = new ObservableCollection<Country>(_unitOfWork.CountryRepository.GetAll())
+                DataContext = new CountriesViewModel(_unitOfWork)
             };
-            
-            var countriesWindow = new CountriesWindow { DataContext = countriesContext };
 
             countriesWindow.ShowDialog();
         }
 
-        private void ShowStats()
+        private async void ShowStats()
         {
-            var statsWindow = new StatsWindow();
+            var viewModel = new StatsViewModel();
+            await viewModel.LoadStatsAsync();
+
+            var statsWindow = new StatsWindow { DataContext = viewModel };
+
             statsWindow.Show();
         }
 
@@ -661,17 +662,6 @@ namespace MusCat.ViewModels
         {
             var helpWindow = new HelpWindow();
             helpWindow.ShowDialog();
-        }
-
-        #endregion
-
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion

@@ -5,15 +5,15 @@ using System.Linq;
 using MusCat.Entities;
 using TagLib;
 
-namespace MusCat.Services
+namespace MusCat.Services.Tracklist
 {
     /// <summary>
-    /// Class Mp3Parser is responsible for:
+    /// Class TracklistParser is responsible for:
     /// - extracting the track number and track name from mp3 files
     /// - retrieving and formatting song duration
     /// - correcting track names according to conventional rules
     /// </summary>
-    class Mp3Parser
+    class TracklistParser : ITracklistParser
     {
         /// <summary>
         /// Method iterates through all mp3 files in given directory,

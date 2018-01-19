@@ -26,7 +26,7 @@ namespace MusCat.Tests
         public void TestCalculateSingleRate()
         {
             // ARRANGE
-            var albums = new List<Album>()
+            var albums = new List<Album>
             {
                 new Album { Rate = 5 }
             };
@@ -40,7 +40,7 @@ namespace MusCat.Tests
         public void TestCalculateDoubleRate()
         {
             // ARRANGE
-            var albums = new List<Album>()
+            var albums = new List<Album>
             {
                 new Album { Rate = 5 },
                 new Album { Rate = 10 }
@@ -55,7 +55,7 @@ namespace MusCat.Tests
         public void TestCalculateRate()
         {
             // ARRANGE
-            var albums = new List<Album>()
+            var albums = new List<Album>
             {
                 new Album { Rate = 1 },
                 new Album { Rate = 10 },
@@ -79,7 +79,7 @@ namespace MusCat.Tests
         public void TestCalculateSomeNullRates()
         {
             // ARRANGE
-            var albums = new List<Album>()
+            var albums = new List<Album>
             {
                 new Album { Rate = 1 },
                 new Album { Rate = null },

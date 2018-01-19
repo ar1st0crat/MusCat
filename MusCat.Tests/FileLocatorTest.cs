@@ -21,7 +21,7 @@ namespace MusCat.Tests
         public void TestMakeCorrectAlbumPaths()
         {
             // ARRANGE
-            var album = new Album()
+            var album = new Album
             {
                 ID = 73,
                 Performer = new Performer

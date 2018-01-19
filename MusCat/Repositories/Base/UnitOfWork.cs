@@ -36,6 +36,8 @@ namespace MusCat.Repositories.Base
             await _context.SaveChangesAsync().ConfigureAwait(false);
         }
 
+        #region Dispose pattern
+
         private bool _disposed;
 
         protected virtual void Dispose(bool disposing)
@@ -55,5 +57,7 @@ namespace MusCat.Repositories.Base
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        #endregion
     }
 }

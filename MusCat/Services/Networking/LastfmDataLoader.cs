@@ -2,12 +2,23 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using MusCat.Entities;
 
 namespace MusCat.Services.Networking
 {
     class LastfmDataLoader : IWebDataLoader
     {
+        private readonly string[] _newlineTags =
+        {
+            "<p>", "</p>", "<br/>", "<br />", "<br>"
+        };
+
+        private readonly string[] _ignoreTags =
+        {
+            "<em>", "</em>", "<strong>", "</strong>", "</a>"
+        };
+
         public async Task<string> LoadBioAsync(Performer performer)
         {
             var url = string.Format(@"https://www.last.fm/music/{0}/+wiki", performer.Name);
@@ -30,19 +41,15 @@ namespace MusCat.Services.Networking
 
                 var bio = new StringBuilder(html.Substring(startPos, endPos - startPos).Trim());
 
-                bio = bio.Replace("<p>", "\n")
-                         .Replace("</p>", "\n")
-                         .Replace("<br/>", "\n")
-                         .Replace("<br />", "\n")
-                         .Replace("<em>", "")
-                         .Replace("</em>", "")
-                         .Replace("<strong>", "")
-                         .Replace("</strong>", "")
-                         .Replace("&amp;", "&")
-                         .Replace("&nbsp;", " ")
-                         .Replace("&quot;", "\"")
-                         .Replace("&#x27;", "'")
-                         .Replace("</a>", "");
+                foreach (var tag in _newlineTags)
+                {
+                    bio.Replace(tag, "\n");
+                }
+
+                foreach (var tag in _ignoreTags)
+                {
+                    bio.Replace(tag, "");
+                }
 
                 var bioText = bio.ToString();
                 var linkPos = bioText.IndexOf("<a href");
@@ -55,7 +62,7 @@ namespace MusCat.Services.Networking
                     linkPos = bioText.IndexOf("<a href");
                 }
 
-                return bioText;
+                return HttpUtility.HtmlDecode(bioText);
             }
         }
     }

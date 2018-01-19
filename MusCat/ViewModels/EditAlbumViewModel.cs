@@ -11,12 +11,13 @@ using Microsoft.Win32;
 using MusCat.Entities;
 using MusCat.Repositories.Base;
 using MusCat.Services;
+using MusCat.Services.Tracklist;
 using MusCat.Utils;
 using MusCat.Views;
 
 namespace MusCat.ViewModels
 {
-    class EditAlbumViewModel : INotifyPropertyChanged, IDataErrorInfo
+    class EditAlbumViewModel : ViewModelBase, IDataErrorInfo
     {
         public UnitOfWork UnitOfWork { get; set; }
 
@@ -230,20 +231,20 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            var parser = new Mp3Parser();
+            var parser = new TracklistParser();
             parser.ParseMp3Collection(fbd.SelectedPath, Album, Songs);
             AlbumTotalTime = parser.FixTimes(Songs);
         }
 
         public void FixNames()
         {
-            var parser = new Mp3Parser();
+            var parser = new TracklistParser();
             parser.FixNames(Songs);
         }
 
         public void FixTimes()
         {
-            var parser = new Mp3Parser();
+            var parser = new TracklistParser();
             AlbumTotalTime = parser.FixTimes(Songs);
         }
 
@@ -382,17 +383,6 @@ namespace MusCat.ViewModels
                 }
                 return error;
             }
-        }
-
-        #endregion
-
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion

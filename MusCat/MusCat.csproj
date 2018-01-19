@@ -53,6 +53,10 @@
     <ApplicationIcon>Images\MusCat.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=6.2.2.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.6.2.2\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
@@ -86,6 +90,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity">
       <HintPath>..\packages\Expression.Blend.Sdk.1.0.2\lib\net45\System.Windows.Interactivity.dll</HintPath>
@@ -126,17 +131,20 @@
     <Compile Include="Repositories\IAlbumRepository.cs" />
     <Compile Include="Repositories\IPerformerRepository.cs" />
     <Compile Include="Repositories\Base\IRepository.cs" />
-    <Compile Include="Repositories\IStatsRepository.cs" />
     <Compile Include="Repositories\PerformerRepository.cs" />
     <Compile Include="Repositories\Base\Repository.cs" />
     <Compile Include="Repositories\SongRepository.cs" />
-    <Compile Include="Repositories\StatsRepository.cs" />
-    <Compile Include="Services\Mp3Parser.cs" />
+    <Compile Include="Services\Radio\IRadioService.cs" />
+    <Compile Include="Services\Tracklist\ITracklistParser.cs" />
+    <Compile Include="Services\Tracklist\TracklistParser.cs" />
     <Compile Include="Services\Networking\IWebDataLoader.cs" />
     <Compile Include="Services\Networking\LastfmDataLoader.cs" />
     <Compile Include="Services\ParserStringUtils.cs" />
-    <Compile Include="Services\Radio.cs" />
+    <Compile Include="Services\Radio\RadioService.cs" />
     <Compile Include="Services\RateCalculator.cs" />
+    <Compile Include="Services\Stats\DecadeAlbumsStats.cs" />
+    <Compile Include="Services\Stats\IStatsService.cs" />
+    <Compile Include="Services\Stats\StatsService.cs" />
     <Compile Include="ViewModels\AlbumPlaybackViewModel.cs" />
     <Compile Include="ViewModels\AlbumViewModel.cs" />
     <Compile Include="Utils\DialogResultHelper.cs" />
@@ -151,6 +159,7 @@
     <Compile Include="ViewModels\RadioViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\StatsViewModel.cs" />
+    <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\ChoiceWindow.xaml.cs">
       <DependentUpon>ChoiceWindow.xaml</DependentUpon>
     </Compile>

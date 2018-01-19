@@ -17,7 +17,7 @@ namespace MusCat.Repositories
         public override async Task AddAsync(Performer entity)
         {
             // manual autoincrement
-            var lastId = await Context.Performers
+            var lastId = await Context.Performers.AsNoTracking()
                                       .Select(p => p.ID)
                                       .DefaultIfEmpty(0)
                                       .MaxAsync()

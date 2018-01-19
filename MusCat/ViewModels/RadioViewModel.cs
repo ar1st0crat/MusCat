@@ -1,27 +1,25 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using MusCat.Entities;
 using MusCat.Repositories;
 using MusCat.Services;
+using MusCat.Services.Radio;
 using MusCat.Utils;
 using MusCat.Views;
 
 namespace MusCat.ViewModels
 {
-    class RadioViewModel : INotifyPropertyChanged
+    class RadioViewModel : ViewModelBase
     {
         // Bitmaps for playback buttons
         private static readonly BitmapImage ImagePlay = App.Current.Resources["ImagePlayButton"] as BitmapImage;
         private static readonly BitmapImage ImagePause = App.Current.Resources["ImagePauseButton"] as BitmapImage;
         
         // Radio Station
-        private readonly Radio _radio = new Radio();
+        private readonly IRadioService _radio = new RadioService();
         
-        #region INPC properties
-
         private BitmapImage _playbackImage = ImagePause;
         public BitmapImage PlaybackImage
         {
@@ -29,7 +27,7 @@ namespace MusCat.ViewModels
             set
             {
                 _playbackImage = value;
-                RaisePropertyChanged("PlaybackImage");
+                RaisePropertyChanged();
             }
         }
 
@@ -41,7 +39,7 @@ namespace MusCat.ViewModels
             {
                 _songVolume = value;
                 _radio.SetVolume(value / 10.0f);
-                RaisePropertyChanged("SongVolume");
+                RaisePropertyChanged();
             }
         }
 
@@ -60,8 +58,6 @@ namespace MusCat.ViewModels
         public ICommand RemoveSongCommand { get; private set; }
         public ICommand ShowAlbumCommand { get; private set; }
         public ICommand WindowClosingCommand { get; private set; }
-
-        #endregion
 
 
         public RadioViewModel()
@@ -147,15 +143,15 @@ namespace MusCat.ViewModels
         {
             switch (_radio.SongPlaybackState)
             {
-                case PlaybackState.Play:
+                case AudioPlayer.PlaybackState.Play:
                     _radio.PausePlaying();
                     PlaybackImage = ImagePlay;
                     break;
-                case PlaybackState.Pause:
+                case AudioPlayer.PlaybackState.Pause:
                     _radio.ResumePlaying();
                     PlaybackImage = ImagePause;
                     break;
-                case PlaybackState.Stop:
+                case AudioPlayer.PlaybackState.Stop:
                     _radio.StartPlaying();
                     PlaybackImage = ImagePause;
                     break;
@@ -186,16 +182,5 @@ namespace MusCat.ViewModels
 
             albumWindow.Show();
         }
-        
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
     }
 }

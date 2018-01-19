@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using MusCat.Entities;
-using MusCat.Services;
+using MusCat.Services.Tracklist;
 using NUnit.Framework;
 
 namespace MusCat.Tests
@@ -10,7 +10,7 @@ namespace MusCat.Tests
     [TestFixture]
     public class Mp3ParserTest
     {
-        private readonly Mp3Parser _parser = new Mp3Parser();
+        private readonly TracklistParser _parser = new TracklistParser();
 
         [Test]
         public void TestFixOrdinaryDurations()

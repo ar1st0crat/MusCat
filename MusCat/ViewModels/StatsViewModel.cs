@@ -1,22 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using LiveCharts;
 using LiveCharts.Wpf;
 using MusCat.Entities;
-using MusCat.Repositories;
+using MusCat.Services.Stats;
 
 namespace MusCat.ViewModels
 {
-    class StatsViewModel : INotifyPropertyChanged
+    class StatsViewModel : ViewModelBase
     {
-        private readonly StatsRepository _repository;
+        private readonly StatsService _stats = new StatsService();
 
-        public long PerformerCount { get; set; }
-        public long AlbumCount { get; set; }
+        private long _performerCount;
+        public long PerformerCount
+        {
+            get { return _performerCount; }
+            set
+            {
+                _performerCount = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private long _albumCount;
+        public long AlbumCount
+        {
+            get { return _albumCount; }
+            set
+            {
+                _albumCount = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public long SongCount { get; set; }
 
         public List<Album> LatestAlbums { get; set; }
@@ -32,28 +51,20 @@ namespace MusCat.ViewModels
                 Color.FromRgb(125,190,240)
             };
 
-
-        public StatsViewModel()
+        public async Task LoadStatsAsync()
         {
-            _repository = new StatsRepository();
+            PerformerCount = await _stats.PerformerCountAsync();
+            AlbumCount = await _stats.AlbumCountAsync();
+            SongCount = await _stats.SongCountAsync();
 
-            PerformerCount = _repository.PerformerCount;
-            AlbumCount = _repository.AlbumCount;
-            SongCount = _repository.SongCount;
-
-            GetStats();
-        }
-
-        public async Task GetStats()
-        {
             // most recently added albums 
 
-            LatestAlbums = (await _repository.GetLatestAlbumsAsync()).ToList();
-            RaisePropertyChanged("LatestAlbums");
+            LatestAlbums = (await _stats.GetLatestAlbumsAsync()).ToList();
+
 
             // bar chart "decades - album count - average album rate"
 
-            var decades = await _repository.GetAlbumDecadesAsync();
+            var decades = await _stats.GetAlbumDecadesAsync();
 
             Labels = decades.Select(d => d.Decade).ToArray();
 
@@ -75,12 +86,9 @@ namespace MusCat.ViewModels
                     }
                 };
 
-            RaisePropertyChanged("Decades");
-            RaisePropertyChanged("Labels");
-
             // pie chart "performer - countries"
 
-            var countries = await _repository.GetPerformerCountriesAsync();
+            var countries = await _stats.GetPerformerCountriesAsync();
 
             Countries = new SeriesCollection();
 
@@ -93,19 +101,6 @@ namespace MusCat.ViewModels
                     DataLabels = true
                 });
             }
-
-            RaisePropertyChanged("Countries");
         }
-
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
     }
 }

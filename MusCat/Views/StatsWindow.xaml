@@ -10,9 +10,11 @@
         xmlns:viewModels="clr-namespace:MusCat.ViewModels"
         Title="Main Stats"
         Height="450" Width="700">
+    <!--
     <Window.DataContext>
         <viewModels:StatsViewModel />
     </Window.DataContext>
+    -->
     <Window.Background>
         <LinearGradientBrush>
             <GradientStopCollection>

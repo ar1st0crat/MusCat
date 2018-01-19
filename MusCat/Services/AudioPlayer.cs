@@ -3,21 +3,19 @@ using NAudio.Wave;
 
 namespace MusCat.Services
 {
-    enum PlaybackState
-    {
-        Play,
-        Pause,
-        Stop
-    }
-
     /// <summary>
     /// Simple mp3 player wrapped around NAudio.WaveOut and NAudio.Mp3FileReader
     /// </summary>
     class AudioPlayer
     {
-        // NAudio component for a song playback
+        /// <summary>
+        /// NAudio component for a song playback
+        /// </summary>
         WaveOut _waveOut;
-        // Underlying mp3 file reader
+
+        /// <summary>
+        /// Underlying mp3 file reader
+        /// </summary>
         Mp3FileReader _mp3Reader;
 
         public PlaybackState SongPlaybackState { get; set; }
@@ -133,6 +131,13 @@ namespace MusCat.Services
         public bool IsStopped()
         {
             return _waveOut == null || _waveOut.PlaybackState == NAudio.Wave.PlaybackState.Stopped;
+        }
+
+        public enum PlaybackState
+        {
+            Play,
+            Pause,
+            Stop
         }
     }
 }
