@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using MusCat.Entities;
+using MusCat.Core.Entities;
+using MusCat.Infrastructure.Services;
 using NUnit.Framework;
-using MusCat.Services;
 
 namespace MusCat.Tests
 {

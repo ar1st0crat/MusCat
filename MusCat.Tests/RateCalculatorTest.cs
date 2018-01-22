@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using MusCat.Entities;
-using MusCat.Services;
+using MusCat.Core.Entities;
+using MusCat.Core.Services;
 using NUnit.Framework;
 
 namespace MusCat.Tests

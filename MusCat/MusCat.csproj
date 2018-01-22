@@ -57,14 +57,6 @@
       <HintPath>..\packages\AutoMapper.6.2.2\lib\net45\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="LiveCharts, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
       <HintPath>..\packages\LiveCharts.0.9.7\lib\net45\LiveCharts.dll</HintPath>
       <Private>True</Private>
@@ -72,13 +64,6 @@
     <Reference Include="LiveCharts.Wpf, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
       <HintPath>..\packages\LiveCharts.Wpf.0.9.7\lib\net45\LiveCharts.Wpf.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="NAudio, Version=1.8.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NAudio.1.8.2\lib\net35\NAudio.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="policy.2.0.taglib-sharp">
-      <HintPath>..\packages\taglib.2.1.0.0\lib\policy.2.0.taglib-sharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -103,9 +88,6 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="taglib-sharp">
-      <HintPath>..\packages\taglib.2.1.0.0\lib\taglib-sharp.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -116,35 +98,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\AlbumCountConverter.cs" />
-    <Compile Include="Entities\Album.cs" />
-    <Compile Include="Entities\Country.cs" />
-    <Compile Include="Entities\Genre.cs" />
-    <Compile Include="Entities\Lineup.cs" />
-    <Compile Include="Entities\MusCatEntities.cs" />
-    <Compile Include="Entities\Musician.cs" />
-    <Compile Include="Entities\Performer.cs" />
-    <Compile Include="Entities\Song.cs" />
-    <Compile Include="Repositories\AlbumRepository.cs" />
-    <Compile Include="Repositories\Base\PageCollection.cs" />
-    <Compile Include="Repositories\Base\UnitOfWork.cs" />
-    <Compile Include="Repositories\CountryRepository.cs" />
-    <Compile Include="Repositories\IAlbumRepository.cs" />
-    <Compile Include="Repositories\IPerformerRepository.cs" />
-    <Compile Include="Repositories\Base\IRepository.cs" />
-    <Compile Include="Repositories\PerformerRepository.cs" />
-    <Compile Include="Repositories\Base\Repository.cs" />
-    <Compile Include="Repositories\SongRepository.cs" />
-    <Compile Include="Services\Radio\IRadioService.cs" />
-    <Compile Include="Services\Tracklist\ITracklistParser.cs" />
-    <Compile Include="Services\Tracklist\TracklistParser.cs" />
-    <Compile Include="Services\Networking\IWebDataLoader.cs" />
-    <Compile Include="Services\Networking\LastfmDataLoader.cs" />
-    <Compile Include="Services\ParserStringUtils.cs" />
-    <Compile Include="Services\Radio\RadioService.cs" />
-    <Compile Include="Services\RateCalculator.cs" />
-    <Compile Include="Services\Stats\DecadeAlbumsStats.cs" />
-    <Compile Include="Services\Stats\IStatsService.cs" />
-    <Compile Include="Services\Stats\StatsService.cs" />
     <Compile Include="ViewModels\AlbumPlaybackViewModel.cs" />
     <Compile Include="ViewModels\AlbumViewModel.cs" />
     <Compile Include="Utils\DialogResultHelper.cs" />
@@ -178,8 +131,6 @@
     <Compile Include="Views\PerformerWindow.xaml.cs">
       <DependentUpon>PerformerWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Services\FileLocator.cs" />
-    <Compile Include="Services\AudioPlayer.cs" />
     <Compile Include="Converters\PhotoConverter.cs" />
     <Compile Include="Views\RadioPlayerWindow.xaml.cs">
       <DependentUpon>RadioPlayerWindow.xaml</DependentUpon>
@@ -328,7 +279,12 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\MusCat.Infrastructure\MusCat.Infrastructure.csproj">
+      <Project>{dc4a69d8-0a5b-4834-a30e-c616df769329}</Project>
+      <Name>MusCat.Infrastructure</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

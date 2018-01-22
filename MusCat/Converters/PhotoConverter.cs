@@ -2,8 +2,6 @@
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
-using MusCat.Entities;
-using MusCat.Services;
 
 namespace MusCat.Converters
 {

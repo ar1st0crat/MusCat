@@ -12,7 +12,7 @@ namespace MusCat.ViewModels
 {
     class StatsViewModel : ViewModelBase
     {
-        private readonly StatsService _stats = new StatsService();
+        private readonly StatsService _stats;
 
         private long _performerCount;
         public long PerformerCount
@@ -50,6 +50,12 @@ namespace MusCat.ViewModels
                 Color.FromRgb(195,225,125),
                 Color.FromRgb(125,190,240)
             };
+
+        public StatsViewModel(IStatsService stats)
+        {
+            _stats = stats;
+            LoadStatsAsync();
+        } 
 
         public async Task LoadStatsAsync()
         {
