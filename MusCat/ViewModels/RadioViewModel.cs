@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using MusCat.Entities;
-using MusCat.Repositories;
-using MusCat.Services;
-using MusCat.Services.Radio;
+using MusCat.Core.Entities;
+using MusCat.Core.Interfaces.Audio;
+using MusCat.Core.Interfaces.Radio;
+using MusCat.Infrastructure.Services.Radio;
 using MusCat.Utils;
 using MusCat.Views;
 
@@ -38,7 +38,7 @@ namespace MusCat.ViewModels
             set
             {
                 _songVolume = value;
-                _radio.SetVolume(value / 10.0f);
+                _radio.Player.SetVolume(value / 10.0f);
                 RaisePropertyChanged();
             }
         }
@@ -83,7 +83,7 @@ namespace MusCat.ViewModels
 
             StopCommand = new RelayCommand(() =>
             {
-                _radio.StopPlaying();
+                _radio.Player.Stop();
                 PlaybackImage = ImagePlay;
             });
 
@@ -141,18 +141,18 @@ namespace MusCat.ViewModels
         
         private void SongPlaybackAction()
         {
-            switch (_radio.SongPlaybackState)
+            switch (_radio.Player.SongPlaybackState)
             {
-                case AudioPlayer.PlaybackState.Play:
-                    _radio.PausePlaying();
+                case PlaybackState.Play:
+                    _radio.Player.Pause();
                     PlaybackImage = ImagePlay;
                     break;
-                case AudioPlayer.PlaybackState.Pause:
-                    _radio.ResumePlaying();
+                case PlaybackState.Pause:
+                    _radio.Player.Resume();
                     PlaybackImage = ImagePause;
                     break;
-                case AudioPlayer.PlaybackState.Stop:
-                    _radio.StartPlaying();
+                case PlaybackState.Stop:
+                    _radio.PlayCurrentSong();
                     PlaybackImage = ImagePause;
                     break;
             }
@@ -165,22 +165,22 @@ namespace MusCat.ViewModels
         /// </summary>
         private async Task ViewAlbumContainingCurrentSong()
         {
-            var albumView = new AlbumViewModel
-            {
-                Album = _radio.CurrentSong.Album
-            };
+            //var albumView = new AlbumViewModel
+            //{
+            //    Album = _radio.CurrentSong.Album
+            //};
 
-            var repository = new AlbumRepository(new MusCatEntities());
+            //var repository = new AlbumRepository(new MusCatEntities());
 
-            albumView.Songs = new ObservableCollection<Song>(
-                await repository.GetAlbumSongsAsync(_radio.CurrentSong.Album));
+            //albumView.Songs = new ObservableCollection<Song>(
+            //    await repository.GetAlbumSongsAsync(_radio.CurrentSong.Album));
 
-            var albumWindow = new AlbumWindow
-            {
-                DataContext = new AlbumPlaybackViewModel(albumView)
-            };
+            //var albumWindow = new AlbumWindow
+            //{
+            //    DataContext = new AlbumPlaybackViewModel(albumView)
+            //};
 
-            albumWindow.Show();
+            //albumWindow.Show();
         }
     }
 }

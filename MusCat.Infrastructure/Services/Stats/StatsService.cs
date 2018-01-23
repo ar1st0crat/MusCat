@@ -14,7 +14,7 @@ namespace MusCat.Infrastructure.Services.Stats
     /// however, in general, statistical data are not tied to databases
     /// so the class is not inherited from Repository.
     /// </summary>
-    class StatsService : IStatsService, IDisposable
+    public class StatsService : IStatsService, IDisposable
     {
         private readonly MusCatDbContext _context = new MusCatDbContext();
 

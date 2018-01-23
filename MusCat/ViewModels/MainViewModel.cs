@@ -4,10 +4,12 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using MusCat.Entities;
-using MusCat.Repositories.Base;
-using MusCat.Services;
-using MusCat.Services.Radio;
+using MusCat.Core.Entities;
+using MusCat.Core.Interfaces.Data;
+using MusCat.Infrastructure.Data;
+using MusCat.Infrastructure.Services;
+using MusCat.Infrastructure.Services.Radio;
+using MusCat.Infrastructure.Services.Stats;
 using MusCat.Utils;
 using MusCat.Views;
 
@@ -19,7 +21,7 @@ namespace MusCat.ViewModels
     /// </summary>
     class MainViewModel : ViewModelBase
     {
-        private readonly UnitOfWork _unitOfWork = new UnitOfWork();
+        private readonly IUnitOfWork _unitOfWork = new UnitOfWork();
         
         public ObservableCollection<PerformerViewModel> Performers { get; } = 
             new ObservableCollection<PerformerViewModel>();
@@ -403,9 +405,8 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            var viewmodel = new EditPerformerViewModel(SelectedPerformer)
+            var viewmodel = new EditPerformerViewModel(SelectedPerformer, _unitOfWork)
             {
-                UnitOfWork = _unitOfWork,
                 Countries = new ObservableCollection<Country>(
                                     await _unitOfWork.CountryRepository.GetAllAsync())
             };
@@ -424,14 +425,14 @@ namespace MusCat.ViewModels
             }
 
             // load songs of selected album lazily
+
             album.Songs = new ObservableCollection<Song>(
                 await _unitOfWork.AlbumRepository.GetAlbumSongsAsync(album.Album));
 
             var albumWindow = new AlbumWindow();
-            var albumViewModel = new AlbumPlaybackViewModel(album)
+            var albumViewModel = new AlbumPlaybackViewModel(album, _unitOfWork)
             {
-                Performer = SelectedPerformer,
-                UnitOfWork = _unitOfWork
+                Performer = SelectedPerformer
             };
 
             albumWindow.DataContext = albumViewModel;
@@ -452,7 +453,7 @@ namespace MusCat.ViewModels
 
             var albumWindow = new EditAlbumWindow
             {
-                DataContext = new EditAlbumViewModel(album) { UnitOfWork = _unitOfWork }
+                DataContext = new EditAlbumViewModel(album, _unitOfWork)
             };
 
             albumWindow.ShowDialog();
@@ -468,9 +469,9 @@ namespace MusCat.ViewModels
             await _unitOfWork.PerformerRepository.AddAsync(performer);
             await _unitOfWork.SaveAsync();
 
-            var viewmodel = new EditPerformerViewModel(new PerformerViewModel { Performer = performer })
+            var viewmodel = new EditPerformerViewModel(
+                new PerformerViewModel { Performer = performer }, _unitOfWork)
             {
-                UnitOfWork = _unitOfWork,
                 Countries = new ObservableCollection<Country>(
                     await _unitOfWork.CountryRepository.GetAllAsync())
             };
@@ -534,7 +535,7 @@ namespace MusCat.ViewModels
             var albumView = new AlbumViewModel { Album = album };
             var editAlbum = new EditAlbumWindow
             {
-                DataContext = new EditAlbumViewModel(albumView) { UnitOfWork = _unitOfWork }
+                DataContext = new EditAlbumViewModel(albumView, _unitOfWork )
             };
 
             editAlbum.ShowDialog();
@@ -642,10 +643,9 @@ namespace MusCat.ViewModels
             countriesWindow.ShowDialog();
         }
 
-        private async void ShowStats()
+        private void ShowStats()
         {
-            var viewModel = new StatsViewModel();
-            await viewModel.LoadStatsAsync();
+            var viewModel = new StatsViewModel(new StatsService());
 
             var statsWindow = new StatsWindow { DataContext = viewModel };
 

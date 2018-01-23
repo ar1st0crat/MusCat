@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusCat", "MusCat\MusCat.csproj", "{540190C4-CDF9-42CD-A8B6-B7CC047E7C01}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusCat.Wpf", "MusCat\MusCat.Wpf.csproj", "{540190C4-CDF9-42CD-A8B6-B7CC047E7C01}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusCat.Tests", "MusCat.Tests\MusCat.Tests.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
 EndProject

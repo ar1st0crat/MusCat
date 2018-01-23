@@ -42,7 +42,7 @@ namespace MusCat.Infrastructure.Services.Audio
         public void Play(string filename)
         {
             // if some track is currently playing, then stop it and dispose waveOut and mp3FileReader
-            StopAndDispose();
+            Close();
             
             _waveOut = new WaveOut();
 
@@ -108,7 +108,7 @@ namespace MusCat.Infrastructure.Services.Audio
         /// <summary>
         /// Stop playing current track and dispose waveOut and Mp3FileReader
         /// </summary>
-        public void StopAndDispose()
+        public void Close()
         {
             if (_waveOut == null)
             {

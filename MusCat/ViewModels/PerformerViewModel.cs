@@ -1,13 +1,12 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows.Data;
-using MusCat.Entities;
-using MusCat.Services;
+using MusCat.Core.Entities;
+using MusCat.Core.Services;
 
 namespace MusCat.ViewModels
 {
-    public class PerformerViewModel : INotifyPropertyChanged
+    public class PerformerViewModel : ViewModelBase
     {
         public Performer Performer { get; set; }
 
@@ -18,7 +17,7 @@ namespace MusCat.ViewModels
             set
             {
                 _albumCollectionRate = value;
-                RaisePropertyChanged("AlbumCollectionRate");
+                RaisePropertyChanged();
             }
         }
 
@@ -29,7 +28,7 @@ namespace MusCat.ViewModels
             set
             {
                 _albumCount = value;
-                RaisePropertyChanged("AlbumCount");
+                RaisePropertyChanged();
             }
         }
 
@@ -42,7 +41,7 @@ namespace MusCat.ViewModels
             set
             {
                 _albums = value;
-                RaisePropertyChanged("Albums");
+                RaisePropertyChanged();
             }
         }
 
@@ -61,16 +60,5 @@ namespace MusCat.ViewModels
         {
             BindingOperations.EnableCollectionSynchronization(_albums, _lock);
         }
-
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
     }
 }

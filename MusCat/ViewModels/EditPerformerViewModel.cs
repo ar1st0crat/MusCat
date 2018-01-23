@@ -1,23 +1,22 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
-using MusCat.Entities;
-using MusCat.Repositories.Base;
-using MusCat.Services;
-using MusCat.Services.Networking;
+using MusCat.Core.Entities;
+using MusCat.Core.Interfaces.Data;
+using MusCat.Infrastructure.Services;
+using MusCat.Infrastructure.Services.Networking;
 using MusCat.Utils;
 using MusCat.Views;
 
 namespace MusCat.ViewModels
 {
-    class EditPerformerViewModel : INotifyPropertyChanged
+    class EditPerformerViewModel : ViewModelBase
     {
-        public UnitOfWork UnitOfWork { get; set; }
+        private readonly IUnitOfWork _unitOfWork;
 
         public PerformerViewModel PerformerView { get; set; }
         public Performer Performer
@@ -26,7 +25,7 @@ namespace MusCat.ViewModels
             set
             {
                 PerformerView.Performer = value;
-                RaisePropertyChanged("Performer");
+                RaisePropertyChanged();
             }
         }
 
@@ -41,8 +40,10 @@ namespace MusCat.ViewModels
         public RelayCommand LoadBioCommand { get; private set; }
         public RelayCommand SavePerformerCommand { get; private set; }
 
-        public EditPerformerViewModel(PerformerViewModel performer)
+        public EditPerformerViewModel(PerformerViewModel performer, IUnitOfWork unitOfWork)
         {
+            _unitOfWork = unitOfWork;
+
             LoadImageFromFileCommand = new RelayCommand(LoadPerformerImageFromFile);
             LoadImageFromClipboardCommand = new RelayCommand(LoadPerformerImageFromClipboard);
             LoadBioCommand = new RelayCommand(async() => await LoadBioAsync());
@@ -53,8 +54,8 @@ namespace MusCat.ViewModels
 
         private async Task SavePerformerInformationAsync()
         {
-            UnitOfWork.PerformerRepository.Edit(Performer);
-            await UnitOfWork.SaveAsync();
+            _unitOfWork.PerformerRepository.Edit(Performer);
+            await _unitOfWork.SaveAsync();
         }
 
         private async Task LoadBioAsync()
@@ -124,7 +125,7 @@ namespace MusCat.ViewModels
                 File.Copy(ofd.FileName, filepath);
 
                 RaisePropertyChanged("Performer");
-                PerformerView.RaisePropertyChanged("Performer");
+                //PerformerView.RaisePropertyChanged("Performer");
             }
             catch (Exception ex)
             {
@@ -165,18 +166,7 @@ namespace MusCat.ViewModels
             }
 
             RaisePropertyChanged("Performer");
-            PerformerView.RaisePropertyChanged("Performer");
-        }
-
-        #endregion
-
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            //PerformerView.RaisePropertyChanged("Performer");
         }
 
         #endregion

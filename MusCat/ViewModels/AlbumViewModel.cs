@@ -1,11 +1,10 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Windows.Data;
-using MusCat.Entities;
+using MusCat.Core.Entities;
 
 namespace MusCat.ViewModels
 {
-    public class AlbumViewModel : INotifyPropertyChanged
+    public class AlbumViewModel : ViewModelBase
     {
         private Album _album; 
         public Album Album
@@ -14,7 +13,7 @@ namespace MusCat.ViewModels
             set
             {
                 _album = value;
-                RaisePropertyChanged("Album");
+                RaisePropertyChanged();
             }
         }
 
@@ -25,7 +24,7 @@ namespace MusCat.ViewModels
             set
             {
                 _songs = value;
-                RaisePropertyChanged("Songs");
+                RaisePropertyChanged();
             }
         }
 
@@ -35,16 +34,5 @@ namespace MusCat.ViewModels
         {
             BindingOperations.EnableCollectionSynchronization(_songs, _lock);
         }
-
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
     }
 }

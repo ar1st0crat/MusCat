@@ -12,8 +12,7 @@ namespace MusCat.Core.Entities
 
         public byte ID { get; set; }
 
-        //[Required]
-        //[StringLength(20)]
+        private string _name;
         public string Name
         {
             get { return _name; }
@@ -23,8 +22,7 @@ namespace MusCat.Core.Entities
                 RaisePropertyChanged("Name");
             }
         }
-        private string _name;
-
+        
         public virtual ICollection<Performer> Performers { get; set; }
 
 

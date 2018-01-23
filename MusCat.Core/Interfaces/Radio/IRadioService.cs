@@ -19,15 +19,8 @@ namespace MusCat.Core.Interfaces.Radio
         void Start();
         void Stop();
         
-        Action Update { get; set; }
-
-        //void StartPlaying();
-        //void PausePlaying();
-        //void ResumePlaying();
-        //void StopPlaying();
-        //void SetVolume(float volume);
-        //AudioPlayer.PlaybackState SongPlaybackState { get; }
-
+        void PlayCurrentSong();
+        
         void MakeSonglist();
         void MoveToNextSong();
         void MoveToPrevSong();
@@ -38,5 +31,7 @@ namespace MusCat.Core.Interfaces.Radio
         Task MoveToNextSongAsync();
         Task ChangeSongAsync(long songId);
         Task RemoveSongAsync(long songId);
+
+        Action Update { get; set; }
     }
 }

@@ -4,16 +4,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using MusCat.Entities;
-using MusCat.Repositories.Base;
-using MusCat.Services;
+using MusCat.Core.Entities;
+using MusCat.Core.Interfaces.Audio;
+using MusCat.Core.Interfaces.Data;
+using MusCat.Infrastructure.Services;
+using MusCat.Infrastructure.Services.Audio;
 using MusCat.Utils;
 
 namespace MusCat.ViewModels
 {
     class AlbumPlaybackViewModel : ViewModelBase
     {
-        public UnitOfWork UnitOfWork { get; set; }
+        private readonly IUnitOfWork _unitOfWork;
 
         public PerformerViewModel Performer { get; set; }
         public AlbumViewModel AlbumView { get; set; }
@@ -92,8 +94,10 @@ namespace MusCat.ViewModels
         private bool _isDragged;
 
 
-        public AlbumPlaybackViewModel(AlbumViewModel viewmodel)
+        public AlbumPlaybackViewModel(AlbumViewModel viewmodel, IUnitOfWork unitOfWork)
         {
+            _unitOfWork = unitOfWork;
+
             // setting up commands
             PlaybackCommand = new RelayCommand(PlaybackSongAction);
             UpdateRateCommand = new RelayCommand(UpdateRate);
@@ -103,7 +107,7 @@ namespace MusCat.ViewModels
             WindowClosingCommand = new RelayCommand(() =>
             {
                 _isStopped = true;
-                _player.StopAndDispose();
+                _player.Close();
             });
             
             // toggle the _isDragged variable
@@ -168,7 +172,7 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            if (_player.SongPlaybackState != AudioPlayer.PlaybackState.Stop)
+            if (_player.SongPlaybackState != PlaybackState.Stop)
             {
                 _player.Stop();
             }
@@ -198,11 +202,11 @@ namespace MusCat.ViewModels
         {
             switch (_player.SongPlaybackState)
             {
-                case AudioPlayer.PlaybackState.Play:
+                case PlaybackState.Play:
                     _player.Pause();
                     PlaybackImage = ImagePlay;
                     break;
-                case AudioPlayer.PlaybackState.Pause:
+                case PlaybackState.Pause:
                     _player.Resume();
                     PlaybackImage = ImagePause;
                     break;
@@ -217,7 +221,7 @@ namespace MusCat.ViewModels
         {
             // if the slider value was changed with timer (not by user) 
             // or the song is stopped
-            if (!_isDragged || _player.SongPlaybackState == AudioPlayer.PlaybackState.Stop)
+            if (!_isDragged || _player.SongPlaybackState == PlaybackState.Stop)
             {
                 // then do nothing
                 return;
@@ -235,8 +239,8 @@ namespace MusCat.ViewModels
         /// </summary>
         private void UpdateRate()
         {
-            UnitOfWork?.AlbumRepository.Edit(Album);
-            UnitOfWork?.Save();
+            _unitOfWork?.AlbumRepository.Edit(Album);
+            _unitOfWork?.Save();
             Performer?.UpdateAlbumCollectionRate();
         }
     }

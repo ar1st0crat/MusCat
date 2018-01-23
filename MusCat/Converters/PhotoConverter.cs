@@ -2,6 +2,8 @@
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
+using MusCat.Core.Entities;
+using MusCat.Infrastructure.Services;
 
 namespace MusCat.Converters
 {
@@ -15,7 +17,7 @@ namespace MusCat.Converters
         private const string NoAlbumImage = @"../Images/vinyl_blue.png";
 
         /// <summary>
-        /// Basic convertion
+        /// Basic conversion
         /// </summary>
         /// <param name="parameter">The height of a thumbnail image, or null if the original image should be returned</param>
         /// <returns></returns>

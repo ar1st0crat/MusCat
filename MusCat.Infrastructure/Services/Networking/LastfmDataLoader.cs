@@ -8,7 +8,7 @@ using MusCat.Core.Interfaces.Networking;
 
 namespace MusCat.Infrastructure.Services.Networking
 {
-    class LastfmDataLoader : IWebDataLoader
+    public class LastfmDataLoader : IWebDataLoader
     {
         private readonly string[] _newlineTags =
         {

@@ -1,18 +1,16 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using MusCat.Entities;
-using MusCat.Repositories.Base;
+using MusCat.Core.Entities;
+using MusCat.Core.Interfaces.Data;
 using MusCat.Utils;
 
 namespace MusCat.ViewModels
 {
-    class CountriesViewModel : INotifyPropertyChanged
+    class CountriesViewModel : ViewModelBase
     {
-        //public UnitOfWork UnitOfWork { get; set; }
-        private readonly UnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
         private ObservableCollection<Country> _countrylist;
         public ObservableCollection<Country> Countrylist
@@ -21,7 +19,7 @@ namespace MusCat.ViewModels
             set
             {
                 _countrylist = value;
-                RaisePropertyChanged("Countrylist");
+                RaisePropertyChanged();
             }
         }
 
@@ -40,12 +38,12 @@ namespace MusCat.ViewModels
             set
             {
                 _dialogResult = value;
-                RaisePropertyChanged("DialogResult");
+                RaisePropertyChanged();
             }
         }
 
 
-        public CountriesViewModel(UnitOfWork unitOfWork)
+        public CountriesViewModel(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
             _countrylist = new ObservableCollection<Country>(_unitOfWork.CountryRepository.GetAll());
@@ -91,16 +89,5 @@ namespace MusCat.ViewModels
             _unitOfWork.CountryRepository.Edit(Countrylist[SelectedCountryIndex]);
             _unitOfWork.Save();
         }
-
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
     }
 }

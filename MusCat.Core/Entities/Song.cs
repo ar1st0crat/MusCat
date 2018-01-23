@@ -5,10 +5,8 @@ namespace MusCat.Core.Entities
 {
     public class Song : INotifyPropertyChanged, IDataErrorInfo
     {
-        public long AlbumID { get; set; }
-
-        //[DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long ID { get; set; }
+        public long AlbumID { get; set; }
 
         public byte TrackNo
         {
@@ -20,8 +18,6 @@ namespace MusCat.Core.Entities
             }
         }
 
-        //[Required]
-        //[StringLength(50)]
         public string Name
         {
             get { return _name; }
@@ -31,9 +27,7 @@ namespace MusCat.Core.Entities
                 RaisePropertyChanged("Name");
             }
         }
-        
-        //[Required]
-        //[StringLength(6)]
+
         public string TimeLength
         {
             get { return _timeLength; }

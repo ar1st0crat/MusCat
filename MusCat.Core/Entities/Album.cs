@@ -4,32 +4,19 @@ namespace MusCat.Core.Entities
 {
     public class Album
     {
+        public long ID { get; set; }
+        public long PerformerID { get; set; }
+        public string Name { get; set; }
+        public short ReleaseYear { get; set; }
+        public string TotalTime { get; set; }
+        public string Info { get; set; }
+        public byte? Rate { get; set; }
+        public virtual Performer Performer { get; set; }
+        public virtual ICollection<Song> Songs { get; set; }
+
         public Album()
         {
             Songs = new HashSet<Song>();
         }
-
-        public long PerformerID { get; set; }
-
-        //[DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long ID { get; set; }
-
-        //[Required]
-        //[StringLength(40)]
-        public string Name { get; set; }
-
-        public short ReleaseYear { get; set; }
-
-        //[StringLength(6)]
-        public string TotalTime { get; set; }
-
-        //[Column(TypeName = "text")]
-        public string Info { get; set; }
-
-        public byte? Rate { get; set; }
-
-        public virtual Performer Performer { get; set; }
-
-        public virtual ICollection<Song> Songs { get; set; }
     }
 }

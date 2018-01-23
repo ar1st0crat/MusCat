@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using LiveCharts;
 using LiveCharts.Wpf;
-using MusCat.Entities;
-using MusCat.Services.Stats;
+using MusCat.Core.Entities;
+using MusCat.Core.Interfaces.Stats;
 
 namespace MusCat.ViewModels
 {
     class StatsViewModel : ViewModelBase
     {
-        private readonly StatsService _stats;
+        private readonly IStatsService _stats;
 
         private long _performerCount;
         public long PerformerCount
@@ -36,13 +36,63 @@ namespace MusCat.ViewModels
             }
         }
 
-        public long SongCount { get; set; }
+        private long _songCount;
+        public long SongCount
+        {
+            get { return _songCount; }
+            set
+            {
+                _songCount = value;
+                RaisePropertyChanged();
+            }
+        }
 
-        public List<Album> LatestAlbums { get; set; }
+        public const int LatestAlbumsCount = 7;
 
-        public SeriesCollection Decades { get; set; }
-        public SeriesCollection Countries { get; set; }
-        public string[] Labels { get; set; }
+        private List<Album> _latestAlbums;
+        public List<Album> LatestAlbums
+        {
+            get { return _latestAlbums; }
+            set
+            {
+                _latestAlbums = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private SeriesCollection _decades;
+        public SeriesCollection Decades
+        {
+            get { return _decades; }
+            set
+            {
+                _decades = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private SeriesCollection _countries;
+        public SeriesCollection Countries
+        {
+            get { return _countries; }
+            set
+            {
+                _countries = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string[] _labels;
+        public string[] Labels
+        {
+            get { return _labels; }
+            set
+            {
+                _labels = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public Func<double, string> Formatter { get; set; }
         public ColorsCollection SeriesColor { get; set; } =
             new ColorsCollection
@@ -65,7 +115,7 @@ namespace MusCat.ViewModels
 
             // most recently added albums 
 
-            LatestAlbums = (await _stats.GetLatestAlbumsAsync()).ToList();
+            LatestAlbums = (await _stats.GetLatestAlbumsAsync(LatestAlbumsCount)).ToList();
 
 
             // bar chart "decades - album count - average album rate"

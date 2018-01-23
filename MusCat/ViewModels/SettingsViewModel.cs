@@ -1,14 +1,13 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Input;
-using MusCat.Services;
+using MusCat.Infrastructure.Services;
 using MusCat.Utils;
 
 namespace MusCat.ViewModels
 {
-    class SettingsViewModel : INotifyPropertyChanged
+    class SettingsViewModel : ViewModelBase
     {
         private ObservableCollection<string> _pathlist; 
         public ObservableCollection<string> Pathlist
@@ -17,7 +16,7 @@ namespace MusCat.ViewModels
             set
             {
                 _pathlist = value;
-                RaisePropertyChanged("Pathlist");
+                RaisePropertyChanged();
             }
         }
 
@@ -35,7 +34,7 @@ namespace MusCat.ViewModels
             set
             {
                 _dialogResult = value;
-                RaisePropertyChanged("DialogResult");
+                RaisePropertyChanged();
             }
         }
 
@@ -74,16 +73,5 @@ namespace MusCat.ViewModels
 
             Pathlist = new ObservableCollection<string>(FileLocator.Pathlist);
         }
-
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
     }
 }

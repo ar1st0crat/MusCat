@@ -58,7 +58,7 @@ namespace MusCat.Core.Interfaces.Audio
         /// <summary>
         /// Stop playing current track and dispose waveOut and Mp3FileReader
         /// </summary>
-        void StopAndDispose();
+        void Close();
 
         /// <summary>
         /// 

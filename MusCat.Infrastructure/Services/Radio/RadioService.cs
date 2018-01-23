@@ -18,7 +18,7 @@ namespace MusCat.Infrastructure.Services.Radio
     /// and their asynchronous analogs
     /// 
     /// </summary>
-    class RadioService : IRadioService
+    public class RadioService : IRadioService
     {
         public const int MaxSongs = 10;
 
@@ -49,7 +49,7 @@ namespace MusCat.Infrastructure.Services.Radio
 
         public void Start()
         {
-            StartPlaying();
+            PlayCurrentSong();
 
             // There's one general task associated with the radio
             // whose purpose is to play whatever active song in the background thread
@@ -70,10 +70,10 @@ namespace MusCat.Infrastructure.Services.Radio
         public void Stop()
         {
             _isStopped = true;
-            _player.StopAndDispose();
+            _player.Close();
         }
 
-        public void StartPlaying()
+        public void PlayCurrentSong()
         {
             if (_player.SongPlaybackState != PlaybackState.Stop)
             {
@@ -91,28 +91,6 @@ namespace MusCat.Infrastructure.Services.Radio
                 MoveToNextSong();
             }
         }
-
-        //public void PausePlaying()
-        //{
-        //    _player.Pause();
-        //}
-
-        //public void ResumePlaying()
-        //{
-        //    _player.Resume();
-        //}
-
-        //public void StopPlaying()
-        //{
-        //    _player.Stop();
-        //}
-
-        //public void SetVolume(float volume)
-        //{
-        //    _player.SetVolume(volume);
-        //}
-
-        //public AudioPlayer.PlaybackState SongPlaybackState => _player.SongPlaybackState;
 
         #endregion
 
@@ -156,7 +134,7 @@ namespace MusCat.Infrastructure.Services.Radio
 
             Update?.Invoke();
 
-            StartPlaying();
+            PlayCurrentSong();
         }
 
         public void MoveToPrevSong()
@@ -178,7 +156,7 @@ namespace MusCat.Infrastructure.Services.Radio
 
             Update?.Invoke();
 
-            StartPlaying();
+            PlayCurrentSong();
         }
         
         /// <summary>
@@ -283,7 +261,7 @@ namespace MusCat.Infrastructure.Services.Radio
             await AddRandomSongAsync().ConfigureAwait(false);
 
             Update?.Invoke();
-            StartPlaying();
+            PlayCurrentSong();
         }
 
         public async Task ChangeSongAsync(long songId)

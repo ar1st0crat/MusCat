@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
-using MusCat.Entities;
+using MusCat.Core.Entities;
 
 namespace MusCat.Converters
 {

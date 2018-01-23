@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MusCat.Core.Entities;
-using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Data;
 
 namespace MusCat.Infrastructure.Data
 {
-    class UnitOfWork : IUnitOfWork, IDisposable
+    public class UnitOfWork : IUnitOfWork, IDisposable
     {
         private readonly MusCatDbContext _context = new MusCatDbContext();
 

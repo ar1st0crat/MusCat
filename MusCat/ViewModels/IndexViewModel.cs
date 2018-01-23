@@ -1,8 +1,6 @@
-﻿using System.ComponentModel;
-
-namespace MusCat.ViewModels
+﻿namespace MusCat.ViewModels
 {
-    class IndexViewModel : INotifyPropertyChanged
+    class IndexViewModel : ViewModelBase
     {
         public string Text { get; set; }
 
@@ -13,19 +11,8 @@ namespace MusCat.ViewModels
             set
             {
                 _isActive = value;
-                RaisePropertyChanged("IsActive");
+                RaisePropertyChanged();
             }
         }
-
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
     }
 }
