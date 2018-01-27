@@ -47,19 +47,25 @@
     <Compile Include="Entities\Musician.cs" />
     <Compile Include="Entities\Performer.cs" />
     <Compile Include="Entities\Song.cs" />
-    <Compile Include="Interfaces\Audio\IAudioPlayer.cs" />
+    <Compile Include="Interfaces\IAudioPlayer.cs" />
     <Compile Include="Interfaces\Data\IAlbumRepository.cs" />
     <Compile Include="Interfaces\Data\IPerformerRepository.cs" />
     <Compile Include="Interfaces\Data\IRepository.cs" />
     <Compile Include="Interfaces\Data\IUnitOfWork.cs" />
     <Compile Include="Interfaces\Networking\IWebDataLoader.cs" />
     <Compile Include="Interfaces\Data\PageCollection.cs" />
-    <Compile Include="Interfaces\Radio\IRadioService.cs" />
+    <Compile Include="Interfaces\IRadioService.cs" />
     <Compile Include="Interfaces\Stats\DecadeAlbumsStats.cs" />
     <Compile Include="Interfaces\Stats\IStatsService.cs" />
-    <Compile Include="Interfaces\Songlist\ISonglistHelper.cs" />
+    <Compile Include="Interfaces\ISonglistHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Interfaces\IRateCalculator.cs" />
+    <Compile Include="Services\AlbumService.cs" />
+    <Compile Include="Services\CountryService.cs" />
+    <Compile Include="Services\PerformerService.cs" />
     <Compile Include="Services\RateCalculator.cs" />
+    <Compile Include="Services\Result.cs" />
+    <Compile Include="Services\ResultType.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

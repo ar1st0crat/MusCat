@@ -15,11 +15,11 @@ namespace MusCat.Infrastructure.Data
         {
             // manual autoincrement
             var lastId = await Context.Songs
-                                      .Select(s => s.ID)
+                                      .Select(s => s.Id)
                                       .DefaultIfEmpty(0)
                                       .MaxAsync()
                                       .ConfigureAwait(false);
-            entity.ID = ++lastId;
+            entity.Id = ++lastId;
             Add(entity);
         }
     }

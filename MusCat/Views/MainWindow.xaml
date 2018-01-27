@@ -72,7 +72,7 @@
         <Style x:Key="RateTextBlock" TargetType="TextBlock">
             <Setter Property="Visibility" Value="Hidden"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding Album.Rate}" Value="{x:Null}">
+                <DataTrigger Binding="{Binding Rate}" Value="{x:Null}">
                     <Setter Property="Visibility" Value="Visible"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -90,13 +90,13 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" 
-                               Text="{Binding Path=Album.ID, StringFormat=#{0}}"
+                               Text="{Binding Path=Id, StringFormat=#{0}}"
                                TextWrapping="WrapWithOverflow" 
                                FontSize="12" FontFamily="Segoe UI" 
                                Foreground="Black"
                                Margin="0,-1,0,-1" />
                     <Image Grid.Row="1" 
-                           Source="{Binding Path=Album, Converter={StaticResource PhotoConverter},
+                           Source="{Binding Converter={StaticResource PhotoConverter},
                                             ConverterParameter={StaticResource AlbumImageHeight},
                                             UpdateSourceTrigger=PropertyChanged}"
                            Height="{StaticResource AlbumImageHeight}"
@@ -108,26 +108,26 @@
                         </Image.Effect>
                     </Image>
                     <TextBlock Grid.Row="2" 
-                               Text="{Binding Path=Album.Name}"
+                               Text="{Binding Path=Name}"
                                TextAlignment="Center" TextWrapping="WrapWithOverflow"
                                VerticalAlignment="Center" 
                                Margin="1" Width="150"
                                FontSize="14" FontFamily="Segoe UI"
                                Foreground="LightYellow" />
                     <TextBlock Grid.Row="3" 
-                               Text="{Binding Path=Album.ReleaseYear}"
+                               Text="{Binding Path=ReleaseYear}"
                                TextWrapping="WrapWithOverflow" TextAlignment="Center"
                                Margin="1" Width="110"
                                FontSize="12" FontFamily="Segoe UI"
                                Foreground="#ffbb88" />
                     <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <controls:RateStarsControl Rate="{Binding Path=Album.Rate}"
+                        <controls:RateStarsControl Rate="{Binding Path=Rate}"
                                                    Height="20" Width="100"
                                                    IsEnabled="False" />
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Path=Album.Rate}" Value="{x:Null}">
+                                    <DataTrigger Binding="{Binding Path=Rate}" Value="{x:Null}">
                                         <Setter Property="Visibility" Value="Hidden"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -136,7 +136,7 @@
                     </StackPanel>
                     <TextBlock Grid.Row="4"
                                Style="{StaticResource RateTextBlock}"
-                               Text="{Binding Path=Album, Converter={StaticResource RateConverter}}"
+                               Text="{Binding Converter={StaticResource RateConverter}}"
                                FontSize="12"
                                Foreground="Black"
                                HorizontalAlignment="Center" Margin="5"/>
@@ -177,14 +177,14 @@
                 -->
                 <Ellipse Width="95" Height="95" Margin="15,10,15,15">
                     <Ellipse.Fill>
-                        <ImageBrush ImageSource="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
+                        <ImageBrush ImageSource="{Binding Converter={StaticResource PhotoConverter},
                                                           ConverterParameter={StaticResource PerformerPhotoHeight},
                                                           UpdateSourceTrigger=PropertyChanged}"
                                     Stretch="UniformToFill"/>
                     </Ellipse.Fill>
                 </Ellipse>
                 <StackPanel>
-                    <Label Content="{Binding Path=Performer.Name}"
+                    <Label Content="{Binding Path=Name}"
                            FontSize="24" FontFamily="Stencil" 
                            Foreground="LightYellow"
                            Padding="0,5,0,0" />
@@ -205,7 +205,7 @@
                            FontSize="16" FontFamily="Arial Narrow"
                            Foreground="LightPink"
                            Padding="1" />
-                    <Label Content="{Binding Path=Performer, Converter={StaticResource YearsConverter}}"
+                    <Label Content="{Binding Converter={StaticResource YearsConverter}}"
                            FontSize="16" FontFamily="Arial Narrow"
                            Foreground="LightGreen"
                            Padding="1" />
@@ -237,7 +237,7 @@
                         -->
                         <Ellipse Width="200" Height="140" Margin="15,10,15,5">
                             <Ellipse.Fill>
-                                <ImageBrush ImageSource="{Binding Path=Performer, Converter={StaticResource PhotoConverter},
+                                <ImageBrush ImageSource="{Binding Converter={StaticResource PhotoConverter},
                                             ConverterParameter={StaticResource SelectedPerformerPhotoHeight},
                                             UpdateSourceTrigger=PropertyChanged}"
                                         Stretch="UniformToFill"/>
@@ -255,12 +255,12 @@
                                 <DropShadowEffect Color="Black" BlurRadius="10"/>
                             </Label.Effect>
                         </Label>
-                        <Label Content="{Binding Performer.Name}"
+                        <Label Content="{Binding Name}"
                                FontSize="26" FontFamily="Stencil"
                                Foreground="Black"
                                Margin="0,-10,0,0" HorizontalAlignment="Center" />
                         <StackPanel HorizontalAlignment="Center" Margin="0,-5,0,15">
-                            <Label Content="{Binding Performer.Country.Name}"
+                            <Label Content="{Binding Country.Name}"
                                    FontSize="16" FontFamily="Arial Narrow"
                                    Foreground="Black"
                                    Padding="1" HorizontalAlignment="Center" />

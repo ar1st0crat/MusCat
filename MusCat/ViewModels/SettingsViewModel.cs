@@ -67,7 +67,7 @@ namespace MusCat.ViewModels
             OkCommand = new RelayCommand(() =>
             {
                 FileLocator.Pathlist = Pathlist.ToList();
-                FileLocator.SaveConfigFile();
+                FileLocator.SaveConfiguration();
                 DialogResult = true;
             });
 

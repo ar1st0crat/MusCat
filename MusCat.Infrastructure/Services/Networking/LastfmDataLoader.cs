@@ -20,9 +20,9 @@ namespace MusCat.Infrastructure.Services.Networking
             "<em>", "</em>", "<strong>", "</strong>", "</a>"
         };
 
-        public async Task<string> LoadBioAsync(Performer performer)
+        public async Task<string> LoadBioAsync(string name)
         {
-            var url = string.Format(@"https://www.last.fm/music/{0}/+wiki", performer.Name);
+            var url = string.Format(@"https://www.last.fm/music/{0}/+wiki", name);
 
             using (var client = new HttpClient())
             {

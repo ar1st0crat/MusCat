@@ -1,9 +1,9 @@
 ﻿using System;
-using MusCat.Core.Interfaces.Audio;
+using MusCat.Core.Interfaces;
 using NAudio.Wave;
-using PlaybackState = MusCat.Core.Interfaces.Audio.PlaybackState;
+using PlaybackState = MusCat.Core.Interfaces.PlaybackState;
 
-namespace MusCat.Infrastructure.Services.Audio
+namespace MusCat.Infrastructure.Services
 {
     /// <summary>
     /// Simple mp3 player wrapped around NAudio.WaveOut and NAudio.Mp3FileReader
@@ -95,14 +95,17 @@ namespace MusCat.Infrastructure.Services.Audio
         /// Evaluates the percent of elapsed time according to current playback position in Mp3FileReader
         /// </summary>
         /// <returns>The percent of elapsed time (0.0-1.0)</returns>
-        public double TimePercent()
+        public double TimePercent
         {
-            if (_mp3Reader == null)
+            get
             {
-                return 0.0;
-            }
+                if (_mp3Reader == null)
+                {
+                    return 0.0;
+                }
 
-            return _mp3Reader.CurrentTime.TotalSeconds / _mp3Reader.TotalTime.TotalSeconds;
+                return _mp3Reader.CurrentTime.TotalSeconds / _mp3Reader.TotalTime.TotalSeconds;
+            }
         }
 
         /// <summary>
@@ -130,9 +133,7 @@ namespace MusCat.Infrastructure.Services.Audio
             }
         }
 
-        public bool IsStopped()
-        {
-            return _waveOut == null || _waveOut.PlaybackState == NAudio.Wave.PlaybackState.Stopped;
-        }
+        public bool IsStopped => 
+            _waveOut == null || _waveOut.PlaybackState == NAudio.Wave.PlaybackState.Stopped;
     }
 }

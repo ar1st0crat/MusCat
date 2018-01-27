@@ -1,7 +1,6 @@
-using System.Collections.ObjectModel;
-using MusCat.Core.Entities;
+using System.Collections.Generic;
 
-namespace MusCat.Core.Interfaces.Songlist
+namespace MusCat.Core.Interfaces
 {
     /// <summary>
     /// ISonglistHelper interface defines methods for:
@@ -14,25 +13,31 @@ namespace MusCat.Core.Interfaces.Songlist
         /// <summary>
         /// Method iterates through all song files in given directory,
         /// parses each file
-        /// and returns the collection of ready Song objects
+        /// and returns the collection of ready SongEntry objects
         /// </summary>
         /// <param name="folder">The directory where to parse song files</param>
-        /// <param name="album">The album containing the songs to parse</param>
-        /// <param name="songs">The songs filled with information extracted from song files</param>
-        void Parse(string folder, Album album, ObservableCollection<Song> songs);
+        /// <returns>Songs with titles and durations extracted from song files</returns>
+        List<SongEntry> Parse(string folder);
 
         /// <summary>
         /// Method corrects song titles.
         /// </summary>
-        /// <param name="songs">Collection of songs</param>
-        void FixNames(ObservableCollection<Song> songs);
+        /// <param name="songs">Collection of song titles</param>
+        void FixTitles(IList<SongEntry> songs);
 
         /// <summary>
         /// Method corrects the duration time of each song 
         /// and computes the total duration time of all songs.
         /// </summary>
-        /// <param name="songs">Collection of songs</param>
+        /// <param name="songs">Collection of song durations</param>
         /// <returns>The total duration of songs in format 'm:ss'</returns>
-        string FixTimes(ObservableCollection<Song> songs);
+        string FixDurations(IList<SongEntry> songs);
+    }
+
+    public class SongEntry
+    {
+        public byte No { get; set; }
+        public string Title { get; set; }
+        public string Duration { get; set; }
     }
 }

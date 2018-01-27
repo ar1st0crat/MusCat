@@ -1,19 +1,21 @@
 ﻿using System.Collections.ObjectModel;
-using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using AutoMapper;
 using MusCat.Core.Entities;
-using MusCat.Core.Interfaces.Data;
+using MusCat.Core.Services;
 using MusCat.Utils;
+using MusCat.ViewModels.Entities;
 
 namespace MusCat.ViewModels
 {
     class CountriesViewModel : ViewModelBase
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly CountryService _countryService;
 
-        private ObservableCollection<Country> _countrylist;
-        public ObservableCollection<Country> Countrylist
+        private ObservableCollection<CountryViewModel> _countrylist;
+        public ObservableCollection<CountryViewModel> Countrylist
         {
             get { return _countrylist; }
             set
@@ -43,51 +45,70 @@ namespace MusCat.ViewModels
         }
 
 
-        public CountriesViewModel(IUnitOfWork unitOfWork)
+        public CountriesViewModel(CountryService countryService)
         {
-            _unitOfWork = unitOfWork;
-            _countrylist = new ObservableCollection<Country>(_unitOfWork.CountryRepository.GetAll());
-
+            _countryService = countryService;
+            
             AddCommand = new RelayCommand(AddCountry);
             RemoveCommand = new RelayCommand(RemoveCountry);
-            ReplaceCommand = new RelayCommand(ReplaceCountry);
+            ReplaceCommand = new RelayCommand(UpdateCountry);
             OkCommand = new RelayCommand(() => { DialogResult = true; });
+
+            LoadCountriesAsync();
+        }
+
+        public async Task LoadCountriesAsync()
+        {
+            var countryModels = await _countryService.GetAllCountriesAsync();
+            Countrylist = new ObservableCollection<CountryViewModel>();
+            Mapper.Map(countryModels, Countrylist);
         }
 
         public void AddCountry()
         {
-            if (CountryInput == "")
+            var result = _countryService.AddCountry(CountryInput);
+
+            if (result.Type != ResultType.Ok)
             {
-                MessageBox.Show("You can't add empty country!");
+                MessageBox.Show(result.Error);
                 return;
             }
-
-            if (Countrylist.Select(c => c.Name).Any(n => n == CountryInput))
-            {
-                MessageBox.Show("The specified country is already in the list!");
-                return;
-            }
-
-            var country = new Country { Name = CountryInput };
-            _unitOfWork.CountryRepository.Add(country);
-            _unitOfWork.Save();
-
-            Countrylist.Add(country);
+            
+            Countrylist.Add(Mapper.Map<Country, CountryViewModel>(result.Data));
         }
 
         public void RemoveCountry()
         {
-            _unitOfWork.CountryRepository.Delete(Countrylist[SelectedCountryIndex]);
-            _unitOfWork.Save();
+            var selectedCountry = Countrylist[SelectedCountryIndex];
+            var result = _countryService.RemoveCountry(selectedCountry.Id);
+
+            if (result.Type != ResultType.Ok)
+            {
+                MessageBox.Show(result.Error);
+                return;
+            }
 
             Countrylist.RemoveAt(SelectedCountryIndex);
         }
 
-        public void ReplaceCountry()
+        public void UpdateCountry()
         {
-            Countrylist[SelectedCountryIndex].Name = CountryInput;
-            _unitOfWork.CountryRepository.Edit(Countrylist[SelectedCountryIndex]);
-            _unitOfWork.Save();
+            if (SelectedCountryIndex < 0)
+            {
+                MessageBox.Show("Choose the country first");
+                return;
+            }
+
+            var selectedCountry = Countrylist[SelectedCountryIndex];
+            var result = _countryService.UpdateCountry(selectedCountry.Id, CountryInput);
+
+            if (result.Type != ResultType.Ok)
+            {
+                MessageBox.Show(result.Error);
+                return;
+            }
+
+            Countrylist[SelectedCountryIndex] = Mapper.Map<Country, CountryViewModel>(result.Data);
         }
     }
 }

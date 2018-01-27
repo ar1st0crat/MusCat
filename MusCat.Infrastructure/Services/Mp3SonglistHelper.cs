@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MusCat.Core.Entities;
-using MusCat.Core.Interfaces.Songlist;
+using MusCat.Core.Interfaces;
 using TagLib;
 
-namespace MusCat.Infrastructure.Services.Songlist
+namespace MusCat.Infrastructure.Services
 {
     /// <summary>
     /// Class Mp3SonglistParser is responsible for:
@@ -22,25 +21,23 @@ namespace MusCat.Infrastructure.Services.Songlist
         /// and returns the collection of ready Song objects
         /// </summary>
         /// <param name="folder">The directory where to parse mp3 files</param>
-        /// <param name="album">The album containing the songs we are parsing</param>
-        /// <param name="songs">The songs filled with information extracted from mp3 files</param>
-        public void Parse(string folder, Album album, ObservableCollection<Song> songs)
+        /// <returns>Tuples of song titles and durations extracted from song files</returns>
+        public List<SongEntry> Parse(string folder)
         {
-            var i = 0;
+            var songs = new List<SongEntry>();
+
+            var i = 1;
             foreach (var filename in Directory.GetFiles(folder, "*.mp3"))
             {
-                if (i == songs.Count)
-                {
-                    songs.Add(new Song { ID = -1, AlbumID = album.ID });
-                }
-
                 using (var file = TagLib.File.Create(filename))
                 {
+                    var song = new SongEntry();
+
                     var v2Tag = file.GetTag(TagTypes.Id3v2) as TagLib.Id3v2.Tag;
 
                     if (v2Tag?.Title != null)
                     {
-                        songs.ElementAt(i).Name = v2Tag.Title;
+                        song.Title = v2Tag.Title;
                     }
                     else
                     {
@@ -48,20 +45,22 @@ namespace MusCat.Infrastructure.Services.Songlist
 
                         if (v1Tag?.Title != null)
                         {
-                            songs.ElementAt(i).Name = v1Tag.Title;
+                            song.Title = v1Tag.Title;
                         }
                         else
                         {
-                            songs.ElementAt(i).Name = Path.GetFileNameWithoutExtension(filename);
+                            song.Title = Path.GetFileNameWithoutExtension(filename);
                         }
                     }
 
-                    songs.ElementAt(i).TrackNo = (byte)(i + 1);
-                    songs.ElementAt(i).TimeLength = file.Properties.Duration.ToString(@"m\:ss");
-                }
+                    song.No = (byte)(i++);
+                    song.Duration = file.Properties.Duration.ToString(@"m\:ss");
 
-                i++;
+                    songs.Add(song);
+                }
             }
+
+            return songs;
         }
 
         /// <summary>
@@ -89,7 +88,7 @@ namespace MusCat.Infrastructure.Services.Songlist
         /// 
         /// </summary>
         /// <param name="songs">Collection of songs</param>
-        public void FixNames(ObservableCollection<Song> songs)
+        public void FixTitles(IList<SongEntry> songs)
         {
             var punctuation = new[] { '.', ',', '?', '!', ':', ';', '(', ')', '/', '\\'};//, '"' };
 
@@ -97,11 +96,11 @@ namespace MusCat.Infrastructure.Services.Songlist
 
             foreach (var song in songs)
             {
-                song.TrackNo = trackNo++;
+                song.No = trackNo++;
 
                 // first, trim string
 
-                var title = song.Name.Replace("_", " ").Trim();
+                var title = song.Title.Replace("_", " ").Trim();
 
                 if (title.Length == 0)
                 {
@@ -149,7 +148,7 @@ namespace MusCat.Infrastructure.Services.Songlist
                     }
                 }
 
-                song.Name = title;
+                song.Title = title;
             }
         }
 
@@ -164,7 +163,7 @@ namespace MusCat.Infrastructure.Services.Songlist
         /// </summary>
         /// <param name="songs">Collection of songs</param>
         /// <returns>The total duration of songs in format 'm:ss'</returns>
-        public string FixTimes(ObservableCollection<Song> songs)
+        public string FixDurations(IList<SongEntry> songs)
         {
             var totalMinutes = 0;
             var totalSeconds = 0;
@@ -173,7 +172,7 @@ namespace MusCat.Infrastructure.Services.Songlist
             {
                 // fix each record if there's a need
 
-                var parts = song.TimeLength.Split(':')
+                var parts = song.Duration.Split(':')
                                 .Select(s => "0" + s)
                                 .ToArray();
 
@@ -185,7 +184,7 @@ namespace MusCat.Infrastructure.Services.Songlist
                     seconds = int.Parse(parts[1].Digits());
                 }
                 
-                song.TimeLength = string.Format("{0}:{1:00}", minutes, seconds);
+                song.Duration = string.Format("{0}:{1:00}", minutes, seconds);
 
                 totalMinutes += minutes;
                 totalSeconds += seconds;

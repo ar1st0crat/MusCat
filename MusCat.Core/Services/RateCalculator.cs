@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using MusCat.Core.Entities;
+using MusCat.Core.Interfaces;
 
 namespace MusCat.Core.Services
 {
-    public class RateCalculator
+    public class RateCalculator : IRateCalculator
     {
         /// <summary>
         /// The total rate of performer's album collection is calculated 

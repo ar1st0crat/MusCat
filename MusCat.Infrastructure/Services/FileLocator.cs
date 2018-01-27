@@ -27,23 +27,8 @@ namespace MusCat.Infrastructure.Services
         /// If MusCat app is launched for the first time or the config file is corrupted,
         /// user is asked to specify paths
         /// </summary>
-        public static void Initialize()
+        public static void LoadConfiguration()
         {
-            // open config file paths.xml
-            //if (!File.Exists(@"config\paths.xml"))
-            //{
-            //    Directory.CreateDirectory("config");
-
-            //    MessageBox.Show("Please specify folders for MusCat to look for media files");
-
-            //    var settingsWindow = new SettingsWindow();
-            //    if (settingsWindow.ShowDialog() == false)
-            //    {
-            //        MessageBox.Show("Default path will be used: " + Pathlist.FirstOrDefault());
-            //        return;
-            //    }
-            //}
-
             using (var reader = XmlReader.Create(@"config\paths.xml"))
             {
                 Pathlist.Clear();
@@ -68,7 +53,7 @@ namespace MusCat.Infrastructure.Services
         /// <summary>
         /// Save pathlist to config file paths.xml
         /// </summary>
-        public static void SaveConfigFile()
+        public static void SaveConfiguration()
         {
             Directory.CreateDirectory("config");
 
@@ -84,7 +69,22 @@ namespace MusCat.Infrastructure.Services
                 writer.WriteEndElement();
             }
         }
-                
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static bool MustBeConfigured()
+        {
+            if (File.Exists(@"config\paths.xml"))
+            {
+                return false;
+            }
+
+            Directory.CreateDirectory("config");
+            return true;
+        }
+
         /// <summary>
         /// Look for image file with performer's photo
         /// </summary>
@@ -169,7 +169,7 @@ namespace MusCat.Infrastructure.Services
                 return "";
             }
 
-            var regex = new Regex(@"\b(?i)" + album.ID + ".(png|jpe?g|gif|bmp)");
+            var regex = new Regex(@"\b(?i)" + album.Id + ".(png|jpe?g|gif|bmp)");
 
             foreach (var rootPath in Pathlist)
             {
@@ -215,7 +215,7 @@ namespace MusCat.Infrastructure.Services
                 {
                     pathlist.Add(string.Format(@"{0}\Picture\{1}.{2}",
                                                 path, 
-                                                album.ID,
+                                                album.Id,
                                                 ext));
                     return pathlist;
                 }
@@ -226,7 +226,7 @@ namespace MusCat.Infrastructure.Services
                                                 rootPath,
                                                 album.Performer.Name[0],
                                                 album.Performer.Name,
-                                                album.ID,
+                                                album.Id,
                                                 ext)));
             return pathlist;
         }

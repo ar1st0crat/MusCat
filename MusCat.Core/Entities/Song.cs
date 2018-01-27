@@ -3,61 +3,21 @@ using System.Text.RegularExpressions;
 
 namespace MusCat.Core.Entities
 {
-    public class Song : INotifyPropertyChanged, IDataErrorInfo
+    public class Song : IDataErrorInfo
     {
-        public long ID { get; set; }
-        public long AlbumID { get; set; }
-
-        public byte TrackNo
-        {
-            get { return _trackNo; }
-            set
-            {
-                _trackNo = value;
-                RaisePropertyChanged("TrackNo");
-            }
-        }
-
-        public string Name
-        {
-            get { return _name; }
-            set
-            {
-                _name = value;
-                RaisePropertyChanged("Name");
-            }
-        }
-
-        public string TimeLength
-        {
-            get { return _timeLength; }
-            set
-            {
-                _timeLength = value;
-                RaisePropertyChanged("TimeLength");
-            }
-        }
-
-        public byte? Rate
-        {
-            get { return _rate; }
-            set
-            {
-                _rate = value;
-                RaisePropertyChanged("Rate");
-            }
-        }
-
-        private byte _trackNo;
-        private string _name;
-        private string _timeLength;
-        private byte? _rate;
-
-        public virtual Album Album { get; set; }
+        public long Id { get; set; }
+        public long AlbumId { get; set; }
+        public byte TrackNo { get; set; }
+        public string Name { get; set; }
+        public string TimeLength { get; set; }
+        public byte? Rate { get; set; }
+        public Album Album { get; set; }
 
         #region IDataErrorInfo methods
 
-        public string Error => this["Name"] + this["TimeLength"];
+        public const int MaxNameLength = 50;
+
+        public string Error => string.Join("\n", this["Name"], this["TimeLength"]);
 
         public string this[string columnName]
         {
@@ -79,7 +39,7 @@ namespace MusCat.Core.Entities
                     }
                     case "Name":
                     {
-                        if (Name.Length > 50)
+                        if (Name.Length > MaxNameLength)
                         {
                             error = "Song title should contain not more than 50 symbols";
                         }
@@ -95,17 +55,5 @@ namespace MusCat.Core.Entities
         }
 
         #endregion
-
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
-
     }
 }

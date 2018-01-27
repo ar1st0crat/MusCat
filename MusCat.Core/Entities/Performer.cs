@@ -1,17 +1,18 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace MusCat.Core.Entities
 {
-    public class Performer
+    public class Performer : IDataErrorInfo
     {
-        public long ID { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; }
         public string Info { get; set; }
-        public byte? CountryID { get; set; }
-        public virtual ICollection<Album> Albums { get; set; }
-        public virtual Country Country { get; set; }
-        public virtual ICollection<Lineup> Lineups { get; set; }
-        public virtual ICollection<Genre> Genres { get; set; }
+        public byte? CountryId { get; set; }
+        public ICollection<Album> Albums { get; set; }
+        public Country Country { get; set; }
+        public ICollection<Lineup> Lineups { get; set; }
+        public ICollection<Genre> Genres { get; set; }
 
         public Performer()
         {
@@ -19,6 +20,38 @@ namespace MusCat.Core.Entities
             Lineups = new HashSet<Lineup>();
             Genres = new HashSet<Genre>();
         }
+        
+        #region IDataErrorInfo methods
 
+        public const int MaxNameLength = 30;
+
+        public string Error => this["Name"];
+
+        public string this[string columnName]
+        {
+            get
+            {
+                var error = string.Empty;
+
+                switch (columnName)
+                {
+                    case "Name":
+                        {
+                            if (Name.Length > MaxNameLength)
+                            {
+                                error = "Album name should contain not more than 40 symbols";
+                            }
+                            else if (Name == "")
+                            {
+                                error = "Album name can't be empty";
+                            }
+                            break;
+                        }
+                }
+                return error;
+            }
+        }
+
+        #endregion
     }
 }

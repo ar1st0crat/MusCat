@@ -51,12 +51,14 @@
                 </WrapPanel>
                 <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Label Content="Country: " Foreground="WhiteSmoke"/>
-                    <ComboBox ItemsSource="{Binding Countries}" SelectedItem="{Binding Performer.Country}" SelectedValue="{Binding Performer.CountryID}"
+                    <ComboBox ItemsSource="{Binding Countries}"
+                              SelectedValue="{Binding SelectedCountryId}"
                               Width="290"
                               FontSize="16"
                               HorizontalAlignment="Center"
                               DisplayMemberPath="Name"
-                              SelectedValuePath="ID" IsSynchronizedWithCurrentItem="False"/>
+                              SelectedValuePath="Id" 
+                              IsSynchronizedWithCurrentItem="False"/>
                 </WrapPanel>
                 <ListBox ItemsSource="{Binding Genres}"
                          Background="Transparent" BorderBrush="Transparent">

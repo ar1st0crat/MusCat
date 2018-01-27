@@ -18,11 +18,11 @@ namespace MusCat.Infrastructure.Data
         {
             // manual autoincrement
             var lastId = await Context.Performers.AsNoTracking()
-                                      .Select(p => p.ID)
+                                      .Select(p => p.Id)
                                       .DefaultIfEmpty(0)
                                       .MaxAsync()
                                       .ConfigureAwait(false);
-            entity.ID = ++lastId;
+            entity.Id = ++lastId;
             Add(entity);
         }
 
@@ -110,7 +110,7 @@ namespace MusCat.Infrastructure.Data
             if (albumPattern != null)
             {
                 return await Context.Albums
-                                    .Where(a => a.PerformerID == performer.ID)
+                                    .Where(a => a.PerformerId == performer.Id)
                                     .Where(a => a.Name.ToLower().Contains(albumPattern.ToLower()))
                                     .OrderBy(a => a.ReleaseYear)
                                     .ThenBy(a => a.Name)
@@ -120,7 +120,7 @@ namespace MusCat.Infrastructure.Data
             else
             {
                 return await Context.Albums
-                                    .Where(a => a.PerformerID == performer.ID)
+                                    .Where(a => a.PerformerId == performer.Id)
                                     .OrderBy(a => a.ReleaseYear)
                                     .ThenBy(a => a.Name)
                                     .ToListAsync()

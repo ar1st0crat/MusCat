@@ -1,14 +1,18 @@
 ﻿using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows.Data;
+using AutoMapper;
 using MusCat.Core.Entities;
+using MusCat.Core.Interfaces;
 using MusCat.Core.Services;
 
-namespace MusCat.ViewModels
+namespace MusCat.ViewModels.Entities
 {
     public class PerformerViewModel : ViewModelBase
     {
-        public Performer Performer { get; set; }
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public string Info { get; set; }
+        public Country Country { get; set; }
 
         private byte? _albumCollectionRate;
         public byte? AlbumCollectionRate
@@ -20,20 +24,7 @@ namespace MusCat.ViewModels
                 RaisePropertyChanged();
             }
         }
-
-        private int _albumCount;
-        public int AlbumCount
-        {
-            get { return _albumCount; }
-            set
-            {
-                _albumCount = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public AlbumViewModel SelectedAlbum { get; set; }
-
+        
         private ObservableCollection<AlbumViewModel> _albums = new ObservableCollection<AlbumViewModel>();
         public ObservableCollection<AlbumViewModel> Albums
         {
@@ -45,11 +36,15 @@ namespace MusCat.ViewModels
             }
         }
 
-        private readonly RateCalculator _rateCalculator = new RateCalculator();
+        public int AlbumCount => _albums.Count;
+
+        public AlbumViewModel SelectedAlbum { get; set; }
+
+        private readonly IRateCalculator _rateCalculator = new RateCalculator();
 
         public void UpdateAlbumCollectionRate()
         {
-            var albums = _albums.Select(a => a.Album);
+            var albums = Mapper.Map<Album[]>(_albums);
 
             AlbumCollectionRate = _rateCalculator.Calculate(albums);
         }

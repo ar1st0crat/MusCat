@@ -61,6 +61,10 @@
       <HintPath>..\packages\AutoMapper.6.2.2\lib\net45\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="AutoMapper.Collection, Version=3.1.3.0, Culture=neutral, PublicKeyToken=e57c3f0a3d6646db, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.Collection.3.1.3\lib\net45\AutoMapper.Collection.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="LiveCharts, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
       <HintPath>..\packages\LiveCharts.0.9.7\lib\net45\LiveCharts.dll</HintPath>
       <Private>True</Private>
@@ -102,18 +106,20 @@
     </ApplicationDefinition>
     <Compile Include="Converters\AlbumCountConverter.cs" />
     <Compile Include="ViewModels\AlbumPlaybackViewModel.cs" />
-    <Compile Include="ViewModels\AlbumViewModel.cs" />
+    <Compile Include="ViewModels\Entities\AlbumViewModel.cs" />
     <Compile Include="Utils\DialogResultHelper.cs" />
     <Compile Include="ViewModels\CountriesViewModel.cs" />
+    <Compile Include="ViewModels\Entities\CountryViewModel.cs" />
     <Compile Include="ViewModels\IndexViewModel.cs" />
     <Compile Include="ViewModels\PerformerFilters.cs" />
     <Compile Include="Utils\RelayCommand.cs" />
     <Compile Include="ViewModels\EditAlbumViewModel.cs" />
     <Compile Include="ViewModels\EditPerformerViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\PerformerViewModel.cs" />
+    <Compile Include="ViewModels\Entities\PerformerViewModel.cs" />
     <Compile Include="ViewModels\RadioViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
+    <Compile Include="ViewModels\Entities\SongViewModel.cs" />
     <Compile Include="ViewModels\StatsViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\ChoiceWindow.xaml.cs">
@@ -292,6 +298,7 @@
       <Name>MusCat.Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

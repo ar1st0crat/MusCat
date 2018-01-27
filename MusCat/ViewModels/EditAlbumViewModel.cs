@@ -7,30 +7,27 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using AutoMapper;
 using Microsoft.Win32;
 using MusCat.Core.Entities;
+using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Data;
+using MusCat.Core.Services;
 using MusCat.Infrastructure.Services;
-using MusCat.Infrastructure.Services.Songlist;
 using MusCat.Utils;
+using MusCat.ViewModels.Entities;
 using MusCat.Views;
 
 namespace MusCat.ViewModels
 {
     class EditAlbumViewModel : ViewModelBase, IDataErrorInfo
     {
-        public IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ISonglistHelper _songlist;
 
-        public AlbumViewModel AlbumView { get; set; }
-        public Album Album
-        {
-            get { return AlbumView.Album; }
-            set
-            {
-                AlbumView.Album = value;
-                RaisePropertyChanged();
-            }
-        }
+        private readonly AlbumService _albumService;
+
+        public AlbumViewModel Album { get; set; }
 
         public string AlbumName
         {
@@ -39,7 +36,6 @@ namespace MusCat.ViewModels
             {
                 Album.Name = value;
                 RaisePropertyChanged();
-                //AlbumView.RaisePropertyChanged("Album");
             }
         }
 
@@ -50,11 +46,20 @@ namespace MusCat.ViewModels
             {
                 Album.TotalTime = value;
                 RaisePropertyChanged();
-                //AlbumView.RaisePropertyChanged("Album");
             }
         }
 
-        public ObservableCollection<Song> Songs => AlbumView.Songs;
+        private ObservableCollection<Song> _songs;
+        public ObservableCollection<Song> Songs
+        {
+            get { return _songs; }
+            set
+            {
+                _songs = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public Song SelectedSong { get; set; }
 
         public ObservableCollection<string> ReleaseYearsCollection { get; set; }
@@ -79,16 +84,18 @@ namespace MusCat.ViewModels
 
         #endregion
 
-        public EditAlbumViewModel(AlbumViewModel viewmodel, IUnitOfWork unitOfWork)
+        public EditAlbumViewModel(AlbumViewModel albumViewModel, IUnitOfWork unitOfWork)
         {
-            AlbumView = viewmodel;
+            Album = albumViewModel;
             _unitOfWork = unitOfWork;
+            _albumService = new AlbumService(unitOfWork);
+            _songlist = new Mp3SonglistHelper();
 
             // setting up commands
 
             ParseMp3Command = new RelayCommand(ParseMp3);
-            FixNamesCommand = new RelayCommand(FixNames);
-            FixTimesCommand = new RelayCommand(FixTimes);
+            FixNamesCommand = new RelayCommand(FixTitles);
+            FixTimesCommand = new RelayCommand(FixDurations);
             AddSongCommand = new RelayCommand(AddSong);
             ClearAllSongsCommand = new RelayCommand(async () => await ClearAllAsync());
             SaveAllSongsCommand = new RelayCommand(async () => await SaveAllAsync());
@@ -107,6 +114,9 @@ namespace MusCat.ViewModels
             {
                 ReleaseYearsCollection.Add(i.ToString());
             }
+
+            Songs = new ObservableCollection<Song>(
+                _albumService.LoadAlbumSongsAsync(Album.Id).Result);
         }
 
         public async Task SaveSongAsync()
@@ -122,7 +132,7 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            if (SelectedSong.ID == -1)
+            if (SelectedSong.Id == -1)
             {
                 await SaveAllAsync();
                 return;
@@ -142,7 +152,7 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            if (SelectedSong.ID != -1)
+            if (SelectedSong.Id != -1)
             {
                 _unitOfWork.SongRepository.Delete(SelectedSong);
                 await _unitOfWork.SaveAsync();
@@ -162,8 +172,8 @@ namespace MusCat.ViewModels
 
             Songs.Add(new Song
             {
-                ID = -1,
-                AlbumID = Album.ID,
+                Id = -1,
+                AlbumId = Album.Id,
                 TrackNo = newTrackNo
             });
         }
@@ -175,7 +185,7 @@ namespace MusCat.ViewModels
                                     "Confirmation",
                                     MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                foreach (var song in Songs.Where(song => song.ID != -1))
+                foreach (var song in Songs.Where(song => song.Id != -1))
                 {
                     _unitOfWork.SongRepository.Delete(song);
                 }
@@ -202,7 +212,7 @@ namespace MusCat.ViewModels
 
             foreach (var song in Songs)
             {
-                if (song.ID == -1)
+                if (song.Id == -1)
                 {
                     await _unitOfWork.SongRepository.AddAsync(song);
                     // we save changes after adding each song
@@ -221,8 +231,7 @@ namespace MusCat.ViewModels
 
         public async Task SaveAlbumInformationAsync()
         {
-            _unitOfWork.AlbumRepository.Edit(Album);
-            await _unitOfWork.SaveAsync();
+            _albumService.UpdateAlbum(Album.Id, Album.Name);
         }
 
         public void ParseMp3()
@@ -233,28 +242,59 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            var parser = new Mp3SonglistHelper();
-            parser.Parse(fbd.SelectedPath, Album, Songs);
-            AlbumTotalTime = parser.FixTimes(Songs);
+            var songs = _songlist.Parse(fbd.SelectedPath);
+
+            Songs = new ObservableCollection<Song>(
+                songs.Select((s, i) => new Song
+                {
+                    Id = -1,
+                    AlbumId = Album.Id,
+                    TrackNo = (byte)(i + 1),
+                    Name = s.Title,
+                    TimeLength = s.Duration
+                }));
+
+            AlbumTotalTime = _songlist.FixDurations(songs);
         }
 
-        public void FixNames()
+        public void FixTitles()
         {
-            var parser = new Mp3SonglistHelper();
-            parser.FixNames(Songs);
+            var songs = Songs.Select(s => new SongEntry
+            {
+                No = s.TrackNo,
+                Title = s.Name,
+                Duration = s.TimeLength
+            }).ToList();
+
+            _songlist.FixTitles(songs);
+
+            var i = 0;
+            foreach (var song in Songs)
+            {
+                song.TrackNo = songs[i].No;
+                song.Name = songs[i].Title;
+                i++;
+            }
         }
 
-        public void FixTimes()
+        public void FixDurations()
         {
-            var parser = new Mp3SonglistHelper();
-            AlbumTotalTime = parser.FixTimes(Songs);
+            var songs = Songs.Select(s => new SongEntry { Duration = s.TimeLength }).ToList();
+
+            AlbumTotalTime = _songlist.FixDurations(songs);
+
+            var i = 0;
+            foreach (var song in Songs)
+            {
+                song.TimeLength = songs[i++].Duration;
+            }
         }
 
         #region working with images
 
         public string ChooseImageSavePath()
         {
-            var filepaths = FileLocator.MakeAlbumImagePathlist(Album);
+            var filepaths = FileLocator.MakeAlbumImagePathlist(Mapper.Map<Album>(Album));
 
             if (filepaths.Count == 1)
             {
@@ -312,7 +352,6 @@ namespace MusCat.ViewModels
             }
 
             RaisePropertyChanged("Album");
-            //AlbumView.RaisePropertyChanged("Album");
         }
 
         public void LoadAlbumImageFromFile()
@@ -341,7 +380,6 @@ namespace MusCat.ViewModels
             }
 
             RaisePropertyChanged("Album");
-            //AlbumView.RaisePropertyChanged("Album");
         }
 
         #endregion

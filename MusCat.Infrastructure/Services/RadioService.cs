@@ -4,12 +4,10 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using MusCat.Core.Entities;
-using MusCat.Core.Interfaces.Audio;
-using MusCat.Core.Interfaces.Radio;
+using MusCat.Core.Interfaces;
 using MusCat.Infrastructure.Data;
-using MusCat.Infrastructure.Services.Audio;
 
-namespace MusCat.Infrastructure.Services.Radio
+namespace MusCat.Infrastructure.Services
 {
     /// <summary>
     /// Radio station service
@@ -23,10 +21,8 @@ namespace MusCat.Infrastructure.Services.Radio
         public const int MaxSongs = 10;
 
         // Audio player
-        private readonly AudioPlayer _player = new AudioPlayer();
+        public IAudioPlayer Player { get; } = new AudioPlayer();
         private bool _isStopped;
-
-        public IAudioPlayer Player => _player;
 
         // Delegate that will be invoked when a new song starts playing
         public Action Update { get; set; }
@@ -59,7 +55,7 @@ namespace MusCat.Infrastructure.Services.Radio
                 {
                     Task.Delay(1000).Wait();
 
-                    if (_player.IsStopped() && !_player.IsStoppedManually)
+                    if (Player.IsStopped && !Player.IsStoppedManually)
                     {
                         await MoveToNextSongAsync();
                     }
@@ -70,21 +66,21 @@ namespace MusCat.Infrastructure.Services.Radio
         public void Stop()
         {
             _isStopped = true;
-            _player.Close();
+            Player.Close();
         }
 
         public void PlayCurrentSong()
         {
-            if (_player.SongPlaybackState != PlaybackState.Stop)
+            if (Player.SongPlaybackState != PlaybackState.Stop)
             {
-                _player.Stop();
+                Player.Stop();
             }
 
             var fileSong = FileLocator.FindSongPath(CurrentSong);
 
             try
             {
-                _player.Play(fileSong);
+                Player.Play(fileSong);
             }
             catch (Exception)
             {
@@ -116,7 +112,7 @@ namespace MusCat.Infrastructure.Services.Radio
 
         public void MoveToNextSong()
         {
-            _player.Stop();
+            Player.Stop();
 
             // update archive
             if (SongArchive.Count >= MaxSongs)
@@ -166,7 +162,7 @@ namespace MusCat.Infrastructure.Services.Radio
         {
             for (var i = 0; i < MaxSongs; i++)
             {
-                if (UpcomingSongs[i].ID != songId)
+                if (UpcomingSongs[i].Id != songId)
                 {
                     continue;
                 }
@@ -183,7 +179,7 @@ namespace MusCat.Infrastructure.Services.Radio
         {
             for (var i = 0; i < MaxSongs; i++)
             {
-                if (UpcomingSongs[i].ID != songId)
+                if (UpcomingSongs[i].Id != songId)
                 {
                     continue;
                 }
@@ -207,7 +203,7 @@ namespace MusCat.Infrastructure.Services.Radio
             using (var context = new MusCatDbContext())
             {
                 // find out the maximum song ID in the database
-                var maxSid = context.Songs.Max(s => s.ID);
+                var maxSid = context.Songs.Max(s => s.Id);
 
                 // keep selecting song randomly until the song file is actually present in the file system...
                 // ...and while it isn't present in archive of recently played songs and upcoming songs
@@ -219,15 +215,15 @@ namespace MusCat.Infrastructure.Services.Radio
                     }
 
                     var songId = _songSelector.Next() % maxSid;
-                    song = context.Songs.First(s => s.ID >= songId);
+                    song = context.Songs.First(s => s.Id >= songId);
                     // include the corresponding album of our song
-                    song.Album = context.Albums.First(a => a.ID == song.AlbumID);
+                    song.Album = context.Albums.First(a => a.Id == song.AlbumId);
                     // do the same thing with performer for included album
-                    song.Album.Performer = context.Performers.First(p => p.ID == song.Album.PerformerID);
+                    song.Album.Performer = context.Performers.First(p => p.Id == song.Album.PerformerId);
                 }
-                while (SongArchive.Any(s => s.ID == song.ID)    // true, if the archive already contains this song
-                    || UpcomingSongs.Any(s => s.ID == song.ID)  // true, if it is already in songlist
-                    || song.ID == CurrentSong.ID                // true, if it's currently playing
+                while (SongArchive.Any(s => s.Id == song.Id)    // true, if the archive already contains this song
+                    || UpcomingSongs.Any(s => s.Id == song.Id)  // true, if it is already in songlist
+                    || song.Id == CurrentSong.Id                // true, if it's currently playing
                     || FileLocator.FindSongPath(song) == "");   // true, if the file with this song doesn't exist
             }
 
@@ -270,7 +266,7 @@ namespace MusCat.Infrastructure.Services.Radio
 
             for (var i = 0; i < MaxSongs; i++)
             {
-                if (UpcomingSongs[i].ID != songId)
+                if (UpcomingSongs[i].Id != songId)
                 {
                     continue;
                 }
@@ -286,7 +282,7 @@ namespace MusCat.Infrastructure.Services.Radio
         {
             for (var i = 0; i < MaxSongs; i++)
             {
-                if (UpcomingSongs[i].ID != songId)
+                if (UpcomingSongs[i].Id != songId)
                 {
                     continue;
                 }
@@ -310,7 +306,7 @@ namespace MusCat.Infrastructure.Services.Radio
             using (var context = new MusCatDbContext())
             {
                 // find out the maximum song ID in the database
-                var maxSid = context.Songs.Max(s => s.ID);
+                var maxSid = context.Songs.Max(s => s.Id);
 
                 // keep selecting song randomly until the song file is actually present in the file system...
                 // ...and while it isn't present in archive of recently played songs and upcoming songs
@@ -324,20 +320,20 @@ namespace MusCat.Infrastructure.Services.Radio
                     var songId = _songSelector.Next() % maxSid;
 
                     song = await context.Songs
-                                        .FirstAsync(s => s.ID >= songId)
+                                        .FirstAsync(s => s.Id >= songId)
                                         .ConfigureAwait(false);
                     // include the corresponding album of our song
                     song.Album = await context.Albums
-                                              .FirstAsync(a => a.ID == song.AlbumID)
+                                              .FirstAsync(a => a.Id == song.AlbumId)
                                               .ConfigureAwait(false);
                     // do the same thing with performer for included album
                     song.Album.Performer = await context.Performers
-                                                        .FirstAsync(p => p.ID == song.Album.PerformerID)
+                                                        .FirstAsync(p => p.Id == song.Album.PerformerId)
                                                         .ConfigureAwait(false);
                 }
-                while (SongArchive.Any(s => s.ID == song.ID)    // true, if the archive already contains this song
-                    || UpcomingSongs.Any(s => s.ID == song.ID)  // true, if it is already in songlist
-                    || song.ID == CurrentSong.ID                // true, if it's currently playing
+                while (SongArchive.Any(s => s.Id == song.Id)    // true, if the archive already contains this song
+                    || UpcomingSongs.Any(s => s.Id == song.Id)  // true, if it is already in songlist
+                    || song.Id == CurrentSong.Id                // true, if it's currently playing
                     || FileLocator.FindSongPath(song) == "");   // true, if the file with this song doesn't exist
             }
 

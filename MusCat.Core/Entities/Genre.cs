@@ -4,9 +4,9 @@ namespace MusCat.Core.Entities
 {
     public class Genre
     {
-        public byte ID { get; set; }
+        public byte Id { get; set; }
         public string Name { get; set; }
-        public virtual ICollection<Performer> Performers { get; set; }
+        public ICollection<Performer> Performers { get; set; }
 
         public Genre()
         {

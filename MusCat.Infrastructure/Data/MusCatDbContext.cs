@@ -22,13 +22,13 @@ namespace MusCat.Infrastructure.Data
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Album>()
-                .Property(e => e.ID)
+                .Property(e => e.Id)
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
 
             modelBuilder.Entity<Album>()
                 .Property(e => e.Name)
                 .IsRequired()
-                .HasMaxLength(50)
+                .HasMaxLength(Album.MaxNameLength)
                 .IsUnicode(false);
 
             modelBuilder.Entity<Album>()
@@ -43,7 +43,7 @@ namespace MusCat.Infrastructure.Data
 
             modelBuilder.Entity<Country>()
                 .Property(e => e.Name)
-                .HasMaxLength(20)
+                .HasMaxLength(Country.MaxNameLength)
                 .IsRequired()
                 .IsUnicode(false);
 
@@ -56,18 +56,18 @@ namespace MusCat.Infrastructure.Data
             modelBuilder.Entity<Genre>()
                 .HasMany(e => e.Performers)
                 .WithMany(e => e.Genres)
-                .Map(m => m.ToTable("PerformerGenres").MapLeftKey("GenreID").MapRightKey("PerformerID"));
+                .Map(m => m.ToTable("PerformerGenres").MapLeftKey("GenreId").MapRightKey("PerformerId"));
 
             modelBuilder.Entity<Lineup>()
-                .HasKey(k => new { k.PerformerID, k.MusicianID });
+                .HasKey(k => new { PerformerId = k.PerformerId, MusicianId = k.MusicianId });
 
             modelBuilder.Entity<Lineup>()
-                .Property(e => e.PerformerID)
+                .Property(e => e.PerformerId)
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None)
                 .HasColumnOrder(0);
 
             modelBuilder.Entity<Lineup>()
-                .Property(e => e.MusicianID)
+                .Property(e => e.MusicianId)
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None)
                 .HasColumnOrder(1);
 
@@ -83,13 +83,13 @@ namespace MusCat.Infrastructure.Data
                 .IsUnicode(false);
 
             modelBuilder.Entity<Performer>()
-                .Property(e => e.ID)
+                .Property(e => e.Id)
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
 
             modelBuilder.Entity<Performer>()
                 .Property(e => e.Name)
                 .IsRequired()
-                .HasMaxLength(30)
+                .HasMaxLength(Performer.MaxNameLength)
                 .IsUnicode(false);
 
             modelBuilder.Entity<Performer>()
@@ -98,13 +98,13 @@ namespace MusCat.Infrastructure.Data
                 .IsUnicode(false);
 
             modelBuilder.Entity<Song>()
-               .Property(e => e.ID)
+               .Property(e => e.Id)
                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
 
             modelBuilder.Entity<Song>()
                 .Property(e => e.Name)
                 .IsRequired()
-                .HasMaxLength(50)
+                .HasMaxLength(Song.MaxNameLength)
                 .IsUnicode(false);
 
             modelBuilder.Entity<Song>()

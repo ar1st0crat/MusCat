@@ -13,16 +13,16 @@ namespace MusCat.Infrastructure.Data
         {
         }
 
-        public override async Task AddAsync(Album entity)
+        public override async Task AddAsync(Album album)
         {
             // manual autoincrement
             var lastId = await Context.Albums
-                                      .Select(a => a.ID)
+                                      .Select(a => a.Id)
                                       .DefaultIfEmpty(0)
                                       .MaxAsync()
                                       .ConfigureAwait(false);
-            entity.ID = ++lastId;
-            Add(entity);
+            album.Id = ++lastId;
+            Add(album);
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace MusCat.Infrastructure.Data
         public async Task<IEnumerable<Song>> GetAlbumSongsAsync(Album album)
         {
             var songs = await Context.Songs
-                                     .Where(s => s.AlbumID == album.ID)
+                                     .Where(s => s.AlbumId == album.Id)
                                      .ToListAsync()
                                      .ConfigureAwait(false);
             foreach (var song in songs)

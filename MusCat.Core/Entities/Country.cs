@@ -3,39 +3,48 @@ using System.ComponentModel;
 
 namespace MusCat.Core.Entities
 {
-    public class Country : INotifyPropertyChanged
+    public class Country : IDataErrorInfo
     {
+        public byte Id { get; set; }
+        public string Name { get; set; }
+        public ICollection<Performer> Performers { get; set; }
+
+        public int PerformerCount => Performers.Count;
+
         public Country()
         {
             Performers = new HashSet<Performer>();
         }
 
-        public byte ID { get; set; }
+        #region IDataErrorInfo methods
 
-        private string _name;
-        public string Name
+        public const int MaxNameLength = 20;
+
+        public string Error => this["Name"];
+
+        public string this[string columnName]
         {
-            get { return _name; }
-            set
+            get
             {
-                _name = value;
-                RaisePropertyChanged("Name");
+                if (columnName != "Name")
+                {
+                    return string.Empty;
+                }
+
+                var error = string.Empty;
+
+                if (Name.Length > MaxNameLength)
+                {
+                    error = "Country name should contain not more than 50 symbols";
+                }
+                else if (Name == "")
+                {
+                    error = "Country name can't be empty";
+                }
+                return error;
             }
-        }
-        
-        public virtual ICollection<Performer> Performers { get; set; }
-
-
-        #region INotifyPropertyChanged event and method
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion
-
     }
 }

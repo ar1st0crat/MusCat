@@ -23,7 +23,7 @@ namespace MusCat.Tests
             // ARRANGE
             var album = new Album
             {
-                ID = 73,
+                Id = 73,
                 Performer = new Performer
                 {
                     Name = "Foo"

@@ -37,7 +37,7 @@ namespace MusCat.Infrastructure.Services.Stats
         {
             return await
                    _context.Albums.Include("Performer").AsNoTracking()
-                           .OrderByDescending(a => a.ID)
+                           .OrderByDescending(a => a.Id)
                            .Take(latestCount)
                            .ToListAsync()
                            .ConfigureAwait(false);

@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
-using MusCat.Core.Entities;
+using MusCat.ViewModels.Entities;
 
 namespace MusCat.Converters
 {
@@ -13,7 +13,7 @@ namespace MusCat.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var performer = value as Performer;
+            var performer = value as PerformerViewModel;
 
             if (performer == null || performer.Albums.Count == 0)
             {

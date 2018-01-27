@@ -5,38 +5,40 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using MusCat.Core.Entities;
-using MusCat.Core.Interfaces.Audio;
+using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Data;
+using MusCat.Core.Services;
+using MusCat.Infrastructure.Data;
 using MusCat.Infrastructure.Services;
-using MusCat.Infrastructure.Services.Audio;
 using MusCat.Utils;
+using MusCat.ViewModels.Entities;
 
 namespace MusCat.ViewModels
 {
     class AlbumPlaybackViewModel : ViewModelBase
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly PerformerViewModel _performer;
+        private readonly AlbumService _albumService;
 
-        public PerformerViewModel Performer { get; set; }
-        public AlbumViewModel AlbumView { get; set; }
-        
-        public Album Album
+        public long Id { get; set; }
+        public long PerformerId { get; set; }
+        public string Name { get; set; }
+        public short ReleaseYear { get; set; }
+        public string TotalTime { get; set; }
+        public string Info { get; set; }
+        public byte? Rate { get; set; }
+
+        private ObservableCollection<Song> _songs;
+        public ObservableCollection<Song> Songs
         {
-            get { return AlbumView.Album; }
+            get { return _songs; }
             set
             {
-                AlbumView.Album = value;
+                _songs = value;
                 RaisePropertyChanged();
             }
         }
-
-        public string AlbumHeader => string.Format("{0} - {1} ({2})", 
-                                                        Album.Performer.Name,
-                                                        Album.Name,
-                                                        Album.ReleaseYear);
-
-        public ObservableCollection<Song> Songs => AlbumView.Songs;
-
+        
         private Song _selectedSong;
         public Song SelectedSong
         {
@@ -48,6 +50,11 @@ namespace MusCat.ViewModels
                 PlaySong();
             }
         }
+
+        public Performer Performer { get; set; }
+        
+        public string AlbumHeader => 
+            string.Format("{0} - {1} ({2})", _performer?.Name, Name, ReleaseYear);
 
         // Bitmaps for playback buttons
         private static readonly BitmapImage ImagePlay = App.Current.TryFindResource("ImagePlayButton") as BitmapImage;
@@ -65,7 +72,7 @@ namespace MusCat.ViewModels
         }
 
         // Audio player
-        private readonly AudioPlayer _player = new AudioPlayer();
+        private readonly IAudioPlayer _player;
         private bool _isStopped;
 
         // Song time percentage
@@ -94,9 +101,14 @@ namespace MusCat.ViewModels
         private bool _isDragged;
 
 
-        public AlbumPlaybackViewModel(AlbumViewModel viewmodel, IUnitOfWork unitOfWork)
+        public AlbumPlaybackViewModel(IAudioPlayer player,
+                                      IUnitOfWork unitOfWork,
+                                      PerformerViewModel performer)
         {
-            _unitOfWork = unitOfWork;
+            _player = player;
+            _performer = performer;
+
+            _albumService = new AlbumService(unitOfWork ?? new UnitOfWork());
 
             // setting up commands
             PlaybackCommand = new RelayCommand(PlaybackSongAction);
@@ -113,12 +125,17 @@ namespace MusCat.ViewModels
             // toggle the _isDragged variable
             StartDragCommand = new RelayCommand(() => _isDragged = true);             
             StopDragCommand = new RelayCommand(() => _isDragged = false);
-            
-            // set main album view model
-            AlbumView = viewmodel;
+        }
 
-            _player.IsStoppedManually = true;
+        public async Task LoadSongsAsync()
+        {
+            Songs = new ObservableCollection<Song>(
+                await _albumService.LoadAlbumSongsAsync(Id));
+
+            SelectedSong = null;
+
             InitPlayerWorker();
+            _player.Stop();         // don't play anything until user clicks the song
         }
 
         /// <summary>
@@ -143,7 +160,7 @@ namespace MusCat.ViewModels
 
         private void UpdateSong()
         {
-            if (_player.IsStopped() && !_player.IsStoppedManually)
+            if (_player.IsStopped && !_player.IsStoppedManually)
             {
                 if (SelectedSong != Songs.Last())
                 {
@@ -159,7 +176,7 @@ namespace MusCat.ViewModels
                 }
             }
 
-            PlaybackPercentage = _player.TimePercent() * 10.0;
+            PlaybackPercentage = _player.TimePercent * 10.0;
         }
 
         #region Song playback functions
@@ -239,9 +256,8 @@ namespace MusCat.ViewModels
         /// </summary>
         private void UpdateRate()
         {
-            _unitOfWork?.AlbumRepository.Edit(Album);
-            _unitOfWork?.Save();
-            Performer?.UpdateAlbumCollectionRate();
+            _albumService.UpdateAlbumRate(Id, Rate);
+            _performer?.UpdateAlbumCollectionRate();
         }
     }
 }

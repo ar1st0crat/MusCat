@@ -2,14 +2,16 @@
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
+using AutoMapper;
 using MusCat.Core.Entities;
 using MusCat.Infrastructure.Services;
+using MusCat.ViewModels.Entities;
 
 namespace MusCat.Converters
 {
     /// <summary>
-    /// Converter:          Performer   =>  (optionally reduced) image with performer's photo or default photo
-    ///                     Album       =>  (optionally reduced) image with album cover or default photo
+    /// Converter:  PerformerViewModel       =>  (optionally reduced) image with performer's photo or default photo
+    ///             AlbumViewModel or Album  =>  (optionally reduced) image with album cover or default photo
     /// </summary>
     public class PhotoConverter : IValueConverter
     {
@@ -24,11 +26,11 @@ namespace MusCat.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             // if the current converter is yielding a performer photo path
-            var performer = value as Performer;
-
+            var performer = value as PerformerViewModel;
+            
             if (performer != null)
             {
-                var performerImagePath = FileLocator.GetPerformerImagePath(performer);
+                var performerImagePath = FileLocator.GetPerformerImagePath(Mapper.Map<Performer>(performer));
 
                 if (performerImagePath == "")
                 {
@@ -53,7 +55,7 @@ namespace MusCat.Converters
             }
 
             // or maybe the converter's yielding an album photo path
-            var album = value as Album;
+            var album = Mapper.Map<Album>(value);
 
             if (album == null)
             {

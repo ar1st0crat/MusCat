@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using AutoMapper;
 using LiveCharts;
 using LiveCharts.Wpf;
-using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Stats;
+using MusCat.ViewModels.Entities;
 
 namespace MusCat.ViewModels
 {
@@ -49,8 +50,8 @@ namespace MusCat.ViewModels
 
         public const int LatestAlbumsCount = 7;
 
-        private List<Album> _latestAlbums;
-        public List<Album> LatestAlbums
+        private List<AlbumViewModel> _latestAlbums;
+        public List<AlbumViewModel> LatestAlbums
         {
             get { return _latestAlbums; }
             set
@@ -115,8 +116,8 @@ namespace MusCat.ViewModels
 
             // most recently added albums 
 
-            LatestAlbums = (await _stats.GetLatestAlbumsAsync(LatestAlbumsCount)).ToList();
-
+            var latestAlbums = await _stats.GetLatestAlbumsAsync(LatestAlbumsCount);
+            LatestAlbums = Mapper.Map<List<AlbumViewModel>>(latestAlbums);
 
             // bar chart "decades - album count - average album rate"
 

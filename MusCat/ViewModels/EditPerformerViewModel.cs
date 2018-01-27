@@ -1,38 +1,35 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.IO;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Media.Imaging;
-using Microsoft.Win32;
+using AutoMapper;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
+using MusCat.Core.Services;
 using MusCat.Infrastructure.Services;
 using MusCat.Infrastructure.Services.Networking;
 using MusCat.Utils;
+using MusCat.ViewModels.Entities;
 using MusCat.Views;
+using Clipboard = System.Windows.Clipboard;
+using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace MusCat.ViewModels
 {
     class EditPerformerViewModel : ViewModelBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly PerformerService _performerService;
 
-        public PerformerViewModel PerformerView { get; set; }
-        public Performer Performer
-        {
-            get { return PerformerView.Performer; }
-            set
-            {
-                PerformerView.Performer = value;
-                RaisePropertyChanged();
-            }
-        }
+        public PerformerViewModel Performer { get; set; }
 
-        public byte? SelectedCountryId { get; set; }
-        public Country SelectedCountry { get; set; }
         public ObservableCollection<Country> Countries { get; set; }
         public ObservableCollection<Genre> Genres { get; set; }
+        public byte? SelectedCountryId { get; set; }
 
         // commands
         public RelayCommand LoadImageFromFileCommand { get; private set; }
@@ -42,20 +39,25 @@ namespace MusCat.ViewModels
 
         public EditPerformerViewModel(PerformerViewModel performer, IUnitOfWork unitOfWork)
         {
+            var countryService = new CountryService(unitOfWork);
+            Countries = new ObservableCollection<Country>(countryService.GetAllCountriesAsync().Result);
+
+            Performer = performer;
             _unitOfWork = unitOfWork;
+            _performerService = new PerformerService(unitOfWork);
 
             LoadImageFromFileCommand = new RelayCommand(LoadPerformerImageFromFile);
             LoadImageFromClipboardCommand = new RelayCommand(LoadPerformerImageFromClipboard);
             LoadBioCommand = new RelayCommand(async() => await LoadBioAsync());
-            SavePerformerCommand = new RelayCommand(async() => await SavePerformerInformationAsync());
+            SavePerformerCommand = new RelayCommand(async() => await SavePerformerAsync());
 
-            PerformerView = performer;
+            SelectedCountryId = Performer.Country?.Id;
         }
 
-        private async Task SavePerformerInformationAsync()
+        private async Task SavePerformerAsync()
         {
-            _unitOfWork.PerformerRepository.Edit(Performer);
-            await _unitOfWork.SaveAsync();
+            await _performerService.UpdatePerformerAsync(
+                        Performer.Id, Performer.Name, Performer.Info, SelectedCountryId);
         }
 
         private async Task LoadBioAsync()
@@ -64,7 +66,7 @@ namespace MusCat.ViewModels
 
             try
             {
-                Performer.Info = await bioLoader.LoadBioAsync(Performer);
+                Performer.Info = await bioLoader.LoadBioAsync(Performer.Name);
                 RaisePropertyChanged("Performer");
             }
             catch (Exception ex)
@@ -77,7 +79,7 @@ namespace MusCat.ViewModels
 
         private string ChooseImageSavePath()
         {
-            var filepaths = FileLocator.MakePerformerImagePathlist(Performer);
+            var filepaths = FileLocator.MakePerformerImagePathlist(Mapper.Map<Performer>(Performer));
 
             if (filepaths.Count == 1)
             {
@@ -125,7 +127,6 @@ namespace MusCat.ViewModels
                 File.Copy(ofd.FileName, filepath);
 
                 RaisePropertyChanged("Performer");
-                //PerformerView.RaisePropertyChanged("Performer");
             }
             catch (Exception ex)
             {
@@ -166,7 +167,6 @@ namespace MusCat.ViewModels
             }
 
             RaisePropertyChanged("Performer");
-            //PerformerView.RaisePropertyChanged("Performer");
         }
 
         #endregion

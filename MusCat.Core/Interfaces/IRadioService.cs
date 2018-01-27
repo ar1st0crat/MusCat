@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MusCat.Core.Entities;
-using MusCat.Core.Interfaces.Audio;
 
-namespace MusCat.Core.Interfaces.Radio
+namespace MusCat.Core.Interfaces
 {
     public interface IRadioService
     {

@@ -70,13 +70,13 @@
     <Compile Include="Data\SongRepository.cs" />
     <Compile Include="Data\UnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\Audio\AudioPlayer.cs" />
+    <Compile Include="Services\AudioPlayer.cs" />
     <Compile Include="Services\FileLocator.cs" />
     <Compile Include="Services\Networking\LastfmDataLoader.cs" />
     <Compile Include="Services\ParserStringUtils.cs" />
-    <Compile Include="Services\Radio\RadioService.cs" />
+    <Compile Include="Services\RadioService.cs" />
     <Compile Include="Services\Stats\StatsService.cs" />
-    <Compile Include="Services\Songlist\Mp3SonglistHelper.cs" />
+    <Compile Include="Services\Mp3SonglistHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MusCat.Core\MusCat.Core.csproj">

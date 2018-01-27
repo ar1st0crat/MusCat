@@ -12,8 +12,8 @@ namespace MusCat.Infrastructure.Data
         public override void Add(Country entity)
         {
             // manual autoincrement
-            var lastId = Context.Countries.Select(s => (int)s.ID).DefaultIfEmpty(0).Max();
-            entity.ID = (byte)++lastId;
+            var lastId = Context.Countries.Select(s => (int)s.Id).DefaultIfEmpty(0).Max();
+            entity.Id = (byte)++lastId;
             base.Add(entity);
         }
     }

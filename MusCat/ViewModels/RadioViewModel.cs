@@ -1,24 +1,28 @@
 ﻿using System.Collections.ObjectModel;
-using System.Threading.Tasks;
+using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using AutoMapper;
 using MusCat.Core.Entities;
-using MusCat.Core.Interfaces.Audio;
-using MusCat.Core.Interfaces.Radio;
-using MusCat.Infrastructure.Services.Radio;
+using MusCat.Core.Interfaces;
+using MusCat.Infrastructure.Data;
+using MusCat.Infrastructure.Services;
 using MusCat.Utils;
+using MusCat.ViewModels.Entities;
 using MusCat.Views;
 
 namespace MusCat.ViewModels
 {
     class RadioViewModel : ViewModelBase
     {
+        /// <summary>
+        /// Radio Station
+        /// </summary>
+        private readonly IRadioService _radio;
+
         // Bitmaps for playback buttons
         private static readonly BitmapImage ImagePlay = App.Current.Resources["ImagePlayButton"] as BitmapImage;
         private static readonly BitmapImage ImagePause = App.Current.Resources["ImagePauseButton"] as BitmapImage;
-        
-        // Radio Station
-        private readonly IRadioService _radio = new RadioService();
         
         private BitmapImage _playbackImage = ImagePause;
         public BitmapImage PlaybackImage
@@ -60,14 +64,16 @@ namespace MusCat.ViewModels
         public ICommand WindowClosingCommand { get; private set; }
 
 
-        public RadioViewModel()
+        public RadioViewModel(IRadioService radio)
         {
+            _radio = radio;
+
             // ===================== setting up all commands ============================
 
             PlaybackCommand = new RelayCommand(SongPlaybackAction);
             PreviousSongCommand = new RelayCommand(PlayPreviousSong);
             NextSongCommand = new RelayCommand(PlayNextSong);
-            ShowAlbumCommand = new RelayCommand(async() => await ViewAlbumContainingCurrentSong());
+            ShowAlbumCommand = new RelayCommand(ViewAlbumContainingCurrentSong);
 
             ChangeSongCommand = new RelayCommand(async id =>
             {
@@ -88,7 +94,7 @@ namespace MusCat.ViewModels
             });
 
             // Stop radio when the window is closing to avoid a memory leak
-            // (it will call StopAndDispose() for media player)
+            // (it will call Close() for media player)
             WindowClosingCommand = new RelayCommand(() =>
             {
                 _radio.Stop();
@@ -98,12 +104,18 @@ namespace MusCat.ViewModels
 
             _radio.Update = UpdateSongs;
 
-            _radio.MakeSonglistAsync()
-                  .ContinueWith(task =>
-                  {
-                      UpdateSongs();
-                      _radio.Start();
-                  });
+            if (_radio.UpcomingSongs.Any())
+            {
+                _radio.Start();
+            }
+            else
+            {
+                _radio.MakeSonglistAsync().ContinueWith(task =>
+                {
+                    UpdateSongs();
+                    _radio.Start();
+                });
+            }
         }
 
         /// <summary>
@@ -161,26 +173,19 @@ namespace MusCat.ViewModels
         /// <summary>
         /// Method opens Album window for displaying album cover and tracklist.
         /// Since user chooses this option not very often, 
-        /// we instantiate album repository ad-hoc right in the body of the method.
+        /// we instantiate unit of work ad-hoc right in the body of the method.
         /// </summary>
-        private async Task ViewAlbumContainingCurrentSong()
+        private void ViewAlbumContainingCurrentSong()
         {
-            //var albumView = new AlbumViewModel
-            //{
-            //    Album = _radio.CurrentSong.Album
-            //};
+            var albumPlayback = new AlbumPlaybackViewModel(
+                new AudioPlayer(), new UnitOfWork(), null);
 
-            //var repository = new AlbumRepository(new MusCatEntities());
+            Mapper.Map(_radio.CurrentSong.Album, albumPlayback);
+            
+            var albumWindow = new AlbumWindow { DataContext = albumPlayback };
+            albumWindow.Show();
 
-            //albumView.Songs = new ObservableCollection<Song>(
-            //    await repository.GetAlbumSongsAsync(_radio.CurrentSong.Album));
-
-            //var albumWindow = new AlbumWindow
-            //{
-            //    DataContext = new AlbumPlaybackViewModel(albumView)
-            //};
-
-            //albumWindow.Show();
+            albumPlayback.LoadSongsAsync();
         }
     }
 }

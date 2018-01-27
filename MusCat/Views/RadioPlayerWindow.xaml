@@ -20,10 +20,6 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
-    <Window.DataContext>
-        <viewModels:RadioViewModel />
-    </Window.DataContext>
-
     <!-- Keyboard command bindings -->
     <!-- LEFT  -  play previous song in radio tracklist -->
     <!-- RIGHT -  play next song in radio tracklist -->
@@ -274,7 +270,7 @@
                                             <MouseBinding Gesture="LeftClick"
                                                           Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
                                                                             Path=DataContext.ChangeSongCommand}"
-                                                          CommandParameter="{Binding ID}" />
+                                                          CommandParameter="{Binding Id}" />
                                         </Image.InputBindings>
                                     </Image>
                                     <Image Source="{StaticResource ImageRemoveButton}"
@@ -285,7 +281,7 @@
                                             <MouseBinding Gesture="LeftClick"
                                                           Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
                                                                             Path=DataContext.RemoveSongCommand}"
-                                                          CommandParameter="{Binding ID}" />
+                                                          CommandParameter="{Binding Id}" />
                                         </Image.InputBindings>
                                     </Image>
                                     <Label Content="{Binding Path=Album.Performer.Name}" Foreground="LightPink"/>

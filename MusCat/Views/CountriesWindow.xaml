@@ -57,7 +57,7 @@
                  Margin="10">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}" />
+                    <TextBlock Text="{Binding Info}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
