@@ -71,7 +71,7 @@ Stats window
 
 - [EntityFramework](https://www.nuget.org/packages/EntityFramework)
 - [AutoMapper](http://automapper.org/)
-- [AutoFac](https://autofac.org/)
+- [Autofac](https://autofac.org/)
 - [LiveCharts](https://lvcharts.net)
 - [NAudio](https://naudio.codeplex.com)
 - [TagLib](http://taglib.org)

@@ -62,10 +62,13 @@
     <Compile Include="Interfaces\IRateCalculator.cs" />
     <Compile Include="Services\AlbumService.cs" />
     <Compile Include="Services\CountryService.cs" />
+    <Compile Include="Interfaces\Domain\IAlbumService.cs" />
+    <Compile Include="Interfaces\Domain\ICountryService.cs" />
+    <Compile Include="Interfaces\Domain\IPerformerService.cs" />
     <Compile Include="Services\PerformerService.cs" />
     <Compile Include="Services\RateCalculator.cs" />
-    <Compile Include="Services\Result.cs" />
-    <Compile Include="Services\ResultType.cs" />
+    <Compile Include="Interfaces\Domain\Result.cs" />
+    <Compile Include="Interfaces\Domain\ResultType.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

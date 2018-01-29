@@ -52,6 +52,11 @@ namespace MusCat.Infrastructure.Data
             return await Context.Set<T>().Where(predicate)
                                 .ToListAsync().ConfigureAwait(false);
         }
+
+        public virtual async Task<long> CountAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await Context.Set<T>().CountAsync(predicate).ConfigureAwait(false);
+        }
         
         public virtual async Task AddAsync(T entity)
         {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
 
 namespace MusCat.Core.Services
@@ -18,21 +17,21 @@ namespace MusCat.Core.Services
         ///     
         ///     otherwise - the total rate is simply an average of album rates
         /// </summary>
-        public byte? Calculate(IEnumerable<Album> albums)
+        public byte? Calculate(IEnumerable<byte?> rates)
         {
-            var ratedCount = albums.Count(t => t.Rate.HasValue);
+            var ratedCount = rates.Count(r => r.HasValue);
 
             if (ratedCount <= 0)
             {
                 return null;
             }
 
-            var sumRate = albums.Sum(t => t.Rate ?? 0);
+            var sumRate = rates.Sum(r => r ?? 0);
 
             if (ratedCount > 2)
             {
-                var minRate = albums.Min(r => r.Rate).Value;
-                var maxRate = albums.Max(r => r.Rate).Value;
+                var minRate = rates.Min().Value;
+                var maxRate = rates.Max().Value;
                 sumRate -= (minRate + maxRate);
                 ratedCount -= 2;
             }

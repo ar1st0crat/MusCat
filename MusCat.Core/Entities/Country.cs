@@ -8,9 +8,7 @@ namespace MusCat.Core.Entities
         public byte Id { get; set; }
         public string Name { get; set; }
         public ICollection<Performer> Performers { get; set; }
-
-        public int PerformerCount => Performers.Count;
-
+        
         public Country()
         {
             Performers = new HashSet<Performer>();

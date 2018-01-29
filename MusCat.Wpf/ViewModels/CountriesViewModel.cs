@@ -1,9 +1,11 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using AutoMapper;
 using MusCat.Core.Entities;
+using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Services;
 using MusCat.Utils;
 using MusCat.ViewModels.Entities;
@@ -12,6 +14,7 @@ namespace MusCat.ViewModels
 {
     class CountriesViewModel : ViewModelBase
     {
+        private readonly IUnitOfWork _unitOfWork;
         private readonly CountryService _countryService;
 
         private ObservableCollection<CountryViewModel> _countrylist;
@@ -45,13 +48,14 @@ namespace MusCat.ViewModels
         }
 
 
-        public CountriesViewModel(CountryService countryService)
+        public CountriesViewModel(IUnitOfWork unitOfWork)
         {
-            _countryService = countryService;
+            _unitOfWork = unitOfWork;
+            _countryService = new CountryService(_unitOfWork);
             
-            AddCommand = new RelayCommand(AddCountry);
-            RemoveCommand = new RelayCommand(RemoveCountry);
-            ReplaceCommand = new RelayCommand(UpdateCountry);
+            AddCommand = new RelayCommand(async () => await AddCountryAsync());
+            RemoveCommand = new RelayCommand(async () => await RemoveCountryAsync());
+            ReplaceCommand = new RelayCommand(async () => await UpdateCountryAsync());
             OkCommand = new RelayCommand(() => { DialogResult = true; });
 
             LoadCountriesAsync();
@@ -59,14 +63,21 @@ namespace MusCat.ViewModels
 
         public async Task LoadCountriesAsync()
         {
-            var countryModels = await _countryService.GetAllCountriesAsync();
             Countrylist = new ObservableCollection<CountryViewModel>();
-            Mapper.Map(countryModels, Countrylist);
+
+            var countryModels = (await _unitOfWork.CountryRepository.GetAllAsync()).ToList();
+
+            foreach (var countryModel in countryModels)
+            {
+                var country = Mapper.Map<CountryViewModel>(countryModel);
+                country.PerformerCount = await _countryService.GetPerformersCountAsync(country.Id);
+                Countrylist.Add(country);
+            }
         }
 
-        public void AddCountry()
+        private async Task AddCountryAsync()
         {
-            var result = _countryService.AddCountry(CountryInput);
+            var result = await _countryService.AddCountryAsync(CountryInput);
 
             if (result.Type != ResultType.Ok)
             {
@@ -77,10 +88,10 @@ namespace MusCat.ViewModels
             Countrylist.Add(Mapper.Map<Country, CountryViewModel>(result.Data));
         }
 
-        public void RemoveCountry()
+        private async Task RemoveCountryAsync()
         {
             var selectedCountry = Countrylist[SelectedCountryIndex];
-            var result = _countryService.RemoveCountry(selectedCountry.Id);
+            var result = await _countryService.RemoveCountryAsync(selectedCountry.Id);
 
             if (result.Type != ResultType.Ok)
             {
@@ -91,7 +102,7 @@ namespace MusCat.ViewModels
             Countrylist.RemoveAt(SelectedCountryIndex);
         }
 
-        public void UpdateCountry()
+        private async Task UpdateCountryAsync()
         {
             if (SelectedCountryIndex < 0)
             {
@@ -100,7 +111,7 @@ namespace MusCat.ViewModels
             }
 
             var selectedCountry = Countrylist[SelectedCountryIndex];
-            var result = _countryService.UpdateCountry(selectedCountry.Id, CountryInput);
+            var result = await _countryService.UpdateCountryAsync(selectedCountry.Id, CountryInput);
 
             if (result.Type != ResultType.Ok)
             {

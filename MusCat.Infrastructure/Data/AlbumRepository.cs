@@ -34,6 +34,7 @@ namespace MusCat.Infrastructure.Data
                                      .Where(s => s.AlbumId == album.Id)
                                      .ToListAsync()
                                      .ConfigureAwait(false);
+
             foreach (var song in songs)
             {
                 song.Album = album;

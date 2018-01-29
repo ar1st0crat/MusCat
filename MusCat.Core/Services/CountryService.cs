@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
+using MusCat.Core.Interfaces.Domain;
 
 namespace MusCat.Core.Services
 {
-    public class CountryService
+    public class CountryService : ICountryService
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -15,14 +15,14 @@ namespace MusCat.Core.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Country>> GetAllCountriesAsync()
+        public async Task<long> GetPerformersCountAsync(byte countryId)
         {
-            return await _unitOfWork.CountryRepository
-                                    .GetAllAsync()
+            return await _unitOfWork.PerformerRepository
+                                    .CountAsync(p => p.CountryId == countryId)
                                     .ConfigureAwait(false);
         }
 
-        public Result<Country> AddCountry(string name)
+        public async Task<Result<Country>> AddCountryAsync(string name)
         {
             var country = new Country { Name = name };
 
@@ -31,7 +31,9 @@ namespace MusCat.Core.Services
                 return new Result<Country>(ResultType.Invalid, country.Error);
             }
 
-            var duplicates = _unitOfWork.CountryRepository.Get(c => c.Name == name);
+            var duplicates = await _unitOfWork.CountryRepository
+                                              .GetAsync(c => c.Name == name)
+                                              .ConfigureAwait(false);
 
             if (duplicates.Any())
             {
@@ -39,29 +41,32 @@ namespace MusCat.Core.Services
                     "The specified country is already in the list!");
             }
 
-            _unitOfWork.CountryRepository.Add(country);
-            _unitOfWork.Save();
+            await _unitOfWork.CountryRepository.AddAsync(country).ConfigureAwait(false);
+            await _unitOfWork.SaveAsync().ConfigureAwait(false);
 
             return new Result<Country>(country);
         }
 
-        public Result<Country> RemoveCountry(byte countryId)
+        public async Task<Result<Country>> RemoveCountryAsync(byte countryId)
         {
-            var country = _unitOfWork.CountryRepository
-                                     .Get(c => c.Id == countryId)
-                                     .FirstOrDefault();
+            var countries = await _unitOfWork.CountryRepository
+                                             .GetAsync(c => c.Id == countryId)
+                                             .ConfigureAwait(false);
+
+            var country = countries.FirstOrDefault();
+
             if (country == null)
             {
                 return new Result<Country>(ResultType.Invalid, "Could not find country!");
             }
 
             _unitOfWork.CountryRepository.Delete(country);
-            _unitOfWork.Save();
+            await _unitOfWork.SaveAsync().ConfigureAwait(false);
 
             return new Result<Country>(country);
         }
 
-        public Result<Country> UpdateCountry(byte countryId, string name)
+        public async Task<Result<Country>> UpdateCountryAsync(byte countryId, string name)
         {
             var country = new Country { Name = name };
 
@@ -70,9 +75,11 @@ namespace MusCat.Core.Services
                 return new Result<Country>(ResultType.Invalid, country.Error);
             }
 
-            country = _unitOfWork.CountryRepository
-                                 .Get(c => c.Id == countryId)
-                                 .FirstOrDefault();
+            var countries = await _unitOfWork.CountryRepository
+                                             .GetAsync(c => c.Id == countryId)
+                                             .ConfigureAwait(false);
+
+            country = countries.FirstOrDefault();
 
             if (country == null)
             {
@@ -81,7 +88,7 @@ namespace MusCat.Core.Services
 
             country.Name = name;
             _unitOfWork.CountryRepository.Edit(country);
-            _unitOfWork.Save();
+            await _unitOfWork.SaveAsync().ConfigureAwait(false);
 
             return new Result<Country>(country);
         }

@@ -15,9 +15,9 @@ namespace MusCat.Tests
         public void TestCalculateRateForNoAlbums()
         {
             // ARRANGE
-            var albums = new List<Album>();
+            var rates = new List<byte?>();
             // ACT
-            var rate = _rateCalculator.Calculate(albums);
+            var rate = _rateCalculator.Calculate(rates);
             // ASSERT
             Assert.That(rate, Is.Null);
         }
@@ -26,12 +26,9 @@ namespace MusCat.Tests
         public void TestCalculateSingleRate()
         {
             // ARRANGE
-            var albums = new List<Album>
-            {
-                new Album { Rate = 5 }
-            };
+            var rates = new byte?[] { 5 };
             // ACT
-            var rate = _rateCalculator.Calculate(albums);
+            var rate = _rateCalculator.Calculate(rates);
             // ASSERT
             Assert.That(rate, Is.EqualTo(5));
         }
@@ -40,13 +37,9 @@ namespace MusCat.Tests
         public void TestCalculateDoubleRate()
         {
             // ARRANGE
-            var albums = new List<Album>
-            {
-                new Album { Rate = 5 },
-                new Album { Rate = 10 }
-            };
+            var rates = new byte? [] { 5, 10 };
             // ACT
-            var rate = _rateCalculator.Calculate(albums);
+            var rate = _rateCalculator.Calculate(rates);
             // ASSERT
             Assert.That(rate, Is.EqualTo(8));
         }
@@ -55,15 +48,9 @@ namespace MusCat.Tests
         public void TestCalculateRate()
         {
             // ARRANGE
-            var albums = new List<Album>
-            {
-                new Album { Rate = 1 },
-                new Album { Rate = 10 },
-                new Album { Rate = 2 },
-                new Album { Rate = 4 }
-            };
+            var rates = new byte? [] { 1, 10, 2, 4 };
             // ACT
-            var rate = _rateCalculator.Calculate(albums);
+            var rate = _rateCalculator.Calculate(rates);
             // ASSERT
             Assert.That(rate, Is.EqualTo(3));
         }
@@ -79,15 +66,9 @@ namespace MusCat.Tests
         public void TestCalculateSomeNullRates()
         {
             // ARRANGE
-            var albums = new List<Album>
-            {
-                new Album { Rate = 1 },
-                new Album { Rate = null },
-                new Album { Rate = 2 },
-                new Album { Rate = 4 }
-            };
+            var rates = new byte? [] { 1, null, 2, 4 };
             // ACT
-            var rate = _rateCalculator.Calculate(albums);
+            var rate = _rateCalculator.Calculate(rates);
             // ASSERT
             Assert.That(rate, Is.EqualTo(2));
         }

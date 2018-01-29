@@ -15,9 +15,18 @@
             }
         }
 
-        public int PerformerCount { get; set; }
+        private long _performerCount;
+        public long PerformerCount
+        {
+            get { return _performerCount; }
+            set
+            {
+                _performerCount = value;
+                RaisePropertyChanged();
+            }
+        }
 
-        public string Info => 
+        public string PerformerInfo => 
             string.Format("{0} ({1})", Name, PerformerCount);
     }
 }

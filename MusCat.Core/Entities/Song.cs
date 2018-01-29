@@ -17,7 +17,14 @@ namespace MusCat.Core.Entities
 
         public const int MaxNameLength = 50;
 
-        public string Error => string.Join("\n", this["Name"], this["TimeLength"]);
+        public string Error
+        {
+            get
+            {
+                var error = string.Join("\n", this["Name"], this["TimeLength"]);
+                return error.Replace("\n", "") == string.Empty ? string.Empty : error;
+            }
+        }
 
         public string this[string columnName]
         {

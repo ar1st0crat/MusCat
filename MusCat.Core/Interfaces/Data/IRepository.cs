@@ -19,6 +19,7 @@ namespace MusCat.Core.Interfaces.Data
 
         Task<IEnumerable<T>> GetAllAsync();
         Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> predicate);
+        Task<long> CountAsync(Expression<Func<T, bool>> predicate);
         Task AddAsync(T entity);
     }
 }

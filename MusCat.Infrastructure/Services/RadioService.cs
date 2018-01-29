@@ -21,7 +21,7 @@ namespace MusCat.Infrastructure.Services
         public const int MaxSongs = 10;
 
         // Audio player
-        public IAudioPlayer Player { get; } = new AudioPlayer();
+        public IAudioPlayer Player { get; set; }// = new AudioPlayer();
         private bool _isStopped;
 
         // Delegate that will be invoked when a new song starts playing
@@ -53,7 +53,7 @@ namespace MusCat.Infrastructure.Services
             {
                 while (!_isStopped)
                 {
-                    Task.Delay(1000).Wait();
+                    await Task.Delay(1000);
 
                     if (Player.IsStopped && !Player.IsStoppedManually)
                     {
@@ -81,6 +81,10 @@ namespace MusCat.Infrastructure.Services
             try
             {
                 Player.Play(fileSong);
+            }
+            catch (InvalidOperationException)
+            {
+                // some multi-threading issue in debug mode
             }
             catch (Exception)
             {

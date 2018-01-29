@@ -1,4 +1,6 @@
-﻿namespace MusCat.Core.Services
+﻿using MusCat.Core.Services;
+
+namespace MusCat.Core.Interfaces.Domain
 {
     public class Result<T>
     {

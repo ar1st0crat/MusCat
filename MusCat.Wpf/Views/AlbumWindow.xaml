@@ -120,7 +120,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0">
-            <Image Source="{Binding Converter={StaticResource AlbumImageConverter}, ConverterParameter={StaticResource AlbumHeight}}"
+            <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter}, ConverterParameter={StaticResource AlbumHeight}}"
                    Width="{StaticResource AlbumWidth}" Height="{StaticResource AlbumHeight}"
                    Margin="10,25,0,0" 
                    HorizontalAlignment="Center" VerticalAlignment="Top">
@@ -131,7 +131,7 @@
             <DockPanel>
                 <DockPanel HorizontalAlignment="Left" Margin="15,0,0,0">
                     <StackPanel>
-                        <TextBlock Text="{Binding Path=Rate, Converter={StaticResource AlbumRateConverter}}"
+                        <TextBlock Text="{Binding Path=Album.Rate, Converter={StaticResource AlbumRateConverter}}"
                                    Foreground="Black" Background="Orange"
                                    FontSize="18" FontFamily="Arial Narrow"
                                    Padding="5" Margin="0,0,7,0">
@@ -140,7 +140,7 @@
                             </TextBlock.Effect>
                         </TextBlock>
                     </StackPanel>
-                    <controls:RateStarsControl Rate="{Binding Path=Rate}" Height="25" Width="125">
+                    <controls:RateStarsControl Rate="{Binding Path=Album.Rate}" Height="25" Width="125">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseDown">
                                 <i:InvokeCommandAction Command="{Binding Path=UpdateRateCommand}"/>
@@ -148,7 +148,7 @@
                         </i:Interaction.Triggers>
                     </controls:RateStarsControl>
                 </DockPanel>
-                <Label Content="{Binding Path=TotalTime}"
+                <Label Content="{Binding Path=Album.TotalTime}"
                        Background="Maroon" Foreground="White"
                        Width="auto"
                        HorizontalAlignment="Right" Margin="0,-10,15,0" 
@@ -162,18 +162,18 @@
                 </Label>
             </DockPanel>
             <StackPanel>
-                <TextBlock Text="{Binding Path=Performer.Name}"
+                <TextBlock Text="{Binding Path=Album.Performer.Name}"
                            TextWrapping="Wrap" TextAlignment="Center"
                            FontFamily="Stencil" FontSize="22"
                            Foreground="AntiqueWhite" 
                            Margin="20,20,20,10"
                            HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding Path=Name}" 
+                <TextBlock Text="{Binding Path=Album.Name}" 
                            TextWrapping="Wrap" TextAlignment="Center"
                            FontFamily="Arial Narrow" FontSize="20"
                            Foreground="AntiqueWhite"
                            HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding Path=ReleaseYear}"
+                <TextBlock Text="{Binding Path=Album.ReleaseYear}"
                            FontFamily="Broadway" FontSize="18"
                            Foreground="AntiqueWhite"
                            Margin="20,10,20,25"

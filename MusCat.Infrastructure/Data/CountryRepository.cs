@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 using MusCat.Core.Entities;
 
 namespace MusCat.Infrastructure.Data
@@ -9,12 +11,17 @@ namespace MusCat.Infrastructure.Data
         {
         }
 
-        public override void Add(Country entity)
+        public override async Task AddAsync(Country country)
         {
             // manual autoincrement
-            var lastId = Context.Countries.Select(s => (int)s.Id).DefaultIfEmpty(0).Max();
-            entity.Id = (byte)++lastId;
-            base.Add(entity);
+            var lastId = await Context.Countries
+                                      .Select(s => (int)s.Id)
+                                      .DefaultIfEmpty(0)
+                                      .MaxAsync()
+                                      .ConfigureAwait(false);
+
+            country.Id = (byte)++lastId;
+            Add(country);
         }
     }
 }

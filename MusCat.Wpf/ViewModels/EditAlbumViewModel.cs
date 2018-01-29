@@ -114,9 +114,12 @@ namespace MusCat.ViewModels
             {
                 ReleaseYearsCollection.Add(i.ToString());
             }
+        }
 
+        public async Task LoadSongsAsync()
+        {
             Songs = new ObservableCollection<Song>(
-                _albumService.LoadAlbumSongsAsync(Album.Id).Result);
+                await _albumService.LoadAlbumSongsAsync(Album.Id));
         }
 
         public async Task SaveSongAsync()
@@ -229,12 +232,12 @@ namespace MusCat.ViewModels
             await _unitOfWork.SaveAsync();
         }
 
-        public async Task SaveAlbumInformationAsync()
+        private async Task SaveAlbumInformationAsync()
         {
-            _albumService.UpdateAlbum(Album.Id, Album.Name);
+            await _albumService.UpdateAlbumAsync(Album.Id, Album.Name, Album.TotalTime, Album.ReleaseYear);
         }
 
-        public void ParseMp3()
+        private void ParseMp3()
         {
             var fbd = new System.Windows.Forms.FolderBrowserDialog();
             if (fbd.ShowDialog() != System.Windows.Forms.DialogResult.OK)
@@ -257,7 +260,7 @@ namespace MusCat.ViewModels
             AlbumTotalTime = _songlist.FixDurations(songs);
         }
 
-        public void FixTitles()
+        private void FixTitles()
         {
             var songs = Songs.Select(s => new SongEntry
             {
@@ -277,7 +280,7 @@ namespace MusCat.ViewModels
             }
         }
 
-        public void FixDurations()
+        private void FixDurations()
         {
             var songs = Songs.Select(s => new SongEntry { Duration = s.TimeLength }).ToList();
 
@@ -292,7 +295,7 @@ namespace MusCat.ViewModels
 
         #region working with images
 
-        public string ChooseImageSavePath()
+        private string ChooseImageSavePath()
         {
             var filepaths = FileLocator.MakeAlbumImagePathlist(Mapper.Map<Album>(Album));
 
@@ -308,7 +311,7 @@ namespace MusCat.ViewModels
             return choice.ChoiceResult;
         }
 
-        public void PrepareFileForSaving(string filepath)
+        private void PrepareFileForSaving(string filepath)
         {
             // ensure that target directory exists
             Directory.CreateDirectory(Path.GetDirectoryName(filepath) ?? filepath);
@@ -320,7 +323,7 @@ namespace MusCat.ViewModels
             }
         }
 
-        public void LoadAlbumImageFromClipboard()
+        private void LoadAlbumImageFromClipboard()
         {
             if (!Clipboard.ContainsImage())
             {
@@ -354,7 +357,7 @@ namespace MusCat.ViewModels
             RaisePropertyChanged("Album");
         }
 
-        public void LoadAlbumImageFromFile()
+        private void LoadAlbumImageFromFile()
         {
             var ofd = new OpenFileDialog();
             var result = ofd.ShowDialog();
@@ -388,7 +391,11 @@ namespace MusCat.ViewModels
 
         public string Error
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                var error = string.Join("\n", this["AlbumName"], this["AlbumTotalTime"]);
+                return error.Replace("\n", "") == string.Empty ? string.Empty : error;
+            }
         }
 
         public string this[string columnName]
@@ -410,7 +417,7 @@ namespace MusCat.ViewModels
                     }
                     case "AlbumName":
                     {
-                        if (Album.Name.Length > 40)
+                        if (Album.Name.Length > Core.Entities.Album.MaxNameLength)
                         {
                             error = "Album name should contain not more than 40 symbols";
                         }

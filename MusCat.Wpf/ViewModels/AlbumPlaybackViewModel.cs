@@ -20,13 +20,7 @@ namespace MusCat.ViewModels
         private readonly PerformerViewModel _performer;
         private readonly AlbumService _albumService;
 
-        public long Id { get; set; }
-        public long PerformerId { get; set; }
-        public string Name { get; set; }
-        public short ReleaseYear { get; set; }
-        public string TotalTime { get; set; }
-        public string Info { get; set; }
-        public byte? Rate { get; set; }
+        public AlbumViewModel Album { get; set; }
 
         private ObservableCollection<Song> _songs;
         public ObservableCollection<Song> Songs
@@ -50,11 +44,9 @@ namespace MusCat.ViewModels
                 PlaySong();
             }
         }
-
-        public Performer Performer { get; set; }
         
         public string AlbumHeader => 
-            string.Format("{0} - {1} ({2})", _performer?.Name, Name, ReleaseYear);
+            string.Format("{0} - {1} ({2})", Album.Performer?.Name, Album.Name, Album.ReleaseYear);
 
         // Bitmaps for playback buttons
         private static readonly BitmapImage ImagePlay = App.Current.TryFindResource("ImagePlayButton") as BitmapImage;
@@ -72,7 +64,7 @@ namespace MusCat.ViewModels
         }
 
         // Audio player
-        private readonly IAudioPlayer _player;
+        private readonly IAudioPlayer _player = new AudioPlayer();
         private bool _isStopped;
 
         // Song time percentage
@@ -101,11 +93,11 @@ namespace MusCat.ViewModels
         private bool _isDragged;
 
 
-        public AlbumPlaybackViewModel(IAudioPlayer player,
+        public AlbumPlaybackViewModel(//IAudioPlayer player,
                                       IUnitOfWork unitOfWork,
-                                      PerformerViewModel performer)
+                                      PerformerViewModel performer = null)
         {
-            _player = player;
+            //_player = player;
             _performer = performer;
 
             _albumService = new AlbumService(unitOfWork ?? new UnitOfWork());
@@ -130,7 +122,7 @@ namespace MusCat.ViewModels
         public async Task LoadSongsAsync()
         {
             Songs = new ObservableCollection<Song>(
-                await _albumService.LoadAlbumSongsAsync(Id));
+                await _albumService.LoadAlbumSongsAsync(Album.Id));
 
             SelectedSong = null;
 
@@ -256,7 +248,7 @@ namespace MusCat.ViewModels
         /// </summary>
         private void UpdateRate()
         {
-            _albumService.UpdateAlbumRate(Id, Rate);
+            _albumService.UpdateAlbumRate(Album.Id, Album.Rate);
             _performer?.UpdateAlbumCollectionRate();
         }
     }

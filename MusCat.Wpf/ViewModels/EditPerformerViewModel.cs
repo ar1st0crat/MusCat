@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using AutoMapper;
 using MusCat.Core.Entities;
@@ -27,9 +25,20 @@ namespace MusCat.ViewModels
 
         public PerformerViewModel Performer { get; set; }
 
-        public ObservableCollection<Country> Countries { get; set; }
-        public ObservableCollection<Genre> Genres { get; set; }
+        private ObservableCollection<Country> _countries;
+        public ObservableCollection<Country> Countries
+        {
+            get { return _countries; }
+            set
+            {
+                _countries = value;
+                RaisePropertyChanged();
+            }
+        }
         public byte? SelectedCountryId { get; set; }
+
+        public ObservableCollection<Genre> Genres { get; set; }
+        
 
         // commands
         public RelayCommand LoadImageFromFileCommand { get; private set; }
@@ -39,9 +48,6 @@ namespace MusCat.ViewModels
 
         public EditPerformerViewModel(PerformerViewModel performer, IUnitOfWork unitOfWork)
         {
-            var countryService = new CountryService(unitOfWork);
-            Countries = new ObservableCollection<Country>(countryService.GetAllCountriesAsync().Result);
-
             Performer = performer;
             _unitOfWork = unitOfWork;
             _performerService = new PerformerService(unitOfWork);
@@ -52,12 +58,24 @@ namespace MusCat.ViewModels
             SavePerformerCommand = new RelayCommand(async() => await SavePerformerAsync());
 
             SelectedCountryId = Performer.Country?.Id;
+
+            LoadCountriesAsync();
+        }
+
+        public async Task LoadCountriesAsync()
+        {
+            Countries = new ObservableCollection<Country>(
+                await _unitOfWork.CountryRepository.GetAllAsync());
         }
 
         private async Task SavePerformerAsync()
         {
             await _performerService.UpdatePerformerAsync(
                         Performer.Id, Performer.Name, Performer.Info, SelectedCountryId);
+
+            Performer.Country = (await _performerService.GetCountryAsync(Performer.Id)).Data;
+
+            RaisePropertyChanged("Performer");
         }
 
         private async Task LoadBioAsync()
@@ -105,7 +123,7 @@ namespace MusCat.ViewModels
             }
         }
 
-        public void LoadPerformerImageFromFile()
+        private void LoadPerformerImageFromFile()
         {
             var ofd = new OpenFileDialog();
             var result = ofd.ShowDialog();
@@ -134,7 +152,7 @@ namespace MusCat.ViewModels
             }
         }
 
-        public void LoadPerformerImageFromClipboard()
+        private void LoadPerformerImageFromClipboard()
         {
             if (!Clipboard.ContainsImage())
             {

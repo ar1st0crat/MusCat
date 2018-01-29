@@ -3,10 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
+using MusCat.Core.Interfaces.Domain;
 
 namespace MusCat.Core.Services
 {
-    public class AlbumService
+    public class AlbumService : IAlbumService
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -15,7 +16,7 @@ namespace MusCat.Core.Services
             _unitOfWork = unitOfWork;
         }
 
-        public Result<Album> AddAlbum(string name)
+        public async Task<Result<Album>> AddAlbumAsync(string name)
         {
             var album = new Album { Name = name };
 
@@ -24,40 +25,45 @@ namespace MusCat.Core.Services
                 return new Result<Album>(ResultType.Invalid, album.Error);
             }
 
-            _unitOfWork.AlbumRepository.Add(album);
-            _unitOfWork.Save();
+            await _unitOfWork.AlbumRepository.AddAsync(album).ConfigureAwait(false);
+            await _unitOfWork.SaveAsync().ConfigureAwait(false);
 
             return new Result<Album>(album);
         }
 
-        public Result<Album> RemoveAlbum(long albumId)
+        public async Task<Result<Album>> RemoveAlbumAsync(long albumId)
         {
-            var album = _unitOfWork.AlbumRepository
-                                   .Get(a => a.Id == albumId)
-                                   .FirstOrDefault();
+            var albums = await _unitOfWork.AlbumRepository
+                                         .GetAsync(a => a.Id == albumId)
+                                         .ConfigureAwait(false);
+
+            var album = albums.FirstOrDefault();
+
             if (album == null)
             {
                 return new Result<Album>(ResultType.Invalid, "Could not find album!");
             }
 
             _unitOfWork.AlbumRepository.Delete(album);
-            _unitOfWork.Save();
+            await _unitOfWork.SaveAsync().ConfigureAwait(false);
 
             return new Result<Album>(album);
         }
 
-        public Result<Album> UpdateAlbum(long albumId, string name)
+        public async Task<Result<Album>> UpdateAlbumAsync(long albumId, string name, string totalTime, short year)
         {
-            var album = new Album { Name = name };
+            var album = new Album { Name = name, TotalTime = totalTime, ReleaseYear = year};
 
             if (album.Error != string.Empty)
             {
                 return new Result<Album>(ResultType.Invalid, album.Error);
             }
 
-            album = _unitOfWork.AlbumRepository
-                               .Get(a => a.Id == albumId)
-                               .FirstOrDefault();
+            var albums = await _unitOfWork.AlbumRepository
+                                          .GetAsync(a => a.Id == albumId)
+                                          .ConfigureAwait(false);
+
+            album = albums.FirstOrDefault();
 
             if (album == null)
             {
@@ -65,8 +71,11 @@ namespace MusCat.Core.Services
             }
 
             album.Name = name;
+            album.TotalTime = totalTime;
+            album.ReleaseYear = year;
+
             _unitOfWork.AlbumRepository.Edit(album);
-            _unitOfWork.Save();
+            await _unitOfWork.SaveAsync().ConfigureAwait(false);
 
             return new Result<Album>(album);
         }
@@ -89,12 +98,22 @@ namespace MusCat.Core.Services
             return new Result<Album>(album);
         }
 
+        /// <summary>
+        /// This version loads all album songs including Album and Album.Performer fields
+        /// </summary>
         public async Task<IEnumerable<Song>> LoadAlbumSongsAsync(long albumId)
         {
-            var album = _unitOfWork.AlbumRepository
-                                   .Get(a => a.Id == albumId)
-                                   .FirstOrDefault();
+            var albums = await _unitOfWork.AlbumRepository
+                                          .GetAsync(a => a.Id == albumId)
+                                          .ConfigureAwait(false);
 
+            var album = albums.FirstOrDefault();
+
+            album.Performer = (await _unitOfWork.PerformerRepository
+                                                .GetAsync(p => p.Id == album.PerformerId)
+                                                .ConfigureAwait(false))
+                                                .FirstOrDefault();
+            
             return await _unitOfWork.AlbumRepository
                                     .GetAlbumSongsAsync(album)
                                     .ConfigureAwait(false);

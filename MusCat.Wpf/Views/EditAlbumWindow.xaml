@@ -59,7 +59,7 @@
                                                Height="25" Width="125" />
                 </DockPanel>
                 <TextBox x:Name="AlbumTotalTime"
-                         Text="{Binding Path=AlbumTotalTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
+                         Text="{Binding Path=Album.TotalTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
                          Background="Maroon" Foreground="White"
                          Width="auto"
                          HorizontalAlignment="Right" Margin="0,-15,40,0" 
@@ -86,7 +86,7 @@
                 <WrapPanel HorizontalAlignment="Center">
                     <Label Content="Name: " Foreground="White" />
                     <TextBox x:Name="AlbumNameTextBox"
-                             Text="{Binding Path=AlbumName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged,
+                             Text="{Binding Path=Album.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged,
                                             ValidatesOnDataErrors=True, NotifyOnValidationError=True}" 
                              FontFamily="Arial Narrow"
                              FontSize="18"

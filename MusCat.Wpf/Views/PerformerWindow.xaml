@@ -28,32 +28,32 @@
         <ScrollViewer Grid.Column="0" Grid.Row="0"
                       HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <StackPanel >
-                <Image Source="{Binding Path=Performer, Converter={StaticResource PerformerPhotoConverter}, ConverterParameter={StaticResource PerformerPhotoWidth}}"
+                <Image Source="{Binding Converter={StaticResource PerformerPhotoConverter}, ConverterParameter={StaticResource PerformerPhotoWidth}}"
                        HorizontalAlignment="Left" VerticalAlignment="Top"
                        Margin="10,20,0,0"
                        Width="{StaticResource PerformerPhotoWidth}"/>
-                <Label Content="{Binding Performer.Name}"
+                <Label Content="{Binding Name}"
                        Foreground="White"
                        FontFamily="Stencil" FontSize="28"
                        HorizontalAlignment="Center"/>
-                <Label Content="{Binding Performer.Country.Name}"
+                <Label Content="{Binding Country.Name}"
                        Foreground="White"
                        FontSize="16"
                        HorizontalAlignment="Center" Margin="0,15,0,15"/>
-                <ListBox ItemsSource="{Binding Performer.Styles}"
+                <ListBox ItemsSource="{Binding Styles}"
                          Background="Transparent" BorderBrush="Transparent">
                 </ListBox>
                 <Label Content="Lineup:"
                        Foreground="White"
                        FontSize="16"
                        HorizontalAlignment="Center" Margin="0,15,0,15"/>
-                <ListBox ItemsSource="{Binding Performer.Lineups}"
+                <ListBox ItemsSource="{Binding Lineups}"
                          Background="Transparent" BorderBrush="Transparent">
                 </ListBox>
             </StackPanel>
         </ScrollViewer>
         <StackPanel Grid.Column="1">
-            <TextBox Text="{Binding Performer.Info}"
+            <TextBox Text="{Binding Info}"
                      TextWrapping="Wrap" AcceptsReturn="True" 
                      Width="auto" Height="650" MaxWidth="500"
                      Margin="15" 

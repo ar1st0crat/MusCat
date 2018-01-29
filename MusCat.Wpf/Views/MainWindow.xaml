@@ -15,10 +15,6 @@
             <GradientStop Color="#ff77bb" Offset="2.5" />
         </LinearGradientBrush>
     </Window.Background>
-    
-    <Window.DataContext>
-        <viewModels:MainViewModel />
-    </Window.DataContext>
 
     <!-- Keyboard command bindings -->
     <!-- ENTER  -  view info of a performer or an album (depending on current selection) -->

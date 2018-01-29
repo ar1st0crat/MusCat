@@ -177,10 +177,10 @@ namespace MusCat.ViewModels
         /// </summary>
         private void ViewAlbumContainingCurrentSong()
         {
-            var albumPlayback = new AlbumPlaybackViewModel(
-                new AudioPlayer(), new UnitOfWork(), null);
-
-            Mapper.Map(_radio.CurrentSong.Album, albumPlayback);
+            var albumPlayback = new AlbumPlaybackViewModel(new UnitOfWork())
+            {
+                Album = Mapper.Map<AlbumViewModel>(_radio.CurrentSong.Album)
+            };
             
             var albumWindow = new AlbumWindow { DataContext = albumPlayback };
             albumWindow.Show();

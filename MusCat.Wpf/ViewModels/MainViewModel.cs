@@ -7,8 +7,7 @@ using System.Windows;
 using AutoMapper;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
-using MusCat.Core.Services;
-using MusCat.Infrastructure.Data;
+using MusCat.Core.Interfaces.Domain;
 using MusCat.Infrastructure.Services;
 using MusCat.Infrastructure.Services.Stats;
 using MusCat.Utils;
@@ -23,9 +22,9 @@ namespace MusCat.ViewModels
     /// </summary>
     class MainViewModel : ViewModelBase
     {
-        private readonly IUnitOfWork _unitOfWork = new UnitOfWork();
-        private readonly PerformerService _performerService;
-        private readonly AlbumService _albumService;
+        private readonly IUnitOfWork _unitOfWork;// = new UnitOfWork();
+        private readonly IPerformerService _performerService;
+        private readonly IAlbumService _albumService;
 
         public ObservableCollection<PerformerViewModel> Performers { get; } = 
             new ObservableCollection<PerformerViewModel>();
@@ -83,10 +82,13 @@ namespace MusCat.ViewModels
 
         #endregion
 
-        public MainViewModel()
+        public MainViewModel(IUnitOfWork unitOfWork,
+                             IPerformerService performerService,
+                             IAlbumService albumService)
         {
-            _performerService = new PerformerService(_unitOfWork);
-            _albumService = new AlbumService(_unitOfWork);
+            _unitOfWork = unitOfWork;
+            _performerService = performerService;
+            _albumService = albumService;
 
             // setting up all commands (quite a lot of them)
 
@@ -114,15 +116,15 @@ namespace MusCat.ViewModels
                 }
             });
 
-            GeneralEditCommand = new RelayCommand(async () =>
+            GeneralEditCommand = new RelayCommand(() =>
             {
                 if (SelectedPerformer?.SelectedAlbum != null)
                 {
-                    await EditAlbumAsync();
+                    EditAlbum();
                 }
                 else
                 {
-                    await EditPerformerAsync();
+                    EditPerformer();
                 }
             });
 
@@ -137,11 +139,11 @@ namespace MusCat.ViewModels
             IndexPageCommand = new RelayCommand(NavigatePage);
 
             ViewPerformerCommand = new RelayCommand(ViewSelectedPerformer);
-            EditPerformerCommand = new RelayCommand(async () => await EditPerformerAsync());
+            EditPerformerCommand = new RelayCommand(EditPerformer);
             EditCountriesCommand = new RelayCommand(EditCountries);
             EditMusiciansCommand = new RelayCommand(() => { });
             ViewAlbumCommand = new RelayCommand(ViewSelectedAlbum);
-            EditAlbumCommand = new RelayCommand(async () => await EditAlbumAsync());
+            EditAlbumCommand = new RelayCommand(EditAlbum);
             AddPerformerCommand = new RelayCommand(async () => await AddPerformerAsync());
             AddAlbumCommand = new RelayCommand(async () => await AddAlbumAsync());
             DeletePerformerCommand = new RelayCommand(async () => await RemoveSelectedPerformerAsync());
@@ -283,7 +285,7 @@ namespace MusCat.ViewModels
             foreach (var performer in performers.Items)
             {
                 var performerViewModel = Mapper.Map<PerformerViewModel>(performer);
-
+                
                 // Fill performer's albumlist
                 IEnumerable<Album> albums;
 
@@ -291,11 +293,13 @@ namespace MusCat.ViewModels
                 // then copy **all** albums to PerformerViewModel
                 if (_filter != PerformerFilters.FilterByAlbumPattern)
                 {
-                    albums = await _unitOfWork.PerformerRepository.GetPerformerAlbumsAsync(performer);
+                    albums = await _unitOfWork.PerformerRepository
+                                              .GetPerformerAlbumsAsync(performer);
                 }
                 else
                 {
-                    albums = await _unitOfWork.PerformerRepository.GetPerformerAlbumsAsync(performer, AlbumPattern);
+                    albums = await _unitOfWork.PerformerRepository
+                                              .GetPerformerAlbumsAsync(performer, AlbumPattern);
                 }
 
                 foreach (var album in albums)
@@ -393,7 +397,7 @@ namespace MusCat.ViewModels
             performerWindow.Show();
         }
 
-        private async Task EditPerformerAsync()
+        private void EditPerformer()
         {
             if (SelectedPerformer == null)
             {
@@ -417,19 +421,20 @@ namespace MusCat.ViewModels
                 MessageBox.Show("Please select album to show!");
                 return;
             }
-
-            // load songs of selected album lazily
-
-            var albumPlayback = new AlbumPlaybackViewModel(new AudioPlayer(), _unitOfWork, SelectedPerformer);
-            Mapper.Map(album, albumPlayback);
             
+            var albumPlayback = new AlbumPlaybackViewModel(_unitOfWork, SelectedPerformer)
+            {
+                Album = album
+            };
+
             var albumWindow = new AlbumWindow { DataContext = albumPlayback };
             albumWindow.Show();
 
+            // load songs of selected album lazily
             albumPlayback.LoadSongsAsync();
         }
 
-        private async Task EditAlbumAsync()
+        private void EditAlbum()
         {
             var album = SelectedPerformer?.SelectedAlbum;
             if (album == null)
@@ -438,11 +443,10 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            var albumWindow = new EditAlbumWindow
-            {
-                DataContext = new EditAlbumViewModel(album, _unitOfWork)
-            };
+            var albumViewModel = new EditAlbumViewModel(album, _unitOfWork);
+            var albumWindow = new EditAlbumWindow { DataContext = albumViewModel };
 
+            albumViewModel.LoadSongsAsync();
             albumWindow.ShowDialog();
 
             SelectedPerformer.UpdateAlbumCollectionRate();
@@ -455,7 +459,8 @@ namespace MusCat.ViewModels
             
             var performerWindow = new EditPerformerWindow
             {
-                DataContext = new EditPerformerViewModel(Mapper.Map<PerformerViewModel>(performer), _unitOfWork)
+                DataContext = new EditPerformerViewModel(
+                    Mapper.Map<PerformerViewModel>(performer), _unitOfWork)
             };
 
             performerWindow.ShowDialog();
@@ -500,15 +505,15 @@ namespace MusCat.ViewModels
                                     (short)DateTime.Now.Year,
                                     "0:00")).Data;
 
-            album.Performer = Mapper.Map<Performer>(SelectedPerformer);
             var albumViewModel = Mapper.Map<AlbumViewModel>(album);
 
             var editAlbumWindow = new EditAlbumWindow
             {
-                DataContext = new EditAlbumViewModel(albumViewModel, _unitOfWork )
+                DataContext = new EditAlbumViewModel(albumViewModel, _unitOfWork)
             };
 
             editAlbumWindow.ShowDialog();
+
 
             // Insert the view model of a newly added album at the right place in performer's collection
 
@@ -526,9 +531,9 @@ namespace MusCat.ViewModels
                 // then, there can be several albums with the same year of release
                 // so loop through them to find the place for insertion (by album name)
                 albumPos = i;
-                while (albums[albumPos].ReleaseYear == album.ReleaseYear &&
-                       string.Compare(album.Name, albums[albumPos].Name, StringComparison.Ordinal) > 0 &&
-                       albumPos < albums.Count)
+                while (albumPos < albums.Count && 
+                       albums[albumPos].ReleaseYear == album.ReleaseYear &&
+                       string.Compare(album.Name, albums[albumPos].Name, StringComparison.Ordinal) > 0)
                 {
                     albumPos++;
                 }
@@ -567,7 +572,7 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            _albumService.RemoveAlbum(selectedAlbum.Id);
+            await _albumService.RemoveAlbumAsync(selectedAlbum.Id);
             
             // to update view
             SelectedPerformer.Albums.Remove(selectedAlbum);
@@ -580,7 +585,7 @@ namespace MusCat.ViewModels
 
         private async Task StartRadioAsync()
         {
-            var radio = new RadioService();
+            var radio = new RadioService() {Player = new AudioPlayer()};
 
             // if radioplayer can't find songs to create playlist
             // then why even try opening radio window? 
@@ -606,7 +611,7 @@ namespace MusCat.ViewModels
         {
             var countriesWindow = new CountriesWindow
             {
-                DataContext = new CountriesViewModel(new CountryService(_unitOfWork))
+                DataContext = new CountriesViewModel(_unitOfWork)
             };
 
             countriesWindow.ShowDialog();

@@ -7,14 +7,14 @@ namespace MusCat.Core.Interfaces
 {
     public interface IRadioService
     {
-        IAudioPlayer Player { get; }
-
         List<Song> SongArchive { get; }
         List<Song> UpcomingSongs { get; }
         Song CurrentSong { get; }
         Song PrevSong { get; }
         Song NextSong { get; }
-        
+
+        IAudioPlayer Player { get; }
+
         void Start();
         void Stop();
         
