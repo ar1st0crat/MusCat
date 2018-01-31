@@ -52,6 +52,7 @@
     <Compile Include="Interfaces\Data\IPerformerRepository.cs" />
     <Compile Include="Interfaces\Data\IRepository.cs" />
     <Compile Include="Interfaces\Data\IUnitOfWork.cs" />
+    <Compile Include="Interfaces\ISongSelector.cs" />
     <Compile Include="Interfaces\Networking\IWebDataLoader.cs" />
     <Compile Include="Interfaces\Data\PageCollection.cs" />
     <Compile Include="Interfaces\IRadioService.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="Services\RateCalculator.cs" />
     <Compile Include="Interfaces\Domain\Result.cs" />
     <Compile Include="Interfaces\Domain\ResultType.cs" />
+    <Compile Include="Util\Guard.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

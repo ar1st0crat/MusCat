@@ -6,20 +6,18 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
-using MusCat.Core.Interfaces.Data;
-using MusCat.Core.Services;
-using MusCat.Infrastructure.Data;
+using MusCat.Core.Interfaces.Domain;
+using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
-using MusCat.Utils;
+using MusCat.Util;
 using MusCat.ViewModels.Entities;
 
 namespace MusCat.ViewModels
 {
     class AlbumPlaybackViewModel : ViewModelBase
     {
-        private readonly PerformerViewModel _performer;
-        private readonly AlbumService _albumService;
-
+        private readonly IAlbumService _albumService;
+        
         public AlbumViewModel Album { get; set; }
 
         private ObservableCollection<Song> _songs;
@@ -41,7 +39,7 @@ namespace MusCat.ViewModels
             {
                 _selectedSong = value;
                 RaisePropertyChanged();
-                PlaySong();
+                if (!_isLoading) PlaySong();
             }
         }
         
@@ -64,7 +62,7 @@ namespace MusCat.ViewModels
         }
 
         // Audio player
-        private readonly IAudioPlayer _player = new AudioPlayer();
+        private readonly IAudioPlayer _player;
         private bool _isStopped;
 
         // Song time percentage
@@ -92,16 +90,20 @@ namespace MusCat.ViewModels
         //  doesn't work for some reason ¯\_(ツ)_/¯)
         private bool _isDragged;
 
+        private bool _isLoading;
 
-        public AlbumPlaybackViewModel(//IAudioPlayer player,
-                                      IUnitOfWork unitOfWork,
-                                      PerformerViewModel performer = null)
+        // optional reference to Performer's view (for UI update)
+        public PerformerViewModel Performer { get; set; }
+
+
+        public AlbumPlaybackViewModel(IAlbumService albumService, IAudioPlayer player)
         {
-            //_player = player;
-            _performer = performer;
+            Guard.AgainstNull(albumService);
+            Guard.AgainstNull(player);
 
-            _albumService = new AlbumService(unitOfWork ?? new UnitOfWork());
-
+            _albumService = albumService;
+            _player = player;
+            
             // setting up commands
             PlaybackCommand = new RelayCommand(PlaybackSongAction);
             UpdateRateCommand = new RelayCommand(UpdateRate);
@@ -118,12 +120,16 @@ namespace MusCat.ViewModels
             StartDragCommand = new RelayCommand(() => _isDragged = true);             
             StopDragCommand = new RelayCommand(() => _isDragged = false);
         }
-
+        
         public async Task LoadSongsAsync()
         {
+            _isLoading = true;
+
             Songs = new ObservableCollection<Song>(
                 await _albumService.LoadAlbumSongsAsync(Album.Id));
 
+            _isLoading = false;
+            
             SelectedSong = null;
 
             InitPlayerWorker();
@@ -136,11 +142,11 @@ namespace MusCat.ViewModels
         /// </summary>
         private void InitPlayerWorker()
         {
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 while (!_isStopped)
                 {
-                    Task.Delay(1000).Wait();
+                    await Task.Delay(1000);
 
                     if (SelectedSong != null)
                     {
@@ -249,7 +255,7 @@ namespace MusCat.ViewModels
         private void UpdateRate()
         {
             _albumService.UpdateAlbumRate(Album.Id, Album.Rate);
-            _performer?.UpdateAlbumCollectionRate();
+            Performer?.UpdateAlbumCollectionRate();
         }
     }
 }

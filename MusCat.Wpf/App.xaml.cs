@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Configuration;
+using System.Linq;
 using MusCat.Views;
 using System.Windows;
 using Autofac;
@@ -9,10 +10,12 @@ using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Interfaces.Domain;
 using MusCat.Core.Interfaces.Networking;
+using MusCat.Core.Interfaces.Stats;
 using MusCat.Core.Services;
 using MusCat.Infrastructure.Data;
 using MusCat.Infrastructure.Services;
 using MusCat.Infrastructure.Services.Networking;
+using MusCat.Infrastructure.Services.Stats;
 using MusCat.ViewModels;
 using MusCat.ViewModels.Entities;
 
@@ -28,7 +31,8 @@ namespace MusCat
         void AppInitialize(object sender, StartupEventArgs e)
         {
             InitializeMappings();
-            var diContainer = InitializeDiContainer();
+
+            DiContainer = InitializeDiContainer();
 
             // Disable shutdown when the dialog is closed
             Current.ShutdownMode = ShutdownMode.OnLastWindowClose;
@@ -51,9 +55,11 @@ namespace MusCat
 
             // Show main window:
 
-            var viewModel = diContainer.Resolve<MainViewModel>();
+            var mainWindow = new MainWindow
+            {
+                DataContext = DiContainer.Resolve<MainViewModel>()
+            };
 
-            var mainWindow = new MainWindow { DataContext = viewModel };
             mainWindow.Show();
         }
 
@@ -75,10 +81,6 @@ namespace MusCat
                    .EqualityComparison((o, ovm) => o.Id == ovm.Id)
                    .ReverseMap();
 
-                cfg.CreateMap<Song, SongViewModel>()
-                   .EqualityComparison((o, ovm) => o.Id == ovm.Id)
-                   .ReverseMap();
-
                 cfg.CreateMap<Country, CountryViewModel>()
                    .EqualityComparison((o, ovm) => o.Id == ovm.Id);
             });
@@ -89,18 +91,26 @@ namespace MusCat
         /// </summary>
         private IContainer InitializeDiContainer()
         {
+            var connectionString = ConfigurationManager.ConnectionStrings["MusCatDbContext"].ConnectionString;
+
             var builder = new ContainerBuilder();
 
-            builder.RegisterType<UnitOfWork>().As<IUnitOfWork>().SingleInstance();
+            builder.Register(c => new UnitOfWork(connectionString)).As<IUnitOfWork>().SingleInstance();
             builder.RegisterType<PerformerService>().As<IPerformerService>();
             builder.RegisterType<AlbumService>().As<IAlbumService>();
             builder.RegisterType<CountryService>().As<ICountryService>();
+            builder.Register(c => new StatsService(connectionString)).As<IStatsService>();
+            builder.Register(c => new RandomSongSelector(connectionString)).As<ISongSelector>();
             builder.RegisterType<AudioPlayer>().As<IAudioPlayer>();
             builder.RegisterType<RadioService>().As<IRadioService>();
             builder.RegisterType<Mp3SonglistHelper>().As<ISonglistHelper>();
             builder.RegisterType<LastfmDataLoader>().As<IWebDataLoader>();
             builder.RegisterType<RateCalculator>().As<IRateCalculator>();
             builder.RegisterType<MainViewModel>();
+            builder.RegisterType<EditPerformerViewModel>();
+            builder.RegisterType<EditAlbumViewModel>();
+            builder.RegisterType<AlbumPlaybackViewModel>();
+            builder.RegisterType<CountriesViewModel>();
 
             return builder.Build();
         }

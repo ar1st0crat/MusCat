@@ -8,6 +8,8 @@ using MusCat.Core.Entities;
 namespace MusCat.Infrastructure.Services
 {
     /// <summary>
+    /// (Cross-Cutting Concerns)
+    /// 
     /// Class providing static functions for locating paths in file system:
     /// 
     /// 1) song files (e.g. "|root|\F\FooPerformer\1975 - BarAlbum\01 - Intro.mp3")

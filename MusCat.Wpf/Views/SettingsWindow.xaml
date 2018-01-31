@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:MusCat.ViewModels"
-        xmlns:utils="clr-namespace:MusCat.Utils"
+        xmlns:utils="clr-namespace:MusCat.Util"
         mc:Ignorable="d"
         utils:DialogResultHelper.DialogResult="{Binding DialogResult}"
         Title="Path Settings"

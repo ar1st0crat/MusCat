@@ -6,8 +6,10 @@ using System.Windows.Input;
 using AutoMapper;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
+using MusCat.Core.Interfaces.Domain;
 using MusCat.Core.Services;
-using MusCat.Utils;
+using MusCat.Core.Util;
+using MusCat.Util;
 using MusCat.ViewModels.Entities;
 
 namespace MusCat.ViewModels
@@ -15,7 +17,7 @@ namespace MusCat.ViewModels
     class CountriesViewModel : ViewModelBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly CountryService _countryService;
+        private readonly ICountryService _countryService;
 
         private ObservableCollection<CountryViewModel> _countrylist;
         public ObservableCollection<CountryViewModel> Countrylist
@@ -48,10 +50,13 @@ namespace MusCat.ViewModels
         }
 
 
-        public CountriesViewModel(IUnitOfWork unitOfWork)
+        public CountriesViewModel(ICountryService countryService, IUnitOfWork unitOfWork)
         {
+            Guard.AgainstNull(countryService);
+            Guard.AgainstNull(unitOfWork);
+
+            _countryService = countryService;
             _unitOfWork = unitOfWork;
-            _countryService = new CountryService(_unitOfWork);
             
             AddCommand = new RelayCommand(async () => await AddCountryAsync());
             RemoveCommand = new RelayCommand(async () => await RemoveCountryAsync());

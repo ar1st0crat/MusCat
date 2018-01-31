@@ -12,9 +12,10 @@ using Microsoft.Win32;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Data;
-using MusCat.Core.Services;
+using MusCat.Core.Interfaces.Domain;
+using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
-using MusCat.Utils;
+using MusCat.Util;
 using MusCat.ViewModels.Entities;
 using MusCat.Views;
 
@@ -22,11 +23,10 @@ namespace MusCat.ViewModels
 {
     class EditAlbumViewModel : ViewModelBase, IDataErrorInfo
     {
+        private readonly IAlbumService _albumService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISonglistHelper _songlist;
-
-        private readonly AlbumService _albumService;
-
+        
         public AlbumViewModel Album { get; set; }
 
         public string AlbumName
@@ -84,12 +84,17 @@ namespace MusCat.ViewModels
 
         #endregion
 
-        public EditAlbumViewModel(AlbumViewModel albumViewModel, IUnitOfWork unitOfWork)
+        public EditAlbumViewModel(IAlbumService albumService, 
+                                  IUnitOfWork unitOfWork,
+                                  ISonglistHelper songlist)
         {
-            Album = albumViewModel;
+            Guard.AgainstNull(albumService);
+            Guard.AgainstNull(unitOfWork);
+            Guard.AgainstNull(songlist);
+
+            _albumService = albumService;
             _unitOfWork = unitOfWork;
-            _albumService = new AlbumService(unitOfWork);
-            _songlist = new Mp3SonglistHelper();
+            _songlist = songlist;
 
             // setting up commands
 
@@ -234,7 +239,7 @@ namespace MusCat.ViewModels
 
         private async Task SaveAlbumInformationAsync()
         {
-            await _albumService.UpdateAlbumAsync(Album.Id, Album.Name, Album.TotalTime, Album.ReleaseYear);
+            await _albumService.UpdateAlbumAsync(Mapper.Map<Album>(Album));
         }
 
         private void ParseMp3()

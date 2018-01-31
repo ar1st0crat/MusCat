@@ -7,7 +7,7 @@ namespace MusCat.Infrastructure.Data
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
-        private readonly MusCatDbContext _context = new MusCatDbContext();
+        private readonly MusCatDbContext _context;
 
         private IPerformerRepository _performerRepository;
         private IAlbumRepository _albumRepository;
@@ -26,6 +26,11 @@ namespace MusCat.Infrastructure.Data
         public IRepository<Country> CountryRepository =>
             _countryRepository ?? (_countryRepository = new CountryRepository(_context));
 
+
+        public UnitOfWork(string conn)
+        {
+            _context = new MusCatDbContext(conn);
+        }
 
         public void Save()
         {
@@ -57,6 +62,11 @@ namespace MusCat.Infrastructure.Data
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        ~UnitOfWork()
+        {
+            Dispose(false);
         }
 
         #endregion

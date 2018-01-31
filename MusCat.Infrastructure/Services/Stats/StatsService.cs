@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,50 +13,72 @@ namespace MusCat.Infrastructure.Services.Stats
     /// however, in general, statistical data are not tied to databases
     /// so the class is not inherited from Repository.
     /// </summary>
-    public class StatsService : IStatsService, IDisposable
+    public class StatsService : IStatsService
     {
-        private readonly MusCatDbContext _context = new MusCatDbContext();
+        private readonly string _connectionString;
+
+        public StatsService(string conn)
+        {
+            _connectionString = conn;
+        }
 
         public async Task<int> PerformerCountAsync()
         {
-            return await _context.Performers.CountAsync().ConfigureAwait(false);
+            using (var context = new MusCatDbContext(_connectionString))
+            {
+                return await context.Performers.CountAsync().ConfigureAwait(false);
+            }
         }
 
         public async Task<int> AlbumCountAsync()
         {
-            return await _context.Albums.CountAsync().ConfigureAwait(false);
+            using (var context = new MusCatDbContext(_connectionString))
+            {
+                return await context.Albums.CountAsync().ConfigureAwait(false);
+            }
         }
 
-        public Task<int> SongCountAsync()
+        public async Task<int> SongCountAsync()
         {
-            return _context.Songs.CountAsync();
+            using (var context = new MusCatDbContext(_connectionString))
+            {
+                return await context.Songs.CountAsync().ConfigureAwait(false);
+            }
         }
 
         public async Task<IEnumerable<Album>> GetLatestAlbumsAsync(int latestCount = 7)
         {
-            return await
-                   _context.Albums.Include("Performer").AsNoTracking()
-                           .OrderByDescending(a => a.Id)
-                           .Take(latestCount)
-                           .ToListAsync()
-                           .ConfigureAwait(false);
+            using (var context = new MusCatDbContext(_connectionString))
+            {
+                return await
+                    context.Albums.Include("Performer").AsNoTracking()
+                                  .OrderByDescending(a => a.Id)
+                                  .Take(latestCount)
+                                  .ToListAsync()
+                                  .ConfigureAwait(false);
+            }
         }
 
         public async Task<IEnumerable<IGrouping<string, Performer>>> GetPerformerCountriesAsync()
         {
-            return await
-                   _context.Performers.AsNoTracking()
+            using (var context = new MusCatDbContext(_connectionString))
+            {
+                return await
+                    context.Performers.AsNoTracking()
                            .GroupBy(p => p.Country.Name)
                            .Where(g => g.Key != null && g.Count() >= 10)
                            .ToListAsync()
                            .ConfigureAwait(false);
+            }
         }
 
         public async Task<IEnumerable<DecadeAlbumsStats>> GetAlbumDecadesAsync()
         {
-            return await
-                   _context.Albums.AsNoTracking()
-                           .GroupBy(a => a.ReleaseYear / 10)
+            using (var context = new MusCatDbContext(_connectionString))
+            {
+                return await
+                    context.Albums.AsNoTracking()
+                           .GroupBy(a => a.ReleaseYear/10)
                            .Select(g => new DecadeAlbumsStats
                            {
                                Decade = g.Key + "0s",
@@ -67,30 +88,7 @@ namespace MusCat.Infrastructure.Services.Stats
                            .OrderBy(d => d.Decade)
                            .ToListAsync()
                            .ConfigureAwait(false);
-        }
-
-        #region Dispose pattern
-
-        private bool _disposed;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _context.Dispose();
-                }
             }
-            _disposed = true;
         }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion
     }
 }

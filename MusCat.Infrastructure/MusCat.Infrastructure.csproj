@@ -73,8 +73,9 @@
     <Compile Include="Services\AudioPlayer.cs" />
     <Compile Include="Services\FileLocator.cs" />
     <Compile Include="Services\Networking\LastfmDataLoader.cs" />
-    <Compile Include="Services\ParserStringUtils.cs" />
+    <Compile Include="Services\Util\ParserStringUtils.cs" />
     <Compile Include="Services\RadioService.cs" />
+    <Compile Include="Services\RandomSongSelector.cs" />
     <Compile Include="Services\Stats\StatsService.cs" />
     <Compile Include="Services\Mp3SonglistHelper.cs" />
   </ItemGroup>

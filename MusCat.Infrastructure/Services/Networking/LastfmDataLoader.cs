@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Networking;
 
 namespace MusCat.Infrastructure.Services.Networking

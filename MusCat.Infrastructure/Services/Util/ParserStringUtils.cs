@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace MusCat.Infrastructure.Services
+namespace MusCat.Infrastructure.Services.Util
 {
     static class ParserStringUtils
     {

@@ -4,27 +4,37 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Autofac;
 using AutoMapper;
 using MusCat.Core.Entities;
+using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Interfaces.Domain;
-using MusCat.Infrastructure.Services;
-using MusCat.Infrastructure.Services.Stats;
-using MusCat.Utils;
+using MusCat.Core.Interfaces.Stats;
+using MusCat.Core.Util;
+using MusCat.Util;
 using MusCat.ViewModels.Entities;
 using MusCat.Views;
 
 namespace MusCat.ViewModels
 {
     /// <summary>
-    /// MainViewModel is responsible for CRUD operations with performers and albums
+    ///  MainViewModel is responsible for CRUD operations with performers and albums
     /// (and other stuff from main menu such as Radio, Stats, Settings, Help)
+    /// 
+    /// NOTE. Since this is a WPF app, it's impossible to resolve
+    ///       ALL dependencies in app entrypoint (near the composition root).
+    ///       MainViewModel is the "closest object" to composition root
+    ///       so some classes are resolved here ad-hoc and nowhere else
+    ///       (hence we don't have here a Service Locator antipattern).
+    /// 
     /// </summary>
     class MainViewModel : ViewModelBase
     {
-        private readonly IUnitOfWork _unitOfWork;// = new UnitOfWork();
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IPerformerService _performerService;
         private readonly IAlbumService _albumService;
+        private readonly IRateCalculator _rateCalculator;
 
         public ObservableCollection<PerformerViewModel> Performers { get; } = 
             new ObservableCollection<PerformerViewModel>();
@@ -84,11 +94,18 @@ namespace MusCat.ViewModels
 
         public MainViewModel(IUnitOfWork unitOfWork,
                              IPerformerService performerService,
-                             IAlbumService albumService)
+                             IAlbumService albumService,
+                             IRateCalculator rateCalculator)
         {
+            Guard.AgainstNull(unitOfWork);
+            Guard.AgainstNull(performerService);
+            Guard.AgainstNull(albumService);
+            Guard.AgainstNull(rateCalculator);
+
             _unitOfWork = unitOfWork;
             _performerService = performerService;
             _albumService = albumService;
+            _rateCalculator = rateCalculator;
 
             // setting up all commands (quite a lot of them)
 
@@ -284,7 +301,8 @@ namespace MusCat.ViewModels
             Performers.Clear();
             foreach (var performer in performers.Items)
             {
-                var performerViewModel = Mapper.Map<PerformerViewModel>(performer);
+                var performerViewModel = new PerformerViewModel(_rateCalculator);
+                Mapper.Map(performer, performerViewModel);
                 
                 // Fill performer's albumlist
                 IEnumerable<Album> albums;
@@ -404,13 +422,35 @@ namespace MusCat.ViewModels
                 MessageBox.Show("Please select performer to edit!");
                 return;
             }
-            
-            var performerWindow = new EditPerformerWindow
-            {
-                DataContext = new EditPerformerViewModel(SelectedPerformer, _unitOfWork)
-            };
 
-            performerWindow.Show();
+            using (var scope = App.DiContainer.BeginLifetimeScope())
+            {
+                var editPerformerViewModel = scope.Resolve<EditPerformerViewModel>();
+                editPerformerViewModel.Performer = SelectedPerformer;
+
+                var performerWindow = new EditPerformerWindow
+                {
+                    DataContext = editPerformerViewModel
+                };
+
+                performerWindow.Show();
+            }
+        }
+
+        public void ViewAlbum(AlbumViewModel album)
+        {
+            using (var scope = App.DiContainer.BeginLifetimeScope())
+            {
+                var albumPlayback = scope.Resolve<AlbumPlaybackViewModel>();
+                albumPlayback.Album = album;
+                albumPlayback.Performer = SelectedPerformer;
+
+                var albumWindow = new AlbumWindow { DataContext = albumPlayback };
+                albumWindow.Show();
+
+                // load songs of selected album lazily
+                albumPlayback.LoadSongsAsync();
+            }
         }
 
         private void ViewSelectedAlbum()
@@ -421,17 +461,8 @@ namespace MusCat.ViewModels
                 MessageBox.Show("Please select album to show!");
                 return;
             }
-            
-            var albumPlayback = new AlbumPlaybackViewModel(_unitOfWork, SelectedPerformer)
-            {
-                Album = album
-            };
 
-            var albumWindow = new AlbumWindow { DataContext = albumPlayback };
-            albumWindow.Show();
-
-            // load songs of selected album lazily
-            albumPlayback.LoadSongsAsync();
+            ViewAlbum(album);
         }
 
         private void EditAlbum()
@@ -443,11 +474,16 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            var albumViewModel = new EditAlbumViewModel(album, _unitOfWork);
-            var albumWindow = new EditAlbumWindow { DataContext = albumViewModel };
+            using (var scope = App.DiContainer.BeginLifetimeScope())
+            {
+                var albumViewModel = scope.Resolve<EditAlbumViewModel>();
+                albumViewModel.Album = album;
 
-            albumViewModel.LoadSongsAsync();
-            albumWindow.ShowDialog();
+                var albumWindow = new EditAlbumWindow { DataContext = albumViewModel };
+
+                albumViewModel.LoadSongsAsync();
+                albumWindow.ShowDialog();
+            }
 
             SelectedPerformer.UpdateAlbumCollectionRate();
         }
@@ -455,15 +491,25 @@ namespace MusCat.ViewModels
         private async Task AddPerformerAsync()
         {
             // set initial information of a newly added performer
-            var performer = (await _performerService.AddPerformerAsync("Unknown performer")).Data;
-            
-            var performerWindow = new EditPerformerWindow
-            {
-                DataContext = new EditPerformerViewModel(
-                    Mapper.Map<PerformerViewModel>(performer), _unitOfWork)
-            };
+            var performer = (
+                    await _performerService.AddPerformerAsync(new Performer { Name = "Unknown" })
+                ).Data;
 
-            performerWindow.ShowDialog();
+            var performerViewModel = new PerformerViewModel(_rateCalculator);
+            Mapper.Map(performer, performerViewModel);
+
+            using (var scope = App.DiContainer.BeginLifetimeScope())
+            {
+                var editPerformerViewModel = scope.Resolve<EditPerformerViewModel>();
+                editPerformerViewModel.Performer = performerViewModel;
+
+                var performerWindow = new EditPerformerWindow
+                {
+                    DataContext = editPerformerViewModel
+                };
+
+                performerWindow.ShowDialog();
+            }
 
             // clear all performers shown in the main window
             Performers.Clear();
@@ -472,7 +518,7 @@ namespace MusCat.ViewModels
             _selectedPage = 0;
 
             // and show only newly added performer (to focus user's attention on said performer)
-            Performers.Add(Mapper.Map<PerformerViewModel>(performer));
+            Performers.Add(performerViewModel);
         }
 
         private async Task RemoveSelectedPerformerAsync()
@@ -499,21 +545,32 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            var album = (await _performerService.AddAlbumAsync(
-                                    SelectedPerformer.Id,
-                                    "New Album",
-                                    (short)DateTime.Now.Year,
-                                    "0:00")).Data;
+            var albumToAdd = new Album
+            {
+                Id = SelectedPerformer.Id,
+                Name = "New Album",
+                ReleaseYear = (short)DateTime.Now.Year,
+                TotalTime = "0:00"
+            };
+
+            var album = (
+                    await _performerService.AddAlbumAsync(SelectedPerformer.Id, albumToAdd)
+                ).Data;
 
             var albumViewModel = Mapper.Map<AlbumViewModel>(album);
 
-            var editAlbumWindow = new EditAlbumWindow
+            using (var scope = App.DiContainer.BeginLifetimeScope())
             {
-                DataContext = new EditAlbumViewModel(albumViewModel, _unitOfWork)
-            };
+                var editAlbumViewModel = scope.Resolve<EditAlbumViewModel>();
+                editAlbumViewModel.Album = albumViewModel;
+                
+                var editAlbumWindow = new EditAlbumWindow
+                {
+                    DataContext = editAlbumViewModel
+                };
 
-            editAlbumWindow.ShowDialog();
-
+                editAlbumWindow.ShowDialog();
+            }
 
             // Insert the view model of a newly added album at the right place in performer's collection
 
@@ -585,48 +642,54 @@ namespace MusCat.ViewModels
 
         private async Task StartRadioAsync()
         {
-            var radio = new RadioService() {Player = new AudioPlayer()};
+            using (var scope = App.DiContainer.BeginLifetimeScope())
+            {
+                var radio = scope.Resolve<IRadioService>();
 
-            // if radioplayer can't find songs to create playlist
-            // then why even try opening radio window? 
-            try
-            {
-                await radio.MakeSonglistAsync();
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Seems like there's not enough music files on your drives");
-                return;
-            }
-            
-            var radioWindow = new RadioPlayerWindow
-            {
-                DataContext = new RadioViewModel(radio)
-            };
+                // if radioplayer can't find songs to create playlist
+                // then why even try opening radio window? 
+                try
+                {
+                    await radio.MakeSonglistAsync();
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Seems like there's not enough music files on your drives");
+                    return;
+                }
 
-            radioWindow.Show();
+                var radioViewModel = new RadioViewModel(radio) { ShowAlbum = ViewAlbum };
+                var radioWindow = new RadioPlayerWindow { DataContext = radioViewModel };
+                radioWindow.Show();
+            }
+        }
+        
+        private void ShowStats()
+        {
+            using (var scope = App.DiContainer.BeginLifetimeScope())
+            {
+                var stats = scope.Resolve<IStatsService>();
+
+                var statsWindow = new StatsWindow
+                {
+                    DataContext = new StatsViewModel(stats)
+                };
+
+                statsWindow.Show();
+            }
         }
 
         private void EditCountries()
         {
-            var countriesWindow = new CountriesWindow
+            using (var scope = App.DiContainer.BeginLifetimeScope())
             {
-                DataContext = new CountriesViewModel(_unitOfWork)
-            };
+                var countriesWindow = new CountriesWindow
+                {
+                    DataContext = scope.Resolve<CountriesViewModel>()
+                };
 
-            countriesWindow.ShowDialog();
-        }
-
-        private void ShowStats()
-        {
-            var stats = new StatsService();
-
-            var statsWindow = new StatsWindow
-            {
-                DataContext = new StatsViewModel(stats)
-            };
-
-            statsWindow.Show();
+                countriesWindow.ShowDialog();
+            }
         }
 
         private void ShowSettings()

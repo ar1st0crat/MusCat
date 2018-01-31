@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Interfaces.Domain;
+using MusCat.Core.Util;
 
 namespace MusCat.Core.Services
 {
@@ -13,13 +14,12 @@ namespace MusCat.Core.Services
 
         public AlbumService(IUnitOfWork unitOfWork)
         {
+            Guard.AgainstNull(unitOfWork);
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<Album>> AddAlbumAsync(string name)
+        public async Task<Result<Album>> AddAlbumAsync(Album album)
         {
-            var album = new Album { Name = name };
-
             if (album.Error != string.Empty)
             {
                 return new Result<Album>(ResultType.Invalid, album.Error);
@@ -50,29 +50,28 @@ namespace MusCat.Core.Services
             return new Result<Album>(album);
         }
 
-        public async Task<Result<Album>> UpdateAlbumAsync(long albumId, string name, string totalTime, short year)
+        public async Task<Result<Album>> UpdateAlbumAsync(Album newAlbum)
         {
-            var album = new Album { Name = name, TotalTime = totalTime, ReleaseYear = year};
-
-            if (album.Error != string.Empty)
+            if (newAlbum.Error != string.Empty)
             {
-                return new Result<Album>(ResultType.Invalid, album.Error);
+                return new Result<Album>(ResultType.Invalid, newAlbum.Error);
             }
 
             var albums = await _unitOfWork.AlbumRepository
-                                          .GetAsync(a => a.Id == albumId)
+                                          .GetAsync(a => a.Id == newAlbum.Id)
                                           .ConfigureAwait(false);
 
-            album = albums.FirstOrDefault();
+            var album = albums.FirstOrDefault();
 
             if (album == null)
             {
                 return new Result<Album>(ResultType.Invalid, "Could not find album!");
             }
 
-            album.Name = name;
-            album.TotalTime = totalTime;
-            album.ReleaseYear = year;
+            album.Name = newAlbum.Name;
+            album.TotalTime = newAlbum.TotalTime;
+            album.ReleaseYear = newAlbum.ReleaseYear;
+            album.Rate = newAlbum.Rate;
 
             _unitOfWork.AlbumRepository.Edit(album);
             await _unitOfWork.SaveAsync().ConfigureAwait(false);
@@ -92,6 +91,7 @@ namespace MusCat.Core.Services
             }
 
             album.Rate = rate;
+
             _unitOfWork.AlbumRepository.Edit(album);
             _unitOfWork.Save();
 

@@ -6,7 +6,7 @@ namespace MusCat.Infrastructure.Data
 {
     public class MusCatDbContext : DbContext
     {
-        public MusCatDbContext() : base("name=MusCatDbContext")
+        public MusCatDbContext(string conn) : base(conn)
         {
             Database.SetInitializer(new CreateDatabaseIfNotExists<MusCatDbContext>());
         }

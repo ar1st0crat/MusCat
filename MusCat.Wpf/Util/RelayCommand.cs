@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace MusCat.Utils
+namespace MusCat.Util
 {
     class RelayCommand : ICommand
     {

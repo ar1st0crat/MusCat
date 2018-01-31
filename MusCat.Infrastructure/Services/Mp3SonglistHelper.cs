@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MusCat.Core.Interfaces;
+using MusCat.Infrastructure.Services.Util;
 using TagLib;
 
 namespace MusCat.Infrastructure.Services
 {
     /// <summary>
-    /// Class Mp3SonglistParser is responsible for:
+    /// Class Mp3SonglistHelper is responsible for:
     /// - extracting the track number and track name from mp3 files
     /// - retrieving and formatting song duration
     /// - correcting track names according to conventional rules
@@ -18,10 +19,10 @@ namespace MusCat.Infrastructure.Services
         /// <summary>
         /// Method iterates through all mp3 files in given directory,
         /// extracts ID3 tag info from each file
-        /// and returns the collection of ready Song objects
+        /// and returns the collection of SongEntry objects
         /// </summary>
         /// <param name="folder">The directory where to parse mp3 files</param>
-        /// <returns>Tuples of song titles and durations extracted from song files</returns>
+        /// <returns>List of song titles and durations extracted from song files</returns>
         public List<SongEntry> Parse(string folder)
         {
             var songs = new List<SongEntry>();

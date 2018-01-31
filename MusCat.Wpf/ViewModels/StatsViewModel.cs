@@ -7,6 +7,7 @@ using AutoMapper;
 using LiveCharts;
 using LiveCharts.Wpf;
 using MusCat.Core.Interfaces.Stats;
+using MusCat.Core.Util;
 using MusCat.ViewModels.Entities;
 
 namespace MusCat.ViewModels
@@ -104,7 +105,9 @@ namespace MusCat.ViewModels
 
         public StatsViewModel(IStatsService stats)
         {
+            Guard.AgainstNull(stats);
             _stats = stats;
+
             LoadStatsAsync();
         } 
 

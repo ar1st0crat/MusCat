@@ -1,15 +1,14 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using AutoMapper;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
-using MusCat.Infrastructure.Data;
-using MusCat.Infrastructure.Services;
-using MusCat.Utils;
+using MusCat.Core.Util;
+using MusCat.Util;
 using MusCat.ViewModels.Entities;
-using MusCat.Views;
 
 namespace MusCat.ViewModels
 {
@@ -53,6 +52,8 @@ namespace MusCat.ViewModels
         public ObservableCollection<Song> RadioArchive => new ObservableCollection<Song>(_radio.SongArchive);
         public ObservableCollection<Song> RadioUpcoming => new ObservableCollection<Song>(_radio.UpcomingSongs);
 
+        public Action<AlbumViewModel> ShowAlbum { get; set; }
+
         // commands
         public ICommand PlaybackCommand { get; private set; }
         public ICommand StopCommand { get; private set; }
@@ -66,6 +67,7 @@ namespace MusCat.ViewModels
 
         public RadioViewModel(IRadioService radio)
         {
+            Guard.AgainstNull(radio);
             _radio = radio;
 
             // ===================== setting up all commands ============================
@@ -170,22 +172,11 @@ namespace MusCat.ViewModels
             }
         }
 
-        /// <summary>
-        /// Method opens Album window for displaying album cover and tracklist.
-        /// Since user chooses this option not very often, 
-        /// we instantiate unit of work ad-hoc right in the body of the method.
-        /// </summary>
         private void ViewAlbumContainingCurrentSong()
         {
-            var albumPlayback = new AlbumPlaybackViewModel(new UnitOfWork())
-            {
-                Album = Mapper.Map<AlbumViewModel>(_radio.CurrentSong.Album)
-            };
-            
-            var albumWindow = new AlbumWindow { DataContext = albumPlayback };
-            albumWindow.Show();
+            var album = Mapper.Map<AlbumViewModel>(_radio.CurrentSong.Album);
 
-            albumPlayback.LoadSongsAsync();
+            ShowAlbum?.Invoke(album);
         }
     }
 }

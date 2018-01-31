@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
-using MusCat.Infrastructure.Data;
+using MusCat.Core.Util;
 
 namespace MusCat.Infrastructure.Services
 {
@@ -21,14 +20,14 @@ namespace MusCat.Infrastructure.Services
         public const int MaxSongs = 10;
 
         // Audio player
-        public IAudioPlayer Player { get; set; }// = new AudioPlayer();
+        public IAudioPlayer Player { get; }
         private bool _isStopped;
 
         // Delegate that will be invoked when a new song starts playing
         public Action Update { get; set; }
 
-        // Randomizer
-        private readonly Random _songSelector = new Random();
+        // Random song selector
+        private readonly ISongSelector _songSelector;
 
         // Collection of recently played songs
         public List<Song> SongArchive { get; } = new List<Song>();
@@ -40,6 +39,15 @@ namespace MusCat.Infrastructure.Services
         public Song PrevSong => SongArchive.LastOrDefault();
         public Song NextSong => UpcomingSongs.FirstOrDefault();
 
+
+        public RadioService(IAudioPlayer player, ISongSelector songSelector)
+        {
+            Guard.AgainstNull(player);
+            Guard.AgainstNull(songSelector);
+
+            Player = player;
+            _songSelector = songSelector;
+        }
 
         #region playback functions
 
@@ -198,40 +206,9 @@ namespace MusCat.Infrastructure.Services
         /// The song is guaranteed to be present in user's file system
         /// </summary>
         /// <returns>Song object selected randomly from the database</returns>
-        public Song SelectRandomSong(int maxAttempts = 15)
+        private Song SelectRandomSong(int maxAttempts = 15)
         {
-            Song song;
-
-            var attempts = 0;
-
-            using (var context = new MusCatDbContext())
-            {
-                // find out the maximum song ID in the database
-                var maxSid = context.Songs.Max(s => s.Id);
-
-                // keep selecting song randomly until the song file is actually present in the file system...
-                // ...and while it isn't present in archive of recently played songs and upcoming songs
-                do
-                {
-                    if (attempts++ == maxAttempts)
-                    {
-                        return null;
-                    }
-
-                    var songId = _songSelector.Next() % maxSid;
-                    song = context.Songs.First(s => s.Id >= songId);
-                    // include the corresponding album of our song
-                    song.Album = context.Albums.First(a => a.Id == song.AlbumId);
-                    // do the same thing with performer for included album
-                    song.Album.Performer = context.Performers.First(p => p.Id == song.Album.PerformerId);
-                }
-                while (SongArchive.Any(s => s.Id == song.Id)    // true, if the archive already contains this song
-                    || UpcomingSongs.Any(s => s.Id == song.Id)  // true, if it is already in songlist
-                    || song.Id == CurrentSong.Id                // true, if it's currently playing
-                    || FileLocator.FindSongPath(song) == "");   // true, if the file with this song doesn't exist
-            }
-
-            return song;
+            return SelectRandomSongAsync(maxAttempts).Result;
         }
 
         #endregion
@@ -301,45 +278,23 @@ namespace MusCat.Infrastructure.Services
         /// <summary>
         /// Same as synchronous version but with async calls to EF
         /// </summary>
-        public async Task<Song> SelectRandomSongAsync(int maxAttempts = 15)
+        private async Task<Song> SelectRandomSongAsync(int maxAttempts = 15)
         {
-            Song song;
-
             var attempts = 0;
 
-            using (var context = new MusCatDbContext())
+            Song song;
+
+            // keep selecting song randomly until the song file is actually present in the file system...
+            // ...and while it isn't present in archive of recently played songs and upcoming songs
+            do
             {
-                // find out the maximum song ID in the database
-                var maxSid = context.Songs.Max(s => s.Id);
-
-                // keep selecting song randomly until the song file is actually present in the file system...
-                // ...and while it isn't present in archive of recently played songs and upcoming songs
-                do
-                {
-                    if (attempts++ == maxAttempts)
-                    {
-                        return null;
-                    }
-
-                    var songId = _songSelector.Next() % maxSid;
-
-                    song = await context.Songs
-                                        .FirstAsync(s => s.Id >= songId)
-                                        .ConfigureAwait(false);
-                    // include the corresponding album of our song
-                    song.Album = await context.Albums
-                                              .FirstAsync(a => a.Id == song.AlbumId)
-                                              .ConfigureAwait(false);
-                    // do the same thing with performer for included album
-                    song.Album.Performer = await context.Performers
-                                                        .FirstAsync(p => p.Id == song.Album.PerformerId)
-                                                        .ConfigureAwait(false);
-                }
-                while (SongArchive.Any(s => s.Id == song.Id)    // true, if the archive already contains this song
-                    || UpcomingSongs.Any(s => s.Id == song.Id)  // true, if it is already in songlist
-                    || song.Id == CurrentSong.Id                // true, if it's currently playing
-                    || FileLocator.FindSongPath(song) == "");   // true, if the file with this song doesn't exist
+                if (attempts++ == maxAttempts) return null;
+                song = await _songSelector.SelectSongAsync();
             }
+            while (SongArchive.Any(s => s.Id == song.Id)    // true, if the archive already contains this song
+                || UpcomingSongs.Any(s => s.Id == song.Id)  // true, if it is already in songlist
+                || song.Id == CurrentSong.Id                // true, if it's currently playing
+                || FileLocator.FindSongPath(song) == "");   // true, if the file with this song doesn't exist
 
             return song;
         }
@@ -361,7 +316,7 @@ namespace MusCat.Infrastructure.Services
 
         /* Alternative code
          * 
-         * ============== (however, it allows duplicate songs (((: ===============
+         * ================= (however, it allows duplicate songs) ===================
          *
          * //var songAdders = new Task[MaxSongs];
          *

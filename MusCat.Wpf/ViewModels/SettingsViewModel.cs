@@ -3,7 +3,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Input;
 using MusCat.Infrastructure.Services;
-using MusCat.Utils;
+using MusCat.Util;
 
 namespace MusCat.ViewModels
 {

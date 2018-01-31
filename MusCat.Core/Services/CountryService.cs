@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Interfaces.Domain;
+using MusCat.Core.Util;
 
 namespace MusCat.Core.Services
 {
@@ -12,6 +13,7 @@ namespace MusCat.Core.Services
 
         public CountryService(IUnitOfWork unitOfWork)
         {
+            Guard.AgainstNull(unitOfWork);
             _unitOfWork = unitOfWork;
         }
 

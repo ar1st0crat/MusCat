@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Interfaces.Domain;
+using MusCat.Core.Util;
 
 namespace MusCat.Core.Services
 {
@@ -12,13 +13,12 @@ namespace MusCat.Core.Services
 
         public PerformerService(IUnitOfWork unitOfWork)
         {
+            Guard.AgainstNull(unitOfWork);
             _unitOfWork = unitOfWork;
         }
         
-        public async Task<Result<Performer>> AddPerformerAsync(string name)
+        public async Task<Result<Performer>> AddPerformerAsync(Performer performer)
         {
-            var performer = new Performer { Name = name };
-
             if (performer.Error != string.Empty)
             {
                 return new Result<Performer>(ResultType.Invalid, performer.Error);
@@ -49,27 +49,25 @@ namespace MusCat.Core.Services
             return new Result<Performer>(performer);
         }
 
-        public async Task<Result<Performer>> UpdatePerformerAsync(long performerId, string name, string info, byte? countryId)
+        public async Task<Result<Performer>> UpdatePerformerAsync(Performer newPerformer)
         {
-            var performer = new Performer { Name = name, Info = info, CountryId = countryId };
-
-            if (performer.Error != string.Empty)
+            if (newPerformer.Error != string.Empty)
             {
-                return new Result<Performer>(ResultType.Invalid, performer.Error);
+                return new Result<Performer>(ResultType.Invalid, newPerformer.Error);
             }
 
-            performer = _unitOfWork.PerformerRepository
-                                   .Get(c => c.Id == performerId)
-                                   .FirstOrDefault();
+            var performer = _unitOfWork.PerformerRepository
+                                       .Get(c => c.Id == newPerformer.Id)
+                                       .FirstOrDefault();
 
             if (performer == null)
             {
                 return new Result<Performer>(ResultType.Invalid, "Could not find Performer!");
             }
 
-            performer.Name = name;
-            performer.Info = info;
-            performer.CountryId = countryId;
+            performer.Name = newPerformer.Name;
+            performer.Info = newPerformer.Info;
+            performer.CountryId = newPerformer.CountryId;
 
             _unitOfWork.PerformerRepository.Edit(performer);
             await _unitOfWork.SaveAsync().ConfigureAwait(false);
@@ -77,14 +75,14 @@ namespace MusCat.Core.Services
             return new Result<Performer>(performer);
         }
 
-        public async Task<Result<Album>> AddAlbumAsync(long performerId, string name, short year, string duration)
+        public async Task<Result<Album>> AddAlbumAsync(long performerId, Album newAlbum)
         {
             var album = new Album
             {
-                Name = name,
-                TotalTime = duration,
+                Name = newAlbum.Name,
+                TotalTime = newAlbum.TotalTime,
                 PerformerId = performerId,
-                ReleaseYear = year
+                ReleaseYear = newAlbum.ReleaseYear
             };
 
             await _unitOfWork.AlbumRepository.AddAsync(album).ConfigureAwait(false);

@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace MusCat.Utils
+namespace MusCat.Util
 {
     /// <summary>
     /// Class provides useful attached property DialogResult for view models

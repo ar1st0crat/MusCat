@@ -6,10 +6,11 @@ using System.Windows.Media.Imaging;
 using AutoMapper;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
-using MusCat.Core.Services;
+using MusCat.Core.Interfaces.Domain;
+using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
 using MusCat.Infrastructure.Services.Networking;
-using MusCat.Utils;
+using MusCat.Util;
 using MusCat.ViewModels.Entities;
 using MusCat.Views;
 using Clipboard = System.Windows.Clipboard;
@@ -21,9 +22,19 @@ namespace MusCat.ViewModels
     class EditPerformerViewModel : ViewModelBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly PerformerService _performerService;
+        private readonly IPerformerService _performerService;
 
-        public PerformerViewModel Performer { get; set; }
+        private PerformerViewModel _performer;
+        public PerformerViewModel Performer
+        {
+            get { return _performer; }
+            set
+            {
+                _performer = value;
+                SelectedCountryId = Performer.Country?.Id;
+                RaisePropertyChanged();
+            }
+        }
 
         private ObservableCollection<Country> _countries;
         public ObservableCollection<Country> Countries
@@ -35,6 +46,7 @@ namespace MusCat.ViewModels
                 RaisePropertyChanged();
             }
         }
+
         public byte? SelectedCountryId { get; set; }
 
         public ObservableCollection<Genre> Genres { get; set; }
@@ -46,19 +58,19 @@ namespace MusCat.ViewModels
         public RelayCommand LoadBioCommand { get; private set; }
         public RelayCommand SavePerformerCommand { get; private set; }
 
-        public EditPerformerViewModel(PerformerViewModel performer, IUnitOfWork unitOfWork)
+        public EditPerformerViewModel(IPerformerService performerService, IUnitOfWork unitOfWork)
         {
-            Performer = performer;
+            Guard.AgainstNull(performerService);
+            Guard.AgainstNull(unitOfWork);
+            
+            _performerService = performerService;
             _unitOfWork = unitOfWork;
-            _performerService = new PerformerService(unitOfWork);
 
             LoadImageFromFileCommand = new RelayCommand(LoadPerformerImageFromFile);
             LoadImageFromClipboardCommand = new RelayCommand(LoadPerformerImageFromClipboard);
             LoadBioCommand = new RelayCommand(async() => await LoadBioAsync());
             SavePerformerCommand = new RelayCommand(async() => await SavePerformerAsync());
-
-            SelectedCountryId = Performer.Country?.Id;
-
+            
             LoadCountriesAsync();
         }
 
@@ -70,8 +82,10 @@ namespace MusCat.ViewModels
 
         private async Task SavePerformerAsync()
         {
-            await _performerService.UpdatePerformerAsync(
-                        Performer.Id, Performer.Name, Performer.Info, SelectedCountryId);
+            var performer = Mapper.Map<Performer>(Performer);
+            performer.CountryId = SelectedCountryId;
+
+            await _performerService.UpdatePerformerAsync(performer);
 
             Performer.Country = (await _performerService.GetCountryAsync(Performer.Id)).Data;
 
