@@ -47,7 +47,6 @@ namespace MusCat
                 if (settingsWindow.ShowDialog() == false)
                 {
                     MessageBox.Show("Default path will be used: " + FileLocator.Pathlist.FirstOrDefault());
-                    return;
                 }
             }
 

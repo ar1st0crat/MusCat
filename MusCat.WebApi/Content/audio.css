@@ -1,0 +1,115 @@
+@import 'https://fonts.googleapis.com/css?family=Lato';
+
+* {
+    outline: none;
+}
+
+body {
+    background: rgba(216, 212, 214, 0.8);
+    font-family: 'Lato';
+    margin: 0;
+}
+
+header {
+    height: 100px;
+    background-color: #06020e;
+    color: #ffffff;
+}
+
+#logo {
+    margin-left: 75px;
+    padding-top: 18px;
+    font-size: 48px;
+}
+
+button {
+    background: transparent;
+    color: black;
+    border: solid 1px black;
+    padding: 2px;
+}
+
+#main {
+    margin: auto;
+    margin-top: 50px;
+    display: table;
+}
+
+#current {
+    display: table-cell;
+    background-color: rgba(255,255,255,0.8);
+    background-blend-mode: lighten;
+    background-size: 100% 100%;
+    width: 350px;
+    height: 350px;
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
+    box-shadow: 0 0 21px 0px rgba(20,120,120,0.3);
+    border-radius: 15px;
+}
+
+#upcoming {
+    width: 375px;
+    
+    display: table-cell;
+    position: relative;
+    font-size: 13px;
+}
+
+#upcoming img {
+    margin-left: 30px;
+}
+
+#upcoming p {
+    margin: 0;
+}
+
+#upcoming p:first-child {
+    margin-top: 170px;
+}
+
+#upcoming span {
+    padding-right: 10px;
+}
+
+#upcoming span:nth-child(2) {
+    font-weight: bold;
+}
+
+#upcoming span:nth-child(3) {
+    font-style: italic;
+    font-size: 10px;
+}
+
+#playback {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 35px;
+}
+
+.cont {
+    margin-top: 120px;
+    margin-bottom: 18px;
+}
+
+.cont h3 {
+    font-family: 'Lato';
+    font-size: 30px;
+    margin: 0 0 5px 0;
+    color: black;
+}
+
+.cont h5 {
+    font-family: 'Lato';
+    font-size: 20px;
+    margin: 0 0 5px 0;
+    color: black;
+}
+
+.cont time {
+    font-family: 'Lato';
+    font-size: 16px;
+    font-weight: bold;
+    color: black;
+}

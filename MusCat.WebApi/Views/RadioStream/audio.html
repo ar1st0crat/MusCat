@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Radio</title>
+    <link rel="stylesheet" href="audio.css">
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/mediaelement/2.22.0/jquery.js"></script>-->
+</head>
+<body>
+    <header>
+        <div id="logo">MusCat</div>
+    </header>
+    <div id="main">
+        <div id="archive">
+            <!--
+            <img src='D:/Music/G/Genesis/Picture/96.jpg' width='70px' height='70px'/>
+            <img src='D:/Music/G/Genesis/Picture/97.jpg' width='70px' height='70px'/>
+            <img src='D:/Music/G/Genesis/Picture/98.jpg' width='70px' height='70px'/>
+                -->
+        </div>
+        <div id="current">
+            <div class="cont">
+                <img id='playback' src='play.png' onclick="playOrResume();" />
+                <h3>Genesis</h3>
+                <h5>That's All</h5>
+                <time>1983</time>
+            </div>
+            <audio id="player" src="D:/Music/G/Genesis/1983 - Genesis/02 That's All.mp3"></audio>
+            <!--<input id="volume" type="range" min="0.0" max="1.0" step="0.05" />-->
+        </div>
+        <div id="upcoming">
+
+        </div>
+    </div>
+    <script type="text/javascript">
+        window.onload = function(e) {
+            document.isPlaying = false;
+
+            var sign = 1;
+            for (var i = 0; i < 8; i++) {
+                var img = document.createElement('img');
+                
+                img.setAttribute('src', 'D:/Music/G/Genesis/Picture/' + Math.floor(Math.random() * 15 + 85) + '.jpg');
+                img.setAttribute('width', '80px');
+                img.setAttribute('height', '80px');
+                img.style.position = 'absolute';
+                img.style.left = +((i % 4) * 60) + 'px';
+                img.style.top = +(Math.floor(i / 4) * 60) + 'px';
+                img.style.transform = "rotate(" + +(Math.random() * 15) * sign + "deg)";
+                sign = -sign;
+                document.getElementById('archive').appendChild(img);
+                
+            }
+            
+        }
+
+        function playOrResume() {
+            if (document.isPlaying) {
+                document.getElementById('player').pause();
+                document.getElementById('playback').src = 'play.png';
+                document.isPlaying = false;
+            }
+            else {
+                document.getElementById('player').play();
+                document.getElementById('playback').src = 'pause.png';
+                document.isPlaying = true;
+            }
+
+            switchSong();
+
+            // document.getElementById('player').volume += 0.1;
+        }
+
+        function switchSong() {
+            document.getElementById("current").style.backgroundImage =
+                "url('D:/Music/G/Genesis/Picture/" + Math.floor(Math.random() * 15 + 85) + ".jpg')";
+        }
+    </script>
+</body>
+</html>

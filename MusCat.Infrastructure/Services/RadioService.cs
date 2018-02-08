@@ -289,7 +289,7 @@ namespace MusCat.Infrastructure.Services
             do
             {
                 if (attempts++ == maxAttempts) return null;
-                song = await _songSelector.SelectSongAsync();
+                song = await _songSelector.SelectSongAsync().ConfigureAwait(false);
             }
             while (SongArchive.Any(s => s.Id == song.Id)    // true, if the archive already contains this song
                 || UpcomingSongs.Any(s => s.Id == song.Id)  // true, if it is already in songlist
@@ -323,7 +323,7 @@ namespace MusCat.Infrastructure.Services
          * //// just fire them all at once (order doesn't matter)
          * //for (var i = 0; i < MaxSongs; i++)
          * //{
-         * //    songAdders[i] = AddRandomSongAsync();
+         * //    songAdders[i] = AddRandomSongAsync().ConfigureAwait(false);
          * //}
          *
          * //await Task.WhenAll(songAdders).ConfigureAwait(false);
