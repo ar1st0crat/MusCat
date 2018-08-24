@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MusCat.Core.Entities;
@@ -18,13 +17,6 @@ namespace MusCat.Infrastructure.Services
     public class RadioService : IRadioService
     {
         public const int MaxSongs = 10;
-
-        // Audio player
-        public IAudioPlayer Player { get; }
-        private bool _isStopped;
-
-        // Delegate that will be invoked when a new song starts playing
-        public Action Update { get; set; }
 
         // Random song selector
         private readonly ISongSelector _songSelector;
@@ -45,62 +37,8 @@ namespace MusCat.Infrastructure.Services
             Guard.AgainstNull(player);
             Guard.AgainstNull(songSelector);
 
-            Player = player;
             _songSelector = songSelector;
         }
-
-        #region playback functions
-
-        public void Start()
-        {
-            PlayCurrentSong();
-
-            // There's one general task associated with the radio
-            // whose purpose is to play whatever active song in the background thread
-            Task.Run(async () =>
-            {
-                while (!_isStopped)
-                {
-                    await Task.Delay(1000);
-
-                    if (Player.IsStopped && !Player.IsStoppedManually)
-                    {
-                        await MoveToNextSongAsync();
-                    }
-                }
-            });
-        }
-
-        public void Stop()
-        {
-            _isStopped = true;
-            Player.Close();
-        }
-
-        public void PlayCurrentSong()
-        {
-            if (Player.SongPlaybackState != PlaybackState.Stop)
-            {
-                Player.Stop();
-            }
-
-            var fileSong = FileLocator.FindSongPath(CurrentSong);
-
-            try
-            {
-                Player.Play(fileSong);
-            }
-            catch (InvalidOperationException)
-            {
-                // some multi-threading issue in debug mode
-            }
-            catch (Exception)
-            {
-                MoveToNextSong();
-            }
-        }
-
-        #endregion
 
 
         #region synchronous operations
@@ -124,8 +62,6 @@ namespace MusCat.Infrastructure.Services
 
         public void MoveToNextSong()
         {
-            Player.Stop();
-
             // update archive
             if (SongArchive.Count >= MaxSongs)
             {
@@ -139,10 +75,6 @@ namespace MusCat.Infrastructure.Services
             // update the list of upcoming songs
             UpcomingSongs.RemoveAt(0);
             AddRandomSong();
-
-            Update?.Invoke();
-
-            PlayCurrentSong();
         }
 
         public void MoveToPrevSong()
@@ -161,10 +93,6 @@ namespace MusCat.Infrastructure.Services
 
             // update archive
             SongArchive.Remove(SongArchive.Last());
-
-            Update?.Invoke();
-
-            PlayCurrentSong();
         }
         
         /// <summary>
@@ -236,9 +164,11 @@ namespace MusCat.Infrastructure.Services
             UpcomingSongs.RemoveAt(0);
 
             await AddRandomSongAsync().ConfigureAwait(false);
+        }
 
-            Update?.Invoke();
-            PlayCurrentSong();
+        public async Task MoveToPrevSongAsync()
+        {
+            MoveToPrevSong();
         }
 
         public async Task ChangeSongAsync(long songId)

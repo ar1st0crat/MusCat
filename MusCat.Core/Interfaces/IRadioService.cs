@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MusCat.Core.Entities;
@@ -13,13 +12,6 @@ namespace MusCat.Core.Interfaces
         Song PrevSong { get; }
         Song NextSong { get; }
 
-        IAudioPlayer Player { get; }
-
-        void Start();
-        void Stop();
-        
-        void PlayCurrentSong();
-        
         void MakeSonglist();
         void MoveToNextSong();
         void MoveToPrevSong();
@@ -28,9 +20,8 @@ namespace MusCat.Core.Interfaces
 
         Task MakeSonglistAsync();
         Task MoveToNextSongAsync();
+        Task MoveToPrevSongAsync();
         Task ChangeSongAsync(long songId);
         Task RemoveSongAsync(long songId);
-
-        Action Update { get; set; }
     }
 }

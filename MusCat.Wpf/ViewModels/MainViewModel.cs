@@ -647,6 +647,7 @@ namespace MusCat.ViewModels
             using (var scope = App.DiContainer.BeginLifetimeScope())
             {
                 var radio = scope.Resolve<IRadioService>();
+                var player = scope.Resolve<IAudioPlayer>();
 
                 // if radioplayer can't find songs to create playlist
                 // then why even try opening radio window? 
@@ -660,7 +661,7 @@ namespace MusCat.ViewModels
                     return;
                 }
 
-                var radioViewModel = new RadioViewModel(radio) { ShowAlbum = ViewAlbum };
+                var radioViewModel = new RadioViewModel(radio, player) { ShowAlbum = ViewAlbum };
                 var radioWindow = new RadioPlayerWindow { DataContext = radioViewModel };
                 radioWindow.Show();
             }

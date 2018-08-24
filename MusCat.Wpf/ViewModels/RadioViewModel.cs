@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using AutoMapper;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
 using MusCat.Core.Util;
+using MusCat.Infrastructure.Services;
 using MusCat.Util;
 using MusCat.ViewModels.Entities;
 
@@ -18,6 +20,12 @@ namespace MusCat.ViewModels
         /// Radio Station
         /// </summary>
         private readonly IRadioService _radio;
+
+        /// <summary>
+        /// Audio player
+        /// </summary>
+        private readonly IAudioPlayer _player;
+        private bool _isStopped;
 
         // Bitmaps for playback buttons
         private static readonly BitmapImage ImagePlay = App.Current.Resources["ImagePlayButton"] as BitmapImage;
@@ -41,7 +49,7 @@ namespace MusCat.ViewModels
             set
             {
                 _songVolume = value;
-                _radio.Player.SetVolume(value / 10.0f);
+                _player.SetVolume(value / 10.0f);
                 RaisePropertyChanged();
             }
         }
@@ -63,12 +71,15 @@ namespace MusCat.ViewModels
         public ICommand RemoveSongCommand { get; private set; }
         public ICommand ShowAlbumCommand { get; private set; }
         public ICommand WindowClosingCommand { get; private set; }
+        
 
-
-        public RadioViewModel(IRadioService radio)
+        public RadioViewModel(IRadioService radio, IAudioPlayer player)
         {
             Guard.AgainstNull(radio);
+            Guard.AgainstNull(player);
+
             _radio = radio;
+            _player = player;
 
             // ===================== setting up all commands ============================
 
@@ -91,7 +102,7 @@ namespace MusCat.ViewModels
 
             StopCommand = new RelayCommand(() =>
             {
-                _radio.Player.Stop();
+                _player.Stop();
                 PlaybackImage = ImagePlay;
             });
 
@@ -99,23 +110,21 @@ namespace MusCat.ViewModels
             // (it will call Close() for media player)
             WindowClosingCommand = new RelayCommand(() =>
             {
-                _radio.Stop();
+                StopRadio();
             });
 
             // ===========================================================================
 
-            _radio.Update = UpdateSongs;
-
             if (_radio.UpcomingSongs.Any())
             {
-                _radio.Start();
+                StartRadio();
             }
             else
             {
                 _radio.MakeSonglistAsync().ContinueWith(task =>
                 {
                     UpdateSongs();
-                    _radio.Start();
+                    StartRadio();
                 });
             }
         }
@@ -134,13 +143,44 @@ namespace MusCat.ViewModels
         }
 
         /// <summary>
+        /// Play song currently active in the radio
+        /// </summary>
+        public void PlayCurrentSong()
+        {
+            if (_player.SongPlaybackState != PlaybackState.Stop)
+            {
+                _player.Stop();
+            }
+
+            var fileSong = FileLocator.FindSongPath(CurrentSong);
+
+            try
+            {
+                _player.Play(fileSong);
+            }
+            //catch (InvalidOperationException) // some multi-threading issue in debug mode
+            //{
+            //    //_radio.MoveToNextSong();
+            //}
+            catch (Exception)
+            {
+                _radio.MoveToNextSong();
+            }
+        }
+
+        /// <summary>
         /// Switching to next song is done asynchronously
         /// since it involves selecting new random song for a list of upcoming songs
         /// (which may take some time)
         /// </summary>
         private void PlayNextSong()
         {
-            _radio.MoveToNextSongAsync().ContinueWith(task => UpdateSongs());
+            //_player.Stop();
+            _radio.MoveToNextSongAsync().ContinueWith(task =>
+            {
+                PlayCurrentSong();
+                UpdateSongs();
+            });
         }
 
         /// <summary>
@@ -150,23 +190,52 @@ namespace MusCat.ViewModels
         private void PlayPreviousSong()
         {
             _radio.MoveToPrevSong();
+            PlayCurrentSong();
             UpdateSongs();
         }
-        
+
+        public void StartRadio()
+        {
+            PlayCurrentSong();
+
+            // There's one general task associated with the radio
+            // whose purpose is to play whatever active song in the background thread
+            Task.Run(async () =>
+            {
+                while (!_isStopped)
+                {
+                    await Task.Delay(1000);
+
+                    if (_player.IsStopped && !_player.IsStoppedManually)
+                    {
+                        await _radio.MoveToNextSongAsync();
+                        PlayCurrentSong();
+                        UpdateSongs();
+                    }
+                }
+            });
+        }
+
+        public void StopRadio()
+        {
+            _isStopped = true;
+            _player.Close();
+        }
+
         private void SongPlaybackAction()
         {
-            switch (_radio.Player.SongPlaybackState)
+            switch (_player.SongPlaybackState)
             {
                 case PlaybackState.Play:
-                    _radio.Player.Pause();
+                    _player.Pause();
                     PlaybackImage = ImagePlay;
                     break;
                 case PlaybackState.Pause:
-                    _radio.Player.Resume();
+                    _player.Resume();
                     PlaybackImage = ImagePause;
                     break;
                 case PlaybackState.Stop:
-                    _radio.PlayCurrentSong();
+                    PlayCurrentSong();
                     PlaybackImage = ImagePause;
                     break;
             }
