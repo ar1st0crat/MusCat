@@ -101,10 +101,10 @@ namespace MusCat.Core.Services
             var performer = performers.FirstOrDefault();
 
             var countries = await _unitOfWork.CountryRepository
-                             .GetAsync(c => c.Id == performer.CountryId)
-                             .ConfigureAwait(false);
+                                             .GetAsync(c => c.Id == performer.CountryId)
+                                             .ConfigureAwait(false);
             
-            return new Result<Country>(countries.First());
+            return new Result<Country>(countries.FirstOrDefault());
         }
     }
 }

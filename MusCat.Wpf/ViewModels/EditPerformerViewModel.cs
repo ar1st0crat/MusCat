@@ -87,7 +87,7 @@ namespace MusCat.ViewModels
 
             await _performerService.UpdatePerformerAsync(performer);
 
-            Performer.Country = (await _performerService.GetCountryAsync(Performer.Id)).Data;
+            Performer.Country = (await _performerService.GetCountryAsync(Performer.Id))?.Data;
 
             RaisePropertyChanged("Performer");
         }

@@ -515,6 +515,8 @@ namespace MusCat.ViewModels
             Performers.Clear();
             PageCollection.Clear();
 
+            ActivateUpperPanel(false);
+
             _selectedPage = 0;
 
             // and show only newly added performer (to focus user's attention on said performer)

@@ -48,7 +48,6 @@
     <Compile Include="Entities\Performer.cs" />
     <Compile Include="Entities\Song.cs" />
     <Compile Include="Interfaces\IAudioPlayer.cs" />
-    <Compile Include="Interfaces\Data\IAlbumRepository.cs" />
     <Compile Include="Interfaces\Data\IPerformerRepository.cs" />
     <Compile Include="Interfaces\Data\IRepository.cs" />
     <Compile Include="Interfaces\Data\IUnitOfWork.cs" />

@@ -62,12 +62,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\AlbumRepository.cs" />
-    <Compile Include="Data\CountryRepository.cs" />
+    <Compile Include="Data\ManualAutoIncrement.cs" />
     <Compile Include="Data\MusCatDbContext.cs" />
     <Compile Include="Data\PerformerRepository.cs" />
     <Compile Include="Data\Repository.cs" />
-    <Compile Include="Data\SongRepository.cs" />
     <Compile Include="Data\UnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AudioPlayer.cs" />

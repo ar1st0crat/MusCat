@@ -59,7 +59,7 @@ namespace MusCat.Infrastructure.Data
                 .Map(m => m.ToTable("PerformerGenres").MapLeftKey("GenreId").MapRightKey("PerformerId"));
 
             modelBuilder.Entity<Lineup>()
-                .HasKey(k => new { PerformerId = k.PerformerId, MusicianId = k.MusicianId });
+                .HasKey(k => new { k.PerformerId, k.MusicianId });
 
             modelBuilder.Entity<Lineup>()
                 .Property(e => e.PerformerId)

@@ -14,18 +14,6 @@ namespace MusCat.Infrastructure.Data
         {
         }
 
-        public override async Task AddAsync(Performer entity)
-        {
-            // manual autoincrement
-            var lastId = await Context.Performers.AsNoTracking()
-                                      .Select(p => p.Id)
-                                      .DefaultIfEmpty(0)
-                                      .MaxAsync()
-                                      .ConfigureAwait(false);
-            entity.Id = ++lastId;
-            Add(entity);
-        }
-
         public async Task<PageCollection<Performer>> 
             GetByFirstLetterAsync(string letter, int pageIndex = 0, int pageSize = 10)
         {

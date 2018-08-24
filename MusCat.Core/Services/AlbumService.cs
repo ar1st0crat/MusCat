@@ -113,9 +113,9 @@ namespace MusCat.Core.Services
                                                 .GetAsync(p => p.Id == album.PerformerId)
                                                 .ConfigureAwait(false))
                                                 .FirstOrDefault();
-            
-            return await _unitOfWork.AlbumRepository
-                                    .GetAlbumSongsAsync(album)
+
+            return await _unitOfWork.SongRepository
+                                    .GetAsync(s => s.AlbumId == album.Id)
                                     .ConfigureAwait(false);
         }
     }
