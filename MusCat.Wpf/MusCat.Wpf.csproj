@@ -111,6 +111,7 @@
     <Compile Include="Util\DialogResultHelper.cs" />
     <Compile Include="ViewModels\CountriesViewModel.cs" />
     <Compile Include="ViewModels\Entities\CountryViewModel.cs" />
+    <Compile Include="ViewModels\Entities\SongViewModel.cs" />
     <Compile Include="ViewModels\IndexViewModel.cs" />
     <Compile Include="ViewModels\PerformerFilters.cs" />
     <Compile Include="Util\RelayCommand.cs" />

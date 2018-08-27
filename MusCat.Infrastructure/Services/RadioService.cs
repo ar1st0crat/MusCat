@@ -18,13 +18,19 @@ namespace MusCat.Infrastructure.Services
     {
         public const int MaxSongs = 10;
 
-        // Random song selector
+        /// <summary>
+        /// Random song selector
+        /// </summary>
         private readonly ISongSelector _songSelector;
 
-        // Collection of recently played songs
+        /// <summary>
+        /// Collection of recently played songs
+        /// </summary>
         public List<Song> SongArchive { get; } = new List<Song>();
 
-        // Collection of upcoming songs
+        /// <summary>
+        /// Collection of upcoming songs
+        /// </summary>
         public List<Song> UpcomingSongs { get; } = new List<Song>();
 
         public Song CurrentSong { get; private set; } = new Song();
@@ -32,11 +38,9 @@ namespace MusCat.Infrastructure.Services
         public Song NextSong => UpcomingSongs.FirstOrDefault();
 
 
-        public RadioService(IAudioPlayer player, ISongSelector songSelector)
+        public RadioService(ISongSelector songSelector)
         {
-            Guard.AgainstNull(player);
             Guard.AgainstNull(songSelector);
-
             _songSelector = songSelector;
         }
 

@@ -80,6 +80,10 @@ namespace MusCat
                    .EqualityComparison((o, ovm) => o.Id == ovm.Id)
                    .ReverseMap();
 
+                cfg.CreateMap<Song, SongViewModel>()
+                   .EqualityComparison((s, svm) => s.Id == svm.Id)
+                   .ReverseMap();
+
                 cfg.CreateMap<Country, CountryViewModel>()
                    .EqualityComparison((o, ovm) => o.Id == ovm.Id);
             });
@@ -97,6 +101,7 @@ namespace MusCat
             builder.Register(c => new UnitOfWork(connectionString)).As<IUnitOfWork>().SingleInstance();
             builder.RegisterType<PerformerService>().As<IPerformerService>();
             builder.RegisterType<AlbumService>().As<IAlbumService>();
+            builder.RegisterType<SongService>().As<ISongService>();
             builder.RegisterType<CountryService>().As<ICountryService>();
             builder.Register(c => new StatsService(connectionString)).As<IStatsService>();
             builder.Register(c => new RandomSongSelector(connectionString)).As<ISongSelector>();

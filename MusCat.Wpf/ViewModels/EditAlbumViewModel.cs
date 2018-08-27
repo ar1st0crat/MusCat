@@ -18,12 +18,14 @@ using MusCat.Infrastructure.Services;
 using MusCat.Util;
 using MusCat.ViewModels.Entities;
 using MusCat.Views;
+using MusCat.Core.Services;
 
 namespace MusCat.ViewModels
 {
     class EditAlbumViewModel : ViewModelBase, IDataErrorInfo
     {
         private readonly IAlbumService _albumService;
+        private readonly ISongService _songService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISonglistHelper _songlist;
         
@@ -49,8 +51,8 @@ namespace MusCat.ViewModels
             }
         }
 
-        private ObservableCollection<Song> _songs;
-        public ObservableCollection<Song> Songs
+        private ObservableCollection<SongViewModel> _songs;
+        public ObservableCollection<SongViewModel> Songs
         {
             get { return _songs; }
             set
@@ -60,7 +62,7 @@ namespace MusCat.ViewModels
             }
         }
 
-        public Song SelectedSong { get; set; }
+        public SongViewModel SelectedSong { get; set; }
 
         public ObservableCollection<string> ReleaseYearsCollection { get; set; }
 
@@ -84,15 +86,18 @@ namespace MusCat.ViewModels
 
         #endregion
 
-        public EditAlbumViewModel(IAlbumService albumService, 
+        public EditAlbumViewModel(IAlbumService albumService,
+                                  ISongService songService,
                                   IUnitOfWork unitOfWork,
                                   ISonglistHelper songlist)
         {
             Guard.AgainstNull(albumService);
+            Guard.AgainstNull(songService);
             Guard.AgainstNull(unitOfWork);
             Guard.AgainstNull(songlist);
 
             _albumService = albumService;
+            _songService = songService;
             _unitOfWork = unitOfWork;
             _songlist = songlist;
 
@@ -105,7 +110,7 @@ namespace MusCat.ViewModels
             ClearAllSongsCommand = new RelayCommand(async () => await ClearAllAsync());
             SaveAllSongsCommand = new RelayCommand(async () => await SaveAllAsync());
             SaveSongCommand = new RelayCommand(async() => await SaveSongAsync());
-            DeleteSongCommand = new RelayCommand(async() => await DeleteSongAsync());
+            DeleteSongCommand = new RelayCommand(async() => await RemoveSongAsync());
             SaveAlbumInformationCommand = new RelayCommand(async () => await SaveAlbumInformationAsync());
             LoadAlbumImageFromFileCommand = new RelayCommand(LoadAlbumImageFromFile);
             LoadAlbumImageFromClipboardCommand = new RelayCommand(LoadAlbumImageFromClipboard);
@@ -123,7 +128,7 @@ namespace MusCat.ViewModels
 
         public async Task LoadSongsAsync()
         {
-            Songs = new ObservableCollection<Song>(
+            Songs = Mapper.Map<ObservableCollection<SongViewModel>>(
                 await _albumService.LoadAlbumSongsAsync(Album.Id));
         }
 
@@ -134,36 +139,90 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            if (SelectedSong.Error != "")
-            {
-                MessageBox.Show("Invalid data!");
-                return;
-            }
+            var selectedSong = Mapper.Map<Song>(SelectedSong);
 
-            if (SelectedSong.Id == -1)
+            if (selectedSong.Id == -1)
             {
                 await SaveAllAsync();
                 return;
             }
 
-            _unitOfWork.SongRepository.Edit(SelectedSong);
-            await _unitOfWork.SaveAsync();
+            var result = await _songService.UpdateSongAsync(selectedSong);
+
+            if (result.Type != ResultType.Ok)
+            {
+                MessageBox.Show(result.Error);
+            }
         }
 
-        public async Task DeleteSongAsync()
+        public async Task SaveAllAsync()
         {
-            if (MessageBox.Show(string.Format("Are you sure you want to delete the song\n'{0}'\nby '{1}'?",
-                                    SelectedSong.Name, Album.Performer.Name),
-                                    "Confirmation",
-                                    MessageBoxButton.YesNo) != MessageBoxResult.Yes)
+            // first, check validity of song data
+
+            //if (Songs.Any(s => s.Error != ""))
+            //{
+            //    var message = Songs.Where(s => s.Error != "")
+            //                       .Select(s => s.TrackNo.ToString())
+            //                       .Aggregate((t, s) => t + ", " + s);
+            //    message = "Errors in songs #" + message;
+            //    MessageBox.Show(message);
+            //    return;
+            //}
+
+            var errorMessage = string.Empty;
+
+            foreach (var songViewModel in Songs)
+            {
+                var song = Mapper.Map<Song>(songViewModel);
+                song.AlbumId = Album.Id;
+
+                if (song.Id == -1)
+                {
+                    // we save changes after adding each song
+                    // because manual autoincrementing always needs actual values of ID
+                    var result = await _songService.AddSongAsync(song);
+
+                    if (result.Type != ResultType.Ok)
+                    {
+                        errorMessage += result.Error + "\n";
+                    }
+                }
+                else
+                {
+                    var result = await _songService.UpdateSongAsync(song);
+
+                    if (result.Type != ResultType.Ok)
+                    {
+                        errorMessage += result.Error + "\n";
+                    }
+                }
+            }
+
+            if (errorMessage != string.Empty)
+            {
+                MessageBox.Show("Errors in songs: " + errorMessage);
+            }
+        }
+
+        private async Task SaveAlbumInformationAsync()
+        {
+            await _albumService.UpdateAlbumAsync(Mapper.Map<Album>(Album));
+        }
+
+        public async Task RemoveSongAsync()
+        {
+            var message = $"Are you sure you want to delete the song\n" +
+                          $"'{SelectedSong.Name}'\n" +
+                          $"by '{Album.Performer.Name}'?";
+
+            if (MessageBox.Show(message, "Confirmation", MessageBoxButton.YesNo) != MessageBoxResult.Yes)
             {
                 return;
             }
 
             if (SelectedSong.Id != -1)
             {
-                _unitOfWork.SongRepository.Delete(SelectedSong);
-                await _unitOfWork.SaveAsync();
+                await _songService.RemoveSongAsync(SelectedSong.Id);
             }
 
             Songs.Remove(SelectedSong);
@@ -178,68 +237,28 @@ namespace MusCat.ViewModels
                 newTrackNo = (byte)(Songs.Last().TrackNo + 1);
             }
 
-            Songs.Add(new Song
+            Songs.Add(new SongViewModel
             {
                 Id = -1,
-                AlbumId = Album.Id,
                 TrackNo = newTrackNo
             });
         }
 
         public async Task ClearAllAsync()
         {
-            if (MessageBox.Show(string.Format("Are you sure you want to delete all songs in the album\n '{0}' \nby '{1}'?",
-                                    Album.Name, Album.Performer.Name),
-                                    "Confirmation",
-                                    MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            var message = $"Are you sure you want to delete all songs in the album\n " +
+                          $"'{Album.Name}' \n" +
+                          $"by '{Album.Performer.Name}'?";
+
+            if (MessageBox.Show(message, "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 foreach (var song in Songs.Where(song => song.Id != -1))
                 {
-                    _unitOfWork.SongRepository.Delete(song);
+                    await _songService.RemoveSongAsync(song.Id);
                 }
-
-                await _unitOfWork.SaveAsync();
 
                 Songs.Clear();
             }
-        }
-
-        public async Task SaveAllAsync()
-        {
-            // first, check validity of song data
-
-            if (Songs.Any(s => s.Error != ""))
-            {
-                var message = Songs.Where(s => s.Error != "")
-                                   .Select(s => s.TrackNo.ToString())
-                                   .Aggregate((t, s) => t + ", " + s);
-                message = "Errors in songs #" + message;
-                MessageBox.Show(message);
-                return;
-            }
-
-            foreach (var song in Songs)
-            {
-                if (song.Id == -1)
-                {
-                    await _unitOfWork.SongRepository.AddAsync(song);
-                    // we save changes after adding each song
-                    // because manual autoincrementing always needs actual values of ID
-                    await _unitOfWork.SaveAsync();
-
-                }
-                else
-                {
-                    _unitOfWork.SongRepository.Edit(song);
-                }
-            }
-
-            await _unitOfWork.SaveAsync();
-        }
-
-        private async Task SaveAlbumInformationAsync()
-        {
-            await _albumService.UpdateAlbumAsync(Mapper.Map<Album>(Album));
         }
 
         private void ParseMp3()
@@ -252,11 +271,10 @@ namespace MusCat.ViewModels
 
             var songs = _songlist.Parse(fbd.SelectedPath);
 
-            Songs = new ObservableCollection<Song>(
-                songs.Select((s, i) => new Song
+            Songs = new ObservableCollection<SongViewModel>(
+                songs.Select((s, i) => new SongViewModel
                 {
                     Id = -1,
-                    AlbumId = Album.Id,
                     TrackNo = (byte)(i + 1),
                     Name = s.Title,
                     TimeLength = s.Duration
@@ -272,7 +290,8 @@ namespace MusCat.ViewModels
                 No = s.TrackNo,
                 Title = s.Name,
                 Duration = s.TimeLength
-            }).ToList();
+            })
+            .ToList();
 
             _songlist.FixTitles(songs);
 
