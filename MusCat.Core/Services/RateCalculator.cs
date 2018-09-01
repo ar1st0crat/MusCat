@@ -36,8 +36,7 @@ namespace MusCat.Core.Services
                 ratedCount -= 2;
             }
 
-            return (byte)Math.Round((double)sumRate / ratedCount,
-                                              MidpointRounding.AwayFromZero);
+            return (byte)Math.Round((double)sumRate / ratedCount, MidpointRounding.AwayFromZero);
         }
     }
 }

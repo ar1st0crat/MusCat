@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MusCat.Core.Interfaces
+namespace MusCat.Core.Interfaces.Songlist
 {
     /// <summary>
     /// ISonglistHelper interface defines methods for:
@@ -13,12 +13,5 @@ namespace MusCat.Core.Interfaces
         List<SongEntry> Parse(string folder);
         void FixTitles(IList<SongEntry> songs);
         string FixDurations(IList<SongEntry> songs);
-    }
-
-    public class SongEntry
-    {
-        public byte No { get; set; }
-        public string Title { get; set; }
-        public string Duration { get; set; }
     }
 }

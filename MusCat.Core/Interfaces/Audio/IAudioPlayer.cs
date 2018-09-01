@@ -1,4 +1,4 @@
-﻿namespace MusCat.Core.Interfaces
+﻿namespace MusCat.Core.Interfaces.Audio
 {
     public interface IAudioPlayer
     {
@@ -16,12 +16,5 @@
         bool IsStoppedManually { get; set; }
         
         void Close();
-    }
-
-    public enum PlaybackState
-    {
-        Play,
-        Pause,
-        Stop
     }
 }

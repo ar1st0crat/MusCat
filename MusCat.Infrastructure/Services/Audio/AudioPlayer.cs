@@ -1,9 +1,9 @@
 ﻿using System;
-using MusCat.Core.Interfaces;
+using MusCat.Core.Interfaces.Audio;
 using NAudio.Wave;
-using PlaybackState = MusCat.Core.Interfaces.PlaybackState;
+using PlaybackState = MusCat.Core.Interfaces.Audio.PlaybackState;
 
-namespace MusCat.Infrastructure.Services
+namespace MusCat.Infrastructure.Services.Audio
 {
     /// <summary>
     /// Simple mp3 player wrapped around NAudio.WaveOut and NAudio.Mp3FileReader

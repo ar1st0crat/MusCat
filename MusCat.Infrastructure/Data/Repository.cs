@@ -36,7 +36,8 @@ namespace MusCat.Infrastructure.Data
 
         public virtual async Task AddAsync(T entity)
         {
-            await ManualAutoIncrement<T>.DoAsync(Context, entity);
+            await ManualAutoIncrement<T>.DoAsync(Context, entity)
+                                        .ConfigureAwait(false);
         }
 
         public virtual async Task<long> CountAsync(Expression<Func<T, bool>> predicate)

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using MusCat.Core.Entities;
-using MusCat.Core.Interfaces;
-using MusCat.Infrastructure.Services;
+using MusCat.Core.Interfaces.Songlist;
+using MusCat.Infrastructure.Services.Songlist;
 using NUnit.Framework;
 
 namespace MusCat.Tests

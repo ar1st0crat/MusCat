@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MusCat.Core.Interfaces;
+using MusCat.Core.Interfaces.Songlist;
 using MusCat.Infrastructure.Services.Util;
 using TagLib;
 
-namespace MusCat.Infrastructure.Services
+namespace MusCat.Infrastructure.Services.Songlist
 {
     /// <summary>
     /// Class Mp3SonglistHelper is responsible for:

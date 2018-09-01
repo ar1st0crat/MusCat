@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 using MusCat.Core.Entities;
-using MusCat.Core.Interfaces;
+using MusCat.Core.Interfaces.Radio;
 using MusCat.Core.Util;
 
-namespace MusCat.Infrastructure.Services
+namespace MusCat.Infrastructure.Services.Radio
 {
     /// <summary>
     /// Radio station service.

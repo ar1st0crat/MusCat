@@ -10,9 +10,9 @@ using System.Windows.Media.Imaging;
 using AutoMapper;
 using Microsoft.Win32;
 using MusCat.Core.Entities;
-using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Interfaces.Domain;
+using MusCat.Core.Interfaces.Songlist;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
 using MusCat.Util;
@@ -171,19 +171,22 @@ namespace MusCat.ViewModels
                 return;
             }
 
+            var i = 0;
+
             foreach (var song in songs)
             {
                 song.AlbumId = Album.Id;
 
                 if (song.Id == -1)
                 {
-                    // we save changes after adding each song
-                    // because manual autoincrementing always needs actual values of ID
-                    var result = await _songService.AddSongAsync(song);
+                    await _songService.AddSongAsync(song);
+
+                    // update song Id after adding it to database
+                    Songs[i++].Id = song.Id;
                 }
                 else
                 {
-                    var result = await _songService.UpdateSongAsync(song);
+                    await _songService.UpdateSongAsync(song);
                 }
             }
         }

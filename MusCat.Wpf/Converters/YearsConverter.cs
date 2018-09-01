@@ -23,8 +23,7 @@ namespace MusCat.Converters
             var yearStart = performer.Albums.Min(t => t.ReleaseYear);
             var yearEnd = performer.Albums.Max(t => t.ReleaseYear);
 
-            return yearEnd != yearStart ? 
-                string.Format("{0} - {1}", yearStart, yearEnd) : yearStart.ToString();
+            return yearEnd != yearStart ? $"{yearStart} - {yearEnd}" : yearStart.ToString();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

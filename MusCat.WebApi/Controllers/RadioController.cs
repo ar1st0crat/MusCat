@@ -10,19 +10,17 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.UI.WebControls;
-using MusCat.Core.Interfaces;
-using MusCat.Core.Services;
 using MusCat.Infrastructure.Data;
 using MusCat.Infrastructure.Services;
+using MusCat.Core.Interfaces.Radio;
+using MusCat.Infrastructure.Services.Radio;
 
 namespace MusCat.WebApi.Controllers
 {
     public class RadioController : ApiController
     {
         private static readonly IRadioService RadioService =
-            new RadioService(
-                new AudioPlayer(),
-                new RandomSongSelector(ConfigurationManager.ConnectionStrings["MusCatDbContext"].ConnectionString));
+            new RadioService(new RandomSongSelector(ConfigurationManager.ConnectionStrings["MusCatDbContext"].ConnectionString));
 
         private static ConcurrentBag<StreamWriter> _clients;
         private static Timer _timer;

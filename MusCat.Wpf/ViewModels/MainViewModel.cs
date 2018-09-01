@@ -8,8 +8,10 @@ using Autofac;
 using AutoMapper;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
+using MusCat.Core.Interfaces.Audio;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Interfaces.Domain;
+using MusCat.Core.Interfaces.Radio;
 using MusCat.Core.Interfaces.Stats;
 using MusCat.Core.Util;
 using MusCat.Util;
@@ -445,12 +447,10 @@ namespace MusCat.ViewModels
                 var albumPlayback = scope.Resolve<AlbumPlaybackViewModel>();
                 albumPlayback.Album = album;
                 albumPlayback.Performer = SelectedPerformer;
+                albumPlayback.LoadSongsAsync();
 
                 var albumWindow = new AlbumWindow { DataContext = albumPlayback };
                 albumWindow.Show();
-
-                // load songs of selected album lazily
-                albumPlayback.LoadSongsAsync();
             }
         }
 
@@ -481,10 +481,10 @@ namespace MusCat.ViewModels
             {
                 var albumViewModel = scope.Resolve<EditAlbumViewModel>();
                 albumViewModel.Album = album;
+                albumViewModel.LoadSongsAsync();
 
                 var albumWindow = new EditAlbumWindow { DataContext = albumViewModel };
 
-                albumViewModel.LoadSongsAsync();
                 albumWindow.ShowDialog();
             }
 
@@ -676,12 +676,10 @@ namespace MusCat.ViewModels
         {
             using (var scope = App.DiContainer.BeginLifetimeScope())
             {
-                var stats = scope.Resolve<IStatsService>();
+                var statsViewModel = scope.Resolve<StatsViewModel>();
+                statsViewModel.LoadStatsAsync();
 
-                var statsWindow = new StatsWindow
-                {
-                    DataContext = new StatsViewModel(stats)
-                };
+                var statsWindow = new StatsWindow { DataContext = statsViewModel };
 
                 statsWindow.Show();
             }
@@ -691,9 +689,12 @@ namespace MusCat.ViewModels
         {
             using (var scope = App.DiContainer.BeginLifetimeScope())
             {
-                var countriesWindow = new CountriesWindow
+                var countryViewModel = scope.Resolve<EditCountryViewModel>();
+                countryViewModel.LoadCountriesAsync();
+
+                var countriesWindow = new EditCountryWindow
                 {
-                    DataContext = scope.Resolve<EditCountryViewModel>()
+                    DataContext = countryViewModel
                 };
 
                 countriesWindow.ShowDialog();

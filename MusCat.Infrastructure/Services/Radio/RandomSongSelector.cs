@@ -3,10 +3,10 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using MusCat.Core.Entities;
-using MusCat.Core.Interfaces;
+using MusCat.Core.Interfaces.Radio;
 using MusCat.Infrastructure.Data;
 
-namespace MusCat.Infrastructure.Services
+namespace MusCat.Infrastructure.Services.Radio
 {
     public class RandomSongSelector : ISongSelector
     {

@@ -30,9 +30,19 @@ namespace MusCat.ViewModels
             }
         }
 
-        public int SelectedCountryIndex { get; set; }
-        public string CountryInput { get; set; }
+        private string _countryInput;
+        public string CountryInput
+        {
+            get { return _countryInput; }
+            set
+            {
+                _countryInput = value;
+                RaisePropertyChanged();
+            }
+        }
 
+        public int SelectedCountryIndex { get; set; }
+        
         public ICommand AddCommand { get; private set; }
         public ICommand RemoveCommand { get; private set; }
         public ICommand ReplaceCommand { get; private set; }
@@ -62,8 +72,6 @@ namespace MusCat.ViewModels
             RemoveCommand = new RelayCommand(async () => await RemoveCountryAsync());
             ReplaceCommand = new RelayCommand(async () => await UpdateCountryAsync());
             OkCommand = new RelayCommand(() => { DialogResult = true; });
-
-            LoadCountriesAsync();
         }
 
         public async Task LoadCountriesAsync()
@@ -124,7 +132,12 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            Countrylist[SelectedCountryIndex] = Mapper.Map<Country, CountryViewModel>(result.Data);
+            CountryInput = "";
+
+            var updatedCountry = Mapper.Map<CountryViewModel>(result.Data);
+            updatedCountry.PerformerCount = selectedCountry.PerformerCount;
+
+            Countrylist[SelectedCountryIndex] = updatedCountry;
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using MusCat.Core.Entities;
-using MusCat.Core.Interfaces;
+using MusCat.Core.Interfaces.Audio;
 using MusCat.Core.Interfaces.Domain;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
@@ -43,10 +43,13 @@ namespace MusCat.ViewModels
             }
         }
         
-        public string AlbumHeader => 
-            string.Format("{0} - {1} ({2})", Album.Performer?.Name, Album.Name, Album.ReleaseYear);
+        /// <summary>
+        /// Album header to be displayed in the window title
+        /// </summary>
+        public string AlbumHeader => $"{Album.Performer?.Name} - {Album.Name} ({Album.ReleaseYear})";
 
         // Bitmaps for playback buttons
+
         private static readonly BitmapImage ImagePlay = App.Current.TryFindResource("ImagePlayButton") as BitmapImage;
         private static readonly BitmapImage ImagePause = App.Current.TryFindResource("ImagePauseButton") as BitmapImage;
 
@@ -61,11 +64,15 @@ namespace MusCat.ViewModels
             }
         }
 
-        // Audio player
+        /// <summary>
+        /// Audio player
+        /// </summary>
         private readonly IAudioPlayer _player;
         private bool _isStopped;
 
-        // Song time percentage
+        /// <summary>
+        /// Song time percentage
+        /// </summary>
         private double _playbackPercentage;
         public double PlaybackPercentage
         {
@@ -78,6 +85,7 @@ namespace MusCat.ViewModels
         }
 
         // Commands
+
         public RelayCommand WindowClosingCommand { get; private set; }
         public RelayCommand PlaybackCommand { get; private set; }
         public RelayCommand SeekPlaybackPositionCommand { get; private set; }
@@ -129,18 +137,19 @@ namespace MusCat.ViewModels
                 await _albumService.LoadAlbumSongsAsync(Album.Id));
 
             _isLoading = false;
-            
             SelectedSong = null;
 
-            InitPlayerWorker();
-            _player.Stop();         // don't play anything until user clicks the song
+            StartPlayer();
+
+            // but don't play anything until user clicks the song
+            _player.Stop();         
         }
 
         /// <summary>
         /// There's one general task associated with the album window
         /// whose purpose is to play selected song in the background thread
         /// </summary>
-        private void InitPlayerWorker()
+        private void StartPlayer()
         {
             Task.Run(async () =>
             {

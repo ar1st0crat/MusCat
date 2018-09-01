@@ -107,8 +107,6 @@ namespace MusCat.ViewModels
         {
             Guard.AgainstNull(stats);
             _stats = stats;
-
-            LoadStatsAsync();
         } 
 
         public async Task LoadStatsAsync()

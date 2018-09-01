@@ -1,5 +1,8 @@
 ﻿namespace MusCat.ViewModels
 {
+    /// <summary>
+    /// View model for elements in the index panel
+    /// </summary>
     class IndexViewModel : ViewModelBase
     {
         public string Text { get; set; }

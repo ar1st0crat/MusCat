@@ -21,9 +21,9 @@ namespace MusCat.Infrastructure.Services
     {
         // Pathlist contains root paths where to look for media files
         // Pathlist is taken from file paths.xml
-        public static List<string> Pathlist = 
-            Directory.GetLogicalDrives().Select(p => p.TrimEnd('\\')).ToList();
-
+        public static List<string> Pathlist = Directory.GetLogicalDrives()
+                                                       .Select(p => p.TrimEnd('\\'))
+                                                       .ToList();
         /// <summary>
         /// During initialization FileLocator loads data from file "config\paths.xml".
         /// If MusCat app is launched for the first time or the config file is corrupted,
@@ -72,10 +72,6 @@ namespace MusCat.Infrastructure.Services
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static bool MustBeConfigured()
         {
             if (File.Exists(@"config\paths.xml"))
@@ -103,10 +99,8 @@ namespace MusCat.Infrastructure.Services
 
             foreach (var rootPath in Pathlist)
             {
-                var path = string.Format(@"{0}\{1}\{2}\Picture", 
-                                                    rootPath,
-                                                    performer.Name[0],
-                                                    performer.Name);
+                var path = $@"{rootPath}\{performer.Name[0]}\{performer.Name}\Picture";
+
                 if (!Directory.Exists(path))
                 {
                     continue;
@@ -137,25 +131,20 @@ namespace MusCat.Infrastructure.Services
 
             foreach (var rootPath in Pathlist)
             {
-                var path = string.Format(@"{0}\{1}\{2}",
-                                                rootPath,
-                                                performer.Name[0],
-                                                performer.Name);
+                var path = $@"{rootPath}\{performer.Name[0]}\{performer.Name}";
+
                 if (Directory.Exists(path))
                 {
-                    pathlist.Add(string.Format(@"{0}\Picture\photo.{1}",
-                                                path,
-                                                ext));
+                    pathlist.Add($@"{path}\Picture\photo.{ext}");
+
                     return pathlist;
                 }
             }
 
-            pathlist.AddRange(Pathlist.Select(
-                rootPath => string.Format(@"{0}\{1}\{2}\Picture\photo.{3}",
-                                                rootPath,
-                                                performer.Name[0],
-                                                performer.Name,
-                                                ext)));
+            pathlist.AddRange(
+                Pathlist.Select(
+                    rootPath => $@"{rootPath}\{performer.Name[0]}\{performer.Name}\Picture\photo.{ext}"));
+
             return pathlist;
         }
                 
@@ -175,10 +164,8 @@ namespace MusCat.Infrastructure.Services
 
             foreach (var rootPath in Pathlist)
             {
-                var path = string.Format(@"{0}\{1}\{2}\Picture", 
-                                                rootPath, 
-                                                album.Performer.Name[0],
-                                                album.Performer.Name);
+                var path = $@"{rootPath}\{album.Performer.Name[0]}\{album.Performer.Name}\Picture";
+
                 if (!Directory.Exists(path))
                 {
                     continue;
@@ -209,27 +196,20 @@ namespace MusCat.Infrastructure.Services
 
             foreach (var rootPath in Pathlist)
             {
-                var path = string.Format(@"{0}\{1}\{2}", 
-                                                rootPath,
-                                                album.Performer.Name[0],
-                                                album.Performer.Name);
+                var path = $@"{rootPath}\{album.Performer.Name[0]}\{album.Performer.Name}";
+
                 if (Directory.Exists(path))
                 {
-                    pathlist.Add(string.Format(@"{0}\Picture\{1}.{2}",
-                                                path, 
-                                                album.Id,
-                                                ext));
+                    pathlist.Add($@"{path}\Picture\{album.Id}.{ext}");
+
                     return pathlist;
                 }
             }
 
-            pathlist.AddRange(Pathlist.Select(
-                rootPath => string.Format(@"{0}\{1}\{2}\Picture\{3}.{4}",
-                                                rootPath,
-                                                album.Performer.Name[0],
-                                                album.Performer.Name,
-                                                album.Id,
-                                                ext)));
+            pathlist.AddRange(
+                Pathlist.Select(
+                    rootPath => $@"{rootPath}\{album.Performer.Name[0]}\{album.Performer.Name}\Picture\{album.Id}.{ext}"));
+
             return pathlist;
         }
         
@@ -242,10 +222,7 @@ namespace MusCat.Infrastructure.Services
         {
             foreach (var rootpath in Pathlist)
             {
-                var performerDirectory = string.Format(@"{0}\{1}\{2}", 
-                                                        rootpath,
-                                                        song.Album.Performer.Name[0],
-                                                        song.Album.Performer.Name);
+                var performerDirectory = $@"{rootpath}\{song.Album.Performer.Name[0]}\{song.Album.Performer.Name}";
 
                 if (!Directory.Exists(performerDirectory))
                 {

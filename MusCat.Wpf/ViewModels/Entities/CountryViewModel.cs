@@ -26,7 +26,6 @@
             }
         }
 
-        public string PerformerInfo => 
-            string.Format("{0} ({1})", Name, PerformerCount);
+        public string PerformerInfo => $"{Name} ({PerformerCount})";
     }
 }
