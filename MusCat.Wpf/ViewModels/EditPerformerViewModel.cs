@@ -51,12 +51,12 @@ namespace MusCat.ViewModels
 
         public ObservableCollection<Genre> Genres { get; set; }
         
-
         // commands
         public RelayCommand LoadImageFromFileCommand { get; private set; }
         public RelayCommand LoadImageFromClipboardCommand { get; private set; }
         public RelayCommand LoadBioCommand { get; private set; }
         public RelayCommand SavePerformerCommand { get; private set; }
+
 
         public EditPerformerViewModel(IPerformerService performerService, IUnitOfWork unitOfWork)
         {
@@ -70,8 +70,6 @@ namespace MusCat.ViewModels
             LoadImageFromClipboardCommand = new RelayCommand(LoadPerformerImageFromClipboard);
             LoadBioCommand = new RelayCommand(async() => await LoadBioAsync());
             SavePerformerCommand = new RelayCommand(async() => await SavePerformerAsync());
-            
-            LoadCountriesAsync();
         }
 
         public async Task LoadCountriesAsync()
@@ -87,7 +85,7 @@ namespace MusCat.ViewModels
 
             await _performerService.UpdatePerformerAsync(performer);
 
-            Performer.Country = (await _performerService.GetCountryAsync(Performer.Id))?.Data;
+            Performer.Country = (await _performerService.GetCountryAsync(Performer.Id)).Data;
 
             RaisePropertyChanged("Performer");
         }

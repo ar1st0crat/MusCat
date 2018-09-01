@@ -121,15 +121,15 @@ namespace MusCat.ViewModels
                 }
             });
 
-            GeneralDeleteCommand = new RelayCommand(async () =>
+            GeneralDeleteCommand = new RelayCommand(() =>
             {
                 if (SelectedPerformer?.SelectedAlbum != null)
                 {
-                    await RemoveSelectedAlbumAsync();
+                    RemoveSelectedAlbumAsync();
                 }
                 else
                 {
-                    await RemoveSelectedPerformerAsync();
+                    RemoveSelectedPerformerAsync();
                 }
             });
 
@@ -161,10 +161,10 @@ namespace MusCat.ViewModels
             EditMusiciansCommand = new RelayCommand(() => { });
             ViewAlbumCommand = new RelayCommand(ViewSelectedAlbum);
             EditAlbumCommand = new RelayCommand(EditAlbum);
-            AddPerformerCommand = new RelayCommand(async () => await AddPerformerAsync());
-            AddAlbumCommand = new RelayCommand(async () => await AddAlbumAsync());
-            DeletePerformerCommand = new RelayCommand(async () => await RemoveSelectedPerformerAsync());
-            DeleteAlbumCommand = new RelayCommand(async () => await RemoveSelectedAlbumAsync());
+            AddPerformerCommand = new RelayCommand(AddPerformerAsync);
+            AddAlbumCommand = new RelayCommand(AddAlbumAsync);
+            DeletePerformerCommand = new RelayCommand(RemoveSelectedPerformerAsync);
+            DeleteAlbumCommand = new RelayCommand(RemoveSelectedAlbumAsync);
             PerformerSearchCommand = new RelayCommand(async () => await SelectPerformersByPatternAsync());
             AlbumSearchCommand = new RelayCommand(async () => await SelectPerformersByAlbumPatternAsync());
             StartRadioCommand = new RelayCommand(async() => await StartRadioAsync());
@@ -427,13 +427,14 @@ namespace MusCat.ViewModels
             {
                 var editPerformerViewModel = scope.Resolve<EditPerformerViewModel>();
                 editPerformerViewModel.Performer = SelectedPerformer;
+                editPerformerViewModel.LoadCountriesAsync();
 
                 var performerWindow = new EditPerformerWindow
                 {
                     DataContext = editPerformerViewModel
                 };
 
-                performerWindow.Show();
+                performerWindow.ShowDialog();
             }
         }
 
@@ -456,6 +457,7 @@ namespace MusCat.ViewModels
         private void ViewSelectedAlbum()
         {
             var album = SelectedPerformer?.SelectedAlbum;
+
             if (album == null)
             {
                 MessageBox.Show("Please select album to show!");
@@ -468,6 +470,7 @@ namespace MusCat.ViewModels
         private void EditAlbum()
         {
             var album = SelectedPerformer?.SelectedAlbum;
+
             if (album == null)
             {
                 MessageBox.Show("Please select album to edit!");
@@ -488,7 +491,7 @@ namespace MusCat.ViewModels
             SelectedPerformer.UpdateAlbumCollectionRate();
         }
 
-        private async Task AddPerformerAsync()
+        private async void AddPerformerAsync()
         {
             // set initial information of a newly added performer
             var performer = (
@@ -523,23 +526,25 @@ namespace MusCat.ViewModels
             Performers.Add(performerViewModel);
         }
 
-        private async Task RemoveSelectedPerformerAsync()
+        private async void RemoveSelectedPerformerAsync()
         {
             if (SelectedPerformer == null)
             {
                 MessageBox.Show("Please select performer to remove");
+                return;
             }
-            else if (MessageBox.Show(string.Format("Are you sure you want to delete '{0}'?", 
-                                        SelectedPerformer.Name),
-                                        "Confirmation",
-                                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+
+            var message = $"Are you sure you want to delete '{SelectedPerformer.Name}' " +
+                          $"including an entire discography?";
+
+            if (MessageBox.Show(message, "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 await _performerService.RemovePerformerAsync(SelectedPerformer.Id);
                 Performers.Remove(SelectedPerformer);
             }
         }
 
-        private async Task AddAlbumAsync()
+        private async void AddAlbumAsync()
         {
             if (SelectedPerformer == null)
             {
@@ -606,7 +611,7 @@ namespace MusCat.ViewModels
             SelectedPerformer.UpdateAlbumCollectionRate();
         }
 
-        private async Task RemoveSelectedAlbumAsync()
+        private async void RemoveSelectedAlbumAsync()
         {
             if (SelectedPerformer == null)
             {
@@ -622,11 +627,11 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            if (MessageBox.Show(string.Format("Are you sure you want to delete\n '{0}' \nby '{1}'?",
-                                    selectedAlbum.Name,
-                                    SelectedPerformer.Name),
-                                    "Confirmation",
-                                    MessageBoxButton.YesNo) != MessageBoxResult.Yes)
+            var message = $"Are you sure you want to delete album\n " +
+                          $"'{selectedAlbum.Name}' \n" +
+                          $"by '{SelectedPerformer.Name}'?";
+
+            if (MessageBox.Show(message, "Confirmation", MessageBoxButton.YesNo) != MessageBoxResult.Yes)
             {
                 return;
             }
@@ -650,11 +655,11 @@ namespace MusCat.ViewModels
                 var player = scope.Resolve<IAudioPlayer>();
 
                 // if radioplayer can't find songs to create playlist
-                // then why even try opening radio window? 
                 try
                 {
                     await radio.MakeSonglistAsync();
                 }
+                // then why even try opening radio window? 
                 catch (Exception)
                 {
                     MessageBox.Show("Seems like there's not enough music files on your drives");
@@ -688,7 +693,7 @@ namespace MusCat.ViewModels
             {
                 var countriesWindow = new CountriesWindow
                 {
-                    DataContext = scope.Resolve<CountriesViewModel>()
+                    DataContext = scope.Resolve<EditCountryViewModel>()
                 };
 
                 countriesWindow.ShowDialog();

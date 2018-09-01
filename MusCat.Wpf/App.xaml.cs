@@ -72,20 +72,33 @@ namespace MusCat
                 cfg.AddCollectionMappers();
 
                 cfg.CreateMap<Performer, PerformerViewModel>()
-                   .EqualityComparison((o, ovm) => o.Id == ovm.Id)
+                   .EqualityComparison((src, dest) => src.Id == dest.Id)
                    .ForMember(m => m.Albums, opt => opt.Ignore())
                    .ReverseMap();
 
                 cfg.CreateMap<Album, AlbumViewModel>()
-                   .EqualityComparison((o, ovm) => o.Id == ovm.Id)
+                   .EqualityComparison((src, dest) => src.Id == dest.Id)
                    .ReverseMap();
 
                 cfg.CreateMap<Song, SongViewModel>()
-                   .EqualityComparison((s, svm) => s.Id == svm.Id)
+                   .EqualityComparison((src, dest) => src.Id == dest.Id)
                    .ReverseMap();
 
                 cfg.CreateMap<Country, CountryViewModel>()
-                   .EqualityComparison((o, ovm) => o.Id == ovm.Id);
+                   .EqualityComparison((src, dest) => src.Id == dest.Id);
+
+                cfg.CreateMap<SongViewModel, SongEntry>()
+                   .EqualityComparison((src, dest) => src.TrackNo == dest.No)
+                   .ForMember(dest => dest.No, opt => opt.MapFrom(src => src.TrackNo))
+                   .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Name))
+                   .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.TimeLength));
+
+                cfg.CreateMap<SongEntry, SongViewModel>()
+                   .EqualityComparison((src, dest) => src.No == dest.TrackNo)
+                   .ForMember(dest => dest.Id, opt => opt.UseValue(-1))
+                   .ForMember(dest => dest.TrackNo, opt => opt.MapFrom(src => src.No))
+                   .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Title))
+                   .ForMember(dest => dest.TimeLength, opt => opt.MapFrom(src => src.Duration));
             });
         }
 
@@ -114,7 +127,7 @@ namespace MusCat
             builder.RegisterType<EditPerformerViewModel>();
             builder.RegisterType<EditAlbumViewModel>();
             builder.RegisterType<AlbumPlaybackViewModel>();
-            builder.RegisterType<CountriesViewModel>();
+            builder.RegisterType<EditCountryViewModel>();
 
             return builder.Build();
         }

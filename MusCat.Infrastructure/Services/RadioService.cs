@@ -8,10 +8,10 @@ using MusCat.Core.Util;
 namespace MusCat.Infrastructure.Services
 {
     /// <summary>
-    /// Radio station service
+    /// Radio station service.
     /// 
     /// Class provides basic methods for making and playing tracklists 
-    /// and their asynchronous analogs
+    /// and their asynchronous analogs.
     /// 
     /// </summary>
     public class RadioService : IRadioService
@@ -71,6 +71,7 @@ namespace MusCat.Infrastructure.Services
             {
                 SongArchive.RemoveAt(0);
             }
+
             SongArchive.Add(CurrentSong);
 
             // reassign current song (take first item from list of upcoming songs)
@@ -110,7 +111,9 @@ namespace MusCat.Infrastructure.Services
                 {
                     continue;
                 }
-                UpcomingSongs[i] = SelectRandomSong();
+
+                UpcomingSongs[i] = SelectRandomSong() ?? CurrentSong;
+
                 return;
             }
         }
@@ -127,8 +130,10 @@ namespace MusCat.Infrastructure.Services
                 {
                     continue;
                 }
+
                 UpcomingSongs.RemoveAt(i);
                 UpcomingSongs.Add(SelectRandomSong());
+
                 return;
             }
         }
@@ -140,7 +145,23 @@ namespace MusCat.Infrastructure.Services
         /// <returns>Song object selected randomly from the database</returns>
         private Song SelectRandomSong(int maxAttempts = 15)
         {
-            return SelectRandomSongAsync(maxAttempts).Result;
+            var attempts = 0;
+
+            Song song;
+
+            // keep selecting song randomly until the song file is actually present in the file system...
+            // ...and while it isn't present in archive of recently played songs and upcoming songs
+            do
+            {
+                if (attempts++ == maxAttempts) return null;
+                song = _songSelector.SelectSong();
+            }
+            while (SongArchive.Any(s => s.Id == song.Id)    // true, if the archive already contains this song
+                || UpcomingSongs.Any(s => s.Id == song.Id)  // true, if it is already in songlist
+                || song.Id == CurrentSong.Id                // true, if it's currently playing
+                || FileLocator.FindSongPath(song) == "");   // true, if the file with this song doesn't exist
+
+            return song;
         }
 
         #endregion
@@ -154,6 +175,7 @@ namespace MusCat.Infrastructure.Services
 
             // if for some reason could not find new song to play
             // then just add currently playing track to upcoming songs
+            // (the same logic is implemented in synchronous version as well)
             UpcomingSongs.Add(song ?? CurrentSong);
         }
 
@@ -163,6 +185,7 @@ namespace MusCat.Infrastructure.Services
             {
                 SongArchive.RemoveAt(0);
             }
+
             SongArchive.Add(CurrentSong);
             CurrentSong = UpcomingSongs.First();
             UpcomingSongs.RemoveAt(0);
@@ -170,6 +193,10 @@ namespace MusCat.Infrastructure.Services
             await AddRandomSongAsync().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Switching to previous song is done synchronously
+        /// since his operation is very cheap (just recombinate songs in collections)
+        /// </summary>
         public async Task MoveToPrevSongAsync()
         {
             MoveToPrevSong();
@@ -177,8 +204,6 @@ namespace MusCat.Infrastructure.Services
 
         public async Task ChangeSongAsync(long songId)
         {
-            await SelectRandomSongAsync();
-
             for (var i = 0; i < MaxSongs; i++)
             {
                 if (UpcomingSongs[i].Id != songId)
@@ -246,27 +271,29 @@ namespace MusCat.Infrastructure.Services
             {
                 await AddRandomSongAsync().ConfigureAwait(false);
             }
-        }
 
-        /* Alternative code
-         * 
-         * ================= (however, it allows duplicate songs) ===================
-         *
-         * //var songAdders = new Task[MaxSongs];
-         *
-         * //// just fire them all at once (order doesn't matter)
-         * //for (var i = 0; i < MaxSongs; i++)
-         * //{
-         * //    songAdders[i] = AddRandomSongAsync().ConfigureAwait(false);
-         * //}
-         *
-         * //await Task.WhenAll(songAdders).ConfigureAwait(false);
-         *
-         * // ====================== just was playing' with )) ======================
-         *
-         * // Parallel.For(0, MaxSongs, i => AddRandomSong());
-         * // Parallel.For(0, MaxSongs, i => AddRandomSongAsync().RunSynchronously());
-         */
+            /*                      Alternative code, just for fun
+             * 
+             * ================= (however, it allows duplicate songs) ===================
+             *
+             * //var songAdders = new Task[MaxSongs];
+             *
+             * //// just fire them all at once (order doesn't matter)
+             * //for (var i = 0; i < MaxSongs; i++)
+             * //{
+             * //    songAdders[i] = AddRandomSongAsync().ConfigureAwait(false);
+             * //}
+             *
+             * //await Task.WhenAll(songAdders).ConfigureAwait(false);
+             *
+             * // ====================== just was playing' with )) ======================
+             *
+             * // Parallel.For(0, MaxSongs, i => AddRandomSong());
+             * // Parallel.For(0, MaxSongs, i => AddRandomSongAsync().RunSynchronously());
+             * 
+             * 
+             */
+        }
 
         #endregion
     }

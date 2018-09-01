@@ -14,7 +14,7 @@ using MusCat.ViewModels.Entities;
 
 namespace MusCat.ViewModels
 {
-    class CountriesViewModel : ViewModelBase
+    class EditCountryViewModel : ViewModelBase
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICountryService _countryService;
@@ -50,7 +50,7 @@ namespace MusCat.ViewModels
         }
 
 
-        public CountriesViewModel(ICountryService countryService, IUnitOfWork unitOfWork)
+        public EditCountryViewModel(ICountryService countryService, IUnitOfWork unitOfWork)
         {
             Guard.AgainstNull(countryService);
             Guard.AgainstNull(unitOfWork);

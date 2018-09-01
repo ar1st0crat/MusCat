@@ -17,10 +17,29 @@ namespace MusCat.Infrastructure.Services
         /// </summary>
         private readonly Random _songSelector = new Random();
         
-
         public RandomSongSelector(string connectionString)
         {
             _connectionString = connectionString;
+        }
+
+        public Song SelectSong()
+        {
+            using (var context = new MusCatDbContext(_connectionString))
+            {
+                // find out the maximum song ID in the database
+                var maxSid = context.Songs.Max(s => s.Id);
+
+                var songId = _songSelector.Next() % maxSid;
+                var song = context.Songs.First(s => s.Id >= songId);
+
+                // include the corresponding album of our song
+                song.Album = context.Albums.First(a => a.Id == song.AlbumId);
+
+                // do the same thing with performer for included album
+                song.Album.Performer = context.Performers.First(p => p.Id == song.Album.PerformerId);
+
+                return song;
+            }
         }
 
         public async Task<Song> SelectSongAsync()

@@ -51,7 +51,7 @@ namespace MusCat.ViewModels
             }
         }
 
-        private ObservableCollection<SongViewModel> _songs;
+        private ObservableCollection<SongViewModel> _songs = new ObservableCollection<SongViewModel>();
         public ObservableCollection<SongViewModel> Songs
         {
             get { return _songs; }
@@ -157,23 +157,22 @@ namespace MusCat.ViewModels
 
         public async Task SaveAllAsync()
         {
+            var songs = Mapper.Map<Song[]>(Songs);
+
             // first, check validity of song data
 
-            //if (Songs.Any(s => s.Error != ""))
-            //{
-            //    var message = Songs.Where(s => s.Error != "")
-            //                       .Select(s => s.TrackNo.ToString())
-            //                       .Aggregate((t, s) => t + ", " + s);
-            //    message = "Errors in songs #" + message;
-            //    MessageBox.Show(message);
-            //    return;
-            //}
-
-            var errorMessage = string.Empty;
-
-            foreach (var songViewModel in Songs)
+            if (songs.Any(s => s.Error != ""))
             {
-                var song = Mapper.Map<Song>(songViewModel);
+                var message = songs.Where(s => s.Error != "")
+                                   .Select(s => s.TrackNo.ToString())
+                                   .Aggregate((t, s) => t + ", " + s);
+
+                MessageBox.Show($"Errors in songs #{message}");
+                return;
+            }
+
+            foreach (var song in songs)
+            {
                 song.AlbumId = Album.Id;
 
                 if (song.Id == -1)
@@ -181,26 +180,11 @@ namespace MusCat.ViewModels
                     // we save changes after adding each song
                     // because manual autoincrementing always needs actual values of ID
                     var result = await _songService.AddSongAsync(song);
-
-                    if (result.Type != ResultType.Ok)
-                    {
-                        errorMessage += result.Error + "\n";
-                    }
                 }
                 else
                 {
                     var result = await _songService.UpdateSongAsync(song);
-
-                    if (result.Type != ResultType.Ok)
-                    {
-                        errorMessage += result.Error + "\n";
-                    }
                 }
-            }
-
-            if (errorMessage != string.Empty)
-            {
-                MessageBox.Show("Errors in songs: " + errorMessage);
             }
         }
 
@@ -237,11 +221,7 @@ namespace MusCat.ViewModels
                 newTrackNo = (byte)(Songs.Last().TrackNo + 1);
             }
 
-            Songs.Add(new SongViewModel
-            {
-                Id = -1,
-                TrackNo = newTrackNo
-            });
+            Songs.Add(new SongViewModel { Id = -1, TrackNo = newTrackNo });
         }
 
         public async Task ClearAllAsync()
@@ -271,29 +251,18 @@ namespace MusCat.ViewModels
 
             var songs = _songlist.Parse(fbd.SelectedPath);
 
-            Songs = new ObservableCollection<SongViewModel>(
-                songs.Select((s, i) => new SongViewModel
-                {
-                    Id = -1,
-                    TrackNo = (byte)(i + 1),
-                    Name = s.Title,
-                    TimeLength = s.Duration
-                }));
+            Songs = Mapper.Map<ObservableCollection<SongViewModel>>(songs);
 
             AlbumTotalTime = _songlist.FixDurations(songs);
         }
-
+        
         private void FixTitles()
         {
-            var songs = Songs.Select(s => new SongEntry
-            {
-                No = s.TrackNo,
-                Title = s.Name,
-                Duration = s.TimeLength
-            })
-            .ToList();
+            var songs = Mapper.Map<SongEntry[]>(Songs);
 
             _songlist.FixTitles(songs);
+
+            // update songs in-place
 
             var i = 0;
             foreach (var song in Songs)
@@ -303,12 +272,14 @@ namespace MusCat.ViewModels
                 i++;
             }
         }
-
+        
         private void FixDurations()
         {
-            var songs = Songs.Select(s => new SongEntry { Duration = s.TimeLength }).ToList();
+            var songs = Mapper.Map<SongEntry[]>(Songs);
 
             AlbumTotalTime = _songlist.FixDurations(songs);
+
+            // update songs in-place
 
             var i = 0;
             foreach (var song in Songs)
