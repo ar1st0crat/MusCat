@@ -12,7 +12,6 @@ using MusCat.Core.Interfaces.Audio;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Interfaces.Domain;
 using MusCat.Core.Interfaces.Radio;
-using MusCat.Core.Interfaces.Stats;
 using MusCat.Core.Util;
 using MusCat.Util;
 using MusCat.ViewModels.Entities;

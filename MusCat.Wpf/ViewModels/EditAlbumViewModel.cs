@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using AutoMapper;
@@ -22,7 +20,7 @@ using MusCat.Core.Services;
 
 namespace MusCat.ViewModels
 {
-    class EditAlbumViewModel : ViewModelBase, IDataErrorInfo
+    class EditAlbumViewModel : ViewModelBase
     {
         private readonly IAlbumService _albumService;
         private readonly ISongService _songService;
@@ -30,26 +28,6 @@ namespace MusCat.ViewModels
         private readonly ISonglistHelper _songlist;
         
         public AlbumViewModel Album { get; set; }
-
-        public string AlbumName
-        {
-            get { return Album.Name; }
-            set
-            {
-                Album.Name = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public string AlbumTotalTime
-        {
-            get { return Album.TotalTime; }
-            set
-            {
-                Album.TotalTime = value;
-                RaisePropertyChanged();
-            }
-        }
 
         private ObservableCollection<SongViewModel> _songs = new ObservableCollection<SongViewModel>();
         public ObservableCollection<SongViewModel> Songs
@@ -256,7 +234,7 @@ namespace MusCat.ViewModels
 
             Songs = Mapper.Map<ObservableCollection<SongViewModel>>(songs);
 
-            AlbumTotalTime = _songlist.FixDurations(songs);
+            Album.TotalTime = _songlist.FixDurations(songs);
         }
         
         private void FixTitles()
@@ -280,7 +258,7 @@ namespace MusCat.ViewModels
         {
             var songs = Mapper.Map<SongEntry[]>(Songs);
 
-            AlbumTotalTime = _songlist.FixDurations(songs);
+            Album.TotalTime = _songlist.FixDurations(songs);
 
             // update songs in-place
 
@@ -381,53 +359,6 @@ namespace MusCat.ViewModels
             }
 
             RaisePropertyChanged("Album");
-        }
-
-        #endregion
-
-        #region IDataErrorInfo methods
-
-        public string Error
-        {
-            get
-            {
-                var error = string.Join("\n", this["AlbumName"], this["AlbumTotalTime"]);
-                return error.Replace("\n", "") == string.Empty ? string.Empty : error;
-            }
-        }
-
-        public string this[string columnName]
-        {
-            get 
-            {
-                var error = string.Empty;
-
-                switch (columnName)
-                {
-                    case "AlbumTotalTime":
-                    {
-                        var regex = new Regex(@"^\d+:\d{2}$");
-                        if (!regex.IsMatch(Album.TotalTime))
-                        {
-                            error = "Total time should be in the format mm:ss";
-                        }
-                        break;
-                    }
-                    case "AlbumName":
-                    {
-                        if (Album.Name.Length > Core.Entities.Album.MaxNameLength)
-                        {
-                            error = "Album name should contain not more than 40 symbols";
-                        }
-                        else if (Album.Name == "")
-                        {
-                            error = "Album name can't be empty";
-                        }
-                        break;
-                    }
-                }
-                return error;
-            }
         }
 
         #endregion

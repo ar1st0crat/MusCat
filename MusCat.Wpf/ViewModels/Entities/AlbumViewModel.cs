@@ -1,8 +1,10 @@
-﻿using MusCat.Core.Entities;
+﻿using AutoMapper;
+using MusCat.Core.Entities;
+using System.ComponentModel;
 
 namespace MusCat.ViewModels.Entities
 {
-    public class AlbumViewModel : ViewModelBase
+    public class AlbumViewModel : ViewModelBase, IDataErrorInfo
     {
         public long Id { get; set; }
         public long PerformerId { get; set; }
@@ -63,5 +65,13 @@ namespace MusCat.ViewModels.Entities
         }
 
         public Performer Performer { get; set; }
+
+        #region IDataErrorInfo methods
+
+        public string Error => Mapper.Map<Album>(this).Error;
+
+        public string this[string columnName] => Mapper.Map<Album>(this)[columnName];
+
+        #endregion
     }
 }

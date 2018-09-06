@@ -1,6 +1,10 @@
-﻿namespace MusCat.ViewModels.Entities
+﻿using AutoMapper;
+using MusCat.Core.Entities;
+using System.ComponentModel;
+
+namespace MusCat.ViewModels.Entities
 {
-    public class SongViewModel : ViewModelBase
+    public class SongViewModel : ViewModelBase, IDataErrorInfo
     {
         public long Id { get; set; }
         public long AlbumId { get; set; }
@@ -48,5 +52,9 @@
                 RaisePropertyChanged();
             }
         }
+
+        public string Error => Mapper.Map<Song>(this).Error;
+
+        public string this[string columnName] => Mapper.Map<Song>(this)[columnName];
     }
 }
