@@ -1,9 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Data;
+using AutoMapper;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
 using MusCat.Core.Util;
+using MusCat.Infrastructure.Services;
 
 namespace MusCat.ViewModels.Entities
 {
@@ -66,10 +68,21 @@ namespace MusCat.ViewModels.Entities
             }
         }
 
+        private string _imagePath;
+        public string ImagePath
+        {
+            get { return _imagePath; }
+            set
+            {
+                _imagePath = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public int AlbumCount => _albums.Count;
 
         public AlbumViewModel SelectedAlbum { get; set; }
-
+        
         private readonly IRateCalculator _rateCalculator;
 
         public void UpdateAlbumCollectionRate()
@@ -80,12 +93,18 @@ namespace MusCat.ViewModels.Entities
 
         private readonly object _lock = new object();
 
+
         public PerformerViewModel(IRateCalculator rateCalculator)
         {
             Guard.AgainstNull(rateCalculator);
             _rateCalculator = rateCalculator;
 
             BindingOperations.EnableCollectionSynchronization(_albums, _lock);
+        }
+
+        public void LocateImagePath()
+        {
+            ImagePath = FileLocator.GetPerformerImagePath(Mapper.Map<Performer>(this));
         }
     }
 }

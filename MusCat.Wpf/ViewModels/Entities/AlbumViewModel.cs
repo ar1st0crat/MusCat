@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MusCat.Core.Entities;
+using MusCat.Infrastructure.Services;
 using System.ComponentModel;
 
 namespace MusCat.ViewModels.Entities
@@ -64,7 +65,24 @@ namespace MusCat.ViewModels.Entities
             }
         }
 
+        private string _imagePath;
+        public string ImagePath
+        {
+            get { return _imagePath; }
+            set
+            {
+                _imagePath = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public Performer Performer { get; set; }
+
+
+        public void LocateImagePath()
+        {
+            ImagePath = FileLocator.GetAlbumImagePath(Mapper.Map<Album>(this));
+        }
 
         #region IDataErrorInfo methods
 

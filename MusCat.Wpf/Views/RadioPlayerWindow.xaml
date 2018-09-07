@@ -33,7 +33,7 @@
         <sys:Double x:Key="AlbumImageHeight">100</sys:Double>
         <sys:Double x:Key="CurrentAlbumImageHeight">200</sys:Double>
         <!-- Album cover path converter -->
-        <converters:PhotoConverter x:Key="AlbumImageConverter"/>
+        <converters:AlbumImageConverter x:Key="AlbumImageConverter"/>
     </Window.Resources>
 
     <StackPanel>
@@ -54,8 +54,8 @@
                         Margin="15,60,15,60">
                 <Label Content="Previous" Foreground="AntiqueWhite" HorizontalAlignment="Center"/>
                 <!-- The cover of an album containing previous song in radio tracklist -->
-                <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter},
-                                                    ConverterParameter={StaticResource AlbumImageHeight}}"
+                <Image Source="{Binding Path=AlbumImagePath, Converter={StaticResource AlbumImageConverter},
+                                                             ConverterParameter={StaticResource AlbumImageHeight}}"
                        Height="{StaticResource AlbumImageHeight}">
                     <!-- The album cover is clickable -->
                     <Image.InputBindings>
@@ -122,8 +122,8 @@
                 </DockPanel>
                 <StackPanel DataContext="{Binding CurrentSong}">
                     <!-- The cover of an album containing currently played song -->
-                    <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter},
-                                                        ConverterParameter={StaticResource CurrentAlbumImageHeight}}"
+                    <Image Source="{Binding Path=AlbumImagePath, Converter={StaticResource AlbumImageConverter},
+                                                                 ConverterParameter={StaticResource CurrentAlbumImageHeight}}"
                            Height="{StaticResource CurrentAlbumImageHeight}"
                            Cursor="Hand">
                         <!-- The album cover is clickable -->
@@ -174,8 +174,8 @@
                        Foreground="AntiqueWhite"
                        HorizontalAlignment="Center"/>
                 <!-- The cover of an album containing next song in radio tracklist -->
-                <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter},
-                                                    ConverterParameter={StaticResource AlbumImageHeight}}"
+                <Image Source="{Binding Path=AlbumImagePath, Converter={StaticResource AlbumImageConverter},
+                                                             ConverterParameter={StaticResource AlbumImageHeight}}"
                        Height="{StaticResource AlbumImageHeight}">
                     <!-- The album cover is clickable -->
                     <Image.InputBindings>

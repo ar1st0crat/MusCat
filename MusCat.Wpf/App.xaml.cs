@@ -80,15 +80,20 @@ namespace MusCat
                 cfg.CreateMap<Performer, PerformerViewModel>()
                    .EqualityComparison((src, dest) => src.Id == dest.Id)
                    .ForMember(m => m.Albums, opt => opt.Ignore())
+                   .AfterMap((src, dest) => dest.LocateImagePath())
                    .ReverseMap();
 
                 cfg.CreateMap<Album, AlbumViewModel>()
                    .EqualityComparison((src, dest) => src.Id == dest.Id)
+                   .AfterMap((src, dest) => dest.LocateImagePath())
                    .ReverseMap();
 
                 cfg.CreateMap<Song, SongViewModel>()
                    .EqualityComparison((src, dest) => src.Id == dest.Id)
                    .ReverseMap();
+
+                cfg.CreateMap<Song, RadioSongViewModel>()
+                   .AfterMap((src, dest) => dest.LocateAlbumImagePath(src.Album));
 
                 cfg.CreateMap<Country, CountryViewModel>()
                    .EqualityComparison((src, dest) => src.Id == dest.Id);

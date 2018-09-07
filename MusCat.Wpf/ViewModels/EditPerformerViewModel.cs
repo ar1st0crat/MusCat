@@ -87,6 +87,8 @@ namespace MusCat.ViewModels
 
             Performer.Country = (await _performerService.GetCountryAsync(Performer.Id)).Data;
 
+            Performer.ImagePath = FileLocator.GetPerformerImagePath(performer);
+
             RaisePropertyChanged("Performer");
         }
 
@@ -155,13 +157,15 @@ namespace MusCat.ViewModels
             {
                 PrepareFileForSaving(filepath);
                 File.Copy(ofd.FileName, filepath);
-
-                RaisePropertyChanged("Performer");
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+
+            Performer.ImagePath = filepath;
+
+            RaisePropertyChanged("Performer");
         }
 
         private void LoadPerformerImageFromClipboard()
@@ -195,6 +199,8 @@ namespace MusCat.ViewModels
             {
                 MessageBox.Show(ex.Message);
             }
+
+            Performer.ImagePath = filepath;
 
             RaisePropertyChanged("Performer");
         }

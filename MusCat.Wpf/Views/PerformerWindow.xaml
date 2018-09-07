@@ -16,7 +16,7 @@
     
     <Window.Resources>
         <sys:Double x:Key="PerformerPhotoWidth">400</sys:Double>
-        <converters:PhotoConverter x:Key="PerformerPhotoConverter" />
+        <converters:PerformerImageConverter x:Key="PerformerPhotoConverter" />
     </Window.Resources>
     
     <Grid>
@@ -28,7 +28,8 @@
         <ScrollViewer Grid.Column="0" Grid.Row="0"
                       HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <StackPanel >
-                <Image Source="{Binding Converter={StaticResource PerformerPhotoConverter}, ConverterParameter={StaticResource PerformerPhotoWidth}}"
+                <Image Source="{Binding ImagePath, Converter={StaticResource PerformerPhotoConverter}, 
+                                                   ConverterParameter={StaticResource PerformerPhotoWidth}}"
                        HorizontalAlignment="Left" VerticalAlignment="Top"
                        Margin="10,20,0,0"
                        Width="{StaticResource PerformerPhotoWidth}"/>

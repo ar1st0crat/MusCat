@@ -16,7 +16,7 @@
         <!-- GUI parameters -->
         <sys:Double x:Key="PerformerPhotoWidth">400</sys:Double>
         <!-- Converters -->
-        <converters:PhotoConverter x:Key="PerformerPhotoConverter" />
+        <converters:PerformerImageConverter x:Key="PerformerPhotoConverter" />
     </Window.Resources>
 
     <Grid>
@@ -38,7 +38,8 @@
                             Content="Load from clipboard"
                             Margin="0,10,3,10"/>
                 </WrapPanel>
-                <Image Source="{Binding Path=Performer, Converter={StaticResource PerformerPhotoConverter}, ConverterParameter={StaticResource PerformerPhotoWidth}}"
+                <Image Source="{Binding Path=Performer.ImagePath, Converter={StaticResource PerformerPhotoConverter},
+                                                                  ConverterParameter={StaticResource PerformerPhotoWidth}}"
                        HorizontalAlignment="Left" VerticalAlignment="Top"
                        Width="{StaticResource PerformerPhotoWidth}"/>
                 <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center"

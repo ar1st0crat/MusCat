@@ -26,7 +26,7 @@
         <sys:Double x:Key="AlbumWidth">300</sys:Double>
         <sys:Double x:Key="AlbumHeight">300</sys:Double>
         <!-- Converters -->
-        <converters:PhotoConverter x:Key="AlbumImageConverter"/>
+        <converters:AlbumImageConverter x:Key="AlbumImageConverter"/>
         <converters:RateConverter x:Key="AlbumRateConverter"/>
         
         <DataTemplate x:Key="SongTemplate">
@@ -120,7 +120,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0">
-            <Image Source="{Binding Path=Album, Converter={StaticResource AlbumImageConverter}, ConverterParameter={StaticResource AlbumHeight}}"
+            <Image Source="{Binding Path=Album.ImagePath, Converter={StaticResource AlbumImageConverter}, ConverterParameter={StaticResource AlbumHeight}}"
                    Width="{StaticResource AlbumWidth}" Height="{StaticResource AlbumHeight}"
                    Margin="10,25,0,0" 
                    HorizontalAlignment="Center" VerticalAlignment="Top">

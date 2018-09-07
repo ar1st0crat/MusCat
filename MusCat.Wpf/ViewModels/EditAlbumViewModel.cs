@@ -330,6 +330,8 @@ namespace MusCat.ViewModels
                 MessageBox.Show(ex.Message);
             }
 
+            Album.ImagePath = filepath;
+
             RaisePropertyChanged("Album");
         }
 
@@ -357,6 +359,8 @@ namespace MusCat.ViewModels
             {
                 MessageBox.Show(ex.Message);
             }
+
+            Album.ImagePath = filepath;
 
             RaisePropertyChanged("Album");
         }

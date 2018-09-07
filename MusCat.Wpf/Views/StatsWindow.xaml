@@ -24,7 +24,7 @@
             <Setter Property="Foreground" Value="White" />
         </Style>
         <system:Double x:Key="AlbumImageHeight">50</system:Double>
-        <converters:PhotoConverter x:Key="AlbumImageConverter"/>
+        <converters:AlbumImageConverter x:Key="AlbumImageConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -69,7 +69,8 @@
                             <Image Grid.Column="0"
                                    Width="50" Height="50"
                                    Margin="5"
-                                   Source="{Binding Converter={StaticResource AlbumImageConverter},
+                                   Source="{Binding ImagePath,
+                                                    Converter={StaticResource AlbumImageConverter},
                                                     ConverterParameter={StaticResource AlbumImageHeight}}"/>
                             <StackPanel Grid.Column="1">
                                 <TextBlock Text="{Binding Performer.Name}" />

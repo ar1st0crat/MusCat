@@ -31,7 +31,7 @@ namespace MusCat.ViewModels
         // Bitmaps for playback buttons
         private static readonly BitmapImage ImagePlay = App.Current.Resources["ImagePlayButton"] as BitmapImage;
         private static readonly BitmapImage ImagePause = App.Current.Resources["ImagePauseButton"] as BitmapImage;
-        
+
         private BitmapImage _playbackImage = ImagePause;
         public BitmapImage PlaybackImage
         {
@@ -55,9 +55,10 @@ namespace MusCat.ViewModels
             }
         }
 
-        public Song PreviousSong => _radio.PrevSong;
-        public Song CurrentSong => _radio.CurrentSong;
-        public Song NextSong => _radio.NextSong;
+        public RadioSongViewModel PreviousSong => Mapper.Map<RadioSongViewModel>(_radio.PrevSong);
+        public RadioSongViewModel CurrentSong => Mapper.Map<RadioSongViewModel>(_radio.CurrentSong);
+        public RadioSongViewModel NextSong => Mapper.Map<RadioSongViewModel>(_radio.NextSong);
+
         public ObservableCollection<Song> RadioArchive => new ObservableCollection<Song>(_radio.SongArchive);
         public ObservableCollection<Song> RadioUpcoming => new ObservableCollection<Song>(_radio.UpcomingSongs);
 
@@ -192,11 +193,11 @@ namespace MusCat.ViewModels
                 _player.Stop();
             }
 
-            var fileSong = FileLocator.FindSongPath(CurrentSong);
+            var songpath = FileLocator.FindSongPath(_radio.CurrentSong);
 
             try
             {
-                _player.Play(fileSong);
+                _player.Play(songpath);
             }
             //catch (InvalidOperationException)
             //{

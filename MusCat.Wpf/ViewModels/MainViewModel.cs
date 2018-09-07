@@ -304,12 +304,14 @@ namespace MusCat.ViewModels
             {
                 var performerViewModel = new PerformerViewModel(_rateCalculator);
                 Mapper.Map(performer, performerViewModel);
-                
+
                 // Fill performer's albumlist
+
                 IEnumerable<Album> albums;
 
                 // If no album pattern filter is specified, 
                 // then copy **all** albums to PerformerViewModel
+
                 if (_filter != PerformerFilters.FilterByAlbumPattern)
                 {
                     albums = await _unitOfWork.PerformerRepository
@@ -323,7 +325,8 @@ namespace MusCat.ViewModels
 
                 foreach (var album in albums)
                 {
-                    performerViewModel.Albums.Add(Mapper.Map<AlbumViewModel>(album));
+                    var albumViewModel = Mapper.Map<AlbumViewModel>(album);
+                    performerViewModel.Albums.Add(albumViewModel);
                 }
 
                 // Recalculate total rate and number of albums of performer
@@ -504,6 +507,7 @@ namespace MusCat.ViewModels
             {
                 var editPerformerViewModel = scope.Resolve<EditPerformerViewModel>();
                 editPerformerViewModel.Performer = performerViewModel;
+                editPerformerViewModel.LoadCountriesAsync();
 
                 var performerWindow = new EditPerformerWindow
                 {
