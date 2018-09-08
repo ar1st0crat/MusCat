@@ -7,12 +7,12 @@
         xmlns:viewModels="clr-namespace:MusCat.ViewModels"
         xmlns:controls="clr-namespace:MusCat.Controls"
         Title="MusCat"
-        Height="780" Width="1000"
+        Height="800" Width="1000"
         Icon="{StaticResource AppIcon}">
     <Window.Background>
         <LinearGradientBrush>
-            <GradientStop Color="#001122" Offset="0" />
-            <GradientStop Color="#ff77bb" Offset="2.5" />
+            <GradientStop Color="#ff77bb" Offset="-0.75" />
+            <GradientStop Color="#001122" Offset="0.85" />
         </LinearGradientBrush>
     </Window.Background>
 
@@ -39,12 +39,13 @@
     
     <Window.Resources>
         <!-- GUI parameters -->
-        <sys:Double x:Key="AlbumImageWidth">100</sys:Double>
-        <sys:Double x:Key="AlbumImageHeight">100</sys:Double>
+        <sys:Double x:Key="AlbumImageWidth">60</sys:Double>
+        <sys:Double x:Key="AlbumImageHeight">60</sys:Double>
         <sys:Double x:Key="PerformerPhotoWidth">125</sys:Double>
         <sys:Double x:Key="PerformerPhotoHeight">85</sys:Double>
-        <sys:Double x:Key="SelectedPerformerPhotoWidth">200</sys:Double>
-        <sys:Double x:Key="SelectedPerformerPhotoHeight">150</sys:Double>
+        <sys:Double x:Key="SelectedPerformerPhotoWidth">260</sys:Double>
+        <sys:Double x:Key="SelectedPerformerPhotoHeight">200</sys:Double>
+        <sys:Int32 x:Key="TruncatedTextLength">520</sys:Int32>
         
         <!-- converters -->
         <converters:PerformerImageConverter x:Key="PerformerPhotoConverter"/>
@@ -52,6 +53,7 @@
         <converters:RateConverter x:Key="RateConverter"/>
         <converters:AlbumCountConverter x:Key="AlbumCountConverter"/>
         <converters:YearsConverter x:Key="YearsConverter"/>
+        <converters:TruncateTextConverter x:Key="TextConverter"/>
 
         <!-- menu items style -->
         <Style TargetType="{x:Type MenuItem}">
@@ -77,54 +79,63 @@
         
         <!-- album data template -->
         <DataTemplate x:Key="AlbumTemplate">
-            <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Vertical" Margin="0,7,0,7">
                 <Grid VerticalAlignment="Top">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="14"/>
-                        <RowDefinition Height="110" />
-                        <RowDefinition Height="40" />
-                        <RowDefinition Height="20" />
+                        <RowDefinition Height="12"/>
+                        <RowDefinition Height="65" />
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="14" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" 
-                               Text="{Binding Path=Id, StringFormat=#{0}}"
-                               TextWrapping="WrapWithOverflow" 
-                               FontSize="12" FontFamily="Segoe UI" 
-                               Foreground="Black"
-                               Margin="0,-1,0,-1" />
-                    <Image Grid.Row="1" 
-                           Source="{Binding Path=ImagePath, Converter={StaticResource AlbumImageConverter},
-                                        ConverterParameter={StaticResource PerformerPhotoHeight},
-                                        UpdateSourceTrigger=PropertyChanged}"
+
+                    <Image Grid.Row="1"
+                           Source="{Binding ImagePath, Converter={StaticResource AlbumImageConverter},
+                                            ConverterParameter={StaticResource PerformerPhotoHeight},
+                                            UpdateSourceTrigger=PropertyChanged}"
                            Height="{StaticResource AlbumImageHeight}"
                            Width="{StaticResource AlbumImageWidth}"
-                           VerticalAlignment="Top" 
-                           Margin="5">
+                           VerticalAlignment="Top">
                         <Image.Effect>
                             <DropShadowEffect Color="Black" BlurRadius="15"/>
                         </Image.Effect>
+                        <Image.Triggers>
+                            <EventTrigger RoutedEvent="Control.MouseEnter">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation Duration="0:0:0.4" To="Yellow" Storyboard.TargetProperty="(Effect).Color" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                            <EventTrigger RoutedEvent="Control.MouseLeave">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation Duration="0:0:0.4" To="Black" Storyboard.TargetProperty="(Effect).Color" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Image.Triggers>
                     </Image>
                     <TextBlock Grid.Row="2" 
-                               Text="{Binding Path=Name}"
+                               Text="{Binding Name}"
                                TextAlignment="Center" TextWrapping="WrapWithOverflow"
                                VerticalAlignment="Center" 
-                               Margin="1" Width="150"
-                               FontSize="14" FontFamily="Segoe UI"
+                               Width="120"
+                               FontSize="11"
                                Foreground="LightYellow" />
                     <TextBlock Grid.Row="3" 
-                               Text="{Binding Path=ReleaseYear}"
+                               Text="{Binding ReleaseYear}"
                                TextWrapping="WrapWithOverflow" TextAlignment="Center"
-                               Margin="1" Width="110"
-                               FontSize="12" FontFamily="Segoe UI"
+                               FontSize="10"
                                Foreground="#ffbb88" />
                     <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <controls:RateStarsControl Rate="{Binding Path=Rate}"
-                                                   Height="20" Width="100"
+                        <controls:RateStarsControl Rate="{Binding Rate}"
+                                                   Height="14" Width="70"
                                                    IsEnabled="False" />
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Path=Rate}" Value="{x:Null}">
+                                    <DataTrigger Binding="{Binding Rate}" Value="{x:Null}">
                                         <Setter Property="Visibility" Value="Hidden"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -134,25 +145,32 @@
                     <TextBlock Grid.Row="4"
                                Style="{StaticResource RateTextBlock}"
                                Text="{Binding Converter={StaticResource RateConverter}}"
-                               FontSize="12"
-                               Foreground="Black"
-                               HorizontalAlignment="Center" Margin="5"/>
+                               FontSize="10"
+                               Foreground="Yellow"
+                               HorizontalAlignment="Center" />
                 </Grid>
             </StackPanel>
         </DataTemplate>
 
         <!-- album style -->
+        
         <Style TargetType="{x:Type ListBoxItem}" x:Key="AlbumContainerStyle">
             <Setter Property="ContentTemplate" Value="{StaticResource AlbumTemplate}" />
-            <Style.Resources>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="LightYellow"/>
-            </Style.Resources>
+            <Setter Property="IsSelected" Value="{Binding Content.IsSelected, Mode=TwoWay, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
+        <!-- OPTIONAL (was used in previous versions -->
         <!-- performer rate info panel style -->
         <Style TargetType="{x:Type StackPanel}" x:Key="PerformerRateStyle">
             <Style.Triggers>
-                <DataTrigger Binding="{Binding Path=AlbumCollectionRate}" Value="{x:Null}">
+                <DataTrigger Binding="{Binding AlbumCollectionRate}" Value="{x:Null}">
                     <Setter Property="Visibility" Value="Hidden"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -160,125 +178,53 @@
         
         <!-- performer template (not selected by user) -->
         <DataTemplate x:Key="PerformerTemplate">
-            <StackPanel Orientation="Horizontal">
-                <Ellipse Width="95" Height="95" Margin="15,10,15,15">
+            <StackPanel Orientation="Horizontal" Margin="10">
+                <Ellipse Width="50" Height="50" Margin="0,0,10,0">
                     <Ellipse.Fill>
-                        <ImageBrush ImageSource="{Binding Path=ImagePath, Converter={StaticResource PerformerPhotoConverter},
+                        <ImageBrush ImageSource="{Binding ImagePath, Converter={StaticResource PerformerPhotoConverter},
                                     ConverterParameter={StaticResource PerformerPhotoHeight},
                                     UpdateSourceTrigger=PropertyChanged}"
                                     Stretch="UniformToFill"/>
                     </Ellipse.Fill>
                 </Ellipse>
                 <StackPanel>
-                    <Label Content="{Binding Path=Name}"
-                           FontSize="24" FontFamily="Stencil" 
-                           Foreground="LightYellow"
-                           Padding="0,5,0,0" />
+                    <Label Content="{Binding Name}"
+                           FontSize="16"
+                           Padding="1,0,0,0"
+                           Margin="0,-2,0,-3"
+                           Foreground="LightYellow" />
                     <DockPanel>
-                        <StackPanel Margin="0,0,2,0">
-                            <Label Content="{Binding Path=AlbumCollectionRate, Converter={StaticResource RateConverter}}"
-                                   Foreground="White"
-                                   FontSize="18" FontFamily="Arial Narrow"
-                                   Padding="1,1,10,1" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Style="{StaticResource PerformerRateStyle}">
-                            <controls:RateStarsControl Rate="{Binding Path=AlbumCollectionRate}"
-                                                       Width="75" Height="15"
+                        <StackPanel Orientation="Horizontal">
+                            <controls:RateStarsControl Rate="{Binding AlbumCollectionRate}"
+                                                       Width="65" Height="12"
                                                        IsEnabled="False" />
                         </StackPanel>
+                        <StackPanel>
+                            <Label Content="{Binding AlbumCollectionRate, Converter={StaticResource RateConverter}}"
+                                   Foreground="White"
+                                   FontSize="11" />
+                        </StackPanel>
                     </DockPanel>
-                    <Label Content="{Binding Path=AlbumCount, Converter={StaticResource AlbumCountConverter}}"
-                           FontSize="16" FontFamily="Arial Narrow"
-                           Foreground="LightPink"
-                           Padding="1" />
-                    <Label Content="{Binding Converter={StaticResource YearsConverter}}"
-                           FontSize="16" FontFamily="Arial Narrow"
-                           Foreground="LightGreen"
-                           Padding="1" />
+                    <DockPanel Margin="0,-2,0,-2">
+                        <Label Content="{Binding Albums.Count, Converter={StaticResource AlbumCountConverter}}"
+                               FontSize="11"
+                               Foreground="LightPink"
+                               Padding="2,0,5,0" />
+                        <Label Content="{Binding Converter={StaticResource YearsConverter}}"
+                               FontSize="11"
+                               Foreground="LightGreen"
+                               Padding="0" />
+                    </DockPanel>
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
 
         <!-- when performer is selected by user, the country of origin and the list of albums are additionally shown -->
         <DataTemplate x:Key="SelectedPerformerTemplate">
-            <Grid>
-                <Rectangle Grid.Column="0"
-                           RadiusX="7" RadiusY="7"
-                           Margin="5"
-                           Fill="#ffddee" Opacity="0.5" />
-                <StackPanel Grid.Column="0"
-                            Orientation="Horizontal" VerticalAlignment="Top"
-                            Background="Transparent" >
-                    <StackPanel Margin="5,5,35,5" HorizontalAlignment="Center">
-                        <Ellipse Width="200" Height="140" Margin="15,10,15,5">
-                            <Ellipse.Fill>
-                                <ImageBrush ImageSource="{Binding Path=ImagePath, Converter={StaticResource PerformerPhotoConverter},
-                                            ConverterParameter={StaticResource PerformerPhotoHeight},
-                                            UpdateSourceTrigger=PropertyChanged}"
-                                            Stretch="UniformToFill"/>
-                            </Ellipse.Fill>
-                        </Ellipse>
-                        <Label Content="{Binding Path=AlbumCollectionRate, Converter={StaticResource RateConverter}}"
-                               FontSize="20" FontFamily="Arial Narrow"
-                               Foreground="DarkGreen" Background="Orange"
-                               Padding="10" Margin="0,-35,0,0"
-                               HorizontalAlignment="Right">
-                            <Label.RenderTransform>
-                                <RotateTransform Angle="-25"/>
-                            </Label.RenderTransform>
-                            <Label.Effect>
-                                <DropShadowEffect Color="Black" BlurRadius="10"/>
-                            </Label.Effect>
-                        </Label>
-                        <Label Content="{Binding Name}"
-                               FontSize="26" FontFamily="Stencil"
-                               Foreground="Black"
-                               Margin="0,-10,0,0" HorizontalAlignment="Center" />
-                        <StackPanel HorizontalAlignment="Center" Margin="0,-5,0,15">
-                            <Label Content="{Binding Country.Name}"
-                                   FontSize="16" FontFamily="Arial Narrow"
-                                   Foreground="Black"
-                                   Padding="1" HorizontalAlignment="Center" />
-                            <StackPanel Style="{StaticResource PerformerRateStyle}"
-                                        Orientation="Horizontal" HorizontalAlignment="Center" >
-                                <controls:RateStarsControl Rate="{Binding Path=AlbumCollectionRate}"
-                                                           Width="75" Height="15"
-                                                           IsEnabled="False" />
-                            </StackPanel>
-                        </StackPanel>
-                    </StackPanel>
-                    <ListBox ItemsSource="{Binding Path=Albums}"                        
-                             ItemContainerStyle="{StaticResource AlbumContainerStyle}"
-                             SelectedItem="{Binding Path=SelectedAlbum}"
-                             Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
-                                           Path=DataContext}"
-                             HorizontalAlignment="Stretch" 
-                             Background="Transparent" BorderThickness="0">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" IsItemsHost="True" />
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="View album..."
-                                      Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
-                                                        Path=PlacementTarget.Tag.ViewAlbumCommand}">
-                                    <MenuItem.Icon>
-                                        <Image Source="{StaticResource ImagePlayButton}" Width="20" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Edit album..."
-                                      Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
-                                                        Path=PlacementTarget.Tag.EditAlbumCommand}"/>
-                                <MenuItem Header="Remove"
-                                      Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
-                                                        Path=PlacementTarget.Tag.DeleteAlbumCommand}"/>
-                            </ContextMenu>
-                        </ListBox.ContextMenu>
-                    </ListBox>
-                </StackPanel>
-            </Grid>
+            <StackPanel Orientation="Horizontal" Margin="0,20,0,30">
+                <TextBlock FontFamily="Segoe MDL2 Assets" Foreground="White" Margin="0,0,15,0" Text="&#xE938;" FontSize="32" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding Name}" FontSize="26" Foreground="White" />
+            </StackPanel>
         </DataTemplate>
         
         <!-- performer style -->
@@ -356,30 +302,34 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
-        <!-- Main menu -->        
+        
+        <!-- Main menu -->    
+        
         <Menu HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Row="0" Background="Transparent" FontSize="14">
             <MenuItem Header="Performers" Foreground="Wheat">
-                <MenuItem Command="{Binding Path=AddPerformerCommand}" Header="Add..." HorizontalAlignment="Left"/>
-                <MenuItem Command="{Binding Path=EditPerformerCommand}" Header="Edit..." HorizontalAlignment="Left"/>
-                <MenuItem Command="{Binding Path=DeletePerformerCommand}" Header="Remove" HorizontalAlignment="Left"/>
-                <MenuItem Command="{Binding Path=EditMusiciansCommand}" Header="Musicians..." HorizontalAlignment="Left"/>
-                <MenuItem Command="{Binding Path=EditCountriesCommand}" Header="Countries..." HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding AddPerformerCommand}" Header="Add..." HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding EditPerformerCommand}" Header="Edit..." HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding DeletePerformerCommand}" Header="Remove" HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding EditMusiciansCommand}" Header="Musicians..." HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding EditCountriesCommand}" Header="Countries..." HorizontalAlignment="Left"/>
             </MenuItem>
             <MenuItem Header="Album" Foreground="Wheat">
-                <MenuItem Command="{Binding Path=AddAlbumCommand}" Header="Add..." HorizontalAlignment="Left"/>
-                <MenuItem Command="{Binding Path=EditAlbumCommand}" Header="Edit..." HorizontalAlignment="Left"/>
-                <MenuItem Command="{Binding Path=DeleteAlbumCommand}" Header="Remove" HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding AddAlbumCommand}" Header="Add..." HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding EditAlbumCommand}" Header="Edit..." HorizontalAlignment="Left"/>
+                <MenuItem Command="{Binding DeleteAlbumCommand}" Header="Remove" HorizontalAlignment="Left"/>
             </MenuItem>
-            <MenuItem Command="{Binding Path=StatsCommand}" Header="Stats" Foreground="Wheat"/>
-            <MenuItem Command="{Binding Path=SettingsCommand}" Header="Settings" Foreground="Wheat"/>
-            <MenuItem Command="{Binding Path=StartRadioCommand}" Header="MusCatRadio" Foreground="Wheat"/>
-            <MenuItem Command="{Binding Path=HelpCommand}" Header="Help" Foreground="Wheat"/>
+            <MenuItem Command="{Binding StatsCommand}" Header="Stats" Foreground="Wheat"/>
+            <MenuItem Command="{Binding SettingsCommand}" Header="Settings" Foreground="Wheat"/>
+            <MenuItem Command="{Binding StartRadioCommand}" Header="MusCatRadio" Foreground="Wheat"/>
+            <MenuItem Command="{Binding HelpCommand}" Header="Help" Foreground="Wheat"/>
         </Menu>
+        
         <!-- upper navigation panel-->
+        
         <WrapPanel Grid.Row="1" 
                    Margin="10" 
                    HorizontalAlignment="Center" VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding Path=LetterCollection}">
+            <ItemsControl ItemsSource="{Binding LetterCollection}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal"/>
@@ -387,8 +337,8 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button Command="{Binding RelativeSource ={RelativeSource FindAncestor, AncestorType={x:Type Window}},
-                                           Path=DataContext.IndexLetterCommand}"
+                        <Button Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
+                                                  Path=DataContext.IndexLetterCommand}"
                                 CommandParameter="{Binding Text}"
                                 Style="{StaticResource IndexLetterStyle}"
                                 Background="Transparent" Foreground="Wheat" Opacity="0.9"
@@ -398,39 +348,151 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </WrapPanel>
-        <!-- main area (list of performers) -->
-        <ListBox Grid.Row="2"
-                 ItemsSource="{Binding Path=Performers}"
-                 ItemContainerStyle="{StaticResource PerformerContainerStyle}"
-                 IsSynchronizedWithCurrentItem="False"
-                 SelectedItem="{Binding Path=SelectedPerformer}"
-                 Width="auto" 
-                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" 
-                 BorderThickness="0" Background="Transparent">
-            <ListBox.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="View..." Command="{Binding Path=ViewPerformerCommand}">
-                        <MenuItem.Icon>
-                            <Image Source="{StaticResource ImagePlayButton}" Width="20" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem Header="Edit..." Command="{Binding Path=EditPerformerCommand}"/>
-                    <MenuItem Header="Remove" Command="{Binding Path=DeletePerformerCommand}"/>
-                    <Separator/>
-                    <MenuItem Header="Add album..." Command="{Binding Path=AddAlbumCommand}"/>
-                </ContextMenu>
-            </ListBox.ContextMenu>
-        </ListBox>
+ 
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="5*" />
+                <ColumnDefinition Width="4*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Top" Margin="20">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedPerformer}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <Image Source="{Binding SelectedPerformer.ImagePath, Converter={StaticResource PerformerPhotoConverter},
+                                        ConverterParameter={StaticResource SelectedPerformerPhotoHeight},
+                                        UpdateSourceTrigger=PropertyChanged}"
+                       Height="200" Width="260"
+                       Margin="0,20,0,0"
+                       Stretch="Fill" />
+                <WrapPanel HorizontalAlignment="Center">
+                    <StackPanel Orientation="Vertical" Background="#421166" Margin="0,5,5,5">
+                        <TextBlock Text="from"
+                                   TextAlignment="Center"
+                                   FontSize="12"
+                                   Padding="0,10,0,0"
+                                   Foreground="White" />
+                        <TextBlock Text="{Binding SelectedPerformer.Country.Name}"
+                                   TextAlignment="Center"
+                                   Width="118"
+                                   FontSize="18"
+                                   Padding="5,0,5,2"
+                                   Foreground="LightGreen" />
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical" Background="#421166" Margin="0,5,5,5">
+                        <TextBlock Text="{Binding SelectedPerformer.Albums.Count}"
+                                   HorizontalAlignment="Center"
+                                   FontSize="24"
+                                   Padding="0,5,0,0"
+                                   Foreground="White" />
+                        <TextBlock Text="albums"
+                                   FontSize="12"
+                                   Padding="10,2,10,5"
+                                   Foreground="White" />
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical" Background="#421166" Margin="0,5,5,5">
+                        <TextBlock Text="{Binding SongCount}"
+                                   HorizontalAlignment="Center"
+                                   FontSize="24"
+                                   Padding="0,5,0,0"
+                                   Foreground="LightYellow" />
+                        <TextBlock Text="songs"
+                                   TextAlignment="Center"
+                                   FontSize="12"
+                                   Padding="10,2,10,5"
+                                   Foreground="LightYellow"
+                                   Width="58" />
+                    </StackPanel>
+                </WrapPanel>
+                <TextBlock Text="{Binding SelectedPerformer.Info, 
+                                          Converter={StaticResource TextConverter},
+                                          ConverterParameter={StaticResource TruncatedTextLength},
+                                          UpdateSourceTrigger=PropertyChanged}"
+                           TextWrapping="Wrap"
+                           MaxHeight="280"
+                           Margin="0" Padding="10"
+                           Foreground="LightYellow" />
+                <TextBlock Text="read more"
+                           HorizontalAlignment="Right"
+                           Margin="0,-10,0,10"
+                           Foreground="LightBlue"
+                           FontSize="11"/>
+            </StackPanel>
+
+            <ListBox Grid.Column="1"
+                     ItemsSource="{Binding SelectedPerformer.Albums}"                        
+                     ItemContainerStyle="{StaticResource AlbumContainerStyle}"
+                     SelectedItem="{Binding SelectedAlbum}"
+                     Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
+                                   Path=DataContext}"
+                     Background="Transparent" BorderThickness="0"
+                     Margin="15,30,30,0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="View album..."
+                                  Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
+                                                    Path=PlacementTarget.Tag.ViewAlbumCommand}">
+                            <MenuItem.Icon>
+                                <Image Source="{StaticResource ImagePlayButton}" Width="20" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Edit album..."
+                                  Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
+                                                    Path=PlacementTarget.Tag.EditAlbumCommand}"/>
+                        <MenuItem Header="Remove"
+                                  Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
+                                                    Path=PlacementTarget.Tag.DeleteAlbumCommand}"/>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+            </ListBox>
+
+            <ListBox Grid.Column="2"
+                     ItemsSource="{Binding Performers}"
+                     ItemContainerStyle="{StaticResource PerformerContainerStyle}"
+                     IsSynchronizedWithCurrentItem="True"
+                     SelectedItem="{Binding SelectedPerformer}"
+                     Width="auto" 
+                     BorderThickness="0" Background="Transparent">
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="View..." Command="{Binding ViewPerformerCommand}">
+                            <MenuItem.Icon>
+                                <Image Source="{StaticResource ImagePlayButton}" Width="20" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Edit..." Command="{Binding EditPerformerCommand}"/>
+                        <MenuItem Header="Remove" Command="{Binding DeletePerformerCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="Add album..." Command="{Binding AddAlbumCommand}"/>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+            </ListBox>
+        </Grid>
+        
         <!-- lower panel -->
+        
         <DockPanel Grid.Row="3" Margin="10,0,10,0" VerticalAlignment="Center">
             <!-- includes panel of search filters... -->
             <Expander ExpandDirection="Right">
                 <WrapPanel>
                     <Label Content="Find performer" Foreground="White" FontSize="14" />
-                    <TextBox Text="{Binding Path=PerformerPattern, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding PerformerPattern, UpdateSourceTrigger=PropertyChanged}"
                              Width="120" Height="20"
                              Margin="10,0,3,0" 
-                             FontFamily="Stencil" FontSize="14" />
+                             FontSize="14" />
                     <Button Command="{Binding PerformerSearchCommand}" 
                             Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
                             BorderBrush="Transparent" Background="Transparent" 
@@ -441,7 +503,7 @@
                     <TextBox Text="{Binding AlbumPattern, UpdateSourceTrigger=PropertyChanged}"
                              Width="120" Height="20"
                              Margin="10,0,3,0" 
-                             FontFamily="Stencil" FontSize="14" />
+                             FontSize="14" />
                     <Button Command="{Binding AlbumSearchCommand}" 
                             Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
                             BorderBrush="Transparent" Background="Transparent" 
@@ -450,9 +512,11 @@
                     </Button>
                 </WrapPanel>
             </Expander>
+            
             <!-- ...and navigation panel (for selecting the portion of data to display, e.g. 1 2 3 (1 - show first 10 records)) -->
+            
             <WrapPanel HorizontalAlignment="Right" VerticalAlignment="Center" DockPanel.Dock="Right">
-                <ItemsControl ItemsSource="{Binding Path=PageCollection}">
+                <ItemsControl ItemsSource="{Binding PageCollection}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"/>
@@ -462,7 +526,7 @@
                         <DataTemplate>
                             <TextBlock>
                             <Hyperlink Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
-                                       Path=DataContext.IndexPageCommand}"
+                                                         Path=DataContext.IndexPageCommand}"
                                        CommandParameter="{Binding Text}"
                                        TextDecorations="None">
                                 <TextBlock Text="{Binding Text}"

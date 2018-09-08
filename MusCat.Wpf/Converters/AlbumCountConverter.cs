@@ -5,7 +5,7 @@ using System.Windows.Data;
 namespace MusCat.Converters
 {
     /// <summary>
-    /// Converter:      Performer  =>  Brief signature indicating the number of performer's albums
+    /// Converter:   Number of albums (4)  =>  Brief signature indicating the number of performer's albums ("4 albums")
     /// </summary>
     class AlbumCountConverter : IValueConverter
     {

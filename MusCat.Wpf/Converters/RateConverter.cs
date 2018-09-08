@@ -6,8 +6,8 @@ using System.Windows.Data;
 namespace MusCat.Converters
 {
     /// <summary>
-    /// Converter:      Performer   =>  string Performer rate (e.g. "8/10")
-    ///                 Album       =>  string Album rate (e.g. "8/10")
+    /// Converter:      Rate (8)   =>  string rate ("8/10") 
+    ///                 Rate(null) =>  string rate ("Not rated")
     /// </summary>
     public class RateConverter : IValueConverter
     {

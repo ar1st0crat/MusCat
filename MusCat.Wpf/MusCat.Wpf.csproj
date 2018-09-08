@@ -107,6 +107,7 @@
     </ApplicationDefinition>
     <Compile Include="Converters\AlbumCountConverter.cs" />
     <Compile Include="Converters\PerformerImageConverter.cs" />
+    <Compile Include="Converters\TruncateTextConverter.cs" />
     <Compile Include="ViewModels\AlbumPlaybackViewModel.cs" />
     <Compile Include="ViewModels\Entities\AlbumViewModel.cs" />
     <Compile Include="Util\DialogResultHelper.cs" />

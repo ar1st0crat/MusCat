@@ -106,5 +106,12 @@ namespace MusCat.Core.Services
             
             return new Result<Country>(countries.FirstOrDefault());
         }
+
+        public async Task<long> SongCountAsync(long performerId)
+        {
+            return await _unitOfWork.SongRepository
+                                    .CountAsync(s => s.Album.PerformerId == performerId)
+                                    .ConfigureAwait(false);
+        }
     }
 }

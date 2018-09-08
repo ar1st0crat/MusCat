@@ -40,8 +40,51 @@ namespace MusCat.ViewModels
         public ObservableCollection<PerformerViewModel> Performers { get; } = 
             new ObservableCollection<PerformerViewModel>();
 
-        public PerformerViewModel SelectedPerformer { get; set; }
-        
+        private PerformerViewModel _selectedPerformer;
+        public PerformerViewModel SelectedPerformer
+        {
+            get { return _selectedPerformer; }
+            set
+            {
+                _selectedPerformer = value;
+                RaisePropertyChanged();
+
+                if (_selectedPerformer != null)
+                {
+                    UpdateSongCountAsync();
+                }
+            }
+        }
+
+        public async void UpdateSongCountAsync()
+        {
+            SongCount = await _performerService.SongCountAsync(_selectedPerformer.Id);
+        }
+
+        private AlbumViewModel _selectedAlbum;
+        public AlbumViewModel SelectedAlbum
+        {
+            get { return _selectedAlbum; }
+            set
+            {
+                _selectedAlbum = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public int AlbumCount => SelectedPerformer.Albums.Count;
+
+        private long _songCount;
+        public long SongCount
+        {
+            get { return _songCount; }
+            set
+            {
+                _songCount = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private string _performerPattern;
         public string PerformerPattern
         {
@@ -112,7 +155,7 @@ namespace MusCat.ViewModels
 
             GeneralViewCommand = new RelayCommand(() =>
             {
-                if (SelectedPerformer?.SelectedAlbum != null)
+                if (SelectedAlbum != null)
                 {
                     ViewSelectedAlbum();
                 }
@@ -124,7 +167,7 @@ namespace MusCat.ViewModels
 
             GeneralDeleteCommand = new RelayCommand(() =>
             {
-                if (SelectedPerformer?.SelectedAlbum != null)
+                if (SelectedAlbum != null)
                 {
                     RemoveSelectedAlbumAsync();
                 }
@@ -136,7 +179,7 @@ namespace MusCat.ViewModels
 
             GeneralEditCommand = new RelayCommand(() =>
             {
-                if (SelectedPerformer?.SelectedAlbum != null)
+                if (SelectedAlbum != null)
                 {
                     EditAlbum();
                 }
@@ -232,7 +275,7 @@ namespace MusCat.ViewModels
             new ObservableCollection<IndexViewModel>();
         
         private int _selectedPage = 0;
-        private const int PerformersPerPage = 10;
+        private const int PerformersPerPage = 8;
 
         /// <summary>
         /// Pagination panel is created each time user updates search filters
@@ -458,22 +501,18 @@ namespace MusCat.ViewModels
 
         private void ViewSelectedAlbum()
         {
-            var album = SelectedPerformer?.SelectedAlbum;
-
-            if (album == null)
+            if (SelectedAlbum == null)
             {
                 MessageBox.Show("Please select album to show!");
                 return;
             }
 
-            ViewAlbum(album);
+            ViewAlbum(SelectedAlbum);
         }
 
         private void EditAlbum()
         {
-            var album = SelectedPerformer?.SelectedAlbum;
-
-            if (album == null)
+            if (SelectedAlbum == null)
             {
                 MessageBox.Show("Please select album to edit!");
                 return;
@@ -482,7 +521,7 @@ namespace MusCat.ViewModels
             using (var scope = App.DiContainer.BeginLifetimeScope())
             {
                 var albumViewModel = scope.Resolve<EditAlbumViewModel>();
-                albumViewModel.Album = album;
+                albumViewModel.Album = SelectedAlbum;
                 albumViewModel.LoadSongsAsync();
 
                 var albumWindow = new EditAlbumWindow { DataContext = albumViewModel };
@@ -491,6 +530,7 @@ namespace MusCat.ViewModels
             }
 
             SelectedPerformer.UpdateAlbumCollectionRate();
+            RaisePropertyChanged("SelectedPerformer");
         }
 
         private async void AddPerformerAsync()
@@ -612,6 +652,7 @@ namespace MusCat.ViewModels
 
             // to update view
             SelectedPerformer.UpdateAlbumCollectionRate();
+            RaisePropertyChanged("SelectedPerformer");
         }
 
         private async void RemoveSelectedAlbumAsync()
@@ -622,16 +663,14 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            var selectedAlbum = SelectedPerformer.SelectedAlbum;
-
-            if (selectedAlbum == null)
+            if (SelectedAlbum == null)
             {
                 MessageBox.Show("Please select album to remove");
                 return;
             }
 
             var message = $"Are you sure you want to delete album\n " +
-                          $"'{selectedAlbum.Name}' \n" +
+                          $"'{SelectedAlbum.Name}' \n" +
                           $"by '{SelectedPerformer.Name}'?";
 
             if (MessageBox.Show(message, "Confirmation", MessageBoxButton.YesNo) != MessageBoxResult.Yes)
@@ -639,11 +678,12 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            await _albumService.RemoveAlbumAsync(selectedAlbum.Id);
+            await _albumService.RemoveAlbumAsync(SelectedAlbum.Id);
             
             // to update view
-            SelectedPerformer.Albums.Remove(selectedAlbum);
+            SelectedPerformer.Albums.Remove(SelectedAlbum);
             SelectedPerformer.UpdateAlbumCollectionRate();
+            RaisePropertyChanged("SelectedPerformer");
         }
 
         #endregion

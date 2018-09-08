@@ -10,5 +10,6 @@ namespace MusCat.Core.Interfaces.Domain
         Task<Result<Performer>> UpdatePerformerAsync(Performer performer);
         Task<Result<Album>> AddAlbumAsync(long performerId, Album album);
         Task<Result<Country>> GetCountryAsync(long performerId);
+        Task<long> SongCountAsync(long performerId);
     }
 }

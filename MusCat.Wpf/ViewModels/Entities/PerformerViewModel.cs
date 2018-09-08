@@ -79,10 +79,6 @@ namespace MusCat.ViewModels.Entities
             }
         }
 
-        public int AlbumCount => _albums.Count;
-
-        public AlbumViewModel SelectedAlbum { get; set; }
-        
         private readonly IRateCalculator _rateCalculator;
 
         public void UpdateAlbumCollectionRate()
