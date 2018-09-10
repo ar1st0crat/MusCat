@@ -17,6 +17,7 @@ using MusCat.Util;
 using MusCat.ViewModels.Entities;
 using MusCat.Views;
 using MusCat.Core.Services;
+using MusCat.Infrastructure.Services.Networking;
 
 namespace MusCat.ViewModels
 {
@@ -47,11 +48,12 @@ namespace MusCat.ViewModels
         // starting year is 1900
         private const int StartingYear = 1900;
         // ending year will be defined at run-time as current year + 1
-        
+
         #region Commands
 
+        public RelayCommand LoadSonglistCommand { get; private set; }
         public RelayCommand ParseMp3Command { get; private set; }
-        public RelayCommand FixNamesCommand { get; private set; }
+        public RelayCommand FixTitlesCommand { get; private set; }
         public RelayCommand FixTimesCommand { get; private set; }
         public RelayCommand ClearAllSongsCommand { get; private set; }
         public RelayCommand SaveAllSongsCommand { get; private set; }
@@ -81,8 +83,9 @@ namespace MusCat.ViewModels
 
             // setting up commands
 
+            LoadSonglistCommand = new RelayCommand(LoadSonglist);
             ParseMp3Command = new RelayCommand(ParseMp3);
-            FixNamesCommand = new RelayCommand(FixTitles);
+            FixTitlesCommand = new RelayCommand(FixTitles);
             FixTimesCommand = new RelayCommand(FixDurations);
             AddSongCommand = new RelayCommand(AddSong);
             ClearAllSongsCommand = new RelayCommand(async () => await ClearAllAsync());
@@ -191,6 +194,8 @@ namespace MusCat.ViewModels
             }
 
             Songs.Remove(SelectedSong);
+
+            FixDurations();
         }
 
         public void AddSong()
@@ -219,6 +224,33 @@ namespace MusCat.ViewModels
                 }
 
                 Songs.Clear();
+            }
+        }
+
+        private async void LoadSonglist()
+        {
+            try
+            {
+                var tracks = await new LastfmDataLoader().LoadTracksAsync(Album.Performer.Name, Album.Name);
+
+                byte no = 0;
+
+                Songs = new ObservableCollection<SongViewModel>(
+                    tracks.Item1.Zip(tracks.Item2, (name, time) => new SongViewModel
+                    {
+                        Id = -1,
+                        AlbumId = Album.Id,
+                        TrackNo = ++no,
+                        Name = name,
+                        TimeLength = time
+                    }));
+
+                FixTitles();
+                FixDurations();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 

@@ -56,11 +56,6 @@ namespace MusCat.ViewModels
             }
         }
 
-        public async void UpdateSongCountAsync()
-        {
-            SongCount = await _performerService.SongCountAsync(_selectedPerformer.Id);
-        }
-
         private AlbumViewModel _selectedAlbum;
         public AlbumViewModel SelectedAlbum
         {
@@ -529,8 +524,7 @@ namespace MusCat.ViewModels
                 albumWindow.ShowDialog();
             }
 
-            SelectedPerformer.UpdateAlbumCollectionRate();
-            RaisePropertyChanged("SelectedPerformer");
+            UpdatePerformerPanel();
         }
 
         private async void AddPerformerAsync()
@@ -650,9 +644,7 @@ namespace MusCat.ViewModels
 
             SelectedPerformer.Albums.Insert(albumPos, albumViewModel);
 
-            // to update view
-            SelectedPerformer.UpdateAlbumCollectionRate();
-            RaisePropertyChanged("SelectedPerformer");
+            UpdatePerformerPanel();
         }
 
         private async void RemoveSelectedAlbumAsync()
@@ -679,15 +671,27 @@ namespace MusCat.ViewModels
             }
 
             await _albumService.RemoveAlbumAsync(SelectedAlbum.Id);
-            
+
             // to update view
             SelectedPerformer.Albums.Remove(SelectedAlbum);
+
+            UpdatePerformerPanel();
+        }
+
+        private void UpdatePerformerPanel()
+        {
             SelectedPerformer.UpdateAlbumCollectionRate();
             RaisePropertyChanged("SelectedPerformer");
+            RaisePropertyChanged("SongCount");
+        }
+
+        public async void UpdateSongCountAsync()
+        {
+            SongCount = await _performerService.SongCountAsync(_selectedPerformer.Id);
         }
 
         #endregion
-        
+
         #region main menu
 
         private async Task StartRadioAsync()
@@ -744,17 +748,9 @@ namespace MusCat.ViewModels
             }
         }
 
-        private void ShowSettings()
-        {
-            var settingsWindow = new SettingsWindow();
-            settingsWindow.ShowDialog();
-        }
+        private void ShowSettings() => new SettingsWindow().ShowDialog();
 
-        private void ShowHelp()
-        {
-            var helpWindow = new HelpWindow();
-            helpWindow.ShowDialog();
-        }
+        private void ShowHelp() => new HelpWindow().ShowDialog();
 
         #endregion
     }
