@@ -7,8 +7,11 @@
         xmlns:viewModels="clr-namespace:MusCat.ViewModels"
         xmlns:controls="clr-namespace:MusCat.Controls"
         Title="MusCat"
-        Height="800" Width="1000"
+        Height="740" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Normal"
         Icon="{StaticResource AppIcon}">
+    
     <Window.Background>
         <LinearGradientBrush>
             <GradientStop Color="#ff77bb" Offset="-0.75" />
@@ -22,6 +25,7 @@
     <!-- F4     -  edit a performer or an album (depending on current selection) -->
     <!-- Ctrl+N -  add new performer -->
     <!-- Ctrl+A -  add new album -->
+    
     <Window.InputBindings>
         <KeyBinding Command="{Binding GeneralViewCommand}" Key="Enter"/>
         <KeyBinding Command="{Binding GeneralDeleteCommand}" Key="Delete"/>
@@ -31,6 +35,7 @@
     </Window.InputBindings>
 
     <!-- Mouse double click is analogous to pressing ENTER key -->
+    
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="MouseDoubleClick">
             <i:InvokeCommandAction Command="{Binding Path=GeneralViewCommand}"/>
@@ -38,7 +43,9 @@
     </i:Interaction.Triggers>
     
     <Window.Resources>
+        
         <!-- GUI parameters -->
+        
         <sys:Double x:Key="AlbumImageWidth">60</sys:Double>
         <sys:Double x:Key="AlbumImageHeight">60</sys:Double>
         <sys:Double x:Key="PerformerPhotoWidth">125</sys:Double>
@@ -48,6 +55,7 @@
         <sys:Int32 x:Key="TruncatedTextLength">520</sys:Int32>
         
         <!-- converters -->
+        
         <converters:PerformerImageConverter x:Key="PerformerPhotoConverter"/>
         <converters:AlbumImageConverter x:Key="AlbumImageConverter"/>
         <converters:RateConverter x:Key="RateConverter"/>
@@ -55,7 +63,8 @@
         <converters:YearsConverter x:Key="YearsConverter"/>
         <converters:TruncateTextConverter x:Key="TextConverter"/>
 
-        <!-- menu items style -->
+        <!-- submenu items style -->
+        
         <Style TargetType="{x:Type MenuItem}">
             <Setter Property="Foreground" Value="Black" />
             <Setter Property="Margin" Value="5"/>
@@ -66,18 +75,45 @@
             </Style.Triggers>
         </Style>
 
-        <!-- style for an album rate textblock: we show "Not rated" only if the rate is null;
-             otherwise, the textblock is hidden and the 5-star panel is visible -->
-        <Style x:Key="RateTextBlock" TargetType="TextBlock">
-            <Setter Property="Visibility" Value="Hidden"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding Rate}" Value="{x:Null}">
-                    <Setter Property="Visibility" Value="Visible"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
+        <!-- main menu items template -->
+        
+        <ControlTemplate x:Key="MusCatMenuItem" TargetType="MenuItem">
+            <StackPanel Orientation="Vertical" Margin="0,0,0,15" Cursor="Hand">
+                <Label Content="{TemplateBinding Tag}"
+                       FontFamily="Segoe MDL2 Assets"
+                       HorizontalAlignment="Center">
+                    <Label.Style>
+                        <Style>
+                            <Setter Property="Label.Foreground" Value="Wheat"/>
+                            <Setter Property="Label.FontSize" Value="26" />
+                            <Setter Property="Label.Margin" Value="0" />
+                            <Style.Triggers>
+                                <Trigger Property="Label.IsMouseOver" Value="True">
+                                    <Setter Property="Label.Foreground" Value="White" />
+                                    <Setter Property="Label.FontSize" Value="34" />
+                                    <Setter Property="Label.Margin" Value="-4" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Label.Style>
+                </Label>
+                <Label Content="{TemplateBinding Header}"
+                       Foreground="Wheat" 
+                       FontSize="10"
+                       Margin="0"
+                       HorizontalAlignment="Center" />
+                <Popup IsOpen="{TemplateBinding IsSubmenuOpen}"
+                       AllowsTransparency="True"
+                       Focusable="False">
+                    <Border BorderThickness="1" Background="White" BorderBrush="DarkGray">
+                        <StackPanel IsItemsHost="True" />
+                    </Border>
+                </Popup>
+            </StackPanel>
+        </ControlTemplate>
         
         <!-- album data template -->
+        
         <DataTemplate x:Key="AlbumTemplate">
             <StackPanel Orientation="Vertical" Margin="0,7,0,7">
                 <Grid VerticalAlignment="Top">
@@ -88,7 +124,7 @@
                         <RowDefinition Height="14" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-
+                    
                     <Image Grid.Row="1"
                            Source="{Binding ImagePath, Converter={StaticResource AlbumImageConverter},
                                             ConverterParameter={StaticResource PerformerPhotoHeight},
@@ -116,6 +152,7 @@
                             </EventTrigger>
                         </Image.Triggers>
                     </Image>
+                    
                     <TextBlock Grid.Row="2" 
                                Text="{Binding Name}"
                                TextAlignment="Center" TextWrapping="WrapWithOverflow"
@@ -128,6 +165,7 @@
                                TextWrapping="WrapWithOverflow" TextAlignment="Center"
                                FontSize="10"
                                Foreground="#ffbb88" />
+                    
                     <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
                         <controls:RateStarsControl Rate="{Binding Rate}"
                                                    Height="14" Width="70"
@@ -142,12 +180,27 @@
                             </Style>
                         </StackPanel.Style>
                     </StackPanel>
+                    
                     <TextBlock Grid.Row="4"
-                               Style="{StaticResource RateTextBlock}"
                                Text="{Binding Converter={StaticResource RateConverter}}"
                                FontSize="10"
                                Foreground="Yellow"
-                               HorizontalAlignment="Center" />
+                               HorizontalAlignment="Center">
+                        
+                        <!-- style for an album rate textblock: we show "Not rated" only if the rate is null;
+                             otherwise, the textblock is hidden and the 5-star panel is visible -->
+                        
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Rate}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </Grid>
             </StackPanel>
         </DataTemplate>
@@ -168,6 +221,7 @@
 
         <!-- OPTIONAL (was used in previous versions -->
         <!-- performer rate info panel style -->
+        
         <Style TargetType="{x:Type StackPanel}" x:Key="PerformerRateStyle">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding AlbumCollectionRate}" Value="{x:Null}">
@@ -177,6 +231,7 @@
         </Style>
         
         <!-- performer template (not selected by user) -->
+        
         <DataTemplate x:Key="PerformerTemplate">
             <StackPanel Orientation="Horizontal" Margin="10">
                 <Ellipse Width="50" Height="50" Margin="0,0,10,0">
@@ -219,7 +274,9 @@
             </StackPanel>
         </DataTemplate>
 
-        <!-- when performer is selected by user, the country of origin and the list of albums are additionally shown -->
+        <!-- when performer is selected by user,
+        the country of origin and the list of albums are additionally shown -->
+        
         <DataTemplate x:Key="SelectedPerformerTemplate">
             <StackPanel Orientation="Horizontal" Margin="0,20,0,30">
                 <TextBlock FontFamily="Segoe MDL2 Assets" Foreground="White" Margin="0,0,15,0" Text="&#xE938;" FontSize="32" VerticalAlignment="Center" />
@@ -228,6 +285,7 @@
         </DataTemplate>
         
         <!-- performer style -->
+        
         <Style TargetType="{x:Type ListBoxItem}" x:Key="PerformerContainerStyle">
             <Setter Property="ContentTemplate" Value="{StaticResource PerformerTemplate}" />
             <Setter Property="Template">
@@ -253,6 +311,7 @@
         </Style>
 
         <!-- style for index letters -->
+        
         <Style x:Key="IndexLetterStyle" TargetType="Button" BasedOn="{StaticResource MusCatButton}">
             <Style.Triggers>
                 <!-- when letter is activated -->
@@ -278,55 +337,38 @@
         </Style>
 
         <!-- style for index pages -->
+        
         <Style x:Key="IndexPageStyle" TargetType="TextBlock">
             <Style.Triggers>
                 <!-- when page is activated -->
                 <DataTrigger Binding="{Binding IsActive}" Value="True">
                     <Setter Property="TextDecorations" Value="None" />
                     <Setter Property="FontSize" Value="18" />
-                    <Setter Property="Margin" Value="5,-3,5,12" />
+                    <Setter Property="Margin" Value="5,-3,5,5" />
                 </DataTrigger>
                 <!-- inactive state -->
                 <DataTrigger Binding="{Binding IsActive}" Value="False">
-                    <Setter Property="Margin" Value="2,0,2,0" />
+                    <Setter Property="Margin" Value="2,0,2,7" />
                     <Setter Property="TextDecorations" Value="Underline" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
     </Window.Resources>
+
+    
+    <!-- Grid of the main window -->
+    
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40" />
-            <RowDefinition Height="70" />
+            <RowDefinition Height="90" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="40" />
+            <RowDefinition Height="35" />
         </Grid.RowDefinitions>
-        
-        <!-- Main menu -->    
-        
-        <Menu HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Row="0" Background="Transparent" FontSize="14">
-            <MenuItem Header="Performers" Foreground="Wheat">
-                <MenuItem Command="{Binding AddPerformerCommand}" Header="Add..." HorizontalAlignment="Left"/>
-                <MenuItem Command="{Binding EditPerformerCommand}" Header="Edit..." HorizontalAlignment="Left"/>
-                <MenuItem Command="{Binding DeletePerformerCommand}" Header="Remove" HorizontalAlignment="Left"/>
-                <MenuItem Command="{Binding EditMusiciansCommand}" Header="Musicians..." HorizontalAlignment="Left"/>
-                <MenuItem Command="{Binding EditCountriesCommand}" Header="Countries..." HorizontalAlignment="Left"/>
-            </MenuItem>
-            <MenuItem Header="Album" Foreground="Wheat">
-                <MenuItem Command="{Binding AddAlbumCommand}" Header="Add..." HorizontalAlignment="Left"/>
-                <MenuItem Command="{Binding EditAlbumCommand}" Header="Edit..." HorizontalAlignment="Left"/>
-                <MenuItem Command="{Binding DeleteAlbumCommand}" Header="Remove" HorizontalAlignment="Left"/>
-            </MenuItem>
-            <MenuItem Command="{Binding StatsCommand}" Header="Stats" Foreground="Wheat"/>
-            <MenuItem Command="{Binding SettingsCommand}" Header="Settings" Foreground="Wheat"/>
-            <MenuItem Command="{Binding StartRadioCommand}" Header="MusCatRadio" Foreground="Wheat"/>
-            <MenuItem Command="{Binding HelpCommand}" Header="Help" Foreground="Wheat"/>
-        </Menu>
-        
+
         <!-- upper navigation panel-->
         
-        <WrapPanel Grid.Row="1" 
+        <WrapPanel Grid.Row="0" 
                    Margin="10" 
                    HorizontalAlignment="Center" VerticalAlignment="Center">
             <ItemsControl ItemsSource="{Binding LetterCollection}">
@@ -349,14 +391,41 @@
             </ItemsControl>
         </WrapPanel>
  
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80" />
                 <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="8*" />
                 <ColumnDefinition Width="5*" />
-                <ColumnDefinition Width="4*" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Top" Margin="20">
+            <!-- Main menu -->
+
+            <Menu Grid.Column="0" VerticalAlignment="Center" Background="Transparent">
+                <MenuItem Template="{StaticResource MusCatMenuItem}" Header="Performers" Tag="&#xE779;">
+                    <MenuItem Command="{Binding AddPerformerCommand}" Header="Add..." HorizontalAlignment="Left" />
+                    <MenuItem Command="{Binding EditPerformerCommand}" Header="Edit..." HorizontalAlignment="Left"/>
+                    <MenuItem Command="{Binding DeletePerformerCommand}" Header="Remove" HorizontalAlignment="Left"/>
+                    <MenuItem Command="{Binding EditMusiciansCommand}" Header="Musicians..." HorizontalAlignment="Left"/>
+                    <MenuItem Command="{Binding EditCountriesCommand}" Header="Countries..." HorizontalAlignment="Left"/>
+                </MenuItem>
+                <MenuItem Template="{StaticResource MusCatMenuItem}" Header="Albums" Tag="&#xEA69;">
+                    <MenuItem Command="{Binding AddAlbumCommand}" Header="Add..." HorizontalAlignment="Left"/>
+                    <MenuItem Command="{Binding EditAlbumCommand}" Header="Edit..." HorizontalAlignment="Left"/>
+                    <MenuItem Command="{Binding DeleteAlbumCommand}" Header="Remove" HorizontalAlignment="Left"/>
+                </MenuItem>
+                <MenuItem Template="{StaticResource MusCatMenuItem}" Command="{Binding StatsCommand}" Header="Stats" Tag="&#xE9D2;"/>
+                <MenuItem Template="{StaticResource MusCatMenuItem}" Command="{Binding StartRadioCommand}" Header="Radio" Tag="&#xE7F6;"/>
+                <MenuItem Template="{StaticResource MusCatMenuItem}" Command="{Binding SettingsCommand}" Header="Settings" Tag="&#xE713;"/>
+                <MenuItem Template="{StaticResource MusCatMenuItem}" Command="{Binding HelpCommand}" Header="Help" Tag="&#xE9CE;"/>
+                <Menu.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </Menu.ItemsPanel>
+            </Menu>
+
+            <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Top" Margin="20">
                 <StackPanel.Style>
                     <Style TargetType="StackPanel">
                         <Style.Triggers>
@@ -369,11 +438,15 @@
                 <Image Source="{Binding SelectedPerformer.ImagePath, Converter={StaticResource PerformerPhotoConverter},
                                         ConverterParameter={StaticResource SelectedPerformerPhotoHeight},
                                         UpdateSourceTrigger=PropertyChanged}"
-                       Height="200" Width="260"
+                       Height="200" Width="254"
                        Margin="0,20,0,0"
-                       Stretch="Fill" />
+                       Stretch="Fill">
+                    <Image.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="15"/>
+                    </Image.Effect>
+                </Image>
                 <WrapPanel HorizontalAlignment="Center">
-                    <StackPanel Orientation="Vertical" Background="#421166" Margin="0,5,5,5">
+                    <StackPanel Orientation="Vertical" Margin="0,5,5,5">
                         <TextBlock Text="from"
                                    TextAlignment="Center"
                                    FontSize="12"
@@ -384,12 +457,12 @@
                                    Width="118"
                                    FontSize="18"
                                    Padding="5,0,5,2"
-                                   Foreground="LightGreen" />
+                                   Foreground="White" />
                     </StackPanel>
-                    <StackPanel Orientation="Vertical" Background="#421166" Margin="0,5,5,5">
+                    <StackPanel Orientation="Vertical" Margin="0,5,5,5">
                         <TextBlock Text="{Binding SelectedPerformer.Albums.Count}"
                                    HorizontalAlignment="Center"
-                                   FontSize="24"
+                                   FontSize="26"
                                    Padding="0,5,0,0"
                                    Foreground="White" />
                         <TextBlock Text="albums"
@@ -397,17 +470,17 @@
                                    Padding="10,2,10,5"
                                    Foreground="White" />
                     </StackPanel>
-                    <StackPanel Orientation="Vertical" Background="#421166" Margin="0,5,5,5">
+                    <StackPanel Orientation="Vertical" Margin="0,5,5,5">
                         <TextBlock Text="{Binding SongCount}"
                                    HorizontalAlignment="Center"
-                                   FontSize="24"
+                                   FontSize="26"
                                    Padding="0,5,0,0"
-                                   Foreground="LightYellow" />
+                                   Foreground="White" />
                         <TextBlock Text="songs"
                                    TextAlignment="Center"
                                    FontSize="12"
                                    Padding="10,2,10,5"
-                                   Foreground="LightYellow"
+                                   Foreground="White"
                                    Width="58" />
                     </StackPanel>
                 </WrapPanel>
@@ -426,14 +499,14 @@
                            FontSize="11"/>
             </StackPanel>
 
-            <ListBox Grid.Column="1"
+            <ListBox Grid.Column="2"
                      ItemsSource="{Binding SelectedPerformer.Albums}"                        
                      ItemContainerStyle="{StaticResource AlbumContainerStyle}"
                      SelectedItem="{Binding SelectedAlbum}"
                      Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
                                    Path=DataContext}"
                      Background="Transparent" BorderThickness="0"
-                     Margin="15,30,30,0"
+                     Margin="15,30,60,0"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -451,15 +524,23 @@
                         </MenuItem>
                         <MenuItem Header="Edit album..."
                                   Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
-                                                    Path=PlacementTarget.Tag.EditAlbumCommand}"/>
+                                                    Path=PlacementTarget.Tag.EditAlbumCommand}">
+                            <MenuItem.Icon>
+                                <Image Source="{StaticResource ImagePlayButton}" Width="20" />
+                            </MenuItem.Icon>
+                        </MenuItem>
                         <MenuItem Header="Remove"
                                   Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
-                                                    Path=PlacementTarget.Tag.DeleteAlbumCommand}"/>
+                                                    Path=PlacementTarget.Tag.DeleteAlbumCommand}">
+                            <MenuItem.Icon>
+                                <Image Source="{StaticResource ImagePlayButton}" Width="20" />
+                            </MenuItem.Icon>
+                        </MenuItem>
                     </ContextMenu>
                 </ListBox.ContextMenu>
             </ListBox>
 
-            <ListBox Grid.Column="2"
+            <ListBox Grid.Column="3"
                      ItemsSource="{Binding Performers}"
                      ItemContainerStyle="{StaticResource PerformerContainerStyle}"
                      IsSynchronizedWithCurrentItem="True"
@@ -483,9 +564,13 @@
         </Grid>
         
         <!-- lower panel -->
+        <!-- navigation panel (for selecting the portion of data to display, e.g. 1 2 3 (1 - show first 7 records)) -->
         
-        <DockPanel Grid.Row="3" Margin="10,0,10,0" VerticalAlignment="Center">
-            <!-- includes panel of search filters... -->
+        <WrapPanel Grid.Row="3"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center"
+                   Margin="0,0,25,10">
+            <!-- includes panel of search filters... 
             <Expander ExpandDirection="Right">
                 <WrapPanel>
                     <Label Content="Find performer" Foreground="White" FontSize="14" />
@@ -511,36 +596,32 @@
                         <Image Source="{StaticResource ImagePlayButton}" Height="25"/>
                     </Button>
                 </WrapPanel>
-            </Expander>
-            
-            <!-- ...and navigation panel (for selecting the portion of data to display, e.g. 1 2 3 (1 - show first 10 records)) -->
-            
-            <WrapPanel HorizontalAlignment="Right" VerticalAlignment="Center" DockPanel.Dock="Right">
-                <ItemsControl ItemsSource="{Binding PageCollection}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock>
-                            <Hyperlink Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
-                                                         Path=DataContext.IndexPageCommand}"
-                                       CommandParameter="{Binding Text}"
-                                       TextDecorations="None">
-                                <TextBlock Text="{Binding Text}"
-                                           Style="{StaticResource IndexPageStyle}"
-                                           Foreground="Yellow" Background="Transparent"
-                                           Cursor="Hand"
-                                           VerticalAlignment="Center">
+            </Expander>-->
+
+            <ItemsControl ItemsSource="{Binding PageCollection}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock>
+                                <Hyperlink Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
+                                                             Path=DataContext.IndexPageCommand}"
+                                           CommandParameter="{Binding Text}"
+                                           TextDecorations="None">
+                                    <TextBlock Text="{Binding Text}"
+                                               Style="{StaticResource IndexPageStyle}"
+                                               Foreground="Yellow" Background="Transparent"
+                                               Cursor="Hand"
+                                               VerticalAlignment="Center">
+                                    </TextBlock>
+                                </Hyperlink>
                                 </TextBlock>
-                            </Hyperlink>
-                            </TextBlock>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </WrapPanel>
-        </DockPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </WrapPanel>
     </Grid>
 </Window>

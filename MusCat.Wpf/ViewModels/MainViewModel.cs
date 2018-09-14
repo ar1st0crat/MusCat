@@ -270,7 +270,7 @@ namespace MusCat.ViewModels
             new ObservableCollection<IndexViewModel>();
         
         private int _selectedPage = 0;
-        private const int PerformersPerPage = 8;
+        private const int PerformersPerPage = 7;
 
         /// <summary>
         /// Pagination panel is created each time user updates search filters
@@ -524,7 +524,7 @@ namespace MusCat.ViewModels
                 albumWindow.ShowDialog();
             }
 
-            UpdatePerformerPanel();
+            UpdatePerformerPanelAsync();
         }
 
         private async void AddPerformerAsync()
@@ -644,7 +644,7 @@ namespace MusCat.ViewModels
 
             SelectedPerformer.Albums.Insert(albumPos, albumViewModel);
 
-            UpdatePerformerPanel();
+            await UpdatePerformerPanelAsync();
         }
 
         private async void RemoveSelectedAlbumAsync()
@@ -675,19 +675,22 @@ namespace MusCat.ViewModels
             // to update view
             SelectedPerformer.Albums.Remove(SelectedAlbum);
 
-            UpdatePerformerPanel();
+            await UpdatePerformerPanelAsync();
         }
 
-        private void UpdatePerformerPanel()
+        private async Task UpdatePerformerPanelAsync()
         {
+            await UpdateSongCountAsync();
             SelectedPerformer.UpdateAlbumCollectionRate();
             RaisePropertyChanged("SelectedPerformer");
-            RaisePropertyChanged("SongCount");
         }
 
-        public async void UpdateSongCountAsync()
+        public async Task UpdateSongCountAsync()
         {
-            SongCount = await _performerService.SongCountAsync(_selectedPerformer.Id);
+            if (SelectedPerformer != null)
+            {
+                SongCount = await _performerService.SongCountAsync(SelectedPerformer.Id);
+            }
         }
 
         #endregion
