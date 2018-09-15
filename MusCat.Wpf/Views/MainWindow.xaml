@@ -384,7 +384,7 @@
                                 CommandParameter="{Binding Text}"
                                 Style="{StaticResource IndexLetterStyle}"
                                 Background="Transparent" Foreground="Wheat" Opacity="0.9"
-                                FontFamily="Stencil"
+                                Padding="3 3"
                                 Content="{Binding Text}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

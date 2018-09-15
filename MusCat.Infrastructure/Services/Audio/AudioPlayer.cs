@@ -92,10 +92,26 @@ namespace MusCat.Infrastructure.Services.Audio
         }
 
         /// <summary>
+        /// Returns elapsed time in seconds
+        /// </summary>
+        public double PlayedTime
+        {
+            get
+            {
+                if (_mp3Reader == null)
+                {
+                    return 0.0;
+                }
+
+                return _mp3Reader.CurrentTime.TotalSeconds;
+            }
+        }
+
+        /// <summary>
         /// Evaluates the percent of elapsed time according to current playback position in Mp3FileReader
         /// </summary>
         /// <returns>The percent of elapsed time (0.0-1.0)</returns>
-        public double TimePercent
+        public double PlayedTimePercent
         {
             get
             {

@@ -5,7 +5,7 @@
         <Setter Property="Foreground" Value="White" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="Padding" Value="5 5" />
+        <Setter Property="Padding" Value="10 5" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="BorderBrush" Value="White" />
         <Setter Property="Template">
@@ -15,7 +15,8 @@
                         <Border x:Name="Border"
                                     Background="{TemplateBinding Background}"
                                     BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}" />
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="5" />
                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           Margin="{TemplateBinding Padding}"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -23,9 +24,9 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="BorderThickness" Value="2" />
-                            <Setter Property="Background" Value= "Black" />
-                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Background" Value="White" />
+                            <Setter Property="Foreground" Value="Black" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter Property="OpacityMask" Value="#AA888888"/>

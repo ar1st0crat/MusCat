@@ -6,14 +6,18 @@ The **MusCat** app (short for **Mus**ic **Cat**alog) is intended for all users w
 
 ![pic1](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/1.png)
 
+Examples of an album window
+
+![pic3](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/3.png)
+
 
 ### Main features:
 
 * you can easily add/edit/remove performers (artists), albums and songs (tracks) using rich and intuitive GUI.
 
-* you can add all songs of any album to the database in one click using the *Parse mp3...*  button. The app will automatically walk through the entire directory of the album, parse each mp3 file in it and add it to the current album in the database. Ot you can click the *Load songlist* button and **MusCat** will load the entire tracklist from the web (currently it takes this data from *discogs.com*).
+* you can add all songs of any album to the database in one click using the *Parse mp3...*  button. The app will automatically walk through the entire directory of the album, parse each mp3 file in it and add it to the current album in the database. Or you can click the *Load songlist* button and **MusCat** will load the entire tracklist from the web (currently it takes this data from *discogs.com*).
 
-* similarly, you can fill the bio of an artist manually or in one click using the *Load Bio...* button. The app will load and parse the corresponding information from internet (currently from Last.fm pages).
+* similarly, you can fill the bio of an artist manually or in one click using the *Load Bio...* button. The app will load and parse the corresponding information from internet (currently from *Last.fm* pages).
 
 * you can launch the special *MusCat Radio* tool that will create a random playlist and play songs for you based on your mood.
 
@@ -24,10 +28,10 @@ Since **MusCat** doesn't store multimedia data in a local database (neither it s
 
 * In *Settings* menu you can specify the default paths where MusCat will look for music and images. For instance, you may set the following paths:
 
- - ```F:```
- - ```G:```
- - ```G:\Others```
- - ```D:\Music```, etc.
+   - ```F:```
+   - ```G:```
+   - ```G:\Others```
+   - ```D:\Music```, etc.
 
 * The main photo of a performer should be located in the file having the following fullname:
 
@@ -35,8 +39,8 @@ Since **MusCat** doesn't store multimedia data in a local database (neither it s
 
 The file extension is irrelevant. The app will try out each of the default root paths. For instance, MusCat may find the photo of a band *Camel* in such files as
 
- - ```F:\C\Camel\Picture\photo.jpg```
- - ```G:\All\C\Camel\Picture\photo.bmp```
+   - ```F:\C\Camel\Picture\photo.jpg```
+   - ```G:\All\C\Camel\Picture\photo.bmp```
 
 * The album covers should be located in the files having the following fullname: 
 
@@ -44,8 +48,8 @@ The file extension is irrelevant. The app will try out each of the default root 
 
 The file extension is irrelevant. The ID part should coincide with the album ID stored in database - you may rename the file manually or press the *Load Image From File...* or *Load Image From Clipboard* button and the app will automatically give the file a correct name and place it to the correct folder, for instance:
 
- - ```F:\C\Camel\Picture\38.jpg```
- - ```G:\All\C\Camel\Picture\126.jpg```.
+   - ```F:\C\Camel\Picture\38.jpg```
+   - ```G:\All\C\Camel\Picture\126.jpg```.
 
 * Sound files should be located in the folders at the path like this:
 
@@ -53,8 +57,8 @@ The file extension is irrelevant. The ID part should coincide with the album ID 
 
 The last part of a path should contain the name of an album and the year of album's release in any combination. For instance:
 
- - ```F:\C\Camel\2002 - A Nod And A Wink```
- - ```F:\C\Camel\A Nod and a wink [2002]```.
+   - ```F:\C\Camel\2002 - A Nod And A Wink```
+   - ```F:\C\Camel\A Nod and a wink [2002]```.
 
 In case of violation of the above-mentioned conventions nothing crucial happens - the only problem is that MusCat won't be able to find appropriate images and sounds and will replace them with built-in default files or simply show a corresponding message.
 
@@ -68,10 +72,6 @@ For example, part of user's file system can look somewhat like this:
 MusCat Radio
 
 ![pic2](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/2.png)
-
-Album window
-
-![pic3](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/3.png)
 
 Stats window
 

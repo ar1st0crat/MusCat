@@ -7,7 +7,8 @@
         void Pause();
         void Resume();
         void Seek(double percent);
-        double TimePercent { get; }
+        double PlayedTime { get; }
+        double PlayedTimePercent { get; }
 
         void SetVolume(float volume);
 

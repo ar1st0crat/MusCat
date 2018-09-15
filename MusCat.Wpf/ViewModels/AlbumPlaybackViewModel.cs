@@ -42,6 +42,17 @@ namespace MusCat.ViewModels
                 if (!_isLoading) PlaySong();
             }
         }
+
+        private string _timePlayed;
+        public string TimePlayed
+        {
+            get { return _timePlayed; }
+            set
+            {
+                _timePlayed = value;
+                RaisePropertyChanged();
+            }
+        }
         
         /// <summary>
         /// Album header to be displayed in the window title
@@ -80,6 +91,7 @@ namespace MusCat.ViewModels
             set
             {
                 _playbackPercentage = value;
+                TimePlayed = $"{(int)(_player.PlayedTime / 60)}:{_player.PlayedTime % 60:00}";
                 RaisePropertyChanged();
             }
         }
@@ -183,7 +195,7 @@ namespace MusCat.ViewModels
                 }
             }
 
-            PlaybackPercentage = _player.TimePercent * 10.0;
+            PlaybackPercentage = _player.PlayedTimePercent * 10.0;
         }
 
         #region Song playback functions
