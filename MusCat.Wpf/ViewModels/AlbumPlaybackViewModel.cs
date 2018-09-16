@@ -91,8 +91,9 @@ namespace MusCat.ViewModels
             set
             {
                 _playbackPercentage = value;
-                TimePlayed = $"{(int)(_player.PlayedTime / 60)}:{_player.PlayedTime % 60:00}";
                 RaisePropertyChanged();
+
+                TimePlayed = $"{(int)(_player.PlayedTime / 60)}:{_player.PlayedTime % 60:00}";
             }
         }
 
