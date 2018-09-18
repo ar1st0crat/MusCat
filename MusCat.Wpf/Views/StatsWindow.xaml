@@ -9,7 +9,8 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:viewModels="clr-namespace:MusCat.ViewModels"
         Title="Main Stats"
-        Height="450" Width="700">
+        WindowStartupLocation="CenterOwner"
+        Height="600" Width="900">
 
     <Window.Background>
         <LinearGradientBrush>
@@ -23,8 +24,8 @@
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="White" />
         </Style>
-        <system:Double x:Key="AlbumImageHeight">50</system:Double>
-        <converters:AlbumImageConverter x:Key="AlbumImageConverter"/>
+        <system:Double x:Key="PerformerImageHeight">50</system:Double>
+        <converters:PerformerImageConverter x:Key="PerformerImageConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -32,62 +33,101 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="290" />
+            <ColumnDefinition Width="320" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
                     HorizontalAlignment="Center">
-            <TextBlock Text="{Binding PerformerCount, StringFormat={}{0} performers}"
-                       HorizontalAlignment="Center"
-                       Margin="15,20,15,5" Padding="5"
-                       FontSize="16"
-                       Background="Black" Opacity="0.5"/>
-            <TextBlock Text="{Binding AlbumCount, StringFormat={}{0} albums}"
-                       HorizontalAlignment="Center"
-                       Margin="15,0,15,5" Padding="5"
-                       FontSize="16"
-                       Background="Black" Opacity="0.5" />
-            <TextBlock Text="{Binding SongCount, StringFormat={}{0} songs}"
-                       HorizontalAlignment="Center"
-                       Margin="15,0,15,5" Padding="5"
-                       FontSize="16"
-                       Background="Black" Opacity="0.5" />
-            <TextBlock Text="Recently added albums:"
-                       Margin="7,12,7,7"
-                       TextDecorations="Underline" />
-            <ListBox ItemsSource="{Binding LatestAlbums}"
-                     Background="Transparent" BorderBrush="Transparent"
-                     Foreground="White"
-                     Margin="10">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <Image Grid.Column="0"
-                                   Width="50" Height="50"
-                                   Margin="5"
-                                   Source="{Binding ImagePath,
-                                                    Converter={StaticResource AlbumImageConverter},
-                                                    ConverterParameter={StaticResource AlbumImageHeight}}"/>
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Text="{Binding Performer.Name}" />
-                                <TextBlock Text="{Binding Name}" />
-                                <TextBlock Text="{Binding ReleaseYear}" />
+            <WrapPanel HorizontalAlignment="Center">
+                <StackPanel Orientation="Vertical" Margin="10,15,15,5">
+                    <TextBlock Text="{Binding PerformerCount}"
+                               HorizontalAlignment="Center"
+                               FontSize="28"
+                               Padding="0,5,0,0"
+                               Foreground="White" />
+                    <TextBlock Text="performers"
+                               TextAlignment="Center"
+                               FontSize="12"
+                               Padding="10,2,10,5"
+                               Foreground="White"
+                               Width="75" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,15,15,5">
+                    <TextBlock Text="{Binding AlbumCount}"
+                               HorizontalAlignment="Center"
+                               FontSize="28"
+                               Padding="0,5,0,0"
+                               Foreground="White" />
+                    <TextBlock Text="albums"
+                               FontSize="12"
+                               Padding="10,2,10,5"
+                               Foreground="White" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="10,15,15,5">
+                    <TextBlock Text="{Binding SongCount}"
+                               HorizontalAlignment="Center"
+                               FontSize="28"
+                               Padding="0,5,0,0"
+                               Foreground="White" />
+                    <TextBlock Text="songs"
+                               TextAlignment="Center"
+                               FontSize="12"
+                               Padding="10,2,10,5"
+                               Foreground="White"
+                               Width="58" />
+                </StackPanel>
+            </WrapPanel>
+            <TextBlock Text="{Binding Country, StringFormat='Top performers from {0}'}"
+                       Margin="0,30,0,30"
+                       HorizontalAlignment="Center" />
+            <Grid>
+                <ItemsControl ItemsSource="{Binding TopPerformers}">
+                    <ItemsControl.Resources>
+                        <Style TargetType="{x:Type ContentPresenter}" >
+                            <Setter Property="Canvas.Left" Value="{Binding Left}" />
+                            <Setter Property="Canvas.Top" Value="{Binding Top}" />
+                        </Style>
+                    </ItemsControl.Resources>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical">
+                                <Ellipse Width="42" Height="42" Margin="2">
+                                    <Ellipse.Fill>
+                                        <ImageBrush ImageSource="{Binding Performer.ImagePath,
+                                                                          Converter={StaticResource PerformerImageConverter},
+                                                                          ConverterParameter={StaticResource PerformerImageHeight}}"
+                                                    Stretch="UniformToFill"/>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                                <TextBlock Text="{Binding Performer.Name}"
+                                           FontSize="12"
+                                           Foreground="White"
+                                           Width="80"
+                                           TextAlignment="Center"
+                                           TextWrapping="WrapWithOverflow"
+                                           HorizontalAlignment="Center"/>
                             </StackPanel>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Grid>
         </StackPanel>
+        <Rectangle Grid.Row="0" Grid.Column="1"
+                   Margin="15"
+                   Fill="Black"
+                   Opacity="0.4"
+                   RadiusX="7" RadiusY="7" />
         <lvc:CartesianChart Grid.Row="0" Grid.Column="1"
                             Series="{Binding Decades}"
                             SeriesColors="{Binding SeriesColor}"
                             LegendLocation="None"
                             Foreground="White" BorderBrush="Transparent"
-                            Margin="20">
+                            Margin="25">
             <lvc:CartesianChart.AxisX>
                 <lvc:Axis Title="Decade" 
                           Labels="{Binding Labels}"
@@ -100,18 +140,26 @@
             </lvc:CartesianChart.AxisX>
             <lvc:CartesianChart.AxisY>
                 <lvc:Axis Title="Albums / Max rated"
+                          ShowLabels="False"
                           Foreground="White">
                     <lvc:Axis.Separator>
-                        <lvc:Separator IsEnabled="True" Step="200" />
+                        <lvc:Separator IsEnabled="True" />
                     </lvc:Axis.Separator>
                 </lvc:Axis>
             </lvc:CartesianChart.AxisY>
         </lvc:CartesianChart>
+        <Rectangle Grid.Row="1" Grid.Column="1"
+                   Margin="15,5,15,15"
+                   Fill="Black"
+                   Opacity="0.4"
+                   RadiusX="7" RadiusY="7" />
         <lvc:PieChart Grid.Row="1" Grid.Column="1"
                       Series="{Binding Countries}"
                       LegendLocation="Right"
                       InnerRadius="50"
                       Foreground="White"
-                      Margin="20" />
+                      Padding="5"
+                      Margin="25,15,25,35"
+                      DataClick="PieChart_DataClick"/>
     </Grid>
 </Window>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -49,15 +50,26 @@ namespace MusCat.ViewModels
             }
         }
 
-        public const int LatestAlbumsCount = 7;
-
-        private List<AlbumViewModel> _latestAlbums;
-        public List<AlbumViewModel> LatestAlbums
+        public string _country;
+        public string Country
         {
-            get { return _latestAlbums; }
+            get { return _country; }
             set
             {
-                _latestAlbums = value;
+                _country = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public const int TopPerformersCount = 10;
+
+        private ObservableCollection<CanvasPerformerViewModel> _topPerformers;
+        public ObservableCollection<CanvasPerformerViewModel> TopPerformers
+        {
+            get { return _topPerformers; }
+            set
+            {
+                _topPerformers = value;
                 RaisePropertyChanged();
             }
         }
@@ -107,7 +119,7 @@ namespace MusCat.ViewModels
         {
             Guard.AgainstNull(stats);
             _stats = stats;
-        } 
+        }
 
         public async Task LoadStatsAsync()
         {
@@ -115,10 +127,6 @@ namespace MusCat.ViewModels
             AlbumCount = await _stats.AlbumCountAsync();
             SongCount = await _stats.SongCountAsync();
 
-            // most recently added albums 
-
-            var latestAlbums = await _stats.GetLatestAlbumsAsync(LatestAlbumsCount);
-            LatestAlbums = Mapper.Map<List<AlbumViewModel>>(latestAlbums);
 
             // bar chart "decades - album count - average album rate"
 
@@ -137,12 +145,13 @@ namespace MusCat.ViewModels
                     },
                     new ColumnSeries
                     {
-                        Title = "Average rate",
+                        Title = "Max rated album count",
                         Values = new ChartValues<int>(decades.Select(d => d.MaxRatedCount)),
                         DataLabels = true,
                         Foreground = new SolidColorBrush(Colors.HotPink)
                     }
                 };
+
 
             // pie chart "performer - countries"
 
@@ -150,15 +159,96 @@ namespace MusCat.ViewModels
 
             Countries = new SeriesCollection();
 
+            var rareCountriesCount = 0;
+
             foreach (var country in countries)
             {
-                Countries.Add(new PieSeries
+                if (country.Value >= 10)
                 {
-                    Title = country.Key,
-                    Values = new ChartValues<int> { country.Count() },
-                    DataLabels = true
-                });
+                    Countries.Add(new PieSeries
+                    {
+                        Title = country.Key,
+                        Values = new ChartValues<int> { country.Value },
+                        DataLabels = true
+                    });
+                }
+                else
+                {
+                    rareCountriesCount += country.Value;
+                }
             }
+
+            Countries.Add(new PieSeries
+            {
+                Title = "Others",
+                Values = new ChartValues<int> { rareCountriesCount },
+                DataLabels = true
+            });
+
+
+            // performers with top rated albums
+
+            if (countries.Any())
+            {
+                var maxPerformerCount = countries.Max(c => c.Value);
+                await UpdateTopPerformersAsync(countries.Where(c => c.Value == maxPerformerCount)
+                                                        .Select(c => c.Key)
+                                                        .First());
+            }
+        }
+
+        public async Task UpdateTopPerformersAsync(string country)
+        {
+            var topPerformers = await _stats.GetTopPerformersAsync(TopPerformersCount, country);
+
+            TopPerformers = new ObservableCollection<CanvasPerformerViewModel>();
+
+            foreach (var performer in topPerformers)
+            {
+                AddPerformerToCanvas(Mapper.Map<PerformerViewModel>(performer));
+            }
+            
+            Country = country;
+        }
+
+        public void AddPerformerToCanvas(PerformerViewModel performerViewModel)
+        {
+            var left = 0;
+            var top = 0;
+
+            if (TopPerformers.Count > 0)
+            {
+                var randomizer = new Random();
+
+                var attempts = 0;
+
+                var diffLeft = 0;
+                var diffTop = 0;
+
+                do
+                {
+                    left = randomizer.Next() % 230;
+                    top = randomizer.Next() % 420;
+
+                    diffLeft = TopPerformers.Select(p => (p.Left - left) * (p.Left - left)).Min();
+                    diffTop = TopPerformers.Select(p => (p.Top - top) * (p.Top - top)).Min();
+                }
+                while (diffLeft + diffTop < 2000 && attempts++ < 500);
+            }
+
+            TopPerformers.Add(new CanvasPerformerViewModel
+            {
+                Performer = performerViewModel,
+                Left = left,
+                Top = top
+            });
+        }
+
+        public class CanvasPerformerViewModel
+        {
+            public PerformerViewModel Performer { get; set; }
+            public int Left { get; set; }
+            public int Top { get; set; }
         }
     }
 }

@@ -12,7 +12,8 @@ namespace MusCat.Core.Interfaces.Stats
         Task<int> SongCountAsync();
 
         Task<IEnumerable<Album>> GetLatestAlbumsAsync(int latestCount);
-        Task<IEnumerable<IGrouping<string, Performer>>> GetPerformerCountriesAsync();
+        Task<IEnumerable<Performer>> GetTopPerformersAsync(int count, string country);
+        Task<IDictionary<string, int>> GetPerformerCountriesAsync();
         Task<IEnumerable<DecadeAlbumsStats>> GetAlbumDecadesAsync();
     }
 }

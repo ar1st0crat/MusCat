@@ -340,8 +340,7 @@ namespace MusCat.ViewModels
             Performers.Clear();
             foreach (var performer in performers.Items)
             {
-                var performerViewModel = new PerformerViewModel(_rateCalculator);
-                Mapper.Map(performer, performerViewModel);
+                var performerViewModel = Mapper.Map<PerformerViewModel>(performer);
 
                 // Fill performer's albumlist
 
@@ -361,14 +360,11 @@ namespace MusCat.ViewModels
                                               .GetPerformerAlbumsAsync(performer, AlbumPattern);
                 }
 
-                foreach (var album in albums)
-                {
-                    var albumViewModel = Mapper.Map<AlbumViewModel>(album);
-                    performerViewModel.Albums.Add(albumViewModel);
-                }
+                performerViewModel.Albums = Mapper.Map<ObservableCollection<AlbumViewModel>>(albums);
+
 
                 // Recalculate total rate and number of albums of performer
-                performerViewModel.UpdateAlbumCollectionRate();
+                performerViewModel.UpdateAlbumCollectionRate(_rateCalculator);
 
                 // Finally, add fully created performer view model to the list
                 Performers.Add(performerViewModel);
@@ -534,8 +530,7 @@ namespace MusCat.ViewModels
                     await _performerService.AddPerformerAsync(new Performer { Name = "Unknown" })
                 ).Data;
 
-            var performerViewModel = new PerformerViewModel(_rateCalculator);
-            Mapper.Map(performer, performerViewModel);
+            var performerViewModel = Mapper.Map<PerformerViewModel>(performer);
 
             using (var scope = App.DiContainer.BeginLifetimeScope())
             {
@@ -681,7 +676,7 @@ namespace MusCat.ViewModels
         private async Task UpdatePerformerPanelAsync()
         {
             await UpdateSongCountAsync();
-            SelectedPerformer.UpdateAlbumCollectionRate();
+            SelectedPerformer.UpdateAlbumCollectionRate(_rateCalculator);
             RaisePropertyChanged("SelectedPerformer");
         }
 

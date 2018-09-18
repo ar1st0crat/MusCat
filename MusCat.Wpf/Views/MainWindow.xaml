@@ -7,9 +7,7 @@
         xmlns:viewModels="clr-namespace:MusCat.ViewModels"
         xmlns:controls="clr-namespace:MusCat.Controls"
         Title="MusCat"
-        Height="740" Width="1000"
-        WindowStartupLocation="CenterScreen"
-        WindowState="Normal"
+        WindowState="Maximized"
         Icon="{StaticResource AppIcon}">
     
     <Window.Background>

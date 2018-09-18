@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using MusCat.Core.Entities;
+using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Audio;
 using MusCat.Core.Interfaces.Domain;
+using MusCat.Core.Services;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
 using MusCat.Util;
@@ -17,7 +19,8 @@ namespace MusCat.ViewModels
     class AlbumPlaybackViewModel : ViewModelBase
     {
         private readonly IAlbumService _albumService;
-        
+        private readonly IRateCalculator _rateCalculator;
+
         public AlbumViewModel Album { get; set; }
 
         private ObservableCollection<Song> _songs;
@@ -117,13 +120,17 @@ namespace MusCat.ViewModels
         public PerformerViewModel Performer { get; set; }
 
 
-        public AlbumPlaybackViewModel(IAlbumService albumService, IAudioPlayer player)
+        public AlbumPlaybackViewModel(IAlbumService albumService,
+                                      IAudioPlayer player,
+                                      IRateCalculator rateCalculator)
         {
             Guard.AgainstNull(albumService);
             Guard.AgainstNull(player);
+            Guard.AgainstNull(rateCalculator);
 
             _albumService = albumService;
             _player = player;
+            _rateCalculator = rateCalculator;
             
             // setting up commands
             PlaybackCommand = new RelayCommand(PlaybackSongAction);
@@ -277,7 +284,7 @@ namespace MusCat.ViewModels
         private void UpdateRate()
         {
             _albumService.UpdateAlbumRate(Album.Id, Album.Rate);
-            Performer?.UpdateAlbumCollectionRate();
+            Performer?.UpdateAlbumCollectionRate(_rateCalculator);
         }
     }
 }

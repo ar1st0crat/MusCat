@@ -4,7 +4,6 @@ using System.Windows.Data;
 using AutoMapper;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
-using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
 
 namespace MusCat.ViewModels.Entities
@@ -79,22 +78,22 @@ namespace MusCat.ViewModels.Entities
             }
         }
 
-        private readonly IRateCalculator _rateCalculator;
-
-        public void UpdateAlbumCollectionRate()
+        public void UpdateAlbumCollectionRate(IRateCalculator rateCalculator)
         {
+            if (rateCalculator == null)
+            {
+                return;
+            }
+
             var rates = _albums.Select(a => a.Rate);
-            AlbumCollectionRate = _rateCalculator.Calculate(rates);
+            AlbumCollectionRate = rateCalculator.Calculate(rates);
         }
 
         private readonly object _lock = new object();
 
 
-        public PerformerViewModel(IRateCalculator rateCalculator)
+        public PerformerViewModel()
         {
-            Guard.AgainstNull(rateCalculator);
-            _rateCalculator = rateCalculator;
-
             BindingOperations.EnableCollectionSynchronization(_albums, _lock);
         }
 

@@ -59,15 +59,29 @@ namespace MusCat.Infrastructure.Services.Stats
             }
         }
 
-        public async Task<IEnumerable<IGrouping<string, Performer>>> GetPerformerCountriesAsync()
+        public async Task<IEnumerable<Performer>> GetTopPerformersAsync(int count = 7, string country = null)
+        {
+            using (var context = new MusCatDbContext(_connectionString))
+            {
+                return await
+                    context.Performers.Include("Country").AsNoTracking()
+                                      .Where(p => p.Country.Name == country)
+                                      .OrderByDescending(p => p.Albums.Sum(a => a.Rate))
+                                      .Take(count)
+                                      .ToListAsync()
+                                      .ConfigureAwait(false);
+            }
+        }
+
+        public async Task<IDictionary<string, int>> GetPerformerCountriesAsync()
         {
             using (var context = new MusCatDbContext(_connectionString))
             {
                 return await
                     context.Performers.AsNoTracking()
                            .GroupBy(p => p.Country.Name)
-                           .Where(g => g.Key != null && g.Count() >= 10)
-                           .ToListAsync()
+                           .Where(g => g.Key != null)
+                           .ToDictionaryAsync(g => g.Key, g => g.Count())
                            .ConfigureAwait(false);
             }
         }
@@ -78,7 +92,7 @@ namespace MusCat.Infrastructure.Services.Stats
             {
                 return await
                     context.Albums.AsNoTracking()
-                           .GroupBy(a => a.ReleaseYear/10)
+                           .GroupBy(a => a.ReleaseYear / 10)
                            .Select(g => new DecadeAlbumsStats
                            {
                                Decade = g.Key + "0s",

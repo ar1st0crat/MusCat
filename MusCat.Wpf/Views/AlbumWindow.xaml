@@ -192,11 +192,7 @@
                    HorizontalAlignment="Right"
                    VerticalAlignment="Center"
                    Margin="0,-20,20,0"
-                   FontSize="28">
-                <Label.Effect>
-                    <DropShadowEffect Color="White" Opacity=".1" BlurRadius="1"/>
-                </Label.Effect>
-            </Label>
+                   FontSize="28" />
         </DockPanel>
     </Grid>
 </Window>

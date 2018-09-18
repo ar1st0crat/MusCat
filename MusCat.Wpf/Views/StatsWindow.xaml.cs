@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using MusCat.ViewModels;
+using System.Windows;
 
 namespace MusCat.Views
 {
@@ -10,6 +11,13 @@ namespace MusCat.Views
         public StatsWindow()
         {
             InitializeComponent();
+        }
+
+        private void PieChart_DataClick(object sender, LiveCharts.ChartPoint chartPoint)
+        {
+            var country = chartPoint.SeriesView.Title;
+
+            (DataContext as StatsViewModel).UpdateTopPerformersAsync(country);
         }
     }
 }
