@@ -31,14 +31,15 @@ namespace MusCat.Core.Entities
 
                 var error = string.Empty;
 
-                if (Name.Length > MaxNameLength)
-                {
-                    error = "Country name should contain not more than 50 symbols";
-                }
-                else if (Name == "")
+                if (string.IsNullOrWhiteSpace(Name))
                 {
                     error = "Country name can't be empty";
                 }
+                else if (Name.Length > MaxNameLength)
+                {
+                    error = $"Country name should contain not more than {MaxNameLength} symbols";
+                }
+                
                 return error;
             }
         }

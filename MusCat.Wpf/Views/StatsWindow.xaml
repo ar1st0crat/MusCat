@@ -10,7 +10,7 @@
         xmlns:viewModels="clr-namespace:MusCat.ViewModels"
         Title="Main Stats"
         WindowStartupLocation="CenterOwner"
-        Height="600" Width="900">
+        Height="720" Width="900">
 
     <Window.Background>
         <LinearGradientBrush>
@@ -20,6 +20,7 @@
             </GradientStopCollection>
         </LinearGradientBrush>
     </Window.Background>
+    
     <Window.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="White" />
@@ -27,13 +28,14 @@
         <system:Double x:Key="PerformerImageHeight">50</system:Double>
         <converters:PerformerImageConverter x:Key="PerformerImageConverter"/>
     </Window.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="380" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
@@ -43,37 +45,31 @@
                     <TextBlock Text="{Binding PerformerCount}"
                                HorizontalAlignment="Center"
                                FontSize="28"
-                               Padding="0,5,0,0"
-                               Foreground="White" />
+                               Padding="0,5,0,0" />
                     <TextBlock Text="performers"
                                TextAlignment="Center"
                                FontSize="12"
                                Padding="10,2,10,5"
-                               Foreground="White"
                                Width="75" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="0,15,15,5">
                     <TextBlock Text="{Binding AlbumCount}"
                                HorizontalAlignment="Center"
                                FontSize="28"
-                               Padding="0,5,0,0"
-                               Foreground="White" />
+                               Padding="0,5,0,0" />
                     <TextBlock Text="albums"
                                FontSize="12"
-                               Padding="10,2,10,5"
-                               Foreground="White" />
+                               Padding="10,2,10,5" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="10,15,15,5">
                     <TextBlock Text="{Binding SongCount}"
                                HorizontalAlignment="Center"
                                FontSize="28"
-                               Padding="0,5,0,0"
-                               Foreground="White" />
+                               Padding="0,5,0,0" />
                     <TextBlock Text="songs"
                                TextAlignment="Center"
                                FontSize="12"
                                Padding="10,2,10,5"
-                               Foreground="White"
                                Width="58" />
                 </StackPanel>
             </WrapPanel>
@@ -91,7 +87,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Vertical">
-                                <Ellipse Width="42" Height="42" Margin="2">
+                                <Ellipse Width="48" Height="48" Margin="2">
                                     <Ellipse.Fill>
                                         <ImageBrush ImageSource="{Binding Performer.ImagePath,
                                                                           Converter={StaticResource PerformerImageConverter},

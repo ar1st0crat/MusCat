@@ -37,13 +37,13 @@ namespace MusCat.Core.Entities
                 {
                     case "Name":
                         {
-                            if (Name.Length > MaxNameLength)
+                            if (string.IsNullOrWhiteSpace(Name))
                             {
-                                error = "Album name should contain not more than 40 symbols";
+                                error = "Performer name can't be empty";
                             }
-                            else if (Name == "")
+                            else if (Name.Length > MaxNameLength)
                             {
-                                error = "Album name can't be empty";
+                                error = $"Performer name should contain not more than {MaxNameLength} symbols";
                             }
                             break;
                         }

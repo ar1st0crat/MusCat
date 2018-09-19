@@ -9,20 +9,20 @@ using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Interfaces.Domain;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
-using MusCat.Infrastructure.Services.Networking;
 using MusCat.Util;
 using MusCat.ViewModels.Entities;
 using MusCat.Views;
 using Clipboard = System.Windows.Clipboard;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using MusCat.Core.Interfaces.Networking;
 
 namespace MusCat.ViewModels
 {
     class EditPerformerViewModel : ViewModelBase
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IPerformerService _performerService;
+        private readonly IWebLoader _bioLoader;
 
         private PerformerViewModel _performer;
         public PerformerViewModel Performer
@@ -58,13 +58,13 @@ namespace MusCat.ViewModels
         public RelayCommand SavePerformerCommand { get; private set; }
 
 
-        public EditPerformerViewModel(IPerformerService performerService, IUnitOfWork unitOfWork)
+        public EditPerformerViewModel(IPerformerService performerService, IWebLoader bioLoader)
         {
             Guard.AgainstNull(performerService);
-            Guard.AgainstNull(unitOfWork);
-            
+            Guard.AgainstNull(bioLoader);
+
             _performerService = performerService;
-            _unitOfWork = unitOfWork;
+            _bioLoader = bioLoader;
 
             LoadImageFromFileCommand = new RelayCommand(LoadPerformerImageFromFile);
             LoadImageFromClipboardCommand = new RelayCommand(LoadPerformerImageFromClipboard);
@@ -72,16 +72,17 @@ namespace MusCat.ViewModels
             SavePerformerCommand = new RelayCommand(async() => await SavePerformerAsync());
         }
 
-        public async Task LoadCountriesAsync()
-        {
-            Countries = new ObservableCollection<Country>(
-                await _unitOfWork.CountryRepository.GetAllAsync());
-        }
-
         private async Task SavePerformerAsync()
         {
             var performer = Mapper.Map<Performer>(Performer);
             performer.CountryId = SelectedCountryId;
+
+            if (!string.IsNullOrEmpty(performer.Error))
+            {
+                MessageBox.Show(performer.Error);
+                Performer.Name = "Unknown";
+                return;
+            }
 
             await _performerService.UpdatePerformerAsync(performer);
 
@@ -94,11 +95,9 @@ namespace MusCat.ViewModels
 
         private async Task LoadBioAsync()
         {
-            var bioLoader = new LastfmDataLoader();
-
             try
             {
-                Performer.Info = await bioLoader.LoadBioAsync(Performer.Name);
+                Performer.Info = await _bioLoader.LoadBioAsync(Performer.Name);
                 RaisePropertyChanged("Performer");
             }
             catch (Exception ex)

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,7 +60,7 @@ namespace MusCat.ViewModels
             }
         }
 
-        public const int TopPerformersCount = 10;
+        public const int TopPerformersCount = 12;
 
         private ObservableCollection<CanvasPerformerViewModel> _topPerformers;
         public ObservableCollection<CanvasPerformerViewModel> TopPerformers
@@ -191,6 +190,7 @@ namespace MusCat.ViewModels
             if (countries.Any())
             {
                 var maxPerformerCount = countries.Max(c => c.Value);
+
                 await UpdateTopPerformersAsync(countries.Where(c => c.Value == maxPerformerCount)
                                                         .Select(c => c.Key)
                                                         .First());
@@ -199,6 +199,11 @@ namespace MusCat.ViewModels
 
         public async Task UpdateTopPerformersAsync(string country)
         {
+            if (country == "Others")
+            {
+                return;
+            }
+
             var topPerformers = await _stats.GetTopPerformersAsync(TopPerformersCount, country);
 
             TopPerformers = new ObservableCollection<CanvasPerformerViewModel>();
@@ -211,30 +216,14 @@ namespace MusCat.ViewModels
             Country = country;
         }
 
+        #region place items on canvas
+
         public void AddPerformerToCanvas(PerformerViewModel performerViewModel)
         {
-            var left = 0;
-            var top = 0;
+            var pos = TopPerformers.Count;
 
-            if (TopPerformers.Count > 0)
-            {
-                var randomizer = new Random();
-
-                var attempts = 0;
-
-                var diffLeft = 0;
-                var diffTop = 0;
-
-                do
-                {
-                    left = randomizer.Next() % 230;
-                    top = randomizer.Next() % 420;
-
-                    diffLeft = TopPerformers.Select(p => (p.Left - left) * (p.Left - left)).Min();
-                    diffTop = TopPerformers.Select(p => (p.Top - top) * (p.Top - top)).Min();
-                }
-                while (diffLeft + diffTop < 2000 && attempts++ < 500);
-            }
+            var left = (pos % ItemsPerRow) * ItemWidth + _randomizer.Next(-OffsetRandomness / 2, OffsetRandomness / 2);
+            var top =  (pos / ItemsPerRow) * ItemHeight + _randomizer.Next(OffsetRandomness);
 
             TopPerformers.Add(new CanvasPerformerViewModel
             {
@@ -250,5 +239,14 @@ namespace MusCat.ViewModels
             public int Left { get; set; }
             public int Top { get; set; }
         }
+
+        private static readonly Random _randomizer = new Random();
+
+        private const int ItemsPerRow = 3;
+        private const int OffsetRandomness = 60;
+        private const int ItemWidth = 90;
+        private const int ItemHeight = 120;
+
+        #endregion
     }
 }

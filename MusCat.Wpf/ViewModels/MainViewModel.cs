@@ -464,8 +464,9 @@ namespace MusCat.ViewModels
             using (var scope = App.DiContainer.BeginLifetimeScope())
             {
                 var editPerformerViewModel = scope.Resolve<EditPerformerViewModel>();
+
                 editPerformerViewModel.Performer = SelectedPerformer;
-                editPerformerViewModel.LoadCountriesAsync();
+                editPerformerViewModel.Countries = new ObservableCollection<Country>(_unitOfWork.CountryRepository.GetAll());
 
                 var performerWindow = new EditPerformerWindow
                 {
@@ -535,8 +536,10 @@ namespace MusCat.ViewModels
             using (var scope = App.DiContainer.BeginLifetimeScope())
             {
                 var editPerformerViewModel = scope.Resolve<EditPerformerViewModel>();
+
                 editPerformerViewModel.Performer = performerViewModel;
-                editPerformerViewModel.LoadCountriesAsync();
+                editPerformerViewModel.Countries = new ObservableCollection<Country>(
+                                                            await _unitOfWork.CountryRepository.GetAllAsync());
 
                 var performerWindow = new EditPerformerWindow
                 {

@@ -8,7 +8,6 @@ using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Audio;
 using MusCat.Core.Interfaces.Domain;
-using MusCat.Core.Services;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
 using MusCat.Util;
@@ -42,6 +41,7 @@ namespace MusCat.ViewModels
             {
                 _selectedSong = value;
                 RaisePropertyChanged();
+
                 if (!_isLoading) PlaySong();
             }
         }
@@ -210,6 +210,9 @@ namespace MusCat.ViewModels
 
         private void PlaySong()
         {
+            PlaybackPercentage = 0.0;
+            TimePlayed = "0:00";
+
             if (SelectedSong == null)
             {
                 PlaybackImage = ImagePlay;
@@ -222,8 +225,6 @@ namespace MusCat.ViewModels
             }
 
             var songfile = FileLocator.FindSongPath(SelectedSong);
-
-            PlaybackPercentage = 0.0;
 
             try
             {

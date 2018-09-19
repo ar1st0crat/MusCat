@@ -2,37 +2,39 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MusCat.Core.Interfaces.Songlist;
+using MusCat.Core.Interfaces.Tracklist;
 using MusCat.Infrastructure.Services.Util;
 using TagLib;
 
-namespace MusCat.Infrastructure.Services.Songlist
+namespace MusCat.Infrastructure.Services.Tracklist
 {
     /// <summary>
     /// Class Mp3SonglistHelper is responsible for:
-    /// - extracting the track number and track name from mp3 files
-    /// - retrieving and formatting song duration
+    /// - extracting the track number, track name and duration from mp3 files
+    /// - correcting and formatting track durations
     /// - correcting track names according to conventional rules
     /// </summary>
-    public class Mp3SonglistHelper : ISonglistHelper
+    public class Mp3TracklistHelper : ITracklistHelper
     {
         /// <summary>
         /// Method iterates through all mp3 files in given directory,
         /// extracts ID3 tag info from each file
-        /// and returns the collection of SongEntry objects
+        /// and returns the collection of Track objects
         /// </summary>
         /// <param name="folder">The directory where to parse mp3 files</param>
-        /// <returns>List of song titles and durations extracted from song files</returns>
-        public List<SongEntry> Parse(string folder)
+        /// <returns>List of track titles and durations extracted from song files</returns>
+        public Track[] Parse(string folder)
         {
-            var songs = new List<SongEntry>();
+            var files = Directory.GetFiles(folder, "*.mp3");
+
+            var songs = new Track [files.Length];
 
             var i = 1;
-            foreach (var filename in Directory.GetFiles(folder, "*.mp3"))
+            foreach (var filename in files)
             {
                 using (var file = TagLib.File.Create(filename))
                 {
-                    var song = new SongEntry();
+                    var song = new Track();
 
                     var v2Tag = file.GetTag(TagTypes.Id3v2) as TagLib.Id3v2.Tag;
 
@@ -54,10 +56,10 @@ namespace MusCat.Infrastructure.Services.Songlist
                         }
                     }
 
-                    song.No = (byte)(i++);
+                    song.No = (byte)i;
                     song.Duration = file.Properties.Duration.ToString(@"m\:ss");
 
-                    songs.Add(song);
+                    songs[i++] = song;
                 }
             }
 
@@ -88,20 +90,20 @@ namespace MusCat.Infrastructure.Services.Songlist
         ///                                              =>      "Hush! It's (\"An\" (!)) Experiment..."
         /// 
         /// </summary>
-        /// <param name="songs">Collection of songs</param>
-        public void FixTitles(IList<SongEntry> songs)
+        /// <param name="songs">Collection of tracks</param>
+        public void FixTitles(IList<Track> tracks)
         {
             var punctuation = new[] { '.', ',', '?', '!', ':', ';', '(', ')', '/', '\\'};//, '"' };
 
             byte trackNo = 1;
 
-            foreach (var song in songs)
+            foreach (var track in tracks)
             {
-                song.No = trackNo++;
+                track.No = trackNo++;
 
                 // first, trim string
 
-                var title = song.Title.Replace("_", " ").Trim();
+                var title = track.Title.Replace("_", " ").Trim();
 
                 if (title.Length == 0)
                 {
@@ -149,33 +151,33 @@ namespace MusCat.Infrastructure.Services.Songlist
                     }
                 }
 
-                song.Title = title;
+                track.Title = title;
             }
         }
 
         /// <summary>
-        /// Method corrects the duration time of each song 
-        /// and computes the total duration time of all songs.
+        /// Method corrects the duration time of each track 
+        /// and computes the total duration time of all tracks.
         /// Example:
         ///     song no.1       '3:5'       =>      '3:05'
         ///     song no.2       '2'         =>      '2:00'
         ///     song no.3       'a1:30'     =>      '1:30'
         ///                            and returns: '6:35' (total time)
         /// </summary>
-        /// <param name="songs">Collection of songs</param>
-        /// <returns>The total duration of songs in format 'm:ss'</returns>
-        public string FixDurations(IList<SongEntry> songs)
+        /// <param name="songs">Collection of tracks</param>
+        /// <returns>The total duration of tracks in format 'm:ss'</returns>
+        public string FixDurations(IList<Track> tracks)
         {
             var totalMinutes = 0;
             var totalSeconds = 0;
 
-            foreach (var song in songs)
+            foreach (var track in tracks)
             {
                 // fix each record if there's a need
 
-                var parts = song.Duration.Split(':')
-                                .Select(s => "0" + s)
-                                .ToArray();
+                var parts = track.Duration.Split(':')
+                                 .Select(s => "0" + s)
+                                 .ToArray();
 
                 var minutes = int.Parse(parts[0].Digits());
                 var seconds = 0;
@@ -185,7 +187,7 @@ namespace MusCat.Infrastructure.Services.Songlist
                     seconds = int.Parse(parts[1].Digits());
                 }
                 
-                song.Duration = string.Format("{0}:{1:00}", minutes, seconds);
+                track.Duration = string.Format("{0}:{1:00}", minutes, seconds);
 
                 totalMinutes += minutes;
                 totalSeconds += seconds;

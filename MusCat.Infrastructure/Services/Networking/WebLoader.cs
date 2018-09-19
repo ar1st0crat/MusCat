@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using MusCat.Core.Interfaces.Networking;
+using MusCat.Core.Interfaces.Tracklist;
 
 namespace MusCat.Infrastructure.Services.Networking
 {
-    public class LastfmDataLoader : IWebDataLoader
+    public class WebLoader : IWebLoader
     {
         private readonly string[] _newlineTags =
         {
@@ -21,10 +22,10 @@ namespace MusCat.Infrastructure.Services.Networking
         };
 
         /// <summary>
-        /// 
+        /// Load performer's bio from LastFm website
         /// </summary>
-        /// <param name="performer"></param>
-        /// <returns></returns>
+        /// <param name="performer">Performer's name</param>
+        /// <returns>Performer's bio</returns>
         public async Task<string> LoadBioAsync(string performer)
         {
             var url = $@"https://www.last.fm/music/{performer}/+wiki";
@@ -72,13 +73,7 @@ namespace MusCat.Infrastructure.Services.Networking
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="performer"></param>
-        /// <param name="album"></param>
-        /// <returns></returns>
-        public async Task<Tuple<string[], string[]>> LoadTracksAsync(string performer, string album)
+        public async Task<Track[]> LoadTracksAsync(string performer, string album)
         {
             var url = $@"https://www.google.com/search?q={performer}+{album}+discogs";
 
@@ -110,7 +105,7 @@ namespace MusCat.Infrastructure.Services.Networking
                 html = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
 
-                var tracks = new List<string>();
+                var tracks = new List<Track>();
 
                 html = html.Replace("itemprop=\"name\"", "");       // remove this occasional substring
 
@@ -118,19 +113,23 @@ namespace MusCat.Infrastructure.Services.Networking
                 const string trackClass = "<span class=\"tracklist_track_title\">";
                 var offset = trackClass.Length;
 
+
                 var startPos = html.IndexOf(trackClass);
-                
+
+                byte trackNo = 1;
                 while (startPos > -1)
                 {
                     var track = html.Substring(startPos + offset, html.IndexOf("<", startPos + 1) - startPos - offset);
 
-                    tracks.Add(HttpUtility.HtmlDecode(track));
+                    tracks.Add(new Track
+                    {
+                        No = trackNo++,
+                        Title = HttpUtility.HtmlDecode(track)
+                    });
 
                     startPos = html.IndexOf(trackClass, startPos + 1);
                 }
 
-
-                var durations = new string[tracks.Count];
 
                 const string durationClass = "class=\"tracklist_track_duration\"";
                 const string spanTag = "<span>";
@@ -143,10 +142,10 @@ namespace MusCat.Infrastructure.Services.Networking
                     startPos = html.IndexOf(durationClass, startPos);
                     startPos = html.IndexOf(spanTag, startPos);
 
-                    durations[i] = html.Substring(startPos + offset, html.IndexOf("<", startPos + 1) - startPos - offset);
+                    tracks[i].Duration = html.Substring(startPos + offset, html.IndexOf("<", startPos + 1) - startPos - offset);
                 }
 
-                return new Tuple<string[], string[]>(tracks.ToArray(), durations);
+                return tracks.ToArray();
             }
         }
     }

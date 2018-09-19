@@ -133,7 +133,7 @@
 
         <StackPanel Grid.Column="1" Margin="20">
             <WrapPanel HorizontalAlignment="Center">
-                <Button Content="Load songlist" Padding="5" Margin="5" Command="{Binding LoadSonglistCommand}" Style="{StaticResource MusCatButton}" />
+                <Button Content="Load songlist" Padding="5" Margin="5" Command="{Binding LoadTracklistCommand}" Style="{StaticResource MusCatButton}" />
                 <Button Content="Parse mp3..." Padding="5" Margin="5" Command="{Binding ParseMp3Command}" Style="{StaticResource MusCatButton}" />
                 <Button Content="Fix titles" Padding="5" Margin="5" Command="{Binding FixTitlesCommand}" Style="{StaticResource MusCatButton}" />
                 <Button Content="Fix times" Padding="5" Margin="5,5,90,5" Command="{Binding FixTimesCommand}" Style="{StaticResource MusCatButton}" />

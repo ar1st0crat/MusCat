@@ -46,13 +46,13 @@ namespace MusCat.Core.Entities
                     }
                     case "Name":
                     {
-                        if (Name.Length > MaxNameLength)
-                        {
-                            error = "Song title should contain not more than 50 symbols";
-                        }
-                        else if (Name == "")
+                        if (string.IsNullOrWhiteSpace(Name))
                         {
                             error = "Song title can't be empty";
+                        }
+                        else if (Name.Length > MaxNameLength)
+                        {
+                            error = $"Song title should contain not more than {MaxNameLength} symbols";
                         }
                         break;
                     }

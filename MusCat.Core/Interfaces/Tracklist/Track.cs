@@ -1,6 +1,6 @@
-﻿namespace MusCat.Core.Interfaces.Songlist
+﻿namespace MusCat.Core.Interfaces.Tracklist
 {
-    public class SongEntry
+    public class Track
     {
         public byte No { get; set; }
         public string Title { get; set; }

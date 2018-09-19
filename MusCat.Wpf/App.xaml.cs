@@ -12,7 +12,7 @@ using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Interfaces.Domain;
 using MusCat.Core.Interfaces.Networking;
 using MusCat.Core.Interfaces.Radio;
-using MusCat.Core.Interfaces.Songlist;
+using MusCat.Core.Interfaces.Tracklist;
 using MusCat.Core.Interfaces.Stats;
 using MusCat.Core.Services;
 using MusCat.Infrastructure.Data;
@@ -20,7 +20,7 @@ using MusCat.Infrastructure.Services;
 using MusCat.Infrastructure.Services.Audio;
 using MusCat.Infrastructure.Services.Networking;
 using MusCat.Infrastructure.Services.Radio;
-using MusCat.Infrastructure.Services.Songlist;
+using MusCat.Infrastructure.Services.Tracklist;
 using MusCat.Infrastructure.Services.Stats;
 using MusCat.ViewModels;
 using MusCat.ViewModels.Entities;
@@ -40,14 +40,14 @@ namespace MusCat
 
             DiContainer = InitializeDiContainer();
 
-            // Disable shutdown when the dialog is closed
-            Current.ShutdownMode = ShutdownMode.OnLastWindowClose;
-
             // Setup FileLocator:
 
             if (FileLocator.MustBeConfigured())
             {
                 MessageBox.Show("Please specify folders for MusCat to look for media files");
+
+                // Disable shutdown when the dialog is closed
+                Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
                 var settingsWindow = new SettingsWindow();
                 if (settingsWindow.ShowDialog() == false)
@@ -58,6 +58,10 @@ namespace MusCat
 
             FileLocator.LoadConfiguration();
 
+            // Normal shutdown
+
+            Current.ShutdownMode = ShutdownMode.OnLastWindowClose;
+            
             // Show main window:
 
             var mainWindow = new MainWindow
@@ -98,13 +102,13 @@ namespace MusCat
                 cfg.CreateMap<Country, CountryViewModel>()
                    .EqualityComparison((src, dest) => src.Id == dest.Id);
 
-                cfg.CreateMap<SongViewModel, SongEntry>()
+                cfg.CreateMap<SongViewModel, Track>()
                    .EqualityComparison((src, dest) => src.TrackNo == dest.No)
                    .ForMember(dest => dest.No, opt => opt.MapFrom(src => src.TrackNo))
                    .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Name))
                    .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.TimeLength));
 
-                cfg.CreateMap<SongEntry, SongViewModel>()
+                cfg.CreateMap<Track, SongViewModel>()
                    .EqualityComparison((src, dest) => src.No == dest.TrackNo)
                    .ForMember(dest => dest.Id, opt => opt.UseValue(-1))
                    .ForMember(dest => dest.TrackNo, opt => opt.MapFrom(src => src.No))
@@ -131,8 +135,8 @@ namespace MusCat
             builder.Register(c => new RandomSongSelector(connectionString)).As<ISongSelector>();
             builder.RegisterType<AudioPlayer>().As<IAudioPlayer>();
             builder.RegisterType<RadioService>().As<IRadioService>();
-            builder.RegisterType<Mp3SonglistHelper>().As<ISonglistHelper>();
-            builder.RegisterType<LastfmDataLoader>().As<IWebDataLoader>();
+            builder.RegisterType<Mp3TracklistHelper>().As<ITracklistHelper>();
+            builder.RegisterType<WebLoader>().As<IWebLoader>();
             builder.RegisterType<RateCalculator>().As<IRateCalculator>();
             builder.RegisterType<MainViewModel>();
             builder.RegisterType<AlbumPlaybackViewModel>();

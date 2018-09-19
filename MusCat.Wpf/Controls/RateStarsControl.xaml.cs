@@ -77,6 +77,11 @@ namespace MusCat.Controls
             Rate = (byte?)newRate;
         }
 
+        private void ResetRate(object sender, MouseButtonEventArgs e)
+        {
+            Rate = null;
+        }
+
         private void StarMouseMove(object sender, MouseEventArgs e)
         {
             if (!IsEnabled)

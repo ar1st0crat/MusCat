@@ -8,16 +8,15 @@ using System.Windows.Media.Imaging;
 using AutoMapper;
 using Microsoft.Win32;
 using MusCat.Core.Entities;
-using MusCat.Core.Interfaces.Data;
+using MusCat.Core.Services;
 using MusCat.Core.Interfaces.Domain;
-using MusCat.Core.Interfaces.Songlist;
+using MusCat.Core.Interfaces.Tracklist;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
 using MusCat.Util;
 using MusCat.ViewModels.Entities;
 using MusCat.Views;
-using MusCat.Core.Services;
-using MusCat.Infrastructure.Services.Networking;
+using MusCat.Core.Interfaces.Networking;
 
 namespace MusCat.ViewModels
 {
@@ -25,9 +24,9 @@ namespace MusCat.ViewModels
     {
         private readonly IAlbumService _albumService;
         private readonly ISongService _songService;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ISonglistHelper _songlist;
-        
+        private readonly ITracklistHelper _tracklist;
+        private readonly IWebLoader _trackLoader;
+
         public AlbumViewModel Album { get; set; }
 
         private ObservableCollection<SongViewModel> _songs = new ObservableCollection<SongViewModel>();
@@ -51,7 +50,7 @@ namespace MusCat.ViewModels
 
         #region Commands
 
-        public RelayCommand LoadSonglistCommand { get; private set; }
+        public RelayCommand LoadTracklistCommand { get; private set; }
         public RelayCommand ParseMp3Command { get; private set; }
         public RelayCommand FixTitlesCommand { get; private set; }
         public RelayCommand FixTimesCommand { get; private set; }
@@ -68,22 +67,22 @@ namespace MusCat.ViewModels
 
         public EditAlbumViewModel(IAlbumService albumService,
                                   ISongService songService,
-                                  IUnitOfWork unitOfWork,
-                                  ISonglistHelper songlist)
+                                  ITracklistHelper tracklist,
+                                  IWebLoader trackLoader)
         {
             Guard.AgainstNull(albumService);
             Guard.AgainstNull(songService);
-            Guard.AgainstNull(unitOfWork);
-            Guard.AgainstNull(songlist);
+            Guard.AgainstNull(tracklist);
+            Guard.AgainstNull(trackLoader);
 
             _albumService = albumService;
             _songService = songService;
-            _unitOfWork = unitOfWork;
-            _songlist = songlist;
+            _tracklist = tracklist;
+            _trackLoader = trackLoader;
 
             // setting up commands
 
-            LoadSonglistCommand = new RelayCommand(LoadSonglist);
+            LoadTracklistCommand = new RelayCommand(LoadTracklistAsync);
             ParseMp3Command = new RelayCommand(ParseMp3);
             FixTitlesCommand = new RelayCommand(FixTitles);
             FixTimesCommand = new RelayCommand(FixDurations);
@@ -124,7 +123,7 @@ namespace MusCat.ViewModels
 
             if (selectedSong.Id == -1)
             {
-                await SaveAllAsync();
+                MessageBox.Show("This song has not been added to database yet.\nPlease save all songs first.");
                 return;
             }
 
@@ -138,11 +137,13 @@ namespace MusCat.ViewModels
 
         public async Task SaveAllAsync()
         {
+            await SaveAlbumInformationAsync();
+
             var songs = Mapper.Map<Song[]>(Songs);
 
             // first, check validity of song data
 
-            if (songs.Any(s => s.Error != ""))
+            if (songs.Any(s => !string.IsNullOrEmpty(s.Error)))
             {
                 var message = songs.Where(s => s.Error != "")
                                    .Select(s => s.TrackNo.ToString())
@@ -200,14 +201,14 @@ namespace MusCat.ViewModels
 
         public void AddSong()
         {
-            byte newTrackNo = 1;
+            byte trackNo = 1;
 
             if (Songs.Any())
             {
-                newTrackNo = (byte)(Songs.Last().TrackNo + 1);
+                trackNo = (byte)(Songs.Last().TrackNo + 1);
             }
 
-            Songs.Add(new SongViewModel { Id = -1, TrackNo = newTrackNo });
+            Songs.Add(new SongViewModel { Id = -1, TrackNo = trackNo });
         }
 
         public async Task ClearAllAsync()
@@ -227,23 +228,27 @@ namespace MusCat.ViewModels
             }
         }
 
-        private async void LoadSonglist()
+        private async void LoadTracklistAsync()
         {
             try
             {
-                var tracks = await new LastfmDataLoader().LoadTracksAsync(Album.Performer.Name, Album.Name);
+                var tracks = await _trackLoader.LoadTracksAsync(Album.Performer.Name, Album.Name);
 
-                byte no = 0;
+                for (var i = 0; i < tracks.Length; i++)
+                {
+                    var song = Mapper.Map<SongViewModel>(tracks[i]);
+                    song.AlbumId = Album.Id;
 
-                Songs = new ObservableCollection<SongViewModel>(
-                    tracks.Item1.Zip(tracks.Item2, (name, time) => new SongViewModel
+                    if (i < Songs.Count)
                     {
-                        Id = -1,
-                        AlbumId = Album.Id,
-                        TrackNo = ++no,
-                        Name = name,
-                        TimeLength = time
-                    }));
+                        song.Id = Songs[i].Id;
+                        Songs[i] = song;
+                    }
+                    else
+                    {
+                        Songs.Add(song);
+                    }
+                }
 
                 FixTitles();
                 FixDurations();
@@ -262,18 +267,18 @@ namespace MusCat.ViewModels
                 return;
             }
 
-            var songs = _songlist.Parse(fbd.SelectedPath);
+            var songs = _tracklist.Parse(fbd.SelectedPath);
 
             Songs = Mapper.Map<ObservableCollection<SongViewModel>>(songs);
 
-            Album.TotalTime = _songlist.FixDurations(songs);
+            Album.TotalTime = _tracklist.FixDurations(songs);
         }
         
         private void FixTitles()
         {
-            var songs = Mapper.Map<SongEntry[]>(Songs);
+            var songs = Mapper.Map<Track[]>(Songs);
 
-            _songlist.FixTitles(songs);
+            _tracklist.FixTitles(songs);
 
             // update songs in-place
 
@@ -288,9 +293,9 @@ namespace MusCat.ViewModels
         
         private void FixDurations()
         {
-            var songs = Mapper.Map<SongEntry[]>(Songs);
+            var songs = Mapper.Map<Track[]>(Songs);
 
-            Album.TotalTime = _songlist.FixDurations(songs);
+            Album.TotalTime = _tracklist.FixDurations(songs);
 
             // update songs in-place
 
