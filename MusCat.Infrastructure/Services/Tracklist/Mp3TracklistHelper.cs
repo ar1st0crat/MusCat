@@ -29,7 +29,7 @@ namespace MusCat.Infrastructure.Services.Tracklist
 
             var songs = new Track [files.Length];
 
-            var i = 1;
+            var i = 0;
             foreach (var filename in files)
             {
                 using (var file = TagLib.File.Create(filename))
@@ -56,7 +56,7 @@ namespace MusCat.Infrastructure.Services.Tracklist
                         }
                     }
 
-                    song.No = (byte)i;
+                    song.No = (byte)(i + 1);
                     song.Duration = file.Properties.Duration.ToString(@"m\:ss");
 
                     songs[i++] = song;

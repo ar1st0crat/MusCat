@@ -32,7 +32,7 @@ namespace MusCat.Tests
             // ACT
             var pathlist = FileLocator.MakeAlbumImagePathlist(album);
             // ASSERT
-            Assert.That(pathlist.All(p => p.EndsWith(@"F\Foo\Picture\73.jpg")));
+            Assert.That(pathlist.All(p => p.EndsWith(@"Foo\Picture\73.jpg")));
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace MusCat.Tests
             // ACT
             var pathlist = FileLocator.MakePerformerImagePathlist(performer, "bmp");
             // ASSERT
-            Assert.That(pathlist.All(p => p.EndsWith(@"F\Foo\Picture\photo.bmp")));
+            Assert.That(pathlist.All(p => p.EndsWith(@"Foo\Picture\photo.bmp")));
         }
     }
 }

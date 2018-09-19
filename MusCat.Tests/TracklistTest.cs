@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MusCat.Core.Interfaces.Songlist;
-using MusCat.Infrastructure.Services.Songlist;
+using MusCat.Core.Interfaces.Tracklist;
+using MusCat.Infrastructure.Services.Tracklist;
 using NUnit.Framework;
 
 namespace MusCat.Tests
 {
     [TestFixture]
-    public class SonglistTest
+    public class TracklistTest
     {
-        private readonly Mp3SonglistHelper _parser = new Mp3SonglistHelper();
+        private readonly Mp3TracklistHelper _parser = new Mp3TracklistHelper();
 
         [Test]
         public void TestFixOrdinaryDurations()
@@ -18,10 +18,10 @@ namespace MusCat.Tests
             // ARRANGE
             var songs = new []
             {
-                new SongEntry { Duration = "1:23" },
-                new SongEntry { Duration = "0:02" },
-                new SongEntry { Duration = "12:59" },
-                new SongEntry { Duration = "8:00" }
+                new Track { Duration = "1:23" },
+                new Track { Duration = "0:02" },
+                new Track { Duration = "12:59" },
+                new Track { Duration = "8:00" }
             };
 
             // ACT
@@ -46,7 +46,7 @@ namespace MusCat.Tests
         public void TestFixTimeEmptyCollection()
         {
             // ARRANGE
-            var songs = new List<SongEntry>();
+            var songs = new List<Track>();
             // ACT
             var time = _parser.FixDurations(songs);
             // ASSERT
@@ -59,11 +59,11 @@ namespace MusCat.Tests
             // ARRANGE
             var songs = new []
             {
-                new SongEntry { Duration = "1:2 " },
-                new SongEntry { Duration = " 3 " },
-                new SongEntry { Duration = "2: " },
-                new SongEntry { Duration = " :2" },
-                new SongEntry { Duration = "1a:5s" }
+                new Track { Duration = "1:2 " },
+                new Track { Duration = " 3 " },
+                new Track { Duration = "2: " },
+                new Track { Duration = " :2" },
+                new Track { Duration = "1a:5s" }
             };
 
             // ACT
@@ -84,7 +84,7 @@ namespace MusCat.Tests
             // ARRANGE
             var songs = new []
             {
-                new SongEntry { Title="_well_well__well" }
+                new Track { Title="_well_well__well" }
             };
 
             // ACT
@@ -100,7 +100,7 @@ namespace MusCat.Tests
             // ARRANGE
             var songs = new []
             {
-                new SongEntry { Title="  Well   how     aRE  you?  " }
+                new Track { Title="  Well   how     aRE  you?  " }
             };
 
             // ACT
@@ -116,10 +116,10 @@ namespace MusCat.Tests
             // ARRANGE
             var songs = new []
             {
-                new SongEntry { No = 1, Title = "1" },
-                new SongEntry { No = 2, Title = "2" },
-                new SongEntry { No = 5, Title = "3" },
-                new SongEntry { No = 4, Title = "4" }
+                new Track { No = 1, Title = "1" },
+                new Track { No = 2, Title = "2" },
+                new Track { No = 5, Title = "3" },
+                new Track { No = 4, Title = "4" }
             };
 
             // ACT
@@ -135,8 +135,8 @@ namespace MusCat.Tests
             // ARRANGE
             var songs = new []
             {
-                new SongEntry { Title = string.Empty },
-                new SongEntry { Title = "" }
+                new Track { Title = string.Empty },
+                new Track { Title = "" }
             };
 
             // ACT
@@ -153,11 +153,11 @@ namespace MusCat.Tests
             // ARRANGE
             var songs = new []
             {
-                new SongEntry { Title="  Well ,  song(yeAh ?yeah!)  " },
-                new SongEntry { Title="wow...  it(is so cool...)  " },
-                new SongEntry { Title="   ((There's )   been)  some, right?))  " },
-                new SongEntry { Title="Hush! it's    ( \"an\" ( ! ) ) experiment.. ." },
-                new SongEntry { Title="Tell me \"yes\"" }
+                new Track { Title="  Well ,  song(yeAh ?yeah!)  " },
+                new Track { Title="wow...  it(is so cool...)  " },
+                new Track { Title="   ((There's )   been)  some, right?))  " },
+                new Track { Title="Hush! it's    ( \"an\" ( ! ) ) experiment.. ." },
+                new Track { Title="Tell me \"yes\"" }
             };
 
             // ACT
