@@ -26,29 +26,21 @@
     <Window.Resources>
         <!-- GUI parameters -->
         <sys:Double x:Key="AlbumImageHeight">80</sys:Double>
-        <sys:Double x:Key="CurrentAlbumImageHeight">200</sys:Double>
+        <sys:Double x:Key="CurrentAlbumImageHeight">232</sys:Double>
         <!-- Album cover path converter -->
         <converters:AlbumImageConverter x:Key="AlbumImageConverter"/>
-
-        <Style x:Key="RadioExpanderHeaderStyle" TargetType="{x:Type ToggleButton}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ToggleButton}">
-                        <Border Padding="{TemplateBinding Padding}" Background="Transparent">
-                            <ContentPresenter HorizontalAlignment="Left" RecognizesAccessKey="True" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <Style x:Key="RadioExpanderStyle" TargetType="{x:Type Expander}">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Expander}">
-                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="Transparent" SnapsToDevicePixels="true">
+                        <Border BorderThickness="0"
+                                Background="Transparent"
+                                SnapsToDevicePixels="true">
                             <StackPanel Orientation="Horizontal">
-                                <ToggleButton ContentTemplate="{TemplateBinding HeaderTemplate}" ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}" Foreground="{TemplateBinding Foreground}" IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Style="{StaticResource RadioExpanderHeaderStyle}">
+                                <ToggleButton VerticalAlignment="Top"
+                                              Foreground="{TemplateBinding Foreground}"
+                                              IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ToggleButton.Content>
                                         <StackPanel>
                                             <Label Content="{TemplateBinding Tag}"
@@ -59,15 +51,33 @@
                                             <TextBlock Text="{TemplateBinding Header}" />
                                         </StackPanel>
                                     </ToggleButton.Content>
+                                    <ToggleButton.Style>
+                                        <Style TargetType="{x:Type ToggleButton}">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                                        <Border Padding="{TemplateBinding Padding}" Background="Transparent">
+                                                            <ContentPresenter HorizontalAlignment="Left" 
+                                                                              VerticalAlignment="Center"
+                                                                              RecognizesAccessKey="True" />
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ToggleButton.Style>
                                 </ToggleButton>
-                                <Grid Background="Transparent" x:Name="ExpandSite" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                                <Grid x:Name="ExpandedContent"
+                                      Background="Transparent"
+                                      Margin="{TemplateBinding Padding}"
+                                      Visibility="Collapsed">
                                     <ContentPresenter Focusable="false"/>
                                 </Grid>
                             </StackPanel>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsExpanded" Value="true">
-                                <Setter Property="Visibility" TargetName="ExpandSite" Value="Visible"/>
+                                <Setter TargetName="ExpandedContent" Property="Visibility" Value="Visible"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -77,14 +87,21 @@
     </Window.Resources>
 
     <StackPanel Orientation="Horizontal" Margin="10">
-        <Grid MinHeight="460">
+        <Grid MinHeight="600">
+            <Grid.RenderTransform>
+                <TransformGroup>
+                    <RotateTransform Angle="9"/>
+                    <TranslateTransform Y="-50" X="50"/>
+                </TransformGroup>
+            </Grid.RenderTransform>
+            
             <Grid.Background>
                 <ImageBrush ImageSource="/Images/vinyl_blue.png" Opacity="0.12"/>
             </Grid.Background>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200" />
-                <ColumnDefinition Width="230" />
-                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="190" />
+                <ColumnDefinition Width="250" />
+                <ColumnDefinition Width="190" />
             </Grid.ColumnDefinitions>
 
             <Viewport3D Grid.Column="0">
@@ -117,7 +134,7 @@
                                    Foreground="AntiqueWhite"
                                    HorizontalAlignment="Center"/>
                             <!-- The cover of an album containing previous song in radio tracklist -->
-                            <Image Source="{Binding Path=AlbumImagePath,
+                            <Image Source="{Binding AlbumImagePath,
                                                     Converter={StaticResource AlbumImageConverter},
                                                     ConverterParameter={StaticResource AlbumImageHeight}}"
                                    Height="{StaticResource AlbumImageHeight}">
@@ -173,16 +190,16 @@
             </Viewport3D>
 
             <!-- The central panel of currently played song in radio tracklist -->
-            <StackPanel Grid.Column="1" Margin="20,0,20,0">
+            <StackPanel Grid.Column="1" Margin="20,0,20,0" VerticalAlignment="Center">
                 <Label Content="Currently playing"
                        FontSize="12"
-                       Margin="0,80,5,5"
+                       Margin="0,36,5,5"
                        Foreground="AntiqueWhite"
                        HorizontalAlignment="Center"/>
                 <StackPanel DataContext="{Binding CurrentSong}">
                     <!-- The cover of an album containing currently played song -->
-                    <Image Source="{Binding Path=AlbumImagePath, Converter={StaticResource AlbumImageConverter},
-                                                                 ConverterParameter={StaticResource CurrentAlbumImageHeight}}"
+                    <Image Source="{Binding AlbumImagePath, Converter={StaticResource AlbumImageConverter},
+                                                            ConverterParameter={StaticResource CurrentAlbumImageHeight}}"
                            Height="{StaticResource CurrentAlbumImageHeight}"
                            HorizontalAlignment="Center"
                            Cursor="Hand">
@@ -235,25 +252,25 @@
                        Opacity="0.75"
                        RadiusX="10" RadiusY="10"
                        VerticalAlignment="Top"
-                       Margin="0,130,0,0"/>
+                       Margin="0,210,0,0"/>
             <DockPanel Grid.Column="1"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Top"
-                       Margin="0,140,0,0">
+                       Margin="0,220,0,0">
                 <!-- Images in playback control panel -->
                 <Image Source="{Binding PlaybackImage, UpdateSourceTrigger=PropertyChanged}"
                            Width="32">
                     <Image.InputBindings>
-                        <MouseBinding Gesture="LeftClick" Command="{Binding Path=PlaybackCommand}" />
+                        <MouseBinding Gesture="LeftClick" Command="{Binding PlaybackCommand}" />
                     </Image.InputBindings>
                 </Image>
                 <Image Source="{StaticResource ImageStopButton}"
                            Width="32">
                     <Image.InputBindings>
-                        <MouseBinding Gesture="LeftClick" Command="{Binding Path=StopCommand}" />
+                        <MouseBinding Gesture="LeftClick" Command="{Binding StopCommand}" />
                     </Image.InputBindings>
                 </Image>
-                <Slider Value="{Binding Path=SongVolume, Mode=TwoWay}"
+                <Slider Value="{Binding SongVolume, Mode=TwoWay}"
                             Width="75"
                             VerticalAlignment="Center" Style="{StaticResource SliderStyle}" />
             </DockPanel>
@@ -347,29 +364,48 @@
         <StackPanel Margin="2" Orientation="Vertical" VerticalAlignment="Top">
             <!-- Archive -->
             <Expander Header="  Archive   "
-                      Margin="0,15,0,15"
-                      FontSize="14"
+                      Margin="0,2,0,10"
+                      FontSize="12"
                       Foreground="AntiqueWhite"
                       HorizontalAlignment="Left"
                       Tag="&#xE71D;"
                       Style="{StaticResource RadioExpanderStyle}">
                 <StackPanel>
-                    <ListBox ItemsSource="{Binding Path=RadioArchive}"
-                             Margin="15,0,20,0"
+                    <ListBox ItemsSource="{Binding RadioArchive}"
+                             Margin="5,0,10,0"
+                             MinWidth="200"
                              VerticalAlignment="Top"
                              Background="Transparent" BorderBrush="Transparent"
                              SelectedIndex="-1">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <DockPanel Margin="0,-5,0,-5">
-                                    <Label Content="{Binding Path=Album.Performer.Name}" Foreground="White" FontSize="9"/>
-                                    <Label Content="{Binding Path=Name}" Foreground="Yellow" FontSize="11"/>
-                                </DockPanel>
+                                <Border BorderBrush="Gray"
+                                        Margin="0,1,0,0"
+                                        Padding="0,0,0,3"
+                                        BorderThickness="0,0,0,1">
+                                    <StackPanel Orientation="Vertical">
+                                        <Label Content="{Binding Album.Performer.Name}"
+                                           Foreground="White"
+                                           FontSize="9"
+                                           Margin="0,-5,0,-5"/>
+                                        <Label Content="{Binding Name}"
+                                           Foreground="Yellow"
+                                           FontSize="9"
+                                           Margin="0,-5,0,-6"/>
+                                    </StackPanel>
+                                </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="{x:Type ListBoxItem}">
-                                <Setter Property="Focusable" Value="False"/>
+                                <Setter Property="IsSelected" Value="{Binding Content.IsSelected, Mode=TwoWay, RelativeSource={RelativeSource Self}}"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
                             </Style>
                         </ListBox.ItemContainerStyle>
                     </ListBox>
@@ -378,54 +414,81 @@
             <!-- Upcoming songs radio tracklist -->
             <Expander Header="Upcoming"
                       HorizontalAlignment="Left"
-                      FontSize="14"
+                      FontSize="12"
                       Foreground="AntiqueWhite"
                       Tag="&#xEC58;"
                       Style="{StaticResource RadioExpanderStyle}">
                 <StackPanel>
-                    <ListBox ItemsSource="{Binding Path=RadioUpcoming}"
-                             Margin="20,0,10,0"
+                    <ListBox ItemsSource="{Binding RadioUpcoming}"
+                             SelectedItem="{Binding SelectedUpcomingSong}"
+                             Margin="5,0,10,0"
+                             MinWidth="200"
                              VerticalAlignment="Top"
                              Background="Transparent"
                              BorderBrush="Transparent"
+                             Cursor="Hand"
                              SelectedIndex="-1">
+                        <ListBox.ContextMenu>
+                            <ContextMenu DataContext="{Binding PlacementTarget.DataContext, 
+		                                                       RelativeSource={RelativeSource Self}}"
+                                         BorderThickness="0"
+                                         BorderBrush="Yellow">
+                                <MenuItem Header="Replace"
+                                          Height="30"
+                                          Foreground="White"
+                                          Background="#111111"
+                                          BorderThickness="0"
+                                          Command="{Binding ChangeSongCommand}">
+                                    <MenuItem.Icon>
+                                        <Image Source="{StaticResource ImageReplaceButton}" Margin="2"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Remove" 
+                                          Height="30"
+                                          Foreground="White"
+                                          Background="#111111"
+                                          BorderThickness="0"
+                                          Command="{Binding RemoveSongCommand}">
+                                    <MenuItem.Icon>
+                                        <Image Source="{StaticResource ImageRemoveButton}" Margin="2"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <DockPanel Margin="0,-5,0,-5">
-                                    <Image Source="{StaticResource ImageReplaceButton}"
-                                           Width="15"
-                                           Cursor="Hand"
-                                           Margin="2,5,5,2">
-                                        <Image.InputBindings>
-                                            <MouseBinding Gesture="LeftClick"
-                                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
-                                                                            Path=DataContext.ChangeSongCommand}"
-                                                          CommandParameter="{Binding Id}" />
-                                        </Image.InputBindings>
-                                    </Image>
-                                    <Image Source="{StaticResource ImageRemoveButton}"
-                                           Width="15"
-                                           Cursor="Hand"
-                                           Margin="2,5,5,2">
-                                        <Image.InputBindings>
-                                            <MouseBinding Gesture="LeftClick"
-                                                          Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, 
-                                                                            Path=DataContext.RemoveSongCommand}"
-                                                          CommandParameter="{Binding Id}" />
-                                        </Image.InputBindings>
-                                    </Image>
-                                    <Label Content="{Binding Path=Album.Performer.Name}"
-                                           Foreground="White"
-                                           FontSize="9"/>
-                                    <Label Content="{Binding Path=Name}"
+                                <Border BorderBrush="Gray"
+                                        Margin="0,1,0,0"
+                                        Padding="0,0,0,3"
+                                        BorderThickness="0,0,0,1">
+                                <StackPanel Orientation="Vertical">
+                                    <Label Content="{Binding Album.Performer.Name}"
+                                          Foreground="White"
+                                           FontSize="9"
+                                           Margin="0,-5,0,-6"/>
+                                    <Label Content="{Binding Name}"
                                            Foreground="Yellow"
-                                           FontSize="11"/>
-                                </DockPanel>
+                                           FontSize="9"
+                                           Margin="0,-5,0,-5"/>
+                                    </StackPanel>
+                                </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="{x:Type ListBoxItem}">
-                                <Setter Property="Focusable" Value="False"/>
+                                <Setter Property="IsSelected" Value="{Binding Content.IsSelected, Mode=TwoWay, RelativeSource={RelativeSource Self}}"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="LightGray"/>
+                                    </Trigger>
+                                </Style.Triggers>
                             </Style>
                         </ListBox.ItemContainerStyle>
                     </ListBox>

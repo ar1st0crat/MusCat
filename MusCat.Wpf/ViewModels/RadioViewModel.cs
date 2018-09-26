@@ -55,6 +55,8 @@ namespace MusCat.ViewModels
             }
         }
 
+        public Song SelectedUpcomingSong { get; set; }
+
         public RadioSongViewModel PreviousSong => Mapper.Map<RadioSongViewModel>(_radio.PrevSong);
         public RadioSongViewModel CurrentSong => Mapper.Map<RadioSongViewModel>(_radio.CurrentSong);
         public RadioSongViewModel NextSong => Mapper.Map<RadioSongViewModel>(_radio.NextSong);
@@ -105,15 +107,15 @@ namespace MusCat.ViewModels
                 UpdateSongPanels();
             });
             
-            ChangeSongCommand = new RelayCommand(async id =>
+            ChangeSongCommand = new RelayCommand(async () =>
             {
-                await _radio.ChangeSongAsync((long)id);
+                await _radio.ChangeSongAsync(SelectedUpcomingSong.Id);
                 UpdateSongPanels();
             });
 
-            RemoveSongCommand = new RelayCommand(async id =>
+            RemoveSongCommand = new RelayCommand(async () =>
             {
-                await _radio.RemoveSongAsync((long)id);
+                await _radio.RemoveSongAsync(SelectedUpcomingSong.Id);
                 UpdateSongPanels();
             });
 
