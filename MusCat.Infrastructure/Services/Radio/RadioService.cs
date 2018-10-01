@@ -296,5 +296,22 @@ namespace MusCat.Infrastructure.Services.Radio
         }
 
         #endregion
+
+        public void MoveUpcomingSong(int from, int to)
+        {
+            if (from == to)
+            {
+                return;
+            }
+
+            if (from < 0 || to < 0 || from >= UpcomingSongs.Count || to >= UpcomingSongs.Count)
+            {
+                return;
+            }
+
+            var song = UpcomingSongs[from];
+            UpcomingSongs.Remove(song);
+            UpcomingSongs.Insert(to, song);
+        }
     }
 }

@@ -368,6 +368,7 @@
                       FontSize="12"
                       Foreground="AntiqueWhite"
                       HorizontalAlignment="Left"
+                      Cursor="Hand"
                       Tag="&#xE71D;"
                       Style="{StaticResource RadioExpanderStyle}">
                 <StackPanel>
@@ -417,6 +418,7 @@
                       FontSize="12"
                       Foreground="AntiqueWhite"
                       Tag="&#xEC58;"
+                      Cursor="Hand"
                       Style="{StaticResource RadioExpanderStyle}">
                 <StackPanel>
                     <ListBox ItemsSource="{Binding RadioUpcoming}"
@@ -426,8 +428,7 @@
                              VerticalAlignment="Top"
                              Background="Transparent"
                              BorderBrush="Transparent"
-                             Cursor="Hand"
-                             SelectedIndex="-1">
+                             PreviewMouseMove="ListBox_PreviewMouseMove">
                         <ListBox.ContextMenu>
                             <ContextMenu DataContext="{Binding PlacementTarget.DataContext, 
 		                                                       RelativeSource={RelativeSource Self}}"
@@ -484,6 +485,8 @@
                                         </ControlTemplate>
                                     </Setter.Value>
                                 </Setter>
+                                <Setter Property="AllowDrop" Value="true"/>
+                                <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListBoxItem_PreviewMouseLeftButtonDown"/>
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Setter Property="Background" Value="LightGray"/>

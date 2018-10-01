@@ -23,5 +23,7 @@ namespace MusCat.Core.Interfaces.Radio
         Task MoveToPrevSongAsync();
         Task ChangeSongAsync(long songId);
         Task RemoveSongAsync(long songId);
+
+        void MoveUpcomingSong(int from, int to);
     }
 }

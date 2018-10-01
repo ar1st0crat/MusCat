@@ -161,6 +161,24 @@ namespace MusCat.ViewModels
         }
 
         /// <summary>
+        /// Method moves the song in the list of upcoming songs 
+        /// at certain position to desired position
+        /// </summary>
+        /// <param name="from">Source index</param>
+        /// <param name="to">Target index</param>
+        public void MoveUpcomingSong(int from, int to)
+        {
+            _radio.MoveUpcomingSong(from, to);
+
+            RaisePropertyChanged("RadioUpcoming");
+
+            if (from == 0 || to == 0)
+            {
+                RaisePropertyChanged("NextSong");
+            }
+        }
+
+        /// <summary>
         /// Method starts radio service
         /// </summary>
         public void StartRadio()
