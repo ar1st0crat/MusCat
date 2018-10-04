@@ -15,7 +15,7 @@ namespace MusCat.Views
             InitializeComponent();
         }
 
-        public void SetChoiceList(List<string> list)
+        public void SetChoiceList(IEnumerable<string> list)
         {
             ChoiseListBox.ItemsSource = list;
             ChoiseListBox.SelectedIndex = 0;

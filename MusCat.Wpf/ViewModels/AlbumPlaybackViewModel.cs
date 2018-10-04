@@ -282,10 +282,10 @@ namespace MusCat.ViewModels
         /// user can't edit album info except that he/she can update album rate
         /// by clicking on the 5-star rate control
         /// </summary>
-        private void UpdateRate()
+        private async void UpdateRate()
         {
-            _albumService.UpdateAlbumRate(Album.Id, Album.Rate);
             Performer?.UpdateAlbumCollectionRate(_rateCalculator);
+            await _albumService.UpdateAlbumRateAsync(Album.Id, Album.Rate);
         }
     }
 }

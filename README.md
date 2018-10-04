@@ -33,10 +33,13 @@ Since **MusCat** doesn't store multimedia data in a local database (neither it s
    - ```G:\Others```
    - ```D:\Music```, etc.
 
+
 * The main photo of a performer should be located in the file having the following fullname:
 
 ```ROOTPATH / 1st_letter_of_performer's_name / Performer / Picture / Photo.ext```
+
 or 
+
 ```ROOTPATH / Performer / Picture / Photo.ext```
 
 (Personally I prefer to organize performer/artist folders alphabetically on my local drives). The file extension is irrelevant. The app will try out each of the default root paths. For instance, MusCat may find the photo of a band *Camel* in such files as
@@ -44,12 +47,14 @@ or
    - ```F:\C\Camel\Picture\photo.jpg```
    - ```G:\All\C\Camel\Picture\photo.bmp```
    - ```F:\Camel\Picture\photo.jpeg```
-   - ```G:\All\Camel\Picture\photo.png```
+   - ```G:\All\Camel\Picture\photo.png```, etc.
 
 * The album covers should be located in the files having the following fullname: 
 
 ```ROOTPATH \ 1st_letter_of_performer's_name \ Performer \ Picture \ ID.ext```
+
 or
+
 ```ROOTPATH \ Performer \ Picture \ ID.ext```
 
 The file extension is irrelevant. The ID part should coincide with the album ID stored in database - you may rename the file manually or press the *Load Image From File...* or *Load Image From Clipboard* button and the app will automatically give the file a correct name and place it to the correct folder, for instance:
@@ -57,12 +62,14 @@ The file extension is irrelevant. The ID part should coincide with the album ID 
    - ```F:\C\Camel\Picture\38.jpg```
    - ```G:\All\C\Camel\Picture\126.jpg```
    - ```F:\Camel\Picture\38.jpg```
-   - ```G:\All\Camel\Picture\126.jpg```
+   - ```G:\All\Camel\Picture\126.jpg```, etc.
 
 * Sound files should be located in the folders at the path like this:
 
 ```ROOTPATH \ 1st_letter_of_performer's_name \ Performer \ AlbumFolder```
+
 or 
+
 ```ROOTPATH \ Performer \ AlbumFolder```
 
 The last part of a path should contain the name of an album and the year of album's release in any combination. For instance:
@@ -70,7 +77,7 @@ The last part of a path should contain the name of an album and the year of albu
    - ```F:\C\Camel\2002 - A Nod And A Wink```
    - ```F:\C\Camel\A Nod and a wink [2002]```
    - ```F:\Camel\2002 - A Nod And A Wink```
-   - ```F:\Camel\A Nod and a wink [2002]```
+   - ```F:\Camel\A Nod and a wink [2002]```, etc.
 
 In case of violation of the above-mentioned conventions nothing crucial happens - the only problem is that MusCat won't be able to find appropriate images and sounds and will replace them with built-in default files or simply show a corresponding message.
 

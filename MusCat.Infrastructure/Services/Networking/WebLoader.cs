@@ -91,9 +91,23 @@ namespace MusCat.Infrastructure.Services.Networking
 
                 // find the first link to discogs.com and navigate there
 
-                var linkPos = html.IndexOf("https://www.discogs.com");
+                // for albums with the same name as artist's name (like "Beatles - Beatles")
+                // the first link found will most probably navigate to the artist page (so skip it)
 
-                var link = html.Substring(linkPos, html.IndexOf("&", linkPos + 1) - linkPos);
+                var linkPos = 0;
+                var link = "";
+
+                while (!link.Contains("release"))
+                {
+                    linkPos = html.IndexOf("https://www.discogs.com", linkPos + 1);
+
+                    if (linkPos < 0)
+                    {
+                        throw new Exception("Could not found album info!");
+                    }
+
+                    link = html.Substring(linkPos, html.IndexOf("&", linkPos + 1) - linkPos);
+                }
 
                 response = await client.GetAsync(link).ConfigureAwait(false);
 

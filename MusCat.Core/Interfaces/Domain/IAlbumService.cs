@@ -9,7 +9,8 @@ namespace MusCat.Core.Interfaces.Domain
         Task<Result<Album>> AddAlbumAsync(Album album);
         Task<Result<Album>> RemoveAlbumAsync(long albumId);
         Task<Result<Album>> UpdateAlbumAsync(Album album);
-        Result<Album> UpdateAlbumRate(long albumId, byte? rate);
+        Task<Result<Album>> UpdateAlbumRateAsync(long albumId, byte? rate);
+        Task<Result<Album>> MoveAlbumToPerformerAsync(long albumId, long performerId);
         Task<IEnumerable<Song>> LoadAlbumSongsAsync(long albumId);
     }
 }

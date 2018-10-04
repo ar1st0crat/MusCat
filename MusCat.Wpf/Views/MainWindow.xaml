@@ -513,14 +513,14 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="View album..."
+                        <MenuItem Header="View..."
                                   Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
                                                     Path=PlacementTarget.Tag.ViewAlbumCommand}">
                             <MenuItem.Icon>
                                 <Image Source="{StaticResource ImagePlayButton}" Width="20" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Edit album..."
+                        <MenuItem Header="Edit..."
                                   Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
                                                     Path=PlacementTarget.Tag.EditAlbumCommand}">
                             <MenuItem.Icon>
@@ -534,6 +534,10 @@
                                 <Image Source="{StaticResource ImagePlayButton}" Width="20" />
                             </MenuItem.Icon>
                         </MenuItem>
+                        <Separator/>
+                        <MenuItem Header="Move to"
+                                  Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
+                                                    Path=PlacementTarget.Tag.BeginMoveAlbumCommand}" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
             </ListBox>
@@ -556,6 +560,7 @@
                         <MenuItem Header="Remove" Command="{Binding DeletePerformerCommand}"/>
                         <Separator/>
                         <MenuItem Header="Add album..." Command="{Binding AddAlbumCommand}"/>
+                        <MenuItem Header="Move album here" Command="{Binding MoveAlbumCommand}"/>
                     </ContextMenu>
                 </ListBox.ContextMenu>
             </ListBox>

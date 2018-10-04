@@ -79,18 +79,37 @@ namespace MusCat.Core.Services
             return new Result<Album>(album);
         }
 
-        public Result<Album> UpdateAlbumRate(long albumId, byte? rate)
+        public async Task<Result<Album>> UpdateAlbumRateAsync(long albumId, byte? rate)
         {
-            var album = _unitOfWork.AlbumRepository
-                                   .Get(a => a.Id == albumId)
-                                   .FirstOrDefault();
-
+            var album = (await _unitOfWork.AlbumRepository
+                                          .GetAsync(a => a.Id == albumId)
+                                          .ConfigureAwait(false))
+                                          .FirstOrDefault();
             if (album == null)
             {
                 return new Result<Album>(ResultType.Invalid, "Could not find album!");
             }
 
             album.Rate = rate;
+
+            _unitOfWork.AlbumRepository.Edit(album);
+            _unitOfWork.Save();
+
+            return new Result<Album>(album);
+        }
+
+        public async Task<Result<Album>> MoveAlbumToPerformerAsync(long albumId, long performerId)
+        {
+            var album = (await _unitOfWork.AlbumRepository
+                                          .GetAsync(a => a.Id == albumId)
+                                          .ConfigureAwait(false))
+                                          .FirstOrDefault();
+            if (album == null)
+            {
+                return new Result<Album>(ResultType.Invalid, "Could not find album!");
+            }
+
+            album.PerformerId = performerId;
 
             _unitOfWork.AlbumRepository.Edit(album);
             _unitOfWork.Save();

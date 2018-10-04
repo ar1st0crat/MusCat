@@ -180,8 +180,8 @@ namespace MusCat.ViewModels
 
         public async Task RemoveSongAsync()
         {
-            var message = $"Are you sure you want to delete the song\n" +
-                          $"'{SelectedSong.Name}'\n" +
+            var message = $"Are you sure you want to delete the song " +
+                          $"'{SelectedSong.Name}' " +
                           $"by '{Album.Performer.Name}'?";
 
             if (MessageBox.Show(message, "Confirmation", MessageBoxButton.YesNo) != MessageBoxResult.Yes)
@@ -213,8 +213,8 @@ namespace MusCat.ViewModels
 
         public async Task ClearAllAsync()
         {
-            var message = $"Are you sure you want to delete all songs in the album\n " +
-                          $"'{Album.Name}' \n" +
+            var message = $"Are you sure you want to delete all songs in the album " +
+                          $"'{Album.Name}' " +
                           $"by '{Album.Performer.Name}'?";
 
             if (MessageBox.Show(message, "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)

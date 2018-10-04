@@ -92,7 +92,7 @@ namespace MusCat.Infrastructure.Services
         {
             if (performer == null)
             {
-                return "";
+                return string.Empty;
             }
 
             var regex = new Regex(@"(?i)\b(ph|f)oto.(png|jpe?g|gif|bmp)");
@@ -121,7 +121,34 @@ namespace MusCat.Infrastructure.Services
                 }
             }
 
-            return "";
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="performer"></param>
+        /// <returns></returns>
+        public static string FindPerformerPath(Performer performer)
+        {
+            var path = string.Empty;
+
+            foreach (var rootPath in Pathlist)
+            {
+                path = $@"{rootPath}\{performer.Name[0]}\{performer.Name}";
+
+                if (!Directory.Exists(path))
+                {
+                    path = $@"{rootPath}\{performer.Name}";     // alternative path
+
+                    if (!Directory.Exists(path))
+                    {
+                        continue;
+                    }
+                }
+            }
+
+            return path;
         }
 
         /// <summary>
@@ -173,7 +200,7 @@ namespace MusCat.Infrastructure.Services
         {
             if (album == null)
             {
-                return "";
+                return string.Empty;
             }
 
             var regex = new Regex(@"\b(?i)" + album.Id + ".(png|jpe?g|gif|bmp)");
@@ -202,7 +229,7 @@ namespace MusCat.Infrastructure.Services
                 }
             }
 
-            return "";
+            return string.Empty;
         }
 
         /// <summary>
@@ -244,21 +271,21 @@ namespace MusCat.Infrastructure.Services
 
             return pathlist;
         }
-        
+
         /// <summary>
-        /// A static function for locating a song file in file system
+        /// A static function for locating album folder in file system
         /// </summary>
         /// <param name="song"></param>
-        /// <returns>the actual path of the file with the song if it was found, an empty string otherwise</returns>
-        public static string FindSongPath(Song song)
+        /// <returns>the actual path of the folder with album songs if it was found, an empty string otherwise</returns>
+        public static string FindAlbumPath(Album album)
         {
             foreach (var rootpath in Pathlist)
             {
-                var performerDirectory = $@"{rootpath}\{song.Album.Performer.Name[0]}\{song.Album.Performer.Name}";
+                var performerDirectory = $@"{rootpath}\{album.Performer.Name[0]}\{album.Performer.Name}";
 
                 if (!Directory.Exists(performerDirectory))
                 {
-                    performerDirectory = $@"{rootpath}\{song.Album.Performer.Name}";
+                    performerDirectory = $@"{rootpath}\{album.Performer.Name}";
 
                     if (!Directory.Exists(performerDirectory))
                     {
@@ -267,9 +294,8 @@ namespace MusCat.Infrastructure.Services
                 }
 
                 var albumDirectories = Directory.GetDirectories(performerDirectory)
-                                                .Where(d => d.Contains(song.Album.ReleaseYear.ToString()))
+                                                .Where(d => d.Contains(album.ReleaseYear.ToString()))
                                                 .ToList();
-
                 if (!albumDirectories.Any())
                 {
                     continue;
@@ -277,22 +303,43 @@ namespace MusCat.Infrastructure.Services
 
                 foreach (var dir in albumDirectories)
                 {
-                    var album = Path.GetFileName(dir);
-                    var files = Directory.GetFiles(dir);
+                    var albumPart = Path.GetFileName(dir);
 
                     // Check if album name contains punctuation and eliminate it!
                     // Normalize string - remove punctuation!
 
-                    if (album.NormalizePath().Contains(song.Album.Name.NormalizePath()) &&
-                        // !!!check this as well:
-                        song.TrackNo > 0 && song.TrackNo <= files.Length)
+                    if (albumPart.NormalizePath().Contains(album.Name.NormalizePath()))
                     {
-                        return files[song.TrackNo - 1];
+                        return dir;
                     }
                 }
             }
 
-            return "";
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// A static function for locating a song file in file system
+        /// </summary>
+        /// <param name="song"></param>
+        /// <returns>the actual path of the file with the song if it was found, an empty string otherwise</returns>
+        public static string FindSongPath(Song song)
+        {
+            var albumFolder = FindAlbumPath(song.Album);
+
+            if (albumFolder == string.Empty)
+            {
+                return string.Empty;
+            }
+
+            var files = Directory.GetFiles(albumFolder);
+
+            if (song.TrackNo > 0 && song.TrackNo <= files.Length)
+            {
+                return files[song.TrackNo - 1];
+            }
+
+            return string.Empty;
         }
 
         /// <summary>
