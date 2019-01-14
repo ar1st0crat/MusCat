@@ -122,7 +122,7 @@
         <ImageBrush ImageSource="{Binding Album.ImagePath,
                                           Converter={StaticResource AlbumImageConverter},
                                           ConverterParameter={StaticResource AlbumHeight}}"
-                    Opacity=".25"
+                    Opacity="{Binding WindowOpacity}"
                     Stretch="UniformToFill"/>
     </Window.Background>
     
@@ -133,7 +133,41 @@
             <RowDefinition Height="60" />
         </Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="0" HorizontalAlignment="Right">
+        <Button Grid.Row="0"
+                HorizontalAlignment="Left"
+                Margin="12"
+                Background="Transparent"
+                BorderBrush="Transparent"
+                FontFamily="Segoe MDL2 Assets"
+                FontSize="22"
+                Cursor="Hand"
+                Command="{Binding SwitchViewModeCommand}">
+            &#xEDE3;
+            <Button.Style>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type Button}">
+                                <Border Background="{TemplateBinding Background}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="Gray"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+        <DockPanel Grid.Row="0"
+                   HorizontalAlignment="Right"
+                   Visibility="{Binding IsTracklistVisible}">
             <StackPanel VerticalAlignment="Center">
                 <TextBlock Text="{Binding Album.Rate, Converter={StaticResource AlbumRateConverter}}"
                            Foreground="Gold" Background="Transparent"
@@ -150,6 +184,7 @@
         </DockPanel>
         
         <ListBox Grid.Row="1"
+                 Visibility="{Binding IsTracklistVisible}"
                  ItemsSource="{Binding Songs}"
                  ItemContainerStyle="{StaticResource SongStyle}"
                  SelectedValue="{Binding Path=SelectedSong, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -165,8 +200,9 @@
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
             </ListBox.Resources>
         </ListBox>
-        
-        <DockPanel Grid.Row="2">
+
+        <DockPanel Grid.Row="2"
+                   Visibility="{Binding IsTracklistVisible}">
             <DockPanel HorizontalAlignment="Left" Margin="10,0,0,0">
                 <Label Content="{Binding Album.ReleaseYear}"
                        VerticalAlignment="Center"

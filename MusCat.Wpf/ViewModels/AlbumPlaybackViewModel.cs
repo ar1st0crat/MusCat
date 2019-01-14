@@ -78,6 +78,28 @@ namespace MusCat.ViewModels
             }
         }
 
+        private double _windowOpacity = 0.25;
+        public double WindowOpacity
+        {
+            get { return _windowOpacity; }
+            set
+            {
+                _windowOpacity = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private Visibility _isTracklistVisible = Visibility.Visible;
+        public Visibility IsTracklistVisible
+        {
+            get { return _isTracklistVisible; }
+            set
+            {
+                _isTracklistVisible = value;
+                RaisePropertyChanged();
+            }
+        }
+
         /// <summary>
         /// Audio player
         /// </summary>
@@ -96,7 +118,7 @@ namespace MusCat.ViewModels
                 _playbackPercentage = value;
                 RaisePropertyChanged();
 
-                TimePlayed = $"{(int)(_player.PlayedTime / 60)}:{_player.PlayedTime % 60:00}";
+                TimePlayed = $"{(int)_player.PlayedTime / 60}:{(int)_player.PlayedTime % 60:00}";
             }
         }
 
@@ -108,6 +130,7 @@ namespace MusCat.ViewModels
         public RelayCommand StartDragCommand { get; private set; }
         public RelayCommand StopDragCommand { get; private set; }
         public RelayCommand UpdateRateCommand { get; private set; }
+        public RelayCommand SwitchViewModeCommand { get; private set; }
 
         // This variable is set to true while the slider thumb is being dragged
         // (Binding the event "Thumb.DragCompleted" in XAML to any command 
@@ -136,6 +159,12 @@ namespace MusCat.ViewModels
             PlaybackCommand = new RelayCommand(PlaybackSongAction);
             UpdateRateCommand = new RelayCommand(UpdateRate);
             SeekPlaybackPositionCommand = new RelayCommand(SeekPlaybackPosition);
+
+            SwitchViewModeCommand = new RelayCommand(() =>
+            {
+                WindowOpacity = WindowOpacity > 0.25 ? 0.25 : 1;
+                IsTracklistVisible = IsTracklistVisible == Visibility.Hidden ? Visibility.Visible : Visibility.Hidden;
+            });
 
             // StopAndDispose media player when the window is closing to avoid a memory leak
             WindowClosingCommand = new RelayCommand(() =>
