@@ -4,8 +4,8 @@ namespace MusCat.Core.Entities
 {
     public class Musician
     {
-        public long Id { get; set; }
-        public long? PerformerId { get; set; }
+        public int Id { get; set; }
+        public int? PerformerId { get; set; }
         public string Name { get; set; }
         public string Info { get; set; }
         public short? YearBorn { get; set; }

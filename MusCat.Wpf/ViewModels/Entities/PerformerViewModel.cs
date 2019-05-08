@@ -10,7 +10,7 @@ namespace MusCat.ViewModels.Entities
 {
     public class PerformerViewModel : ViewModelBase
     {
-        public long Id { get; set; }
+        public int Id { get; set; }
 
         private string _name;
         public string Name

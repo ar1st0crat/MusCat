@@ -15,8 +15,8 @@
             }
         }
 
-        private long _performerCount;
-        public long PerformerCount
+        private int _performerCount;
+        public int PerformerCount
         {
             get { return _performerCount; }
             set

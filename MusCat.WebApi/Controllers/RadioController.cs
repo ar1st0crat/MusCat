@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -8,8 +7,6 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using System.Web.Mvc;
-using System.Web.UI.WebControls;
 using MusCat.Infrastructure.Data;
 using MusCat.Infrastructure.Services;
 using MusCat.Core.Interfaces.Radio;
@@ -25,9 +22,9 @@ namespace MusCat.WebApi.Controllers
         private static ConcurrentBag<StreamWriter> _clients;
         private static Timer _timer;
 
-        static RadioController() //IRadioService radioService)
+        static RadioController()//IRadioService radioService)
         {
-            //_radioService = radioService;
+            //RadioService = radioService;
             RadioService.MakeSonglist();
 
             //_clients = new ConcurrentBag<StreamWriter>();
@@ -41,7 +38,7 @@ namespace MusCat.WebApi.Controllers
             //_timer.Start();
         }
 
-        [System.Web.Http.HttpGet]
+        [HttpGet]
         public HttpResponseMessage Stream(HttpRequestMessage request)
         {
             var response = Request.CreateResponse();
@@ -63,8 +60,8 @@ namespace MusCat.WebApi.Controllers
             //return response;
         }
 
-        [System.Web.Http.HttpGet]
-        [System.Web.Http.Route("api/radio/current")]
+        [HttpGet]
+        [Route("api/radio/current")]
         public HttpResponseMessage Current(HttpRequestMessage request)
         {
             var song = RadioService.CurrentSong;
@@ -81,9 +78,9 @@ namespace MusCat.WebApi.Controllers
             return response;
         }
 
-        [System.Web.Http.HttpGet]
-        [System.Web.Http.Route("api/radio/albumcover/{id}")]
-        public HttpResponseMessage AlbumCover(long id)
+        [HttpGet]
+        [Route("api/radio/albumcover/{id}")]
+        public HttpResponseMessage AlbumCover(int id)
         {
             var unitOfWork = new UnitOfWork(
                 ConfigurationManager.ConnectionStrings["MusCatDbContext"].ConnectionString);
@@ -110,8 +107,8 @@ namespace MusCat.WebApi.Controllers
             return response;
         }
 
-        [System.Web.Http.HttpGet]
-        [System.Web.Http.Route("api/radio/upcoming")]
+        [HttpGet]
+        [Route("api/radio/upcoming")]
         public HttpResponseMessage Upcoming(HttpRequestMessage request)
         {
             var archive = from song in RadioService.UpcomingSongs.Take(8)
@@ -128,8 +125,8 @@ namespace MusCat.WebApi.Controllers
             return response;
         }
 
-        [System.Web.Http.HttpGet]
-        [System.Web.Http.Route("api/radio/archive")]
+        [HttpGet]
+        [Route("api/radio/archive")]
         public HttpResponseMessage Archive(HttpRequestMessage request)
         {
             var archive = from song in RadioService.SongArchive
@@ -145,8 +142,8 @@ namespace MusCat.WebApi.Controllers
             return response;
         }
 
-        [System.Web.Http.HttpGet]
-        [System.Web.Http.Route("api/radio/next")]
+        [HttpGet]
+        [Route("api/radio/next")]
         public async Task NextAsync()
         {
             await RadioService.MoveToNextSongAsync();

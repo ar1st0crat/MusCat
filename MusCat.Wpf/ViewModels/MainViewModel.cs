@@ -71,8 +71,8 @@ namespace MusCat.ViewModels
 
         public int AlbumCount => SelectedPerformer.Albums.Count;
 
-        private long _songCount;
-        public long SongCount
+        private int _songCount;
+        public int SongCount
         {
             get { return _songCount; }
             set
@@ -361,12 +361,12 @@ namespace MusCat.ViewModels
                 if (_filter != PerformerFilters.FilterByAlbumPattern)
                 {
                     albums = await _unitOfWork.PerformerRepository
-                                              .GetPerformerAlbumsAsync(performer);
+                                              .GetPerformerAlbumsAsync(performer.Id);
                 }
                 else
                 {
                     albums = await _unitOfWork.PerformerRepository
-                                              .GetPerformerAlbumsAsync(performer, AlbumPattern);
+                                              .GetPerformerAlbumsAsync(performer.Id, AlbumPattern);
                 }
 
                 performerViewModel.Albums = Mapper.Map<ObservableCollection<AlbumViewModel>>(albums);

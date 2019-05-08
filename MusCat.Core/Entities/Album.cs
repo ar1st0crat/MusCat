@@ -6,8 +6,8 @@ namespace MusCat.Core.Entities
 {
     public class Album : IDataErrorInfo
     {
-        public long Id { get; set; }
-        public long PerformerId { get; set; }
+        public int Id { get; set; }
+        public int PerformerId { get; set; }
         public string Name { get; set; }
         public short ReleaseYear { get; set; }
         public string TotalTime { get; set; }
@@ -23,7 +23,7 @@ namespace MusCat.Core.Entities
 
         #region IDataErrorInfo methods
 
-        public const int MaxNameLength = 40;
+        public const int MaxNameLength = 50;
 
         public string Error
         {

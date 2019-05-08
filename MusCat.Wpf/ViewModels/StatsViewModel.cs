@@ -16,8 +16,8 @@ namespace MusCat.ViewModels
     {
         private readonly IStatsService _stats;
 
-        private long _performerCount;
-        public long PerformerCount
+        private int _performerCount;
+        public int PerformerCount
         {
             get { return _performerCount; }
             set
@@ -27,8 +27,8 @@ namespace MusCat.ViewModels
             }
         }
 
-        private long _albumCount;
-        public long AlbumCount
+        private int _albumCount;
+        public int AlbumCount
         {
             get { return _albumCount; }
             set
@@ -38,8 +38,8 @@ namespace MusCat.ViewModels
             }
         }
 
-        private long _songCount;
-        public long SongCount
+        private int _songCount;
+        public int SongCount
         {
             get { return _songCount; }
             set

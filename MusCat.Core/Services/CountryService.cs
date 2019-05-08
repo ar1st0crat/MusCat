@@ -17,7 +17,7 @@ namespace MusCat.Core.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<long> GetPerformersCountAsync(byte countryId)
+        public async Task<int> GetPerformersCountAsync(int countryId)
         {
             return await _unitOfWork.PerformerRepository
                                     .CountAsync(p => p.CountryId == countryId)
@@ -43,13 +43,13 @@ namespace MusCat.Core.Services
                     "The specified country is already in the list!");
             }
 
-            await _unitOfWork.CountryRepository.AddAsync(country).ConfigureAwait(false);
+            _unitOfWork.CountryRepository.Add(country);
             await _unitOfWork.SaveAsync().ConfigureAwait(false);
 
             return new Result<Country>(country);
         }
 
-        public async Task<Result<Country>> RemoveCountryAsync(byte countryId)
+        public async Task<Result<Country>> RemoveCountryAsync(int countryId)
         {
             var countries = await _unitOfWork.CountryRepository
                                              .GetAsync(c => c.Id == countryId)
@@ -68,7 +68,7 @@ namespace MusCat.Core.Services
             return new Result<Country>(country);
         }
 
-        public async Task<Result<Country>> UpdateCountryAsync(byte countryId, string name)
+        public async Task<Result<Country>> UpdateCountryAsync(int countryId, string name)
         {
             var country = new Country { Name = name };
 

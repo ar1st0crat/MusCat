@@ -6,8 +6,8 @@ namespace MusCat.ViewModels.Entities
 {
     public class SongViewModel : ViewModelBase, IDataErrorInfo
     {
-        public long Id { get; set; }
-        public long AlbumId { get; set; }
+        public int Id { get; set; }
+        public int AlbumId { get; set; }
 
         private byte _trackNo;
         public byte TrackNo

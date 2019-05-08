@@ -24,13 +24,13 @@ namespace MusCat.Core.Services
                 return new Result<Song>(ResultType.Invalid, Song.Error);
             }
 
-            await _unitOfWork.SongRepository.AddAsync(Song).ConfigureAwait(false);
+            _unitOfWork.SongRepository.Add(Song);
             await _unitOfWork.SaveAsync().ConfigureAwait(false);
 
             return new Result<Song>(Song);
         }
 
-        public async Task<Result<Song>> RemoveSongAsync(long SongId)
+        public async Task<Result<Song>> RemoveSongAsync(int SongId)
         {
             var Songs = await _unitOfWork.SongRepository
                                          .GetAsync(c => c.Id == SongId)

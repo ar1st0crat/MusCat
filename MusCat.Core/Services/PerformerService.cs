@@ -24,13 +24,13 @@ namespace MusCat.Core.Services
                 return new Result<Performer>(ResultType.Invalid, performer.Error);
             }
 
-            await _unitOfWork.PerformerRepository.AddAsync(performer).ConfigureAwait(false);
+            _unitOfWork.PerformerRepository.Add(performer);
             await _unitOfWork.SaveAsync().ConfigureAwait(false);
 
             return new Result<Performer>(performer);
         }
 
-        public async Task<Result<Performer>> RemovePerformerAsync(long performerId)
+        public async Task<Result<Performer>> RemovePerformerAsync(int performerId)
         {
             var performers = await _unitOfWork.PerformerRepository
                                               .GetAsync(c => c.Id == performerId)
@@ -75,7 +75,7 @@ namespace MusCat.Core.Services
             return new Result<Performer>(performer);
         }
 
-        public async Task<Result<Album>> AddAlbumAsync(long performerId, Album newAlbum)
+        public async Task<Result<Album>> AddAlbumAsync(int performerId, Album newAlbum)
         {
             var album = new Album
             {
@@ -85,13 +85,13 @@ namespace MusCat.Core.Services
                 ReleaseYear = newAlbum.ReleaseYear
             };
 
-            await _unitOfWork.AlbumRepository.AddAsync(album).ConfigureAwait(false);
+            _unitOfWork.AlbumRepository.Add(album);
             await _unitOfWork.SaveAsync().ConfigureAwait(false);
 
             return new Result<Album>(album);
         }
 
-        public async Task<Result<Country>> GetCountryAsync(long performerId)
+        public async Task<Result<Country>> GetCountryAsync(int performerId)
         {
             var performers =
                 await _unitOfWork.PerformerRepository
@@ -107,7 +107,7 @@ namespace MusCat.Core.Services
             return new Result<Country>(countries.FirstOrDefault());
         }
 
-        public async Task<long> SongCountAsync(long performerId)
+        public async Task<int> SongCountAsync(int performerId)
         {
             return await _unitOfWork.SongRepository
                                     .CountAsync(s => s.Album.PerformerId == performerId)

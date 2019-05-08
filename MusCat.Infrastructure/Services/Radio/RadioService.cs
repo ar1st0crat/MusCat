@@ -103,7 +103,7 @@ namespace MusCat.Infrastructure.Services.Radio
         /// <summary>
         /// Method just replaces song (addressed by its ID) with the new randomly selected song 
         /// </summary>
-        public void ChangeSong(long songId)
+        public void ChangeSong(int songId)
         {
             for (var i = 0; i < MaxSongs; i++)
             {
@@ -122,7 +122,7 @@ namespace MusCat.Infrastructure.Services.Radio
         /// Method removes song by its ID from the list of upcoming songs
         /// and adds new randonly selected song to the list (to keep its size constant)
         /// </summary>
-        public void RemoveSong(long songId)
+        public void RemoveSong(int songId)
         {
             for (var i = 0; i < MaxSongs; i++)
             {
@@ -202,7 +202,7 @@ namespace MusCat.Infrastructure.Services.Radio
             MoveToPrevSong();
         }
 
-        public async Task ChangeSongAsync(long songId)
+        public async Task ChangeSongAsync(int songId)
         {
             for (var i = 0; i < MaxSongs; i++)
             {
@@ -218,7 +218,7 @@ namespace MusCat.Infrastructure.Services.Radio
             }
         }
 
-        public async Task RemoveSongAsync(long songId)
+        public async Task RemoveSongAsync(int songId)
         {
             for (var i = 0; i < MaxSongs; i++)
             {

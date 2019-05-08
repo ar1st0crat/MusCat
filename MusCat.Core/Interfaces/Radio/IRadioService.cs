@@ -15,14 +15,14 @@ namespace MusCat.Core.Interfaces.Radio
         void MakeSonglist();
         void MoveToNextSong();
         void MoveToPrevSong();
-        void ChangeSong(long songId);
-        void RemoveSong(long songId);
+        void ChangeSong(int songId);
+        void RemoveSong(int songId);
 
         Task MakeSonglistAsync();
         Task MoveToNextSongAsync();
         Task MoveToPrevSongAsync();
-        Task ChangeSongAsync(long songId);
-        Task RemoveSongAsync(long songId);
+        Task ChangeSongAsync(int songId);
+        Task RemoveSongAsync(int songId);
 
         void MoveUpcomingSong(int from, int to);
     }

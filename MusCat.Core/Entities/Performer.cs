@@ -5,10 +5,10 @@ namespace MusCat.Core.Entities
 {
     public class Performer : IDataErrorInfo
     {
-        public long Id { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Info { get; set; }
-        public byte? CountryId { get; set; }
+        public int? CountryId { get; set; }
         public ICollection<Album> Albums { get; set; }
         public Country Country { get; set; }
         public ICollection<Lineup> Lineups { get; set; }

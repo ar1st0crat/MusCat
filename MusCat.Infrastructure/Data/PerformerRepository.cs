@@ -93,12 +93,12 @@ namespace MusCat.Infrastructure.Data
         }
 
         public async Task<IEnumerable<Album>>
-            GetPerformerAlbumsAsync(Performer performer, string albumPattern = null)
+            GetPerformerAlbumsAsync(int performerId, string albumPattern = null)
         {
             if (albumPattern != null)
             {
                 return await Context.Albums
-                                    .Where(a => a.PerformerId == performer.Id)
+                                    .Where(a => a.PerformerId == performerId)
                                     .Where(a => a.Name.ToLower().Contains(albumPattern.ToLower()))
                                     .OrderBy(a => a.ReleaseYear)
                                     .ThenBy(a => a.Name)
@@ -108,7 +108,7 @@ namespace MusCat.Infrastructure.Data
             else
             {
                 return await Context.Albums
-                                    .Where(a => a.PerformerId == performer.Id)
+                                    .Where(a => a.PerformerId == performerId)
                                     .OrderBy(a => a.ReleaseYear)
                                     .ThenBy(a => a.Name)
                                     .ToListAsync()

@@ -62,7 +62,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\ManualAutoIncrement.cs" />
     <Compile Include="Data\MusCatDbContext.cs" />
     <Compile Include="Data\PerformerRepository.cs" />
     <Compile Include="Data\Repository.cs" />

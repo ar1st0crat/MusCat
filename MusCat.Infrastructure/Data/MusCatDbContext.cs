@@ -23,7 +23,7 @@ namespace MusCat.Infrastructure.Data
         {
             modelBuilder.Entity<Album>()
                 .Property(e => e.Id)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             modelBuilder.Entity<Album>()
                 .Property(e => e.Name)
@@ -42,10 +42,18 @@ namespace MusCat.Infrastructure.Data
                 .IsUnicode(false);
 
             modelBuilder.Entity<Country>()
+                .Property(e => e.Id)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+
+            modelBuilder.Entity<Country>()
                 .Property(e => e.Name)
                 .HasMaxLength(Country.MaxNameLength)
                 .IsRequired()
                 .IsUnicode(false);
+
+            modelBuilder.Entity<Genre>()
+                .Property(e => e.Id)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             modelBuilder.Entity<Genre>()
                 .Property(e => e.Name)
@@ -72,6 +80,10 @@ namespace MusCat.Infrastructure.Data
                 .HasColumnOrder(1);
 
             modelBuilder.Entity<Musician>()
+                .Property(e => e.Id)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+
+            modelBuilder.Entity<Musician>()
                 .Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(40)
@@ -84,7 +96,7 @@ namespace MusCat.Infrastructure.Data
 
             modelBuilder.Entity<Performer>()
                 .Property(e => e.Id)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             modelBuilder.Entity<Performer>()
                 .Property(e => e.Name)
@@ -99,7 +111,7 @@ namespace MusCat.Infrastructure.Data
 
             modelBuilder.Entity<Song>()
                .Property(e => e.Id)
-               .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+               .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             modelBuilder.Entity<Song>()
                 .Property(e => e.Name)

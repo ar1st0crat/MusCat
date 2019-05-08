@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using AutoMapper;
 using MusCat.Core.Entities;
-using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Interfaces.Domain;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
@@ -47,7 +46,7 @@ namespace MusCat.ViewModels
             }
         }
 
-        public byte? SelectedCountryId { get; set; }
+        public int? SelectedCountryId { get; set; }
 
         public ObservableCollection<Genre> Genres { get; set; }
         

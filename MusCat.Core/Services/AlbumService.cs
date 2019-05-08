@@ -25,13 +25,13 @@ namespace MusCat.Core.Services
                 return new Result<Album>(ResultType.Invalid, album.Error);
             }
 
-            await _unitOfWork.AlbumRepository.AddAsync(album).ConfigureAwait(false);
+            _unitOfWork.AlbumRepository.Add(album);
             await _unitOfWork.SaveAsync().ConfigureAwait(false);
 
             return new Result<Album>(album);
         }
 
-        public async Task<Result<Album>> RemoveAlbumAsync(long albumId)
+        public async Task<Result<Album>> RemoveAlbumAsync(int albumId)
         {
             var albums = await _unitOfWork.AlbumRepository
                                          .GetAsync(a => a.Id == albumId)
@@ -79,7 +79,7 @@ namespace MusCat.Core.Services
             return new Result<Album>(album);
         }
 
-        public async Task<Result<Album>> UpdateAlbumRateAsync(long albumId, byte? rate)
+        public async Task<Result<Album>> UpdateAlbumRateAsync(int albumId, byte? rate)
         {
             var album = (await _unitOfWork.AlbumRepository
                                           .GetAsync(a => a.Id == albumId)
@@ -98,7 +98,7 @@ namespace MusCat.Core.Services
             return new Result<Album>(album);
         }
 
-        public async Task<Result<Album>> MoveAlbumToPerformerAsync(long albumId, long performerId)
+        public async Task<Result<Album>> MoveAlbumToPerformerAsync(int albumId, int performerId)
         {
             var album = (await _unitOfWork.AlbumRepository
                                           .GetAsync(a => a.Id == albumId)
@@ -120,7 +120,7 @@ namespace MusCat.Core.Services
         /// <summary>
         /// This version loads all album songs including Album and Album.Performer fields
         /// </summary>
-        public async Task<IEnumerable<Song>> LoadAlbumSongsAsync(long albumId)
+        public async Task<IEnumerable<Song>> LoadAlbumSongsAsync(int albumId)
         {
             var albums = await _unitOfWork.AlbumRepository
                                           .GetAsync(a => a.Id == albumId)
