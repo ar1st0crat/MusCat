@@ -153,7 +153,10 @@ namespace MusCat.Infrastructure.Services.Radio
             // ...and while it isn't present in archive of recently played songs and upcoming songs
             do
             {
-                if (attempts++ == maxAttempts) return null;
+                if (attempts++ == maxAttempts)
+                {
+                    return _songSelector.DefaultSong();
+                }
                 song = _songSelector.SelectSong();
             }
             while (SongArchive.Any(s => s.Id == song.Id)    // true, if the archive already contains this song
@@ -247,7 +250,10 @@ namespace MusCat.Infrastructure.Services.Radio
             // ...and while it isn't present in archive of recently played songs and upcoming songs
             do
             {
-                if (attempts++ == maxAttempts) return null;
+                if (attempts++ == maxAttempts)
+                {
+                    return _songSelector.DefaultSong();
+                }
                 song = await _songSelector.SelectSongAsync().ConfigureAwait(false);
             }
             while (SongArchive.Any(s => s.Id == song.Id)    // true, if the archive already contains this song

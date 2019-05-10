@@ -9,12 +9,13 @@ using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Audio;
 using MusCat.Core.Interfaces.Data;
-using MusCat.Core.Interfaces.Domain;
 using MusCat.Core.Interfaces.Networking;
 using MusCat.Core.Interfaces.Radio;
 using MusCat.Core.Interfaces.Tracklist;
 using MusCat.Core.Interfaces.Stats;
 using MusCat.Core.Services;
+using MusCat.Application.Interfaces;
+using MusCat.Infrastructure.Business;
 using MusCat.Infrastructure.Data;
 using MusCat.Infrastructure.Services;
 using MusCat.Infrastructure.Services.Audio;
@@ -24,13 +25,14 @@ using MusCat.Infrastructure.Services.Tracklist;
 using MusCat.Infrastructure.Services.Stats;
 using MusCat.ViewModels;
 using MusCat.ViewModels.Entities;
+using MusCat.Application.Dto;
 
 namespace MusCat
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : System.Windows.Application
     {
         public static IContainer DiContainer { get; set; }
 
@@ -81,9 +83,16 @@ namespace MusCat
             {
                 cfg.AddCollectionMappers();
 
+                cfg.AddProfile<Infrastructure.InfrastructureProfile>();
+
                 cfg.CreateMap<Performer, PerformerViewModel>()
                    .EqualityComparison((src, dest) => src.Id == dest.Id)
                    .ForMember(m => m.Albums, opt => opt.Ignore())
+                   .AfterMap((src, dest) => dest.LocateImagePath())
+                   .ReverseMap();
+
+                cfg.CreateMap<PerformerDto, PerformerViewModel>()
+                   .EqualityComparison((src, dest) => src.Id == dest.Id)
                    .AfterMap((src, dest) => dest.LocateImagePath())
                    .ReverseMap();
 
@@ -92,15 +101,21 @@ namespace MusCat
                    .AfterMap((src, dest) => dest.LocateImagePath())
                    .ReverseMap();
 
+                cfg.CreateMap<AlbumDto, AlbumViewModel>()
+                   .EqualityComparison((src, dest) => src.Id == dest.Id)
+                   .AfterMap((src, dest) => dest.LocateImagePath())
+                   .ReverseMap();
+
                 cfg.CreateMap<Song, SongViewModel>()
+                   .EqualityComparison((src, dest) => src.Id == dest.Id)
+                   .ReverseMap();
+
+                cfg.CreateMap<Song, SongDto>()
                    .EqualityComparison((src, dest) => src.Id == dest.Id)
                    .ReverseMap();
 
                 cfg.CreateMap<Song, RadioSongViewModel>()
                    .AfterMap((src, dest) => dest.LocateAlbumImagePath(src.Album));
-
-                cfg.CreateMap<Country, CountryViewModel>()
-                   .EqualityComparison((src, dest) => src.Id == dest.Id);
 
                 cfg.CreateMap<SongViewModel, Track>()
                    .EqualityComparison((src, dest) => src.TrackNo == dest.No)
@@ -110,10 +125,13 @@ namespace MusCat
 
                 cfg.CreateMap<Track, SongViewModel>()
                    .EqualityComparison((src, dest) => src.No == dest.TrackNo)
-                   .ForMember(dest => dest.Id, opt => opt.UseValue(-1))
+                   .ForMember(dest => dest.Id, opt => opt.MapFrom(src => -1))
                    .ForMember(dest => dest.TrackNo, opt => opt.MapFrom(src => src.No))
                    .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Title))
                    .ForMember(dest => dest.TimeLength, opt => opt.MapFrom(src => src.Duration));
+
+                cfg.CreateMap<CountryDto, CountryViewModel>()
+                   .EqualityComparison((src, dest) => src.Id == dest.Id);
             });
         }
 

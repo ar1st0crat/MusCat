@@ -62,17 +62,7 @@
     <Compile Include="Interfaces\Tracklist\ITracklistHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interfaces\IRateCalculator.cs" />
-    <Compile Include="Services\AlbumService.cs" />
-    <Compile Include="Services\CountryService.cs" />
-    <Compile Include="Interfaces\Domain\IAlbumService.cs" />
-    <Compile Include="Interfaces\Domain\ICountryService.cs" />
-    <Compile Include="Interfaces\Domain\IPerformerService.cs" />
-    <Compile Include="Interfaces\Domain\ISongService.cs" />
-    <Compile Include="Services\PerformerService.cs" />
     <Compile Include="Services\RateCalculator.cs" />
-    <Compile Include="Interfaces\Domain\Result.cs" />
-    <Compile Include="Interfaces\Domain\ResultType.cs" />
-    <Compile Include="Services\SongService.cs" />
     <Compile Include="Util\Guard.cs" />
   </ItemGroup>
   <ItemGroup />

@@ -1,13 +1,14 @@
 ﻿using Autofac;
 using Autofac.Integration.WebApi;
+using MusCat.Application.Interfaces;
 using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Data;
-using MusCat.Core.Interfaces.Domain;
 using MusCat.Core.Interfaces.Networking;
 using MusCat.Core.Interfaces.Radio;
 using MusCat.Core.Interfaces.Stats;
 using MusCat.Core.Interfaces.Tracklist;
 using MusCat.Core.Services;
+using MusCat.Infrastructure.Business;
 using MusCat.Infrastructure.Data;
 using MusCat.Infrastructure.Services.Networking;
 using MusCat.Infrastructure.Services.Radio;

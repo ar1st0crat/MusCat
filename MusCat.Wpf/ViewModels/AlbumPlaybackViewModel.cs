@@ -4,10 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using AutoMapper;
+using MusCat.Application.Interfaces;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Audio;
-using MusCat.Core.Interfaces.Domain;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
 using MusCat.Util;
@@ -182,8 +183,9 @@ namespace MusCat.ViewModels
         {
             _isLoading = true;
 
-            Songs = new ObservableCollection<Song>(
-                await _albumService.LoadAlbumSongsAsync(Album.Id));
+            var songs = await _albumService.GetAlbumSongsAsync(Album.Id);
+
+            Songs = Mapper.Map<ObservableCollection<Song>>(songs);
 
             _isLoading = false;
             SelectedSong = null;

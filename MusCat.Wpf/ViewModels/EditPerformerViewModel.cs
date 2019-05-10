@@ -5,16 +5,17 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using AutoMapper;
 using MusCat.Core.Entities;
-using MusCat.Core.Interfaces.Domain;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
 using MusCat.Util;
 using MusCat.ViewModels.Entities;
 using MusCat.Views;
+using MusCat.Core.Interfaces.Networking;
+using MusCat.Application.Interfaces;
 using Clipboard = System.Windows.Clipboard;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
-using MusCat.Core.Interfaces.Networking;
+
 
 namespace MusCat.ViewModels
 {
@@ -76,19 +77,17 @@ namespace MusCat.ViewModels
             var performer = Mapper.Map<Performer>(Performer);
             performer.CountryId = SelectedCountryId;
 
-            if (!string.IsNullOrEmpty(performer.Error))
+            var result = await _performerService.UpdatePerformerAsync(Performer.Id, performer);
+
+            if (result.Type != ResultType.Ok)
             {
                 MessageBox.Show(performer.Error);
                 Performer.Name = "Unknown";
                 return;
             }
 
-            await _performerService.UpdatePerformerAsync(performer);
-
-            Performer.Country = (await _performerService.GetCountryAsync(Performer.Id)).Data;
-
+            Performer.Country = Mapper.Map<Country>(result.Data.Country);
             Performer.ImagePath = FileLocator.GetPerformerImagePath(performer);
-
             RaisePropertyChanged("Performer");
         }
 

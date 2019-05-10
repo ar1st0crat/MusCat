@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusCat.Wpf", "MusCat.Wpf\MusCat.Wpf.csproj", "{540190C4-CDF9-42CD-A8B6-B7CC047E7C01}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusCat.Infrastructure", "MusCat.Infrastructure\MusCat.Infrastructure.csproj", "{DC4A69D8-0A5B-4834-A30E-C616DF769329}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusCat.WebApi", "MusCat.WebApi\MusCat.WebApi.csproj", "{7018F717-55E2-4F04-92BE-00C187CF9A9D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusCat.Application", "MusCat.Application\MusCat.Application.csproj", "{254F22B7-9FE5-4DDE-BD10-10B6A68CF69D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,8 +41,15 @@ Global
 		{7018F717-55E2-4F04-92BE-00C187CF9A9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7018F717-55E2-4F04-92BE-00C187CF9A9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7018F717-55E2-4F04-92BE-00C187CF9A9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{254F22B7-9FE5-4DDE-BD10-10B6A68CF69D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{254F22B7-9FE5-4DDE-BD10-10B6A68CF69D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{254F22B7-9FE5-4DDE-BD10-10B6A68CF69D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{254F22B7-9FE5-4DDE-BD10-10B6A68CF69D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D799CE38-4142-4218-9144-0A192EA63AEB}
 	EndGlobalSection
 EndGlobal

@@ -9,7 +9,6 @@ using AutoMapper;
 using Microsoft.Win32;
 using MusCat.Core.Entities;
 using MusCat.Core.Services;
-using MusCat.Core.Interfaces.Domain;
 using MusCat.Core.Interfaces.Tracklist;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
@@ -17,6 +16,7 @@ using MusCat.Util;
 using MusCat.ViewModels.Entities;
 using MusCat.Views;
 using MusCat.Core.Interfaces.Networking;
+using MusCat.Application.Interfaces;
 
 namespace MusCat.ViewModels
 {
@@ -109,7 +109,7 @@ namespace MusCat.ViewModels
         public async Task LoadSongsAsync()
         {
             Songs = Mapper.Map<ObservableCollection<SongViewModel>>(
-                await _albumService.LoadAlbumSongsAsync(Album.Id));
+                await _albumService.GetAlbumSongsAsync(Album.Id));
         }
 
         public async Task SaveSongAsync()
@@ -175,7 +175,7 @@ namespace MusCat.ViewModels
 
         private async Task SaveAlbumInformationAsync()
         {
-            await _albumService.UpdateAlbumAsync(Mapper.Map<Album>(Album));
+            await _albumService.UpdateAlbumAsync(Album.Id, Mapper.Map<Album>(Album));
         }
 
         public async Task RemoveSongAsync()

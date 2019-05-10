@@ -1,59 +1,55 @@
 ﻿using MusCat.Core.Entities;
-using MusCat.Core.Interfaces.Data;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Linq;
-using MusCat.Core.Interfaces.Domain;
+using MusCat.Application.Interfaces;
+using MusCat.Application.Dto;
 
 namespace MusCat.WebApi.Controllers
 {
     public class AlbumsController : ApiController
     {
-        private IUnitOfWork _unitOfWork;
         private IAlbumService _albumService;
 
-        public AlbumsController(IUnitOfWork unitOfWork, IAlbumService albumService)
+        public AlbumsController(IAlbumService albumService)
         {
-            _unitOfWork = unitOfWork;
             _albumService = albumService;
         }
 
         // GET: api/Albums
-        public async Task<IEnumerable<Album>> GetAsync()
+        public async Task<IEnumerable<AlbumDto>> Get()
         {
-            return await _unitOfWork.AlbumRepository.GetAllAsync();
-        }
-
-        [Route("api/performer/{id}/Albums")]
-        public async Task<IEnumerable<Album>> GetPerformerAlbumsAsync(int id)
-        {
-            return await _unitOfWork.PerformerRepository
-                                    .GetPerformerAlbumsAsync(id);
+            return await _albumService.GetAllAlbumsAsync();
         }
 
         // GET: api/Albums/5
-        public Album Get(int id)
+        public async Task<Result<AlbumDto>> Get(int id)
         {
-            return _unitOfWork.AlbumRepository.Get(a => a.Id == id).FirstOrDefault();
+            return await _albumService.GetAlbumAsync(id);
+        }
+
+        [Route("api/Albums/{id}/Songs")]
+        public async Task<IEnumerable<SongDto>> GetAlbumSongs(int id)
+        {
+            return await _albumService.GetAlbumSongsAsync(id);
         }
 
         // POST: api/Albums
-        public async Task Post([FromBody]Album album)
+        public async Task<Result<AlbumDto>> Post([FromBody]Album album)
         {
-            await _albumService.AddAlbumAsync(album);
+            return await _albumService.AddAlbumAsync(album);
         }
 
         // PUT: api/Albums/5
-        public async Task Put(int id, [FromBody]Album album)
+        public async Task<Result<AlbumDto>> Put(int id, [FromBody]Album album)
         {
-            await _albumService.UpdateAlbumAsync(album);
+            return await _albumService.UpdateAlbumAsync(id, album);
         }
 
         // DELETE: api/Albums/5
-        public async Task Delete(int id)
+        public async Task<Result<AlbumDto>> Delete(int id)
         {
-            await _albumService.RemoveAlbumAsync(id);
+            return await _albumService.RemoveAlbumAsync(id);
         }
     }
 }

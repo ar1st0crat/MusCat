@@ -12,14 +12,27 @@ namespace MusCat.Infrastructure.Services.Radio
     {
         private readonly string _connectionString;
 
-        /// <summary>
-        /// Randomizer
-        /// </summary>
         private readonly Random _songSelector = new Random();
         
         public RandomSongSelector(string connectionString)
         {
             _connectionString = connectionString;
+        }
+
+        public Song DefaultSong()
+        {
+            using (var context = new MusCatDbContext(_connectionString))
+            {
+                var song = context.Songs.First();
+
+                // include the corresponding album of our song
+                song.Album = context.Albums.First(a => a.Id == song.AlbumId);
+
+                // do the same thing with performer for included album
+                song.Album.Performer = context.Performers.First(p => p.Id == song.Album.PerformerId);
+
+                return song;
+            }
         }
 
         public Song SelectSong()

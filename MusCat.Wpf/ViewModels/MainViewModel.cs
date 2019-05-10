@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -7,11 +6,12 @@ using System.Threading.Tasks;
 using System.Windows;
 using Autofac;
 using AutoMapper;
+using MusCat.Application.Dto;
+using MusCat.Application.Interfaces;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Audio;
 using MusCat.Core.Interfaces.Data;
-using MusCat.Core.Interfaces.Domain;
 using MusCat.Core.Interfaces.Radio;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
@@ -214,7 +214,6 @@ namespace MusCat.ViewModels
             BeginMoveAlbumCommand = new RelayCommand(BeginMoveAlbum);
             MoveAlbumCommand = new RelayCommand(MoveAlbum);
             PerformerSearchCommand = new RelayCommand(async () => await SelectPerformersByPatternAsync());
-            AlbumSearchCommand = new RelayCommand(async () => await SelectPerformersByAlbumPatternAsync());
             StartRadioCommand = new RelayCommand(async() => await StartRadioAsync());
             StatsCommand = new RelayCommand(ShowStats);
             SettingsCommand = new RelayCommand(ShowSettings);
@@ -323,9 +322,6 @@ namespace MusCat.ViewModels
                 case PerformerFilters.FilterByPattern:
                     SelectPerformersByPatternAsync();
                     break;
-                case PerformerFilters.FilterByAlbumPattern:
-                    SelectPerformersByAlbumPatternAsync();
-                    break;
             }
         }
 
@@ -338,12 +334,12 @@ namespace MusCat.ViewModels
         /// (order albums, calculate rate and count the number of albums)
         /// </summary>
         /// <param name="performers">Pre-selected collection of performers to work with</param>
-        private async Task FillPerformerViewModelsAsync(PageCollection<Performer> performers)
+        private async Task FillPerformerViewModelsAsync(PageCollection<PerformerDto> performers)
         {
             // why not? 
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            
+
             CreatePageNavigationPanel(performers.TotalPages);
 
             Performers.Clear();
@@ -352,25 +348,10 @@ namespace MusCat.ViewModels
                 var performerViewModel = Mapper.Map<PerformerViewModel>(performer);
 
                 // Fill performer's albumlist
-
-                IEnumerable<Album> albums;
-
-                // If no album pattern filter is specified, 
-                // then copy **all** albums to PerformerViewModel
-
-                if (_filter != PerformerFilters.FilterByAlbumPattern)
-                {
-                    albums = await _unitOfWork.PerformerRepository
-                                              .GetPerformerAlbumsAsync(performer.Id);
-                }
-                else
-                {
-                    albums = await _unitOfWork.PerformerRepository
-                                              .GetPerformerAlbumsAsync(performer.Id, AlbumPattern);
-                }
-
-                performerViewModel.Albums = Mapper.Map<ObservableCollection<AlbumViewModel>>(albums);
+                var albums = await _performerService.GetPerformerAlbumsAsync(performer.Id, AlbumPattern);
                 
+                performerViewModel.Albums = Mapper.Map<ObservableCollection<AlbumViewModel>>(albums);
+
                 // Recalculate total rate and number of albums of performer
                 performerViewModel.UpdateAlbumCollectionRate(_rateCalculator);
 
@@ -395,10 +376,10 @@ namespace MusCat.ViewModels
                 _filterCriterion = IndexLetter;
             }
 
-            var performers = await 
-                _unitOfWork.PerformerRepository
-                           .GetByFirstLetterAsync(IndexLetter, _selectedPage, PerformersPerPage);
-            
+            var performers = await
+                _performerService.GetPerformersByFirstLetterAsync(
+                    IndexLetter, _selectedPage, PerformersPerPage);
+
             await FillPerformerViewModelsAsync(performers);
         }
 
@@ -419,31 +400,8 @@ namespace MusCat.ViewModels
             }
 
             var performers = await
-                _unitOfWork.PerformerRepository
-                           .GetBySubstringAsync(PerformerPattern, _selectedPage, PerformersPerPage);
-            
-            await FillPerformerViewModelsAsync(performers);
-        }
-
-        /// <summary>
-        /// Select performers having albums whose name contains search pattern
-        /// (specified in lower navigation panel)
-        /// </summary>
-        private async Task SelectPerformersByAlbumPatternAsync()
-        {
-            ActivateUpperPanel(false);
-
-            if (_filter != PerformerFilters.FilterByAlbumPattern || _filterCriterion != AlbumPattern)
-            {
-                _selectedPage = 0;
-
-                _filter = PerformerFilters.FilterByAlbumPattern;
-                _filterCriterion = AlbumPattern;
-            }
-
-            var performers = await
-                _unitOfWork.PerformerRepository
-                           .GetByAlbumSubstringAsync(AlbumPattern, _selectedPage, PerformersPerPage);
+                _performerService.GetPerformersBySubstringAsync(
+                    PerformerPattern, _selectedPage, PerformersPerPage);
             
             await FillPerformerViewModelsAsync(performers);
         }

@@ -30,6 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=8.1.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.8.1.0\lib\net461\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper.Collection, Version=5.0.0.0, Culture=neutral, PublicKeyToken=e57c3f0a3d6646db, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.Collection.5.0.0\lib\net461\AutoMapper.Collection.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
@@ -62,6 +68,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Auto.cs" />
+    <Compile Include="Business\AlbumService.cs" />
+    <Compile Include="Business\CountryService.cs" />
+    <Compile Include="Business\PerformerService.cs" />
+    <Compile Include="Business\SongService.cs" />
     <Compile Include="Data\MusCatDbContext.cs" />
     <Compile Include="Data\PerformerRepository.cs" />
     <Compile Include="Data\Repository.cs" />
@@ -77,6 +88,10 @@
     <Compile Include="Services\Tracklist\Mp3TracklistHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MusCat.Application\MusCat.Application.csproj">
+      <Project>{254f22b7-9fe5-4dde-bd10-10b6a68cf69d}</Project>
+      <Name>MusCat.Application</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MusCat.Core\MusCat.Core.csproj">
       <Project>{e07bb220-88ee-46e7-9976-74ba4e0db698}</Project>
       <Name>MusCat.Core</Name>
@@ -86,6 +101,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

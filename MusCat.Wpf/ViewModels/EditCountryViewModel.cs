@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using AutoMapper;
+using MusCat.Application.Dto;
+using MusCat.Application.Interfaces;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
-using MusCat.Core.Interfaces.Domain;
-using MusCat.Core.Services;
 using MusCat.Core.Util;
 using MusCat.Util;
 using MusCat.ViewModels.Entities;
@@ -98,7 +98,7 @@ namespace MusCat.ViewModels
                 return;
             }
             
-            Countrylist.Add(Mapper.Map<Country, CountryViewModel>(result.Data));
+            Countrylist.Add(Mapper.Map<CountryDto, CountryViewModel>(result.Data));
         }
 
         private async Task RemoveCountryAsync()
