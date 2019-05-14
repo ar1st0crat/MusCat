@@ -8,7 +8,7 @@ namespace MusCat.Application.Interfaces
     public interface IAlbumService
     {
         Task<IEnumerable<AlbumDto>> GetAllAlbumsAsync();
-        Task<Result<AlbumDto>> GetAlbumAsync(int albumId);
+        Task<Result<AlbumDto>> GetAlbumAsync(int albumId, bool loadPerformer = false);
         Task<Result<AlbumDto>> AddAlbumAsync(Album album);
         Task<Result<AlbumDto>> RemoveAlbumAsync(int albumId);
         Task<Result<AlbumDto>> UpdateAlbumAsync(int albumId, Album album);

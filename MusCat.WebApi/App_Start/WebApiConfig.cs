@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace MusCat.WebApi
 {
@@ -17,7 +18,8 @@ namespace MusCat.WebApi
             config.Formatters.JsonFormatter.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 
-            // Web API routes
+            config.EnableCors(new EnableCorsAttribute(origins: "http://localhost:4200", headers: "*", methods: "*"));
+
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(

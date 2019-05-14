@@ -51,7 +51,7 @@
                 $("h5").text(data.Performer);
                 $("time").text(data.Year);
                 $("#current")[0].style.backgroundImage =
-                    "url('/api/radio/albumcover/" + data.Id + "')";
+                    "url('/api/albums/" + data.Id + "/cover')";
             });
 
             $.getJSON("/api/radio/upcoming", function (data) {
@@ -70,7 +70,7 @@
 
                     var img = document.createElement('img');
 
-                    img.setAttribute('src', "/api/radio/albumcover/" + val.Id);
+                    img.setAttribute('src', '/api/albums/' + val.Id + '/cover');
                     img.setAttribute('width', '80px');
                     img.setAttribute('height', '80px');
                     img.style.position = 'absolute';

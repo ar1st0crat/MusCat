@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using MusCat.Application.Interfaces;
 using MusCat.Application.Dto;
+using System.Net.Http;
+using MusCat.Infrastructure.Services;
 
 namespace MusCat.WebApi.Controllers
 {
@@ -50,6 +52,37 @@ namespace MusCat.WebApi.Controllers
         public async Task<Result<AlbumDto>> Delete(int id)
         {
             return await _albumService.RemoveAlbumAsync(id);
+        }
+
+        [HttpGet]
+        [Route("api/Albums/{id}/cover")]
+        public async Task<HttpResponseMessage> AlbumCover(int id)
+        {
+            var response = Request.CreateResponse();
+
+            var result = await _albumService.GetAlbumAsync(id, true);
+
+            if (result.Type != ResultType.Ok)
+            {
+                return null;// NotFound();
+            }
+
+            var album = new Album
+            {
+                Id = result.Data.Id,
+                Performer = new Performer { Name = result.Data.Performer.Name }
+            };
+
+            response.Content = new PushStreamContent((stream, content, context) =>
+            {
+                var path = FileLocator.GetAlbumImagePath(album);
+                var image = new HttpFileStream(path);
+
+                image.WriteToStream(stream, content, context);
+            },
+            "image/jpeg");
+
+            return response;
         }
     }
 }

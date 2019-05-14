@@ -25,7 +25,7 @@ namespace MusCat.Infrastructure.Business
             return Auto.Mapper.Map<IEnumerable<AlbumDto>>(albums); 
         }
 
-        public async Task<Result<AlbumDto>> GetAlbumAsync(int albumId)
+        public async Task<Result<AlbumDto>> GetAlbumAsync(int albumId, bool loadPerformer = false)
         {
             var albums = await _unitOfWork.AlbumRepository
                                           .GetAsync(a => a.Id == albumId)
@@ -36,6 +36,14 @@ namespace MusCat.Infrastructure.Business
             if (album == null)
             {
                 return new Result<AlbumDto>(ResultType.Invalid, "Could not find album!");
+            }
+
+            if (loadPerformer)
+            {
+                album.Performer = (await _unitOfWork.PerformerRepository
+                                                    .GetAsync(p => p.Id == album.PerformerId)
+                                                    .ConfigureAwait(false))
+                                                    .FirstOrDefault();
             }
 
             return new Result<AlbumDto>(Auto.Mapper.Map<AlbumDto>(album));

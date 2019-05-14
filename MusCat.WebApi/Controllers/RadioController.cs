@@ -47,7 +47,7 @@ namespace MusCat.WebApi.Controllers
             {
                 var path = FileLocator.FindSongPath(RadioService.CurrentSong);
 
-                var audio = new AudioStream(path);
+                var audio = new HttpFileStream(path);
 
                 audio.WriteToStream(a, b, c);
             }, 
@@ -75,35 +75,6 @@ namespace MusCat.WebApi.Controllers
                          };
 
             var response = Request.CreateResponse(HttpStatusCode.OK, result);
-            return response;
-        }
-
-        [HttpGet]
-        [Route("api/radio/albumcover/{id}")]
-        public HttpResponseMessage AlbumCover(int id)
-        {
-            var unitOfWork = new UnitOfWork(
-                ConfigurationManager.ConnectionStrings["MusCatDbContext"].ConnectionString);
-
-            var response = Request.CreateResponse();
-
-            response.Content = new PushStreamContent((stream, content, context) =>
-            {
-                var album = unitOfWork.AlbumRepository
-                                      .Get(a => a.Id == id)
-                                      .First();
-
-                album.Performer = unitOfWork.PerformerRepository
-                                            .Get(p => p.Id == album.PerformerId)
-                                            .First();
-
-                var path = FileLocator.GetAlbumImagePath(album);
-                var image = new AudioStream(path);
-
-                image.WriteToStream(stream, content, context);
-            },
-            "image/jpeg");
-
             return response;
         }
 

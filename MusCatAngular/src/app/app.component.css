@@ -1,0 +1,12 @@
+#navbar {
+  background-color: #050505aa;
+  color: white;
+  height: 50px;
+  width: 100%;
+}
+
+#navbar a {
+  color: white;
+  text-decoration: none;
+  margin: 10px;
+}

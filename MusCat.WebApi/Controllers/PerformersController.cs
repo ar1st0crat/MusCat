@@ -2,7 +2,9 @@
 using MusCat.Application.Interfaces;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
+using MusCat.Infrastructure.Services;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -51,6 +53,33 @@ namespace MusCat.WebApi.Controllers
         public async Task<IEnumerable<AlbumDto>> GetPerformerAlbums(int id)
         {
             return await _performerService.GetPerformerAlbumsAsync(id);
+        }
+
+        [HttpGet]
+        [Route("api/Performers/{id}/photo")]
+        public async Task<HttpResponseMessage> PerformerPhoto(int id)
+        {
+            var response = Request.CreateResponse();
+
+            var result = await _performerService.GetPerformerAsync(id);
+
+            if (result.Type != ResultType.Ok)
+            {
+                return null;// NotFound();
+            }
+
+            var performer = new Performer { Name = result.Data.Name };
+
+            response.Content = new PushStreamContent((stream, content, context) =>
+            {
+                var path = FileLocator.GetPerformerImagePath(performer);
+                var image = new HttpFileStream(path);
+
+                image.WriteToStream(stream, content, context);
+            },
+            "image/jpeg");
+
+            return response;
         }
     }
 }

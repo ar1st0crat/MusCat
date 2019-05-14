@@ -1,0 +1,22 @@
+<mat-card class="performer-card"
+  [ngStyle]="{ 'background-image': 'url(' + performer.Link + ')'}"
+  (mouseover)="hover=true" (mouseleave)="hover=false">
+  <mat-card-header [ngStyle]="{ visibility: hover === false ? 'visible' : 'hidden' }">
+    <div mat-card-avatar class="flag" [ngStyle]="{ 'background': 'url(' + performer.CountryLink + ') center' }"></div>
+    <mat-card-title>{{performer.Name}}</mat-card-title>
+    <mat-card-subtitle>{{performer.Country?.Name}}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content [ngStyle]="{ visibility: hover === false ? 'visible' : 'hidden' }">
+    <p>{{performer.Info | slice:0:170}}...</p>
+  </mat-card-content>
+  <mat-card-actions [ngStyle]="{ visibility: hover === true ? 'visible' : 'hidden' }">
+    <button mat-button (click)="edit()">
+      <mat-icon [inline]="true">edit</mat-icon>
+       EDIT
+    </button>
+    <button mat-button (click)="viewAlbums()">
+      <mat-icon [inline]="true">queue_music</mat-icon>
+       ALBUMS
+    </button>
+  </mat-card-actions>
+</mat-card>

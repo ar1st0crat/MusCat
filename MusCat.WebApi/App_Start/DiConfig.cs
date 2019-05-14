@@ -31,7 +31,7 @@ namespace MusCat.WebApi
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
             builder.RegisterWebApiFilterProvider(config);
 
-            builder.Register(c => new UnitOfWork(connectionString)).As<IUnitOfWork>().SingleInstance();
+            builder.Register(c => new UnitOfWork(connectionString)).As<IUnitOfWork>().InstancePerRequest();//.SingleInstance();
             builder.RegisterType<PerformerService>().As<IPerformerService>().InstancePerRequest();
             builder.RegisterType<AlbumService>().As<IAlbumService>().InstancePerRequest();
             builder.RegisterType<SongService>().As<ISongService>();
