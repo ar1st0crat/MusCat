@@ -14,4 +14,12 @@ export class PerformerService {
   getPerformers(): any {
     return this.http.get(`${this.uri}/performers?page=${this.page}&size=${this.size}`);
   }
+
+  getAlbums(performerId: number): any {
+    return this.http.get(`${this.uri}/performers/${performerId}/albums`);
+  }
+
+  getSongs(albumId: number): any {
+    return this.http.get(`${this.uri}/albums/${albumId}/songs`);
+  }
 }

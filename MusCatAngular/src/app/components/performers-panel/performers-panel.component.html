@@ -1,8 +1,15 @@
 <div id="main">
-  <mat-paginator [length]="pageCount"
-    [pageSize]="pageSize"
-    [pageSizeOptions]="[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20]"
-    [showFirstLastButtons]="true">
-  </mat-paginator>
-  <app-performer *ngFor="let item of performers" [performer]="item"></app-performer>
+  <div id="performers">
+    <mat-paginator [length]="pageCount"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20]"
+      [showFirstLastButtons]="true">
+    </mat-paginator>
+    <app-performer *ngFor="let item of performers" [performer]="item" (updateAlbumsEvent)="updateAlbums($event)">
+    </app-performer>
+  </div>
+  <div id="albums">
+    <app-albums-panel [performer]="performer" [albums]="albums" [album]="selectedAlbum">
+    </app-albums-panel>
+  </div>
 </div>

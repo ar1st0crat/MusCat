@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 
 interface Country {
   Id: number;
@@ -22,6 +22,7 @@ export interface Performer {
 export class PerformerComponent implements OnInit {
 
   @Input() performer: Performer;
+  @Output() updateAlbumsEvent = new EventEmitter<Performer>();
 
   hover = false;
 
@@ -31,7 +32,7 @@ export class PerformerComponent implements OnInit {
   }
 
   viewAlbums() {
-
+    this.updateAlbumsEvent.next(this.performer);
   }
 
   edit() {

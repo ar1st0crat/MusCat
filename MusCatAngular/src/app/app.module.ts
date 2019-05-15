@@ -7,7 +7,7 @@ import { PerformersPanelComponent } from './components/performers-panel/performe
 import { AlbumsPanelComponent } from './components/albums-panel/albums-panel.component';
 import { HttpClientModule } from '@angular/common/http';
 import { PerformerService } from './services/performer.service';
-import { MatCardModule, MatButtonModule, MatIconModule } from '@angular/material';
+import { MatCardModule, MatButtonModule, MatIconModule, MatChipsModule } from '@angular/material';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { PerformerComponent } from './components/performer/performer.component';
 
@@ -26,6 +26,7 @@ import { PerformerComponent } from './components/performer/performer.component';
     MatCardModule,
     MatPaginatorModule,
     MatIconModule,
+    MatChipsModule,
     BrowserAnimationsModule
   ],
   providers: [PerformerService],

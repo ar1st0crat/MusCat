@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material';
+import { MatPaginator, _MatChipListMixinBase } from '@angular/material';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { PerformerService } from 'src/app/services/performer.service';
 import { Performer } from '../performer/performer.component';
+import { Album, AlbumsPanelComponent } from '../albums-panel/albums-panel.component';
 
 @Component({
   selector: 'app-performers-panel',
@@ -24,6 +25,9 @@ export class PerformersPanelComponent implements OnInit {
   pageSize = 8;
 
   performers: Performer[];
+  performer: Performer;
+  albums: Album[];
+  selectedAlbum: Album;
 
   codes = {
     England: 'GB',
@@ -73,6 +77,18 @@ export class PerformersPanelComponent implements OnInit {
           d.CountryLink = `https://www.countryflags.io/${this.codes[d.Country.Name]}/shiny/48.png`;
         });
       });
+  }
+
+  updateAlbums(performer: Performer) {
+    this.performerService.getAlbums(performer.Id)
+    .subscribe(a => {
+      this.performer = performer;
+      this.selectedAlbum = { Id: 0 };
+      this.albums = a;
+      this.albums.forEach(d => {
+        d.Link = `${this.performerService.uri}/albums/${d.Id}/cover`;
+      });
+    });
   }
 
   ngOnInit() {

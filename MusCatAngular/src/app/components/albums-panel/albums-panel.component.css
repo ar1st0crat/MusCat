@@ -1,0 +1,141 @@
+#albums-panel {
+  padding: 30px;
+  background-image: linear-gradient(to left, #ffffee, lightgray);
+  font-family: 'Open Sans Condensed', sans-serif;
+  height: auto;
+  overflow: auto;
+}
+
+#album {
+  margin-top: 5px;
+  margin-left: 40px;
+  text-align: left;
+  align-content: start;
+}
+
+#album mat-card-footer {
+  text-align: right;
+  padding-top: 15px;
+  padding-right: 20px;
+  padding-bottom: 5px;
+  border-top: 1px solid lightgray;
+}
+
+#details {
+  display: flex;
+  flex-direction: row;
+}
+
+#album div {
+  font-size: 1.4em;
+}
+
+#album-cover {
+  width: 360px;
+  height: 360px;
+  /* box-shadow: 2px 2px 4px rgba(0,0,0,0.8); */
+}
+
+#songlist {
+  margin-bottom: -5px;
+  padding: 0;
+}
+
+#songlist span {
+  font-size: 0.7em;
+}
+
+#timeline {
+  width: 280px;
+  float: left;
+}
+
+#performer-info {
+  margin: 20px;
+  text-align: left;
+  padding: 15px;
+}
+
+.timeline-item {
+  position: relative;
+  width: 3px;
+  margin: 0 auto;
+  padding-top: 1px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.thumb {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.timeline-item:hover .thumb {
+  width: 60px;
+  height: 60px;
+}
+
+.timeline-item div {
+  position: relative;
+  bottom: 0;
+  width: 70px;
+  padding: 5px;
+  background-color: white;
+  color: darkblue;
+  border: 1px solid lightgray;
+  border-radius: 3px;
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.timeline-item:nth-child(odd) div {
+  left: 40px;
+}
+
+.timeline-item:nth-child(even) div {
+  left: -120px;
+}
+
+.timeline-item span {
+  display: block;
+}
+
+.year {
+  font-weight: bold;
+}
+
+.name {
+  font-size: 0.85em;
+}
+
+.timeline-item:nth-child(even)::before {
+  content: " ";
+  height: 0;
+  position: absolute;
+  top: 22px;
+  width: 0;
+  right: 32px;
+  z-index: 11;
+  border: 1px solid #d4d4d4;
+  border-width: 10px 0 10px 10px;
+  border-color: transparent transparent transparent white;
+}
+
+.timeline-item:nth-child(odd)::before {
+  content: " ";
+  height: 0;
+  position: absolute;
+  top: 22px;
+  width: 0;
+  left: 32px;
+  z-index: 11;
+  border: 1px solid #d4d4d4;
+  border-width: 10px 10px 10px 0;
+  border-color: transparent white transparent transparent;
+}

@@ -1,3 +1,35 @@
-<p>
-  albums-panel works!
-</p>
+<div id="albums-panel" *ngIf="performer">
+  <div id="timeline">
+    <div *ngFor="let item of albums" class="timeline-item" (click)="selectAlbum(item)">
+      <div>
+        <span class="year">{{item.ReleaseYear}}</span>
+        <span class="name">{{item.Name}}</span>
+      </div>
+      <img [src]="item.Link" class="thumb" />
+    </div>
+  </div>
+  <div id="details">
+    <div>
+      <mat-card id="album" *ngIf="album.Id > 0">
+        <mat-card-header>
+          <mat-card-title>{{album.Name}}</mat-card-title>
+          <mat-card-subtitle>{{album.ReleaseYear}}</mat-card-subtitle>
+        </mat-card-header>
+        <img mat-card-image [src]="album.Link" id="album-cover">
+        <mat-card-content>
+          <div *ngFor="let song of songs" id="songlist">
+            <span>[{{song.TrackNo}}] </span>
+            <span>{{song.Name}} </span>
+            <span>({{song.TimeLength}})</span>
+          </div>
+        </mat-card-content>
+        <mat-card-footer>
+          <mat-card-subtitle>Total: {{album.TotalTime}}</mat-card-subtitle>
+        </mat-card-footer>
+      </mat-card>
+    </div>
+    <div id="performer-info">
+      {{performer.Info}}
+    </div>
+  </div>
+</div>
