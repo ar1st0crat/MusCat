@@ -45,3 +45,8 @@
   border-bottom-right-radius: 4px;
   background: white;
 }
+
+button {
+  font-size: 0.95em;
+  margin: 0 !important;
+}

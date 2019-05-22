@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using MusCat.Application.Dto;
 using MusCat.Application.Interfaces;
@@ -16,6 +17,12 @@ namespace MusCat.Infrastructure.Business
         {
             Guard.AgainstNull(unitOfWork);
             _unitOfWork = unitOfWork;
+        }
+
+        public async Task<IEnumerable<CountryDto>> GetAllCountriesAsync()
+        {
+            var countries = await _unitOfWork.CountryRepository.GetAllAsync().ConfigureAwait(false);
+            return Auto.Mapper.Map<IEnumerable<CountryDto>>(countries);
         }
 
         public async Task<int> GetPerformersCountAsync(int countryId)

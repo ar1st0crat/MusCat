@@ -2,6 +2,17 @@
   text-align: center;
 }
 
+#upper {
+  background-color: white;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+#controls {
+  margin-right: 50px;
+  float: left;
+}
+
 mat-paginator {
   margin-bottom: 45px;
 }

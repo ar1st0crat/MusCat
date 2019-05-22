@@ -7,16 +7,23 @@ import { PerformersPanelComponent } from './components/performers-panel/performe
 import { AlbumsPanelComponent } from './components/albums-panel/albums-panel.component';
 import { HttpClientModule } from '@angular/common/http';
 import { PerformerService } from './services/performer.service';
-import { MatCardModule, MatButtonModule, MatIconModule, MatChipsModule } from '@angular/material';
+import { MatCardModule, MatButtonModule, MatIconModule, MatChipsModule,
+  MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule } from '@angular/material';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { PerformerComponent } from './components/performer/performer.component';
+import { PerformerDialog } from './components/performer-dialog/performer-dialog.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
     AppComponent,
     PerformersPanelComponent,
     AlbumsPanelComponent,
-    PerformerComponent
+    PerformerComponent,
+    PerformerDialog
+  ],
+  entryComponents: [
+    PerformerDialog
   ],
   imports: [
     BrowserModule,
@@ -27,6 +34,11 @@ import { PerformerComponent } from './components/performer/performer.component';
     MatPaginatorModule,
     MatIconModule,
     MatChipsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    FormsModule,
     BrowserAnimationsModule
   ],
   providers: [PerformerService],

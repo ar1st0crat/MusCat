@@ -130,6 +130,9 @@ namespace MusCat
                    .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Title))
                    .ForMember(dest => dest.TimeLength, opt => opt.MapFrom(src => src.Duration));
 
+                cfg.CreateMap<Country, CountryViewModel>()
+                   .EqualityComparison((src, dest) => src.Id == dest.Id);
+
                 cfg.CreateMap<CountryDto, CountryViewModel>()
                    .EqualityComparison((src, dest) => src.Id == dest.Id);
             });

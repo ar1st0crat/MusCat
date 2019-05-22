@@ -1,9 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, _MatChipListMixinBase } from '@angular/material';
+import { MatPaginator, _MatChipListMixinBase, MatDialog } from '@angular/material';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { PerformerService } from 'src/app/services/performer.service';
 import { Performer } from '../performer/performer.component';
-import { Album, AlbumsPanelComponent } from '../albums-panel/albums-panel.component';
+import { Album } from '../albums-panel/albums-panel.component';
+import { PerformerDialog } from '../performer-dialog/performer-dialog.component';
 
 @Component({
   selector: 'app-performers-panel',
@@ -28,6 +29,8 @@ export class PerformersPanelComponent implements OnInit {
   performer: Performer;
   albums: Album[];
   selectedAlbum: Album;
+
+  searchPattern = '';
 
   codes = {
     England: 'GB',
@@ -64,16 +67,24 @@ export class PerformersPanelComponent implements OnInit {
     Unknown: 'AQ'
   };
 
-  constructor(private performerService: PerformerService) { }
+  constructor(public dialog: MatDialog, private performerService: PerformerService) { }
 
   updatePerformers() {
-    this.performerService.getPerformers()
+    const performers = this.searchPattern === '' ?
+      this.performerService.getPerformers() :
+      this.performerService.searchPerformers(this.searchPattern);
+
+    performers
       .subscribe(p => {
         this.pageCount = p.TotalItems;
         this.performers = p.Items;
         this.performers.forEach(d => {
           d.Link = `${this.performerService.uri}/performers/${d.Id}/photo`;
-          if (d.Country === undefined) { d.Country = { Id: 0, Name: 'Unknown' }; }
+          if (d.Country === undefined) {
+            d.Country = {
+              Id: null,
+              Name: 'Unknown' };
+          }
           d.CountryLink = `https://www.countryflags.io/${this.codes[d.Country.Name]}/shiny/48.png`;
         });
       });
@@ -81,13 +92,27 @@ export class PerformersPanelComponent implements OnInit {
 
   updateAlbums(performer: Performer) {
     this.performerService.getAlbums(performer.Id)
-    .subscribe(a => {
-      this.performer = performer;
-      this.selectedAlbum = { Id: 0 };
-      this.albums = a;
-      this.albums.forEach(d => {
-        d.Link = `${this.performerService.uri}/albums/${d.Id}/cover`;
+      .subscribe(a => {
+        this.performer = performer;
+        this.selectedAlbum = { Id: null } as Album;
+        this.albums = a;
+        this.albums.forEach(d => {
+          d.Link = `${this.performerService.uri}/albums/${d.Id}/cover`;
       });
+    });
+  }
+
+  addPerformer() {
+    const dialogRef = this.dialog.open(PerformerDialog, {
+      width: '720px',
+      data: {} as Performer
+    });
+
+    dialogRef.afterClosed().subscribe(edited => {
+      if (edited !== undefined) {
+        this.performerService.addPerformer(edited)
+          .subscribe(() => this.updatePerformers());
+      }
     });
   }
 

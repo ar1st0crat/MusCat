@@ -6,7 +6,6 @@ using System.Windows.Input;
 using AutoMapper;
 using MusCat.Application.Dto;
 using MusCat.Application.Interfaces;
-using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Util;
 using MusCat.Util;
@@ -78,7 +77,7 @@ namespace MusCat.ViewModels
         {
             Countrylist = new ObservableCollection<CountryViewModel>();
 
-            var countryModels = (await _unitOfWork.CountryRepository.GetAllAsync()).ToList();
+            var countryModels = (await _unitOfWork.CountryRepository.GetAllAsync()).OrderBy(c => c.Name).ToList();
 
             foreach (var countryModel in countryModels)
             {

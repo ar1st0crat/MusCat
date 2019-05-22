@@ -172,6 +172,7 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\AlbumsController.cs" />
+    <Compile Include="Controllers\CountriesController.cs" />
     <Compile Include="Controllers\HttpFileStream.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PerformersController.cs" />

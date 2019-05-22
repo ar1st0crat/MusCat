@@ -1,6 +1,9 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { PerformerDialog } from '../performer-dialog/performer-dialog.component';
+import { MatDialog } from '@angular/material';
+import { PerformerService } from 'src/app/services/performer.service';
 
-interface Country {
+export interface Country {
   Id: number;
   Name: string;
 }
@@ -23,19 +26,38 @@ export class PerformerComponent implements OnInit {
 
   @Input() performer: Performer;
   @Output() updateAlbumsEvent = new EventEmitter<Performer>();
+  @Output() updatePerformersEvent = new EventEmitter();
 
   hover = false;
 
-  constructor() { }
+  constructor(public dialog: MatDialog, private performerService: PerformerService) { }
 
   ngOnInit() {
   }
 
-  viewAlbums() {
+  viewAlbums(): void {
     this.updateAlbumsEvent.next(this.performer);
   }
 
-  edit() {
+  edit(): void {
+    const performerCopy = Object.assign({}, this.performer);
 
+    const dialogRef = this.dialog.open(PerformerDialog, {
+      width: '720px',
+      data: performerCopy
+    });
+
+    dialogRef.afterClosed().subscribe(edited => {
+      if (edited !== undefined) {
+        edited.CountryId = edited.Country.Id;
+        this.performerService.updatePerformer(this.performer.Id, edited)
+          .subscribe(() => this.updatePerformersEvent.next());
+      }
+    });
+  }
+
+  delete(): void {
+    this.performerService.deletePerformer(this.performer.Id)
+      .subscribe(() => this.updatePerformersEvent.next());
   }
 }

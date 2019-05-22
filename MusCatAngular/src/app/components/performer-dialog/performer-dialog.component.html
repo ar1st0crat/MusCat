@@ -1,0 +1,22 @@
+<div mat-dialog-content>
+  <p>Name:</p>
+  <mat-form-field>
+    <input matInput [(ngModel)]="data.Name">
+  </mat-form-field>
+  <p>Info:</p>
+  <mat-form-field>
+    <textarea matInput [(ngModel)]="data.Info"></textarea>
+  </mat-form-field>
+  <p>Country:</p>
+  <mat-form-field>
+    <mat-select [(ngModel)]="selectedCountryId">
+      <mat-option *ngFor="let country of countries" [value]="country.Id">
+        {{country.Name}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancel()">CANCEL</button>
+  <button mat-button (click)="onSave()" cdkFocusInitial>SAVE</button>
+</div>

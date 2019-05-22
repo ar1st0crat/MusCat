@@ -1,0 +1,11 @@
+div {
+  font-size: 0.82em;
+}
+
+textarea {
+  height: 160px;
+}
+
+mat-form-field {
+  width: 100%;
+}

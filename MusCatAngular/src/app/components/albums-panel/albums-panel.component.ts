@@ -4,11 +4,11 @@ import { Performer } from '../performer/performer.component';
 
 export interface Album {
   Id: number;
-  Name?: string;
-  ReleaseYear?: number;
-  TotalTime?: string;
-  Rate?: number;
-  Link?: string;
+  Name: string;
+  ReleaseYear: number;
+  TotalTime: string;
+  Rate: number;
+  Link: string;
 }
 
 export interface Song {
@@ -36,7 +36,7 @@ export class AlbumsPanelComponent implements OnInit {
   ngOnInit() {
   }
 
-  selectAlbum(album) {
+  selectAlbum(album: Album) {
     this.album = album;
     this.performerService.getSongs(album.Id)
       .subscribe(a => { this.songs = a; });

@@ -19,10 +19,16 @@ namespace MusCat.WebApi.Controllers
             _performerService = performerService;
         }
 
-        // GET:api/Performers?page=1&size=10
+        // GET:api/Performers?page=0&size=10
         public async Task<PageCollection<PerformerDto>> Get(int page, int size)
         {
             return await _performerService.GetAllPerformersAsync(page, size);
+        }
+
+        // GET:api/Performers?page=0&size=10&search=Chris
+        public async Task<PageCollection<PerformerDto>> GetByPattern(int page, int size, string search)
+        {
+            return await _performerService.GetPerformersBySubstringAsync(search, page, size);
         }
 
         // GET: api/Performers/5
@@ -32,21 +38,21 @@ namespace MusCat.WebApi.Controllers
         }
 
         // POST: api/Performers
-        public async Task Post([FromBody]Performer performer)
+        public async Task<Result<PerformerDto>> Post([FromBody]Performer performer)
         {
-            await _performerService.AddPerformerAsync(performer);
+            return await _performerService.AddPerformerAsync(performer);
         }
 
         // PUT: api/Performers/5
-        public async Task Put(int id, [FromBody]Performer performer)
+        public async Task<Result<PerformerDto>> Put(int id, [FromBody]Performer performer)
         {
-            await _performerService.UpdatePerformerAsync(id, performer);
+            return await _performerService.UpdatePerformerAsync(id, performer);
         }
 
         // DELETE: api/Performers/5
-        public async Task Delete(int id)
+        public async Task<Result<PerformerDto>> Delete(int id)
         {
-            await _performerService.RemovePerformerAsync(id);
+            return await _performerService.RemovePerformerAsync(id);
         }
 
         [Route("api/Performers/{id}/Albums")]
