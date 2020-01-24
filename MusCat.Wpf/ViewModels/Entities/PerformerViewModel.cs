@@ -1,14 +1,16 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Data;
 using AutoMapper;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
 using MusCat.Infrastructure.Services;
+using MusCat.Infrastructure.Validators;
 
 namespace MusCat.ViewModels.Entities
 {
-    public class PerformerViewModel : ViewModelBase
+    public class PerformerViewModel : ViewModelBase, IDataErrorInfo
     {
         public int Id { get; set; }
 
@@ -101,5 +103,27 @@ namespace MusCat.ViewModels.Entities
         {
             ImagePath = FileLocator.GetPerformerImagePath(Mapper.Map<Performer>(this));
         }
+
+
+        #region IDataErrorInfo methods
+
+        private readonly PerformerValidator _validator = new PerformerValidator();
+
+        public string Error => this["Name"];
+
+        public string this[string columnName]
+        {
+            get
+            {
+                var result = _validator.Validate(Mapper.Map<Performer>(this));
+
+                var error = result.Errors
+                                  .First(e => e.PropertyName == columnName)
+                                  .ErrorMessage;
+                return error;
+            }
+        }
+
+        #endregion
     }
 }

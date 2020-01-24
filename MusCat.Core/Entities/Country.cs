@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using System.ComponentModel;
 
 namespace MusCat.Core.Entities
 {
-    public class Country : IDataErrorInfo
+    public class Country
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -13,37 +12,5 @@ namespace MusCat.Core.Entities
         {
             Performers = new HashSet<Performer>();
         }
-
-        #region IDataErrorInfo methods
-
-        public const int MaxNameLength = 20;
-
-        public string Error => this["Name"];
-
-        public string this[string columnName]
-        {
-            get
-            {
-                if (columnName != "Name")
-                {
-                    return string.Empty;
-                }
-
-                var error = string.Empty;
-
-                if (string.IsNullOrWhiteSpace(Name))
-                {
-                    error = "Country name can't be empty";
-                }
-                else if (Name.Length > MaxNameLength)
-                {
-                    error = $"Country name should contain not more than {MaxNameLength} symbols";
-                }
-                
-                return error;
-            }
-        }
-
-        #endregion
     }
 }

@@ -6,6 +6,7 @@ using MusCat.Application.Interfaces;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Util;
+using MusCat.Infrastructure.Validators;
 
 namespace MusCat.Infrastructure.Business
 {
@@ -51,9 +52,11 @@ namespace MusCat.Infrastructure.Business
 
         public async Task<Result<AlbumDto>> AddAlbumAsync(Album album)
         {
-            if (album.Error != string.Empty)
+            var result = new AlbumValidator().Validate(album);
+
+            if (!result.IsValid)
             {
-                return new Result<AlbumDto>(ResultType.Invalid, album.Error);
+                return new Result<AlbumDto>(ResultType.Invalid, string.Join("; ", result.Errors));
             }
 
             _unitOfWork.AlbumRepository.Add(album);
@@ -83,9 +86,11 @@ namespace MusCat.Infrastructure.Business
 
         public async Task<Result<AlbumDto>> UpdateAlbumAsync(int albumId, Album newAlbum)
         {
-            if (newAlbum.Error != string.Empty)
+            var result = new AlbumValidator().Validate(newAlbum);
+
+            if (!result.IsValid)
             {
-                return new Result<AlbumDto>(ResultType.Invalid, newAlbum.Error);
+                return new Result<AlbumDto>(ResultType.Invalid, string.Join("; ", result.Errors));
             }
 
             var albums = await _unitOfWork.AlbumRepository

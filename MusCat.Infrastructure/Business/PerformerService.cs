@@ -8,6 +8,7 @@ using MusCat.Application.Interfaces;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Util;
+using MusCat.Infrastructure.Validators;
 
 namespace MusCat.Infrastructure.Business
 {
@@ -72,9 +73,11 @@ namespace MusCat.Infrastructure.Business
         
         public async Task<Result<PerformerDto>> AddPerformerAsync(Performer performer)
         {
-            if (performer.Error != string.Empty)
+            var result = new PerformerValidator().Validate(performer);
+
+            if (!result.IsValid)
             {
-                return new Result<PerformerDto>(ResultType.Invalid, performer.Error);
+                return new Result<PerformerDto>(ResultType.Invalid, string.Join("; ", result.Errors));
             }
 
             _unitOfWork.PerformerRepository.Add(performer);
@@ -106,9 +109,11 @@ namespace MusCat.Infrastructure.Business
 
         public async Task<Result<PerformerDto>> UpdatePerformerAsync(int performerId, Performer newPerformer)
         {
-            if (newPerformer.Error != string.Empty)
+            var result = new PerformerValidator().Validate(newPerformer);
+
+            if (!result.IsValid)
             {
-                return new Result<PerformerDto>(ResultType.Invalid, newPerformer.Error);
+                return new Result<PerformerDto>(ResultType.Invalid, string.Join("; ", result.Errors));
             }
 
             var performers = await _unitOfWork.PerformerRepository

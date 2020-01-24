@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using MusCat.Core.Entities;
+using MusCat.Infrastructure.Validators;
 using System.ComponentModel;
+using System.Linq;
 
 namespace MusCat.ViewModels.Entities
 {
@@ -53,8 +55,33 @@ namespace MusCat.ViewModels.Entities
             }
         }
 
-        public string Error => Mapper.Map<Song>(this).Error;
 
-        public string this[string columnName] => Mapper.Map<Song>(this)[columnName];
+        #region IDataErrorInfo methods
+
+        private readonly SongValidator _validator = new SongValidator();
+
+        public string Error
+        {
+            get
+            {
+                var error = string.Join("\n", this["Name"], this["TotalTime"]);
+                return error.Replace("\n", "") == string.Empty ? string.Empty : error;
+            }
+        }
+
+        public string this[string columnName]
+        {
+            get
+            {
+                var result = _validator.Validate(Mapper.Map<Song>(this));
+
+                var error = result.Errors
+                                  .First(e => e.PropertyName == columnName)
+                                  .ErrorMessage;
+                return error;
+            }
+        }
+
+        #endregion
     }
 }

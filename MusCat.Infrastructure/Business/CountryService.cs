@@ -6,6 +6,7 @@ using MusCat.Application.Interfaces;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Util;
+using MusCat.Infrastructure.Validators;
 
 namespace MusCat.Infrastructure.Business
 {
@@ -36,9 +37,11 @@ namespace MusCat.Infrastructure.Business
         {
             var country = new Country { Name = name };
 
-            if (country.Error != string.Empty)
+            var result = new CountryValidator().Validate(country);
+
+            if (!result.IsValid)
             {
-                return new Result<CountryDto>(ResultType.Invalid, country.Error);
+                return new Result<CountryDto>(ResultType.Invalid, string.Join("; ", result.Errors));
             }
 
             var duplicates = await _unitOfWork.CountryRepository
@@ -80,9 +83,11 @@ namespace MusCat.Infrastructure.Business
         {
             var country = new Country { Name = name };
 
-            if (country.Error != string.Empty)
+            var result = new CountryValidator().Validate(country);
+
+            if (!result.IsValid)
             {
-                return new Result<CountryDto>(ResultType.Invalid, country.Error);
+                return new Result<CountryDto>(ResultType.Invalid, string.Join("; ", result.Errors));
             }
 
             var countries = await _unitOfWork.CountryRepository

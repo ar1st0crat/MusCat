@@ -8,7 +8,6 @@ using System.Windows.Media.Imaging;
 using AutoMapper;
 using Microsoft.Win32;
 using MusCat.Core.Entities;
-using MusCat.Core.Services;
 using MusCat.Core.Interfaces.Tracklist;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
@@ -143,9 +142,9 @@ namespace MusCat.ViewModels
 
             // first, check validity of song data
 
-            if (songs.Any(s => !string.IsNullOrEmpty(s.Error)))
+            if (Songs.Any(s => !string.IsNullOrEmpty(s.Error)))
             {
-                var message = songs.Where(s => s.Error != "")
+                var message = Songs.Where(s => s.Error != "")
                                    .Select(s => s.TrackNo.ToString())
                                    .Aggregate((t, s) => t + ", " + s);
 

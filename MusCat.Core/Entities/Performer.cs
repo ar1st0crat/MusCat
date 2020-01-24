@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using System.ComponentModel;
 
 namespace MusCat.Core.Entities
 {
-    public class Performer : IDataErrorInfo
+    public class Performer
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -20,38 +19,5 @@ namespace MusCat.Core.Entities
             Lineups = new HashSet<Lineup>();
             Genres = new HashSet<Genre>();
         }
-        
-        #region IDataErrorInfo methods
-
-        public const int MaxNameLength = 30;
-
-        public string Error => this["Name"];
-
-        public string this[string columnName]
-        {
-            get
-            {
-                var error = string.Empty;
-
-                switch (columnName)
-                {
-                    case "Name":
-                        {
-                            if (string.IsNullOrWhiteSpace(Name))
-                            {
-                                error = "Performer name can't be empty";
-                            }
-                            else if (Name.Length > MaxNameLength)
-                            {
-                                error = $"Performer name should contain not more than {MaxNameLength} symbols";
-                            }
-                            break;
-                        }
-                }
-                return error;
-            }
-        }
-
-        #endregion
     }
 }

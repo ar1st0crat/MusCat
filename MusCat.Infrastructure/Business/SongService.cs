@@ -3,6 +3,7 @@ using MusCat.Application.Interfaces;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Util;
+using MusCat.Infrastructure.Validators;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,9 +21,11 @@ namespace MusCat.Infrastructure.Business
 
         public async Task<Result<SongDto>> AddSongAsync(Song song)
         {
-            if (song.Error != string.Empty)
+            var result = new SongValidator().Validate(song);
+
+            if (!result.IsValid)
             {
-                return new Result<SongDto>(ResultType.Invalid, song.Error);
+                return new Result<SongDto>(ResultType.Invalid, string.Join("; ", result.Errors));
             }
 
             _unitOfWork.SongRepository.Add(song);
@@ -52,9 +55,11 @@ namespace MusCat.Infrastructure.Business
 
         public async Task<Result<SongDto>> UpdateSongAsync(Song newSong)
         {
-            if (newSong.Error != string.Empty)
+            var result = new SongValidator().Validate(newSong);
+
+            if (!result.IsValid)
             {
-                return new Result<SongDto>(ResultType.Invalid, newSong.Error);
+                return new Result<SongDto>(ResultType.Invalid, string.Join("; ", result.Errors));
             }
 
             var song = _unitOfWork.SongRepository

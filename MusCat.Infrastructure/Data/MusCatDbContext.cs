@@ -19,6 +19,7 @@ namespace MusCat.Infrastructure.Data
         public virtual DbSet<Performer> Performers { get; set; }
         public virtual DbSet<Song> Songs { get; set; }
 
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Album>()
@@ -28,7 +29,7 @@ namespace MusCat.Infrastructure.Data
             modelBuilder.Entity<Album>()
                 .Property(e => e.Name)
                 .IsRequired()
-                .HasMaxLength(Album.MaxNameLength)
+                .HasMaxLength(AlbumNameMaxLength)
                 .IsUnicode(false);
 
             modelBuilder.Entity<Album>()
@@ -47,7 +48,7 @@ namespace MusCat.Infrastructure.Data
 
             modelBuilder.Entity<Country>()
                 .Property(e => e.Name)
-                .HasMaxLength(Country.MaxNameLength)
+                .HasMaxLength(CountryNameMaxLength)
                 .IsRequired()
                 .IsUnicode(false);
 
@@ -101,7 +102,7 @@ namespace MusCat.Infrastructure.Data
             modelBuilder.Entity<Performer>()
                 .Property(e => e.Name)
                 .IsRequired()
-                .HasMaxLength(Performer.MaxNameLength)
+                .HasMaxLength(PerformerNameMaxLength)
                 .IsUnicode(false);
 
             modelBuilder.Entity<Performer>()
@@ -116,7 +117,7 @@ namespace MusCat.Infrastructure.Data
             modelBuilder.Entity<Song>()
                 .Property(e => e.Name)
                 .IsRequired()
-                .HasMaxLength(Song.MaxNameLength)
+                .HasMaxLength(SongNameMaxLength)
                 .IsUnicode(false);
 
             modelBuilder.Entity<Song>()
@@ -125,5 +126,13 @@ namespace MusCat.Infrastructure.Data
                 .HasMaxLength(6)
                 .IsUnicode(false);
         }
+
+        // quite non-conventional approach
+        // (these constants are used in VM validation code too):
+
+        public const int PerformerNameMaxLength = 30;
+        public const int AlbumNameMaxLength = 50;
+        public const int SongNameMaxLength = 50;
+        public const int CountryNameMaxLength = 20;
     }
 }

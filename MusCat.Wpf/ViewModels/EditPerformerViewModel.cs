@@ -31,6 +31,7 @@ namespace MusCat.ViewModels
             set
             {
                 _performer = value;
+                _prevName = Performer.Name;
                 SelectedCountryId = Performer.Country?.Id;
                 RaisePropertyChanged();
             }
@@ -48,6 +49,8 @@ namespace MusCat.ViewModels
         }
 
         public int? SelectedCountryId { get; set; }
+
+        private string _prevName;
 
         public ObservableCollection<Genre> Genres { get; set; }
         
@@ -81,8 +84,8 @@ namespace MusCat.ViewModels
 
             if (result.Type != ResultType.Ok)
             {
-                MessageBox.Show(performer.Error);
-                Performer.Name = "Unknown";
+                MessageBox.Show(result.Error);
+                Performer.Name = _prevName;
                 return;
             }
 

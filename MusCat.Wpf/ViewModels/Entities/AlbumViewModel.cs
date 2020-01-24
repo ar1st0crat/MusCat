@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using MusCat.Core.Entities;
 using MusCat.Infrastructure.Services;
+using MusCat.Infrastructure.Validators;
 using System.ComponentModel;
+using System.Linq;
 
 namespace MusCat.ViewModels.Entities
 {
@@ -84,11 +86,32 @@ namespace MusCat.ViewModels.Entities
             ImagePath = FileLocator.GetAlbumImagePath(Mapper.Map<Album>(this));
         }
 
+
         #region IDataErrorInfo methods
 
-        public string Error => Mapper.Map<Album>(this).Error;
+        private readonly AlbumValidator _validator = new AlbumValidator();
 
-        public string this[string columnName] => Mapper.Map<Album>(this)[columnName];
+        public string Error
+        {
+            get
+            {
+                var error = string.Join("\n", this["Name"], this["TotalTime"]);
+                return error.Replace("\n", "") == string.Empty ? string.Empty : error;
+            }
+        }
+
+        public string this[string columnName]
+        {
+            get
+            {
+                var result = _validator.Validate(Mapper.Map<Album>(this));
+
+                var error = result.Errors
+                                  .First(e => e.PropertyName == columnName)
+                                  .ErrorMessage;
+                return error;
+            }
+        }
 
         #endregion
     }
