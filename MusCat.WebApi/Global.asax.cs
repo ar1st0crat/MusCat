@@ -16,7 +16,7 @@ namespace MusCat.WebApi
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
-            FileLocator.Pathlist.AddRange(new[] { @"D:\Music", @"E:\Music", @"E:\Music\Other" });
+            FileLocator.LoadConfiguration();
         }
     }
 }

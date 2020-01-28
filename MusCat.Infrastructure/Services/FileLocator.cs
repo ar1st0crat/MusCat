@@ -26,12 +26,10 @@ namespace MusCat.Infrastructure.Services
                                                        .ToList();
         /// <summary>
         /// During initialization FileLocator loads data from file "config\paths.xml".
-        /// If MusCat app is launched for the first time or the config file is corrupted,
-        /// user is asked to specify paths
         /// </summary>
-        public static void LoadConfiguration()
+        public static void LoadConfiguration(string configFile = @"config\paths.xml")
         {
-            using (var reader = XmlReader.Create(@"config\paths.xml"))
+            using (var reader = XmlReader.Create(configFile))
             {
                 Pathlist.Clear();
 

@@ -9,5 +9,12 @@ namespace MusCat.Core.Entities
         public string TimeLength { get; set; }
         public byte? Rate { get; set; }
         public Album Album { get; set; }
+
+        public int DurationInSeconds()
+        {
+            var minSecs = TimeLength.Split(':');
+
+            return int.Parse(minSecs[0]) * 60 + int.Parse(minSecs[1]);
+        }
     }
 }
