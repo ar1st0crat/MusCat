@@ -211,6 +211,7 @@
     <Content Include="Content\audio.css" />
     <Content Include="Content\pause.png" />
     <Content Include="Content\play.png" />
+    <Content Include="Scripts\radio.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

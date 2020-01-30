@@ -96,6 +96,10 @@ Stats window
 
 ![pic4](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/5.png)
 
+Web Radio
+
+![webradio](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/webradio.png)
+
 Some screenshots from Angular client:
 
 ![ang1](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/angular1.png)

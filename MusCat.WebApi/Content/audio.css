@@ -54,7 +54,7 @@ button {
     
     display: table-cell;
     position: relative;
-    font-size: 13px;
+    font-size: 11px;
 }
 
 #upcoming img {
@@ -80,6 +80,10 @@ button {
 #upcoming span:nth-child(3) {
     font-style: italic;
     font-size: 10px;
+}
+
+.upcoming-list {
+    padding-top: 35px;
 }
 
 #playback {

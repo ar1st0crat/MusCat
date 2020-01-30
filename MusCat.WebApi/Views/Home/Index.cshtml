@@ -14,100 +14,16 @@
     <div id="main">
         <div id="current">
             <div class="cont">
-                <img id='playback' src='~/Content/pause.png' onclick="pauseOrResume(); "/>
+                <img id="playback" src="~/Content/play.png" onclick="pauseOrResume(); " />
                 <h3></h3>
                 <h5></h5>
                 <time></time>
             </div>
-            <audio id="player" src="/api/radio/stream" autoplay></audio>
-            <!--<input id="volume" type="range" min="0.0" max="1.0" step="0.05"/>-->
+            <audio id="player"></audio>
         </div>
         <div id="upcoming">
-
         </div>
     </div>
-    <script type="text/javascript">
-        window.onload = switchSong;
-
-        var player = document.getElementById('player');
-        player.addEventListener("ended", function() { 
-                $.getJSON("/api/radio/next", function() {
-                    $("#player").attr("src", "/api/radio/stream");
-                    switchSong();
-                });
-            }, true);
-
-        //$("#player").bind("seeked", function() { 
-        //    alert("ok!");
-        //    $("#player").play(); 
-        //}, true);
-
-        player.addEventListener('canplay', function() { player.play(); });
-
-        function switchSong() {
-
-            $.getJSON("/api/radio/current", function (data) {
-                $("h3").text(data.Name);
-                $("h5").text(data.Performer);
-                $("time").text(data.Year);
-                $("#current")[0].style.backgroundImage =
-                    "url('/api/albums/" + data.Id + "/cover')";
-            });
-
-            $.getJSON("/api/radio/upcoming", function (data) {
-
-                $("#upcoming").empty();
-
-                var items = [];
-                var sign = 1;
-                var i = 0;
-                $.each(data, function (key, val) {
-                    items.push("<p>" +
-                                "<span>" + val.Performer + "</span>" +
-                                "<span>" + val.Name + "</span>" +
-                                "<span>[" + val.Duration + "]</span>" +
-                                "</p>");
-
-                    var img = document.createElement('img');
-
-                    img.setAttribute('src', '/api/albums/' + val.Id + '/cover');
-                    img.setAttribute('width', '80px');
-                    img.setAttribute('height', '80px');
-                    img.style.position = 'absolute';
-                    img.style.left = +((i % 4) * 60) + 'px';
-                    img.style.top = +(Math.floor(i / 4) * 60) + 'px';
-                    img.style.transform = "rotate(" + +(Math.random() * 20) * sign + "deg)";
-                    sign = -sign;
-                    document.getElementById('upcoming').appendChild(img);
-                    i++;
-                });
-
-                $("<ul/>", {
-                    "class": "my-new-list",
-                    html: items.join("")
-                })
-                .appendTo("#upcoming");
-            });
-
-            document.isPlaying = false;
-            pauseOrResume();
-        }
-
-        function pauseOrResume() {
-            if (document.isPlaying) {
-                document.getElementById('player').pause();
-                document.getElementById('playback').src = '../../Content/play.png';
-                document.isPlaying = false;
-            }
-            else {
-                document.getElementById('player').play();
-                //player.currentTime = player.duration - 10;
-                document.getElementById('playback').src = '../../Content/pause.png';
-                document.isPlaying = true;
-            }
-            
-            // document.getElementById('player').volume += 0.1;
-        }
-    </script>
+    <script src="~/Scripts/radio.js"></script>
 </body>
 </html>

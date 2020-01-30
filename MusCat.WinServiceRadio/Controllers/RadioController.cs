@@ -17,12 +17,15 @@ namespace MusCat.WinServiceRadio.Controllers
 
             var result = new
             {
-                Id = song.AlbumId,
+                Id = song.Id,
+                AlbumId = song.AlbumId,
                 Name = song.Name,
                 Duration = song.TimeLength,
+                Album = song.Album.Name,
                 Year = song.Album.ReleaseYear,
                 Performer = song.Album.Performer.Name,
-                Position = (int)delta.TotalSeconds
+                TrackNo = song.TrackNo,
+                Offset = (int)delta.TotalSeconds
             };
 
             var response = Request.CreateResponse(HttpStatusCode.OK, result);
@@ -35,7 +38,8 @@ namespace MusCat.WinServiceRadio.Controllers
             var upcoming = from song in MainService.Radio.UpcomingSongs
                            select new
                            {
-                               Id = song.AlbumId,
+                               Id = song.Id,
+                               AlbumId = song.AlbumId,
                                Name = song.Name,
                                Duration = song.TimeLength,
                                Album = song.Album.Name,
@@ -52,6 +56,8 @@ namespace MusCat.WinServiceRadio.Controllers
             var archive = from song in MainService.Radio.SongArchive
                           select new
                           {
+                              Id = song.Id,
+                              AlbumId = song.AlbumId,
                               Name = song.Name,
                               Duration = song.TimeLength,
                               Album = song.Album.Name,
