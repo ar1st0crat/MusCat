@@ -1,13 +1,13 @@
-﻿using MusCat.Application.Dto;
-using MusCat.Application.Interfaces;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Util;
-using MusCat.Infrastructure.Validators;
-using System.Linq;
-using System.Threading.Tasks;
+using MusCat.Application.Dto;
+using MusCat.Application.Interfaces;
+using MusCat.Application.Validators;
 
-namespace MusCat.Infrastructure.Business
+namespace MusCat.Application.Services
 {
     public class SongService : ISongService
     {

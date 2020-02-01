@@ -15,7 +15,8 @@ using MusCat.Core.Interfaces.Tracklist;
 using MusCat.Core.Interfaces.Stats;
 using MusCat.Core.Services;
 using MusCat.Application.Interfaces;
-using MusCat.Infrastructure.Business;
+using MusCat.Application.Dto;
+using MusCat.Application.Services;
 using MusCat.Infrastructure.Data;
 using MusCat.Infrastructure.Services;
 using MusCat.Infrastructure.Services.Audio;
@@ -25,7 +26,6 @@ using MusCat.Infrastructure.Services.Tracklist;
 using MusCat.Infrastructure.Services.Stats;
 using MusCat.ViewModels;
 using MusCat.ViewModels.Entities;
-using MusCat.Application.Dto;
 
 namespace MusCat
 {
@@ -83,7 +83,7 @@ namespace MusCat
             {
                 cfg.AddCollectionMappers();
 
-                cfg.AddProfile<Infrastructure.InfrastructureProfile>();
+                cfg.AddProfile<Application.InfrastructureProfile>();
 
                 cfg.CreateMap<Performer, PerformerViewModel>()
                    .EqualityComparison((src, dest) => src.Id == dest.Id)

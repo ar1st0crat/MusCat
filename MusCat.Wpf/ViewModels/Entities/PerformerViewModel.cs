@@ -3,10 +3,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Data;
 using AutoMapper;
+using MusCat.Application.Validators;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
 using MusCat.Infrastructure.Services;
-using MusCat.Infrastructure.Validators;
 
 namespace MusCat.ViewModels.Entities
 {
@@ -116,6 +116,11 @@ namespace MusCat.ViewModels.Entities
             get
             {
                 var result = _validator.Validate(Mapper.Map<Performer>(this));
+
+                if (!result.Errors.Any(e => e.PropertyName == columnName))
+                {
+                    return string.Empty;
+                }
 
                 var error = result.Errors
                                   .First(e => e.PropertyName == columnName)

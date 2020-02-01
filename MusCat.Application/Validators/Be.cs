@@ -1,4 +1,4 @@
-﻿namespace MusCat.Infrastructure.Validators
+﻿namespace MusCat.Application.Validators
 {
     static class Be
     {

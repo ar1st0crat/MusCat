@@ -30,10 +30,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=8.1.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.8.1.0\lib\net461\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper.Collection, Version=5.0.0.0, Culture=neutral, PublicKeyToken=e57c3f0a3d6646db, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.Collection.5.0.0\lib\net461\AutoMapper.Collection.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentValidation, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7de548da2fbae0f0, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentValidation.8.6.1\lib\net45\FluentValidation.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Annotations, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ComponentModel.Annotations.4.4.1\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -43,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Auto.cs" />
     <Compile Include="Dto\AlbumDto.cs" />
     <Compile Include="Dto\CountryDto.cs" />
     <Compile Include="Dto\PerformerDto.cs" />
@@ -54,6 +68,15 @@
     <Compile Include="Interfaces\Result.cs" />
     <Compile Include="Interfaces\ResultType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\AlbumService.cs" />
+    <Compile Include="Services\CountryService.cs" />
+    <Compile Include="Services\PerformerService.cs" />
+    <Compile Include="Services\SongService.cs" />
+    <Compile Include="Validators\AlbumValidator.cs" />
+    <Compile Include="Validators\Be.cs" />
+    <Compile Include="Validators\CountryValidator.cs" />
+    <Compile Include="Validators\PerformerValidator.cs" />
+    <Compile Include="Validators\SongValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

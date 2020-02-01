@@ -4,7 +4,7 @@ using MusCat.Application.Dto;
 using MusCat.Core.Entities;
 using System;
 
-namespace MusCat.Infrastructure
+namespace MusCat.Application
 {
     public static class Auto
     {

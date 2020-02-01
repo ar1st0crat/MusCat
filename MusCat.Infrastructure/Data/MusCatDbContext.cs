@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
+using MusCat.Application.Validators;
 using MusCat.Core.Entities;
 
 namespace MusCat.Infrastructure.Data
@@ -125,6 +126,15 @@ namespace MusCat.Infrastructure.Data
                 .IsRequired()
                 .HasMaxLength(6)
                 .IsUnicode(false);
+
+
+            // quite non-conventional approach
+            // (these constants are used in VM validation code too):
+
+            PerformerValidator.PerformerNameMaxLength = PerformerNameMaxLength;
+            AlbumValidator.AlbumNameMaxLength = AlbumNameMaxLength;
+            SongValidator.SongNameMaxLength = SongNameMaxLength;
+            CountryValidator.CountryNameMaxLength = CountryNameMaxLength;
         }
 
         // quite non-conventional approach

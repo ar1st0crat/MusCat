@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using MusCat.Application.Validators;
 using MusCat.Core.Entities;
-using MusCat.Infrastructure.Validators;
 using System.ComponentModel;
 using System.Linq;
 
@@ -46,6 +46,11 @@ namespace MusCat.ViewModels.Entities
             get
             {
                 var result = _validator.Validate(Mapper.Map<Country>(this));
+
+                if (!result.Errors.Any(e => e.PropertyName == columnName))
+                {
+                    return string.Empty;
+                }
 
                 var error = result.Errors
                                   .First(e => e.PropertyName == columnName)
