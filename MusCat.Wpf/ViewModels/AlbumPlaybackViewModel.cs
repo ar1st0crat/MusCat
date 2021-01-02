@@ -3,12 +3,12 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using AutoMapper;
 using MusCat.Application.Interfaces;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Audio;
+using MusCat.Core.Interfaces.Networking;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
 using MusCat.Util;
@@ -20,28 +20,31 @@ namespace MusCat.ViewModels
     {
         private readonly IAlbumService _albumService;
         private readonly IRateCalculator _rateCalculator;
+        private readonly ILyricsWebLoader _lyricsWebLoader;
 
         public AlbumViewModel Album { get; set; }
 
         private ObservableCollection<Song> _songs;
         public ObservableCollection<Song> Songs
         {
-            get { return _songs; }
+            get => _songs;
             set
             {
                 _songs = value;
                 RaisePropertyChanged();
             }
         }
-        
+
         private Song _selectedSong;
         public Song SelectedSong
         {
-            get { return _selectedSong; }
+            get => _selectedSong;
             set
             {
                 _selectedSong = value;
                 RaisePropertyChanged();
+                
+                IsLyricsVisible = Visibility.Collapsed;
 
                 if (!_isLoading) PlaySong();
             }
@@ -50,31 +53,52 @@ namespace MusCat.ViewModels
         private string _timePlayed;
         public string TimePlayed
         {
-            get { return _timePlayed; }
+            get => _timePlayed;
             set
             {
                 _timePlayed = value;
                 RaisePropertyChanged();
             }
         }
-        
+
+        private string _lyrics;
+        public string Lyrics
+        {
+            get => _lyrics;
+            set
+            {
+                _lyrics = value;
+                RaisePropertyChanged();
+            }
+        }
+        private Visibility _isLyricsVisible = Visibility.Collapsed;
+        public Visibility IsLyricsVisible
+        {
+            get => _isLyricsVisible;
+            set
+            {
+                _isLyricsVisible = value;
+                RaisePropertyChanged();
+            }
+        }
+
         /// <summary>
         /// Album header to be displayed in the window title
         /// </summary>
         public string AlbumHeader => $"{Album.Performer?.Name} - {Album.Name} ({Album.ReleaseYear})";
 
-        // Bitmaps for playback buttons
+        // Playback button Segoe MDL symbols
 
-        private static readonly BitmapImage ImagePlay = App.Current.TryFindResource("ImagePlayButton") as BitmapImage;
-        private static readonly BitmapImage ImagePause = App.Current.TryFindResource("ImagePauseButton") as BitmapImage;
+        private static readonly string SymbolPlay = "\uE768";
+        private static readonly string SymbolPause = "\uE769";
 
-        private BitmapImage _playbackImage = ImagePause;
-        public BitmapImage PlaybackImage
+        private string _playbackSymbol = SymbolPause;
+        public string PlaybackSymbol
         {
-            get { return _playbackImage; }
+            get => _playbackSymbol;
             set
             {
-                _playbackImage = value;
+                _playbackSymbol = value;
                 RaisePropertyChanged();
             }
         }
@@ -82,7 +106,7 @@ namespace MusCat.ViewModels
         private double _windowOpacity = 0.25;
         public double WindowOpacity
         {
-            get { return _windowOpacity; }
+            get => _windowOpacity;
             set
             {
                 _windowOpacity = value;
@@ -93,7 +117,7 @@ namespace MusCat.ViewModels
         private Visibility _isTracklistVisible = Visibility.Visible;
         public Visibility IsTracklistVisible
         {
-            get { return _isTracklistVisible; }
+            get => _isTracklistVisible;
             set
             {
                 _isTracklistVisible = value;
@@ -113,7 +137,7 @@ namespace MusCat.ViewModels
         private double _playbackPercentage;
         public double PlaybackPercentage
         {
-            get { return _playbackPercentage; }
+            get => _playbackPercentage;
             set
             {
                 _playbackPercentage = value;
@@ -123,14 +147,32 @@ namespace MusCat.ViewModels
             }
         }
 
+        private float _songVolume = 5.0f;
+        public float SongVolume
+        {
+            get => _songVolume;
+            set
+            {
+                _songVolume = value;
+                _player.SetVolume(value / 10.0f);
+                RaisePropertyChanged();
+            }
+        }
+
         // Commands
 
         public RelayCommand WindowClosingCommand { get; private set; }
         public RelayCommand PlaybackCommand { get; private set; }
+        public RelayCommand NextSongCommand { get; private set; }
+        public RelayCommand PrevSongCommand { get; private set; }
+        public RelayCommand StopSongCommand { get; private set; }
         public RelayCommand SeekPlaybackPositionCommand { get; private set; }
         public RelayCommand StartDragCommand { get; private set; }
         public RelayCommand StopDragCommand { get; private set; }
         public RelayCommand UpdateRateCommand { get; private set; }
+        public RelayCommand UpdateSongRateCommand { get; private set; }
+        public RelayCommand ShowLyricsCommand { get; private set; }
+        public RelayCommand ShowYoutubeCommand { get; private set; }
         public RelayCommand SwitchViewModeCommand { get; private set; }
 
         // This variable is set to true while the slider thumb is being dragged
@@ -146,26 +188,30 @@ namespace MusCat.ViewModels
 
         public AlbumPlaybackViewModel(IAlbumService albumService,
                                       IAudioPlayer player,
-                                      IRateCalculator rateCalculator)
+                                      IRateCalculator rateCalculator,
+                                      ILyricsWebLoader lyricsWebLoader)
         {
             Guard.AgainstNull(albumService);
             Guard.AgainstNull(player);
             Guard.AgainstNull(rateCalculator);
+            Guard.AgainstNull(lyricsWebLoader);
 
             _albumService = albumService;
             _player = player;
             _rateCalculator = rateCalculator;
-            
+            _lyricsWebLoader = lyricsWebLoader;
+
             // setting up commands
             PlaybackCommand = new RelayCommand(PlaybackSongAction);
+            NextSongCommand = new RelayCommand(NextSong);
+            PrevSongCommand = new RelayCommand(PrevSong);
+            StopSongCommand = new RelayCommand(StopSong);
             UpdateRateCommand = new RelayCommand(UpdateRate);
+            UpdateSongRateCommand = new RelayCommand(UpdateSongRate);
             SeekPlaybackPositionCommand = new RelayCommand(SeekPlaybackPosition);
-
-            SwitchViewModeCommand = new RelayCommand(() =>
-            {
-                WindowOpacity = WindowOpacity > 0.25 ? 0.25 : 1;
-                IsTracklistVisible = IsTracklistVisible == Visibility.Hidden ? Visibility.Visible : Visibility.Hidden;
-            });
+            ShowLyricsCommand = new RelayCommand(ShowLyrics);
+            ShowYoutubeCommand = new RelayCommand(ShowYoutube);
+            SwitchViewModeCommand = new RelayCommand(SwitchViewMode);
 
             // StopAndDispose media player when the window is closing to avoid a memory leak
             WindowClosingCommand = new RelayCommand(() =>
@@ -173,12 +219,13 @@ namespace MusCat.ViewModels
                 _isStopped = true;
                 _player.Close();
             });
-            
+
             // toggle the _isDragged variable
-            StartDragCommand = new RelayCommand(() => _isDragged = true);             
+            StartDragCommand = new RelayCommand(() => _isDragged = true);
             StopDragCommand = new RelayCommand(() => _isDragged = false);
         }
-        
+
+
         public async Task LoadSongsAsync()
         {
             _isLoading = true;
@@ -220,22 +267,55 @@ namespace MusCat.ViewModels
         {
             if (_player.IsStopped && !_player.IsStoppedManually)
             {
-                if (SelectedSong != Songs.Last())
+                if (SelectedSong == Songs.Last())
                 {
-                    SelectedSong = Songs.SkipWhile(s => s != SelectedSong)
-                                        .Skip(1)
-                                        .FirstOrDefault();
-                    PlaySong();
+                    SelectedSong = null;
                 }
                 else
                 {
-                    SelectedSong = null;
-                    PlaybackImage = ImagePlay;
+                    NextSong();
                 }
             }
 
             PlaybackPercentage = _player.PlayedTimePercent * 10.0;
         }
+
+        private void NextSong()
+        {
+            if (SelectedSong == Songs.Last())
+            {
+                return;
+            }
+
+            IsLyricsVisible = Visibility.Collapsed;
+
+            SelectedSong = Songs.SkipWhile(s => s != SelectedSong)
+                                .Skip(1)
+                                .FirstOrDefault();
+            PlaySong();
+        }
+
+        private void PrevSong()
+        {
+            if (SelectedSong == Songs.First())
+            {
+                return;
+            }
+
+            SelectedSong = Songs.Reverse()
+                                .SkipWhile(s => s != SelectedSong)
+                                .Skip(1)
+                                .FirstOrDefault();
+            PlaySong();
+        }
+
+        private void StopSong()
+        {
+            _player.Stop();
+            SelectedSong = null;
+            PlaybackSymbol = SymbolPlay;
+        }
+
 
         #region Song playback functions
 
@@ -246,7 +326,7 @@ namespace MusCat.ViewModels
 
             if (SelectedSong == null)
             {
-                PlaybackImage = ImagePlay;
+                PlaybackSymbol = SymbolPlay;
                 return;
             }
 
@@ -260,7 +340,7 @@ namespace MusCat.ViewModels
             try
             {
                 _player.Play(songfile);
-                PlaybackImage = ImagePause;
+                PlaybackSymbol = SymbolPause;
             }
             catch (Exception)
             {
@@ -280,11 +360,11 @@ namespace MusCat.ViewModels
             {
                 case PlaybackState.Play:
                     _player.Pause();
-                    PlaybackImage = ImagePlay;
+                    PlaybackSymbol = SymbolPlay;
                     break;
                 case PlaybackState.Pause:
                     _player.Resume();
-                    PlaybackImage = ImagePause;
+                    PlaybackSymbol = SymbolPause;
                     break;
             }
         }
@@ -317,6 +397,41 @@ namespace MusCat.ViewModels
         {
             Performer?.UpdateAlbumCollectionRate(_rateCalculator);
             await _albumService.UpdateAlbumRateAsync(Album.Id, Album.Rate);
+        }
+
+        private async void UpdateSongRate()
+        {
+            await _albumService.UpdateSongRateAsync(SelectedSong.Id, SelectedSong.Rate);
+        }
+
+
+        private void SwitchViewMode()
+        {
+            WindowOpacity = WindowOpacity > 0.25 ? 0.25 : 1;
+            IsTracklistVisible = IsTracklistVisible == Visibility.Hidden ? Visibility.Visible : Visibility.Hidden;
+            
+            if (IsTracklistVisible == Visibility.Visible)
+            {
+                IsLyricsVisible = Visibility.Collapsed;
+            }
+        }
+
+        private async void ShowLyrics()
+        {
+            if (IsLyricsVisible == Visibility.Visible)
+            {
+                IsLyricsVisible = Visibility.Collapsed;
+            }
+            else
+            {
+                Lyrics = await _lyricsWebLoader.LoadLyricsAsync(Performer.Name, SelectedSong.Name);
+                IsLyricsVisible = Visibility.Visible;
+                SwitchViewMode();
+            }
+        }
+
+        private void ShowYoutube()
+        {
         }
     }
 }

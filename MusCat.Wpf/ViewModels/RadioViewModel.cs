@@ -28,17 +28,19 @@ namespace MusCat.ViewModels
         private readonly IAudioPlayer _player;
         private bool _isStopped;
 
-        // Bitmaps for playback buttons
-        private static readonly BitmapImage ImagePlay = App.Current.Resources["ImagePlayButton"] as BitmapImage;
-        private static readonly BitmapImage ImagePause = App.Current.Resources["ImagePauseButton"] as BitmapImage;
+        // Playback button Segoe MDL symbols
 
-        private BitmapImage _playbackImage = ImagePause;
-        public BitmapImage PlaybackImage
+        private static readonly string SymbolPlay = "\uE768";
+        private static readonly string SymbolPause = "\uE769";
+        private static readonly string SymbolStop = "\uE71A";
+
+        private string _playbackSymbol = SymbolPause;
+        public string PlaybackSymbol
         {
-            get { return _playbackImage; }
+            get { return _playbackSymbol; }
             set
             {
-                _playbackImage = value;
+                _playbackSymbol = value;
                 RaisePropertyChanged();
             }
         }
@@ -122,7 +124,7 @@ namespace MusCat.ViewModels
             StopCommand = new RelayCommand(() =>
             {
                 _player.Stop();
-                PlaybackImage = ImagePlay;
+                PlaybackSymbol = SymbolPlay;
             });
 
             WindowClosingCommand = new RelayCommand(() =>
@@ -157,7 +159,7 @@ namespace MusCat.ViewModels
             RaisePropertyChanged("NextSong");
             RaisePropertyChanged("RadioArchive");
             RaisePropertyChanged("RadioUpcoming");
-            PlaybackImage = ImagePause;
+            PlaybackSymbol = SymbolPause;
         }
 
         /// <summary>
@@ -235,15 +237,15 @@ namespace MusCat.ViewModels
             {
                 case PlaybackState.Play:
                     _player.Pause();
-                    PlaybackImage = ImagePlay;
+                    PlaybackSymbol = SymbolPlay;
                     break;
                 case PlaybackState.Pause:
                     _player.Resume();
-                    PlaybackImage = ImagePause;
+                    PlaybackSymbol = SymbolPause;
                     break;
                 case PlaybackState.Stop:
                     PlayCurrentSong();
-                    PlaybackImage = ImagePause;
+                    PlaybackSymbol = SymbolPause;
                     break;
             }
         }

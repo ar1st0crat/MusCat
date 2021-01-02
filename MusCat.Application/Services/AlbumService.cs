@@ -137,6 +137,27 @@ namespace MusCat.Application.Services
             return new Result<AlbumDto>(Auto.Mapper.Map<AlbumDto>(album));
         }
 
+        public async Task<Result<SongDto>> UpdateSongRateAsync(int songId, byte? rate)
+        {
+            var songs = await _unitOfWork.SongRepository
+                                         .GetAsync(s => s.Id == songId)
+                                         .ConfigureAwait(false);
+
+            var song = songs.FirstOrDefault();
+
+            if (song == null)
+            {
+                return new Result<SongDto>(ResultType.Invalid, "Could not find song!");
+            }
+
+            song.Rate = rate;
+
+            _unitOfWork.SongRepository.Edit(song);
+            _unitOfWork.Save();
+
+            return new Result<SongDto>(Auto.Mapper.Map<SongDto>(song));
+        }
+
         public async Task<Result<AlbumDto>> MoveAlbumToPerformerAsync(int albumId, int performerId)
         {
             var albums = await _unitOfWork.AlbumRepository

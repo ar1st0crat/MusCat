@@ -22,7 +22,7 @@ namespace MusCat.ViewModels
     class EditPerformerViewModel : ViewModelBase
     {
         private readonly IPerformerService _performerService;
-        private readonly IWebLoader _bioLoader;
+        private readonly IBioWebLoader _bioWebLoader;
 
         private PerformerViewModel _performer;
         public PerformerViewModel Performer
@@ -61,13 +61,13 @@ namespace MusCat.ViewModels
         public RelayCommand SavePerformerCommand { get; private set; }
 
 
-        public EditPerformerViewModel(IPerformerService performerService, IWebLoader bioLoader)
+        public EditPerformerViewModel(IPerformerService performerService, IBioWebLoader bioWebLoader)
         {
             Guard.AgainstNull(performerService);
-            Guard.AgainstNull(bioLoader);
+            Guard.AgainstNull(bioWebLoader);
 
             _performerService = performerService;
-            _bioLoader = bioLoader;
+            _bioWebLoader = bioWebLoader;
 
             LoadImageFromFileCommand = new RelayCommand(LoadPerformerImageFromFile);
             LoadImageFromClipboardCommand = new RelayCommand(LoadPerformerImageFromClipboard);
@@ -98,7 +98,7 @@ namespace MusCat.ViewModels
         {
             try
             {
-                Performer.Info = await _bioLoader.LoadBioAsync(Performer.Name);
+                Performer.Info = await _bioWebLoader.LoadBioAsync(Performer.Name);
                 RaisePropertyChanged("Performer");
             }
             catch (Exception ex)

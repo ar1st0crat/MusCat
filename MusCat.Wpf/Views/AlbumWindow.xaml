@@ -5,9 +5,10 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:converters="clr-namespace:MusCat.Converters"
         xmlns:controls="clr-namespace:MusCat.Controls"
-        SizeToContent="WidthAndHeight"
         MinWidth="500"
         MinHeight="510"
+        Width="620"
+        Height="650"
         BorderBrush="AliceBlue"
         Title="{Binding AlbumHeader}">
 
@@ -19,15 +20,35 @@
 
     <Window.Resources>
         <!-- GUI parameters -->
-        <sys:Double x:Key="AlbumWidth">300</sys:Double>
-        <sys:Double x:Key="AlbumHeight">300</sys:Double>
+        <sys:Double x:Key="AlbumWidth">500</sys:Double>
+        <sys:Double x:Key="AlbumHeight">500</sys:Double>
         
         <!-- Converters -->
         <converters:AlbumImageConverter x:Key="AlbumImageConverter"/>
         <converters:RateConverter x:Key="AlbumRateConverter"/>
+
+        <Style x:Key="TransparentButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="Gray"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         
         <DataTemplate x:Key="SongTemplate">
-            <WrapPanel>
+            <WrapPanel HorizontalAlignment="Center">
                 <Label Content="{Binding Path=TrackNo}"
                        Foreground="White"
                        FontSize="10"/>
@@ -40,10 +61,30 @@
         </DataTemplate>
         
         <DataTemplate x:Key="SelectedSongTemplate">
-            <StackPanel>
+            <StackPanel Background="Black" Opacity="0.7">
+                <DockPanel Margin="15,5,0,0" LastChildFill="False">
+                    <controls:RateStarsControl Rate="{Binding Rate}" Height="14" Width="72"
+                                               DockPanel.Dock="Left">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.UpdateSongRateCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </controls:RateStarsControl>
+                    <Button DockPanel.Dock="Right"
+                            Style="{StaticResource TransparentButtonStyle}"
+                            Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.StopSongCommand}"
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="6"
+                            Width="6"
+                            Margin="0,0,4,0"
+                            VerticalAlignment="Top">
+                        &#xEF2C;
+                    </Button>
+                </DockPanel>
                 <WrapPanel HorizontalAlignment="Center"
                            Background="Transparent"
-                           Margin="0,10,0,0">
+                           Margin="0,-5,0,0">
                     <Label Content="{Binding TrackNo}"
                            Foreground="White"
                            FontSize="14" FontWeight="ExtraBold"/>
@@ -57,39 +98,102 @@
                            Margin="-7,0,-7,0"
                            Foreground="White"
                            FontSize="14" FontWeight="ExtraBold"/>
-                    <Label Content="{Binding Path=TimeLength}"
+                    <Label Content="{Binding TimeLength}"
                            Foreground="LightPink"
                            FontSize="14" FontWeight="ExtraBold"/>
                 </WrapPanel>
-                <DockPanel DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext}"
-                           Background="Transparent" Margin="0,0,0,10" HorizontalAlignment="Center">
-                    <Image Source="{Binding Path=PlaybackImage, UpdateSourceTrigger=PropertyChanged}"
-                           Width="24" Height="24">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="MouseDown">
-                                <i:InvokeCommandAction Command="{Binding Path=PlaybackCommand}"/>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </Image>
-                    <Slider Style="{StaticResource SliderStyle}"
+                <Grid DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext}"
+                      Background="Transparent"
+                      Margin="20,-10,5,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource TransparentButtonStyle}"
+                                Command="{Binding PrevSongCommand}"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="10"
+                                Margin="0,0,4,0"
+                                VerticalAlignment="Center">
+                            &#59538;
+                        </Button>
+                        <Button Style="{StaticResource TransparentButtonStyle}"
+                                Command="{Binding PlaybackCommand}"
+                                Content="{Binding PlaybackSymbol}"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="16"
+                                VerticalAlignment="Center" />
+                        <Button Style="{StaticResource TransparentButtonStyle}"
+                                Command="{Binding NextSongCommand}"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="10"
+                                Margin="4,0,6,0"
+                                VerticalAlignment="Center">
+                            &#59539;
+                        </Button>
+                    </StackPanel>
+                    <Slider Grid.Column="1"
+                            Margin="0"
+                            Style="{StaticResource SliderStyle}"
                             Value="{Binding Path=PlaybackPercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            Width="300"
+                            HorizontalAlignment="Stretch"
                             VerticalAlignment="Center">
-                        <!-- this code was added only to follow the pure MVVM -->
-                        <!-- the triggers aren't necessary: we could add only one simple handler of the Thumb.DragCompleted event -->
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="ValueChanged">
-                                <i:InvokeCommandAction Command="{Binding Path=SeekPlaybackPositionCommand}"/>
+                                <i:InvokeCommandAction Command="{Binding SeekPlaybackPositionCommand}"/>
                             </i:EventTrigger>
                             <i:EventTrigger EventName="PreviewMouseDown">
-                                <i:InvokeCommandAction Command="{Binding Path=StartDragCommand}"/>
+                                <i:InvokeCommandAction Command="{Binding StartDragCommand}"/>
                             </i:EventTrigger>
                             <i:EventTrigger EventName="PreviewMouseUp">
-                                <i:InvokeCommandAction Command="{Binding Path=StopDragCommand}"/>
+                                <i:InvokeCommandAction Command="{Binding StopDragCommand}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Slider>
-                </DockPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10,0,0,0" Height="60">
+                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                                   FontSize="16"
+                                   Background="Transparent"
+                                   Foreground="White"
+                                   VerticalAlignment="Center">
+                            &#59239;
+                        </TextBlock>
+                        <Slider Style="{StaticResource SliderStyle}"                           
+                                Value="{Binding SongVolume, Mode=TwoWay}"
+                                Width="60"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Center"/>
+                        <Button Style="{StaticResource TransparentButtonStyle}"
+                                Command="{Binding ShowLyricsCommand}"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="14"
+                                VerticalAlignment="Center"
+                                Margin="10,0,0,0">
+                            &#xf000;
+                        </Button>
+                        <Button Style="{StaticResource TransparentButtonStyle}"
+                                Command="{Binding ShowYoutubeCommand}"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="18"
+                                Margin="7,0,10,0"
+                                VerticalAlignment="Center">
+                            &#xe753;
+                        </Button>
+                    </StackPanel>
+                </Grid>
+                <!--<TextBlock DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext}"
+                           Text="{Binding Lyrics}"
+                           Visibility="{Binding IsLyricsVisible}"
+                           Foreground="White"
+                           FontSize="10"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           Margin="0,-10,0,0"
+                           Padding="5,0,0,15"
+                           MaxHeight="250" />-->
             </StackPanel>
         </DataTemplate>
 
@@ -98,7 +202,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
-                        <Grid HorizontalAlignment="Center">
+                        <Grid>
                             <Border x:Name="Border" Background="Transparent"/>
                             <ContentPresenter />
                         </Grid>
@@ -132,8 +236,9 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="60" />
         </Grid.RowDefinitions>
-
+        
         <Button Grid.Row="0"
+                Style="{StaticResource TransparentButtonStyle}"
                 HorizontalAlignment="Left"
                 Margin="12"
                 Background="Transparent"
@@ -143,27 +248,6 @@
                 Cursor="Hand"
                 Command="{Binding SwitchViewModeCommand}">
             &#xEDE3;
-            <Button.Style>
-                <Style TargetType="{x:Type Button}">
-                    <Setter Property="Background" Value="Transparent"/>
-                    <Setter Property="Foreground" Value="White"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type Button}">
-                                <Border Background="{TemplateBinding Background}">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="Foreground" Value="Gray"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Button.Style>
         </Button>
         <DockPanel Grid.Row="0"
                    HorizontalAlignment="Right"
@@ -182,17 +266,17 @@
                 </i:Interaction.Triggers>
             </controls:RateStarsControl>
         </DockPanel>
-        
+
         <ListBox Grid.Row="1"
                  Visibility="{Binding IsTracklistVisible}"
                  ItemsSource="{Binding Songs}"
                  ItemContainerStyle="{StaticResource SongStyle}"
                  SelectedValue="{Binding Path=SelectedSong, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                  IsSynchronizedWithCurrentItem="True"
-                 HorizontalAlignment="Center"
+                 HorizontalAlignment="Stretch"
                  VerticalAlignment="Center"
-                 HorizontalContentAlignment="Center"
-                 Margin="20" 
+                 HorizontalContentAlignment="Stretch"
+                 Margin="-2,20,-2,20" 
                  Width="auto" Height="auto"
                  Background="Transparent"
                  BorderBrush="Transparent">
@@ -200,6 +284,29 @@
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
             </ListBox.Resources>
         </ListBox>
+
+        <ScrollViewer Grid.Row="1"
+                      Width="500"
+                      Height="500"
+                      Visibility="{Binding IsLyricsVisible}"
+                      CanContentScroll="True"
+                      VerticalScrollBarVisibility="Auto">
+            <Border Background="White"
+                    Opacity="0.94"
+                    CornerRadius="30"
+                    BorderThickness="1"
+                    BorderBrush="White">
+                <TextBlock Text="{Binding Lyrics}"
+                           Foreground="Black"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           TextAlignment="Center"
+                           Padding="20" />
+            </Border>
+
+        </ScrollViewer>
 
         <DockPanel Grid.Row="2"
                    Visibility="{Binding IsTracklistVisible}">
@@ -221,7 +328,6 @@
                        Foreground="White"
                        Margin="0,-5,-10,-5"/>
                 </StackPanel>
-                
             </DockPanel>
             <Label Content="{Binding Album.TotalTime}"
                    Background="Transparent" Foreground="White"

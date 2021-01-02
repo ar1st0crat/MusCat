@@ -30,6 +30,26 @@
         <!-- Album cover path converter -->
         <converters:AlbumImageConverter x:Key="AlbumImageConverter"/>
 
+        <Style x:Key="TransparentButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="Yellow"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
         <Style x:Key="RadioExpanderStyle" TargetType="{x:Type Expander}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -249,27 +269,36 @@
                        Width="150"
                        Height="50"
                        Fill="Black"
-                       Opacity="0.75"
+                       Opacity="0.85"
                        RadiusX="10" RadiusY="10"
                        VerticalAlignment="Top"
                        Margin="0,210,0,0"/>
             <DockPanel Grid.Column="1"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Top"
-                       Margin="0,220,0,0">
-                <!-- Images in playback control panel -->
-                <Image Source="{Binding PlaybackImage, UpdateSourceTrigger=PropertyChanged}"
-                           Width="32">
-                    <Image.InputBindings>
-                        <MouseBinding Gesture="LeftClick" Command="{Binding PlaybackCommand}" />
-                    </Image.InputBindings>
-                </Image>
-                <Image Source="{StaticResource ImageStopButton}"
-                           Width="32">
-                    <Image.InputBindings>
-                        <MouseBinding Gesture="LeftClick" Command="{Binding StopCommand}" />
-                    </Image.InputBindings>
-                </Image>
+                       Margin="0,227,0,0">
+                <Button Style="{StaticResource TransparentButtonStyle}"
+                                Command="{Binding PreviousSongCommand}"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="12"
+                                Margin="0,0,4,0"
+                                VerticalAlignment="Center">
+                    &#59538;
+                </Button>
+                <Button Style="{StaticResource TransparentButtonStyle}"
+                                Command="{Binding PlaybackCommand}"
+                                Content="{Binding PlaybackSymbol}"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="16"
+                                VerticalAlignment="Center" />
+                <Button Style="{StaticResource TransparentButtonStyle}"
+                                Command="{Binding NextSongCommand}"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="12"
+                                Margin="4,0,6,0"
+                                VerticalAlignment="Center">
+                    &#59539;
+                </Button>
                 <Slider Value="{Binding SongVolume, Mode=TwoWay}"
                             Width="75"
                             VerticalAlignment="Center" Style="{StaticResource SliderStyle}" />

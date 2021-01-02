@@ -157,7 +157,9 @@ namespace MusCat
             builder.RegisterType<AudioPlayer>().As<IAudioPlayer>();
             builder.RegisterType<RadioService>().As<IRadioService>();
             builder.RegisterType<Mp3TracklistHelper>().As<ITracklistHelper>();
-            builder.RegisterType<WebLoader>().As<IWebLoader>();
+            builder.RegisterType<BioWebLoader>().As<IBioWebLoader>();
+            builder.RegisterType<TracklistWebLoader>().As<ITracklistWebLoader>();
+            builder.RegisterType<LyricsWebLoader>().As<ILyricsWebLoader>();
             builder.RegisterType<RateCalculator>().As<IRateCalculator>();
             builder.RegisterType<MainViewModel>();
             builder.RegisterType<AlbumPlaybackViewModel>();

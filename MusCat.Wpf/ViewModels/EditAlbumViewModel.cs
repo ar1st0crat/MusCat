@@ -24,7 +24,7 @@ namespace MusCat.ViewModels
         private readonly IAlbumService _albumService;
         private readonly ISongService _songService;
         private readonly ITracklistHelper _tracklist;
-        private readonly IWebLoader _trackLoader;
+        private readonly ITracklistWebLoader _tracklistWebLoader;
 
         public AlbumViewModel Album { get; set; }
 
@@ -67,17 +67,17 @@ namespace MusCat.ViewModels
         public EditAlbumViewModel(IAlbumService albumService,
                                   ISongService songService,
                                   ITracklistHelper tracklist,
-                                  IWebLoader trackLoader)
+                                  ITracklistWebLoader tracklistWebLoader)
         {
             Guard.AgainstNull(albumService);
             Guard.AgainstNull(songService);
             Guard.AgainstNull(tracklist);
-            Guard.AgainstNull(trackLoader);
+            Guard.AgainstNull(tracklistWebLoader);
 
             _albumService = albumService;
             _songService = songService;
             _tracklist = tracklist;
-            _trackLoader = trackLoader;
+            _tracklistWebLoader = tracklistWebLoader;
 
             // setting up commands
 
@@ -231,7 +231,7 @@ namespace MusCat.ViewModels
         {
             try
             {
-                var tracks = await _trackLoader.LoadTracksAsync(Album.Performer.Name, Album.Name);
+                var tracks = await _tracklistWebLoader.LoadTracksAsync(Album.Performer.Name, Album.Name);
 
                 for (var i = 0; i < tracks.Length; i++)
                 {

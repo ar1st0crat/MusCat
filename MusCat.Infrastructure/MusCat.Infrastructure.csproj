@@ -72,7 +72,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Audio\AudioPlayer.cs" />
     <Compile Include="Services\FileLocator.cs" />
-    <Compile Include="Services\Networking\WebLoader.cs" />
+    <Compile Include="Services\Networking\LyricsWebLoader.cs" />
+    <Compile Include="Services\Networking\TracklistWebLoader.cs" />
+    <Compile Include="Services\Networking\BioWebLoader.cs" />
     <Compile Include="Services\Util\ParserStringUtils.cs" />
     <Compile Include="Services\Radio\RadioService.cs" />
     <Compile Include="Services\Radio\RandomSongSelector.cs" />

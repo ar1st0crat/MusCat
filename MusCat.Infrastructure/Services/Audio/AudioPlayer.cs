@@ -59,7 +59,7 @@ namespace MusCat.Infrastructure.Services.Audio
         public void Stop(bool manualStop = true)
         {
             IsStoppedManually = manualStop;
-            _waveOut.Stop();
+            _waveOut?.Stop();
             SongPlaybackState = PlaybackState.Stop;
         }
 
