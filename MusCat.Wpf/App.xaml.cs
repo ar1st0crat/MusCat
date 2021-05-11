@@ -26,6 +26,7 @@ using MusCat.Infrastructure.Services.Tracklist;
 using MusCat.Infrastructure.Services.Stats;
 using MusCat.ViewModels;
 using MusCat.ViewModels.Entities;
+using Microsoft.Win32;
 
 namespace MusCat
 {
@@ -59,11 +60,13 @@ namespace MusCat
             }
 
             FileLocator.LoadConfiguration();
+            
+            InitWebBrowser();
 
             // Normal shutdown
 
             Current.ShutdownMode = ShutdownMode.OnLastWindowClose;
-            
+
             // Show main window:
 
             var mainWindow = new MainWindow
@@ -160,6 +163,7 @@ namespace MusCat
             builder.RegisterType<BioWebLoader>().As<IBioWebLoader>();
             builder.RegisterType<TracklistWebLoader>().As<ITracklistWebLoader>();
             builder.RegisterType<LyricsWebLoader>().As<ILyricsWebLoader>();
+            builder.RegisterType<VideoLinkWebLoader>().As<IVideoLinkWebLoader>();
             builder.RegisterType<RateCalculator>().As<IRateCalculator>();
             builder.RegisterType<MainViewModel>();
             builder.RegisterType<AlbumPlaybackViewModel>();
@@ -169,6 +173,35 @@ namespace MusCat
             builder.RegisterType<EditCountryViewModel>();
 
             return builder.Build();
+        }
+
+        /// <summary>
+        /// Call this function before embedding YouTube videos in WPF windows
+        /// </summary>
+        private static void InitWebBrowser()
+        {
+            int browserVersion;
+            int registryValue;
+
+            using (var wb = new System.Windows.Forms.WebBrowser())
+            {
+                browserVersion = wb.Version.Major;
+            }
+
+            if (browserVersion >= 11)
+                registryValue = 11001;
+            else if (browserVersion == 10)
+                registryValue = 10001;
+            else if (browserVersion == 9)
+                registryValue = 9999;
+            else if (browserVersion == 8)
+                registryValue = 8888;
+            else
+                registryValue = 7000;
+
+            using (RegistryKey Key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION", RegistryKeyPermissionCheck.ReadWriteSubTree))
+                if (Key.GetValue(System.Diagnostics.Process.GetCurrentProcess().ProcessName + ".exe") == null)
+                    Key.SetValue(System.Diagnostics.Process.GetCurrentProcess().ProcessName + ".exe", registryValue, RegistryValueKind.DWord);
         }
     }
 }

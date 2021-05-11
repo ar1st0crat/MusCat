@@ -75,6 +75,7 @@
     <Compile Include="Services\Networking\LyricsWebLoader.cs" />
     <Compile Include="Services\Networking\TracklistWebLoader.cs" />
     <Compile Include="Services\Networking\BioWebLoader.cs" />
+    <Compile Include="Services\Networking\VideoLinkWebLoader.cs" />
     <Compile Include="Services\Util\ParserStringUtils.cs" />
     <Compile Include="Services\Radio\RadioService.cs" />
     <Compile Include="Services\Radio\RandomSongSelector.cs" />

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Net;
+﻿using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
@@ -19,10 +17,8 @@ namespace MusCat.Infrastructure.Services.Networking
         /// <returns>Song lyrics</returns>
         public async Task<string> LoadLyricsAsync(string performer, string song)
         {
-            var performerUrl = //Uri.EscapeUriString(
-                HttpUtility.UrlEncode(performer);//);
-            var songUrl = //Uri.EscapeUriString(
-                HttpUtility.UrlEncode(song);//);
+            var performerUrl = HttpUtility.UrlEncode(performer);
+            var songUrl = HttpUtility.UrlEncode(song);
 
             var url = $"http://api.chartlyrics.com/apiv1.asmx/SearchLyric?artist={performerUrl}&song={songUrl}";
 

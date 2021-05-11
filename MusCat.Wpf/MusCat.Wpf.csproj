@@ -29,6 +29,8 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -111,7 +113,9 @@
     <Compile Include="Converters\AlbumCountConverter.cs" />
     <Compile Include="Converters\PerformerImageConverter.cs" />
     <Compile Include="Converters\TruncateTextConverter.cs" />
+    <Compile Include="Util\WebBrowserHelper.cs" />
     <Compile Include="ViewModels\AlbumPlaybackViewModel.cs" />
+    <Compile Include="Util\CircularCollection.cs" />
     <Compile Include="ViewModels\Entities\AlbumViewModel.cs" />
     <Compile Include="Util\DialogResultHelper.cs" />
     <Compile Include="ViewModels\EditCountryViewModel.cs" />
@@ -128,6 +132,7 @@
     <Compile Include="ViewModels\RadioViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\StatsViewModel.cs" />
+    <Compile Include="ViewModels\VideosViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\ChoiceWindow.xaml.cs">
       <DependentUpon>ChoiceWindow.xaml</DependentUpon>
@@ -164,6 +169,9 @@
     </Compile>
     <Compile Include="Views\StatsWindow.xaml.cs">
       <DependentUpon>StatsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideosWindow.xaml.cs">
+      <DependentUpon>VideosWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Controls\Button.xaml">
       <SubType>Designer</SubType>
@@ -230,6 +238,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\StatsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideosWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

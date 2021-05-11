@@ -40,7 +40,7 @@ namespace MusCat.WebApi
             builder.Register(c => new RandomSongSelector(connectionString)).As<ISongSelector>();
             builder.RegisterType<RadioService>().As<IRadioService>();
             builder.RegisterType<Mp3TracklistHelper>().As<ITracklistHelper>();
-            builder.RegisterType<WebLoader>().As<IWebLoader>();
+            //builder.RegisterType<WebLoader>().As<IWebLoader>();
             builder.RegisterType<RateCalculator>().As<IRateCalculator>();
 
             var container = builder.Build();

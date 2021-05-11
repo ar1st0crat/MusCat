@@ -54,6 +54,7 @@
     <Compile Include="Interfaces\Data\IUnitOfWork.cs" />
     <Compile Include="Interfaces\Networking\ILyricsWebLoader.cs" />
     <Compile Include="Interfaces\Networking\ITracklistWebLoader.cs" />
+    <Compile Include="Interfaces\Networking\IVideoLinkWebLoader.cs" />
     <Compile Include="Interfaces\Radio\ISongSelector.cs" />
     <Compile Include="Interfaces\Networking\IWebLoader.cs" />
     <Compile Include="Interfaces\Data\PageCollection.cs" />

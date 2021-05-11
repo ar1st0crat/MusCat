@@ -13,6 +13,7 @@ using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
 using MusCat.Util;
 using MusCat.ViewModels.Entities;
+using MusCat.Views;
 
 namespace MusCat.ViewModels
 {
@@ -21,6 +22,7 @@ namespace MusCat.ViewModels
         private readonly IAlbumService _albumService;
         private readonly IRateCalculator _rateCalculator;
         private readonly ILyricsWebLoader _lyricsWebLoader;
+        private readonly IVideoLinkWebLoader _videoLinkWebLoader;
 
         public AlbumViewModel Album { get; set; }
 
@@ -189,17 +191,20 @@ namespace MusCat.ViewModels
         public AlbumPlaybackViewModel(IAlbumService albumService,
                                       IAudioPlayer player,
                                       IRateCalculator rateCalculator,
-                                      ILyricsWebLoader lyricsWebLoader)
+                                      ILyricsWebLoader lyricsWebLoader,
+                                      IVideoLinkWebLoader videoLinkWebLoader)
         {
             Guard.AgainstNull(albumService);
             Guard.AgainstNull(player);
             Guard.AgainstNull(rateCalculator);
             Guard.AgainstNull(lyricsWebLoader);
+            Guard.AgainstNull(videoLinkWebLoader);
 
             _albumService = albumService;
             _player = player;
             _rateCalculator = rateCalculator;
             _lyricsWebLoader = lyricsWebLoader;
+            _videoLinkWebLoader = videoLinkWebLoader;
 
             // setting up commands
             PlaybackCommand = new RelayCommand(PlaybackSongAction);
@@ -401,7 +406,14 @@ namespace MusCat.ViewModels
 
         private async void UpdateSongRate()
         {
-            await _albumService.UpdateSongRateAsync(SelectedSong.Id, SelectedSong.Rate);
+            try
+            {
+                await _albumService.UpdateSongRateAsync(SelectedSong.Id, SelectedSong.Rate);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
 
@@ -424,14 +436,34 @@ namespace MusCat.ViewModels
             }
             else
             {
-                Lyrics = await _lyricsWebLoader.LoadLyricsAsync(Performer.Name, SelectedSong.Name);
+                var performerName = SelectedSong.Album.Performer.Name;
+
+                var lyricsText = await _lyricsWebLoader.LoadLyricsAsync(performerName, SelectedSong.Name);
+
+                Lyrics = $"{SelectedSong.Name.ToUpperInvariant()}\r\n\r\n{lyricsText}";
                 IsLyricsVisible = Visibility.Visible;
                 SwitchViewMode();
             }
         }
-
-        private void ShowYoutube()
+        
+        private async void ShowYoutube()
         {
+            var performer = SelectedSong.Album.Performer.Name;
+            var song = SelectedSong.Name;
+
+            var videosViewModel = new VideosViewModel 
+            {
+                Title = $"{performer} - {song}"
+            };
+
+            var videosWindow = new VideosWindow 
+            {
+                DataContext = videosViewModel
+            };
+
+            videosWindow.Show();
+
+            videosViewModel.VideoLinks = await _videoLinkWebLoader.LoadVideoLinksAsync(performer, song);
         }
     }
 }
