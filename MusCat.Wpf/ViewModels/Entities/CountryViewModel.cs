@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
 using MusCat.Application.Validators;
 using MusCat.Core.Entities;
+using Prism.Mvvm;
 using System.ComponentModel;
 using System.Linq;
 
 namespace MusCat.ViewModels.Entities
 {
-    class CountryViewModel : ViewModelBase, IDataErrorInfo
+    class CountryViewModel : BindableBase, IDataErrorInfo
     {
         public byte Id { get; set; }
 
@@ -14,22 +15,14 @@ namespace MusCat.ViewModels.Entities
         public string Name
         {
             get { return _name; }
-            set
-            {
-                _name = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _name, value); }
         }
 
         private int _performerCount;
         public int PerformerCount
         {
             get { return _performerCount; }
-            set
-            {
-                _performerCount = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _performerCount, value); }
         }
 
         public string PerformerInfo => $"{Name} ({PerformerCount})";

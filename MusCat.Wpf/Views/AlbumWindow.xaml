@@ -1,24 +1,16 @@
-﻿<Window x:Class="MusCat.Views.AlbumWindow"
+﻿<UserControl x:Class="MusCat.Views.AlbumWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:converters="clr-namespace:MusCat.Converters"
         xmlns:controls="clr-namespace:MusCat.Controls"
-        MinWidth="500"
-        MinHeight="510"
-        Width="620"
-        Height="650"
-        BorderBrush="AliceBlue"
-        Title="{Binding AlbumHeader}">
+        xmlns:prism="http://prismlibrary.com/"
+        MinWidth="600"
+        MinHeight="600"
+        BorderBrush="AliceBlue">
 
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Closing">
-            <i:InvokeCommandAction Command="{Binding WindowClosingCommand}"/>
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
-
-    <Window.Resources>
+    <UserControl.Resources>
         <!-- GUI parameters -->
         <sys:Double x:Key="AlbumWidth">500</sys:Double>
         <sys:Double x:Key="AlbumHeight">500</sys:Double>
@@ -209,15 +201,24 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-    </Window.Resources>
+    </UserControl.Resources>
 
-    <Window.Background>
-        <ImageBrush ImageSource="{Binding Album.ImagePath,
-                                          Converter={StaticResource AlbumImageConverter},
-                                          ConverterParameter={StaticResource AlbumHeight}}"
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window">
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
+            <Setter Property="ShowInTaskbar" Value="True"/>
+            <Setter Property="SizeToContent" Value="WidthAndHeight"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <ImageBrush ImageSource="{Binding Album.ImagePath,
+                                Converter={StaticResource AlbumImageConverter},
+                                ConverterParameter={StaticResource AlbumHeight}}"
                     Opacity="{Binding WindowOpacity}"
                     Stretch="UniformToFill"/>
-    </Window.Background>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </prism:Dialog.WindowStyle>
     
     <Grid>
         <Grid.RowDefinitions>
@@ -286,6 +287,7 @@
                     BorderThickness="0">
                 <TextBlock Text="{Binding Lyrics}"
                            Foreground="White"
+                           FontFamily="Segoe UI Light"
                            FontSize="12"
                            FontWeight="Bold"
                            TextWrapping="Wrap"
@@ -326,4 +328,4 @@
                    FontSize="28" />
         </DockPanel>
     </Grid>
-</Window>
+</UserControl>

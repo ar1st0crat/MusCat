@@ -21,38 +21,20 @@ namespace MusCat.Infrastructure.Services.Radio
 
         public Song DefaultSong()
         {
-            using (var context = new MusCatDbContext(_connectionString))
-            {
-                var song = context.Songs.First();
+            return null;
 
-                // include the corresponding album of our song
-                song.Album = context.Albums.First(a => a.Id == song.AlbumId);
+            //using (var context = new MusCatDbContext(_connectionString))
+            //{
+            //    var song = context.Songs.First();
 
-                // do the same thing with performer for included album
-                song.Album.Performer = context.Performers.First(p => p.Id == song.Album.PerformerId);
+            //    // include the corresponding album of our song
+            //    song.Album = context.Albums.First(a => a.Id == song.AlbumId);
 
-                return song;
-            }
-        }
+            //    // do the same thing with performer for included album
+            //    song.Album.Performer = context.Performers.First(p => p.Id == song.Album.PerformerId);
 
-        public Song SelectSong()
-        {
-            using (var context = new MusCatDbContext(_connectionString))
-            {
-                // find out the maximum song ID in the database
-                var maxSid = context.Songs.Max(s => s.Id);
-
-                var songId = _songSelector.Next() % maxSid;
-                var song = context.Songs.First(s => s.Id >= songId);
-
-                // include the corresponding album of our song
-                song.Album = context.Albums.First(a => a.Id == song.AlbumId);
-
-                // do the same thing with performer for included album
-                song.Album.Performer = context.Performers.First(p => p.Id == song.Album.PerformerId);
-
-                return song;
-            }
+            //    return song;
+            //}
         }
 
         public async Task<Song> SelectSongAsync()

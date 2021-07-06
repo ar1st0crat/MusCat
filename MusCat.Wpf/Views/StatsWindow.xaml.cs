@@ -1,12 +1,9 @@
 ﻿using MusCat.ViewModels;
-using System.Windows;
+using System.Windows.Controls;
 
 namespace MusCat.Views
 {
-    /// <summary>
-    /// Interaction logic for StatsWindow.xaml
-    /// </summary>
-    public partial class StatsWindow : Window
+    public partial class StatsWindow : UserControl
     {
         public StatsWindow()
         {

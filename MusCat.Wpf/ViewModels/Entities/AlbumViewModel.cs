@@ -2,12 +2,13 @@
 using MusCat.Application.Validators;
 using MusCat.Core.Entities;
 using MusCat.Infrastructure.Services;
+using Prism.Mvvm;
 using System.ComponentModel;
 using System.Linq;
 
 namespace MusCat.ViewModels.Entities
 {
-    public class AlbumViewModel : ViewModelBase, IDataErrorInfo
+    public class AlbumViewModel : BindableBase, IDataErrorInfo
     {
         public int Id { get; set; }
         public int PerformerId { get; set; }
@@ -16,70 +17,45 @@ namespace MusCat.ViewModels.Entities
         public string Name
         {
             get { return _name; }
-            set
-            {
-                _name = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _name, value); }
         }
 
         private short _releaseYear;
         public short ReleaseYear
         {
             get { return _releaseYear; }
-            set
-            {
-                _releaseYear = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _releaseYear, value); }
         }
 
         private string _totalTime;
         public string TotalTime
         {
             get { return _totalTime; }
-            set
-            {
-                _totalTime = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _totalTime, value); }
         }
 
         private string _info;
         public string Info
         {
             get { return _info; }
-            set
-            {
-                _info = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _info, value); }
         }
 
         private byte? _rate;
         public byte? Rate
         {
             get { return _rate; }
-            set
-            {
-                _rate = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _rate, value); }
         }
 
         private string _imagePath;
         public string ImagePath
         {
             get { return _imagePath; }
-            set
-            {
-                _imagePath = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _imagePath, value); }
         }
 
         public Performer Performer { get; set; }
-
 
         public void LocateImagePath()
         {

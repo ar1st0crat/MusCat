@@ -1,16 +1,16 @@
-﻿using System.Collections.ObjectModel;
+﻿using AutoMapper;
+using MusCat.Application.Validators;
+using MusCat.Core.Entities;
+using MusCat.Infrastructure.Services;
+using Prism.Mvvm;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Data;
-using AutoMapper;
-using MusCat.Application.Validators;
-using MusCat.Core.Entities;
-using MusCat.Core.Interfaces;
-using MusCat.Infrastructure.Services;
 
 namespace MusCat.ViewModels.Entities
 {
-    public class PerformerViewModel : ViewModelBase, IDataErrorInfo
+    public class PerformerViewModel : BindableBase, IDataErrorInfo
     {
         public int Id { get; set; }
 
@@ -18,77 +18,42 @@ namespace MusCat.ViewModels.Entities
         public string Name
         {
             get { return _name; }
-            set
-            {
-                _name = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _name, value); }
         }
 
         private string _info;
         public string Info
         {
             get { return _info; }
-            set
-            {
-                _info = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _info, value); }
         }
 
         private Country _country;
         public Country Country
         {
             get { return _country; }
-            set
-            {
-                _country = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _country, value); }
         }
 
         private byte? _albumCollectionRate;
         public byte? AlbumCollectionRate
         {
             get { return _albumCollectionRate; }
-            set
-            {
-                _albumCollectionRate = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _albumCollectionRate, value); }
         }
         
         private ObservableCollection<AlbumViewModel> _albums = new ObservableCollection<AlbumViewModel>();
         public ObservableCollection<AlbumViewModel> Albums
         {
             get { return _albums; }
-            set
-            {
-                _albums = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _albums, value); }
         }
 
         private string _imagePath;
         public string ImagePath
         {
             get { return _imagePath; }
-            set
-            {
-                _imagePath = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public void UpdateAlbumCollectionRate(IRateCalculator rateCalculator)
-        {
-            if (rateCalculator == null)
-            {
-                return;
-            }
-
-            var rates = _albums.Select(a => a.Rate);
-            AlbumCollectionRate = rateCalculator.Calculate(rates);
+            set { SetProperty(ref _imagePath, value); }
         }
 
         private readonly object _lock = new object();

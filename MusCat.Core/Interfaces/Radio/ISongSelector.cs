@@ -6,7 +6,7 @@ namespace MusCat.Core.Interfaces.Radio
     public interface ISongSelector
     {
         Song DefaultSong();
-        Song SelectSong();
+
         Task<Song> SelectSongAsync();
     }
 }

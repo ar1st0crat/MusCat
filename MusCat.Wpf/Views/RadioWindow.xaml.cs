@@ -7,9 +7,9 @@ using System.Windows.Media;
 
 namespace MusCat.Views
 {
-    public partial class RadioPlayerWindow : Window
+    public partial class RadioWindow : UserControl
     {
-        public RadioPlayerWindow()
+        public RadioWindow()
         {
             InitializeComponent();
         }
@@ -46,7 +46,7 @@ namespace MusCat.Views
                     return;
                 }
 
-                var radioContext = DataContext as RadioViewModel;
+                var radioContext = DataContext as RadioWindowViewModel;
 
                 var from = radioContext.RadioUpcoming.IndexOf(_dragItem.DataContext as Song);
                 var to = radioContext.RadioUpcoming.IndexOf(lbi.DataContext as Song);

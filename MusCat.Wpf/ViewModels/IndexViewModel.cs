@@ -1,9 +1,11 @@
-﻿namespace MusCat.ViewModels
+﻿using Prism.Mvvm;
+
+namespace MusCat.ViewModels
 {
     /// <summary>
     /// View model for elements in the index panel
     /// </summary>
-    class IndexViewModel : ViewModelBase
+    class IndexViewModel : BindableBase
     {
         public string Text { get; set; }
 
@@ -11,11 +13,7 @@
         public bool IsActive
         {
             get { return _isActive; }
-            set
-            {
-                _isActive = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _isActive, value); }
         }
     }
 }

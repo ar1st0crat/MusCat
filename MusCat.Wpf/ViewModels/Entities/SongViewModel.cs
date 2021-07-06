@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
 using MusCat.Application.Validators;
 using MusCat.Core.Entities;
+using Prism.Mvvm;
 using System.ComponentModel;
 using System.Linq;
 
 namespace MusCat.ViewModels.Entities
 {
-    public class SongViewModel : ViewModelBase, IDataErrorInfo
+    public class SongViewModel : BindableBase, IDataErrorInfo
     {
         public int Id { get; set; }
         public int AlbumId { get; set; }
@@ -15,44 +16,28 @@ namespace MusCat.ViewModels.Entities
         public byte TrackNo
         {
             get { return _trackNo; }
-            set
-            {
-                _trackNo = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _trackNo, value); }
         }
 
         private string _name;
         public string Name
         {
             get { return _name; }
-            set
-            {
-                _name = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _name, value); }
         }
 
         private string _timeLength;
         public string TimeLength
         {
             get { return _timeLength; }
-            set
-            {
-                _timeLength = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _timeLength, value); }
         }
 
         private byte? _rate;
         public byte? Rate
         {
             get { return _rate; }
-            set
-            {
-                _rate = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _rate, value); }
         }
 
 

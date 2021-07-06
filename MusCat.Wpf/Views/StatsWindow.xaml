@@ -1,4 +1,4 @@
-﻿<Window x:Class="MusCat.Views.StatsWindow"
+﻿<UserControl x:Class="MusCat.Views.StatsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,26 +8,24 @@
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:viewModels="clr-namespace:MusCat.ViewModels"
-        Title="Main Stats"
-        WindowStartupLocation="CenterOwner"
         Height="720" Width="900">
 
-    <Window.Background>
+    <UserControl.Background>
         <LinearGradientBrush>
             <GradientStopCollection>
                 <GradientStop Color="#0a2a4a" Offset="0.0"/>
                 <GradientStop Color="#0aca6a" Offset="1.0"/>
             </GradientStopCollection>
         </LinearGradientBrush>
-    </Window.Background>
+    </UserControl.Background>
     
-    <Window.Resources>
+    <UserControl.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="White" />
         </Style>
         <system:Double x:Key="PerformerImageHeight">50</system:Double>
         <converters:PerformerImageConverter x:Key="PerformerImageConverter"/>
-    </Window.Resources>
+    </UserControl.Resources>
     
     <Grid>
         <Grid.RowDefinitions>
@@ -158,4 +156,4 @@
                       Margin="25,15,25,35"
                       DataClick="PieChart_DataClick"/>
     </Grid>
-</Window>
+</UserControl>

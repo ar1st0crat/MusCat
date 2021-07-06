@@ -1,60 +1,41 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using AutoMapper;
+﻿using AutoMapper;
 using MusCat.Core.Entities;
 using MusCat.Core.Interfaces.Audio;
 using MusCat.Core.Interfaces.Radio;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
-using MusCat.Util;
 using MusCat.ViewModels.Entities;
+using Prism.Commands;
+using Prism.Mvvm;
+using Prism.Services.Dialogs;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MusCat.ViewModels
 {
-    class RadioViewModel : ViewModelBase
+    class RadioWindowViewModel : BindableBase, IDialogAware
     {
-        /// <summary>
-        /// Radio Station
-        /// </summary>
+        private readonly IDialogService _dialogService;
         private readonly IRadioService _radio;
-
-        /// <summary>
-        /// Audio player
-        /// </summary>
         private readonly IAudioPlayer _player;
+
         private bool _isStopped;
-
-        // Playback button Segoe MDL symbols
-
-        private static readonly string SymbolPlay = "\uE768";
-        private static readonly string SymbolPause = "\uE769";
-        private static readonly string SymbolStop = "\uE71A";
-
-        private string _playbackSymbol = SymbolPause;
-        public string PlaybackSymbol
-        {
-            get { return _playbackSymbol; }
-            set
-            {
-                _playbackSymbol = value;
-                RaisePropertyChanged();
-            }
-        }
-
         private float _songVolume = 5.0f;
+
+        private string _playbackSymbol = MdlConstants.SymbolPause;
+
         public float SongVolume
         {
             get { return _songVolume; }
-            set
-            {
-                _songVolume = value;
-                _player.SetVolume(value / 10.0f);
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _songVolume, value); _player.SetVolume(value / 10.0f); }
+        }
+
+        public string PlaybackSymbol
+        {
+            get { return _playbackSymbol; }
+            set { SetProperty(ref _playbackSymbol, value); }
         }
 
         public Song SelectedUpcomingSong { get; set; }
@@ -70,67 +51,62 @@ namespace MusCat.ViewModels
 
         #region commands
 
-        public ICommand PlaybackCommand { get; private set; }
-        public ICommand StopCommand { get; private set; }
-        public ICommand PreviousSongCommand { get; private set; }
-        public ICommand NextSongCommand { get; private set; }
-        public ICommand ChangeSongCommand { get; private set; }
-        public ICommand RemoveSongCommand { get; private set; }
-        public ICommand ShowAlbumCommand { get; private set; }
-        public ICommand WindowClosingCommand { get; private set; }
+        public DelegateCommand PlaybackCommand { get; }
+        public DelegateCommand StopCommand { get;  }
+        public DelegateCommand PreviousSongCommand { get;  }
+        public DelegateCommand NextSongCommand { get;  }
+        public DelegateCommand ChangeSongCommand { get;  }
+        public DelegateCommand RemoveSongCommand { get;  }
+        public DelegateCommand ShowAlbumCommand { get; }
 
         #endregion
 
 
-        public RadioViewModel(IRadioService radio, IAudioPlayer player)
+        public RadioWindowViewModel(IRadioService radio, IAudioPlayer player, IDialogService dialogService)
         {
             Guard.AgainstNull(radio);
             Guard.AgainstNull(player);
+            Guard.AgainstNull(dialogService);
 
             _radio = radio;
             _player = player;
+            _dialogService = dialogService;
 
             // ===================== setting up all commands ============================
 
-            PlaybackCommand = new RelayCommand(SongPlaybackAction);
-            ShowAlbumCommand = new RelayCommand(ViewAlbumContainingCurrentSong);
+            PlaybackCommand = new DelegateCommand(SongPlaybackAction);
+            ShowAlbumCommand = new DelegateCommand(ViewAlbum);
 
-            PreviousSongCommand = new RelayCommand(async () =>
+            PreviousSongCommand = new DelegateCommand(async () =>
             {
                 await _radio.MoveToPrevSongAsync();
-                PlayCurrentSong();
                 UpdateSongPanels();
+                await PlayCurrentSong();
             });
 
-            NextSongCommand = new RelayCommand(async () =>
+            NextSongCommand = new DelegateCommand(async () =>
             {
                 await _radio.MoveToNextSongAsync();
-                PlayCurrentSong();
                 UpdateSongPanels();
+                await PlayCurrentSong();
             });
             
-            ChangeSongCommand = new RelayCommand(async () =>
+            ChangeSongCommand = new DelegateCommand(async () =>
             {
                 await _radio.ChangeSongAsync(SelectedUpcomingSong.Id);
                 UpdateSongPanels();
             });
 
-            RemoveSongCommand = new RelayCommand(async () =>
+            RemoveSongCommand = new DelegateCommand(async () =>
             {
                 await _radio.RemoveSongAsync(SelectedUpcomingSong.Id);
                 UpdateSongPanels();
             });
 
-            StopCommand = new RelayCommand(() =>
+            StopCommand = new DelegateCommand(() =>
             {
                 _player.Stop();
-                PlaybackSymbol = SymbolPlay;
-            });
-
-            WindowClosingCommand = new RelayCommand(() =>
-            {
-                _isStopped = true;  // Stop radio when the window is closing 
-                _player.Close();    // to avoid a memory leak
+                PlaybackSymbol = MdlConstants.SymbolPlay;
             });
 
             // ===========================================================================
@@ -159,7 +135,9 @@ namespace MusCat.ViewModels
             RaisePropertyChanged("NextSong");
             RaisePropertyChanged("RadioArchive");
             RaisePropertyChanged("RadioUpcoming");
-            PlaybackSymbol = SymbolPause;
+            RaisePropertyChanged("Title");
+
+            PlaybackSymbol = MdlConstants.SymbolPause;
         }
 
         /// <summary>
@@ -189,7 +167,7 @@ namespace MusCat.ViewModels
 
             // There's one general task associated with the radio
             // whose purpose is to play whatever active song in the background thread
-            Task.Run(async () =>
+            Task.Factory.StartNew(async () =>
             {
                 while (!_isStopped)
                 {
@@ -198,17 +176,17 @@ namespace MusCat.ViewModels
                     if (_player.IsStopped && !_player.IsStoppedManually)
                     {
                         await _radio.MoveToNextSongAsync();
-                        PlayCurrentSong();
+                        await PlayCurrentSong();
                         UpdateSongPanels();
                     }
                 }
-            });
+            }, TaskCreationOptions.LongRunning);
         }
 
         /// <summary>
         /// Play song currently active in the radio
         /// </summary>
-        public void PlayCurrentSong()
+        public async Task PlayCurrentSong()
         {
             if (_player.SongPlaybackState != PlaybackState.Stop)
             {
@@ -221,13 +199,9 @@ namespace MusCat.ViewModels
             {
                 _player.Play(songpath);
             }
-            //catch (InvalidOperationException)
-            //{
-            //     some multi-threading issue in debug mode
-            //}
             catch (Exception)
             {
-                _radio.MoveToNextSong();
+                await _radio.MoveToNextSongAsync();
             }
         }
 
@@ -237,24 +211,52 @@ namespace MusCat.ViewModels
             {
                 case PlaybackState.Play:
                     _player.Pause();
-                    PlaybackSymbol = SymbolPlay;
+                    PlaybackSymbol = MdlConstants.SymbolPlay;
                     break;
                 case PlaybackState.Pause:
                     _player.Resume();
-                    PlaybackSymbol = SymbolPause;
+                    PlaybackSymbol = MdlConstants.SymbolPause;
                     break;
                 case PlaybackState.Stop:
                     PlayCurrentSong();
-                    PlaybackSymbol = SymbolPause;
+                    PlaybackSymbol = MdlConstants.SymbolPause;
                     break;
             }
         }
 
-        private void ViewAlbumContainingCurrentSong()
+        private void ViewAlbum()
         {
             var album = Mapper.Map<AlbumViewModel>(_radio.CurrentSong.Album);
 
-            ShowAlbum?.Invoke(album);
+            var parameters = new DialogParameters
+            {
+                { "album", album }
+            };
+
+            _dialogService.Show("AlbumWindow", parameters, null);
         }
+
+
+        #region IDialogAware implementation
+
+        public string Title => $"MusCat Radio: {CurrentSong.Album.Performer.Name} - {CurrentSong.Name}";
+
+        public event Action<IDialogResult> RequestClose;
+
+        public bool CanCloseDialog() => true;
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+        }
+
+        public void OnDialogClosed()
+        {
+            _isStopped = true;  // Stop radio
+            _player.Close();    // to avoid a memory leak
+
+            RequestClose?.Invoke(new DialogResult(ButtonResult.OK));
+        }
+
+        #endregion
     }
 }

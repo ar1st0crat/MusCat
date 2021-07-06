@@ -4,8 +4,9 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:converters="clr-namespace:MusCat.Converters"
-        xmlns:viewModels="clr-namespace:MusCat.ViewModels"
         xmlns:controls="clr-namespace:MusCat.Controls"
+        xmlns:prism="http://prismlibrary.com/"
+        prism:ViewModelLocator.AutoWireViewModel="True"
         Title="MusCat"
         WindowState="Maximized"
         Icon="{StaticResource AppIcon}">

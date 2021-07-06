@@ -1,18 +1,20 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using AutoMapper;
+﻿using AutoMapper;
 using LiveCharts;
 using LiveCharts.Wpf;
 using MusCat.Core.Interfaces.Stats;
 using MusCat.Core.Util;
 using MusCat.ViewModels.Entities;
+using Prism.Mvvm;
+using Prism.Services.Dialogs;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace MusCat.ViewModels
 {
-    class StatsViewModel : ViewModelBase
+    class StatsViewModel : BindableBase, IDialogAware
     {
         private readonly IStatsService _stats;
 
@@ -246,6 +248,26 @@ namespace MusCat.ViewModels
         private const int OffsetRandomness = 60;
         private const int ItemWidth = 90;
         private const int ItemHeight = 120;
+
+        #endregion
+
+
+        #region IDialogAware implementation
+
+        public string Title => "Main Stats";
+
+        public event Action<IDialogResult> RequestClose;
+
+        public bool CanCloseDialog() => true;
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+            LoadStatsAsync();
+        }
+
+        public void OnDialogClosed()
+        {
+        }
 
         #endregion
     }

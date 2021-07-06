@@ -75,6 +75,18 @@
       <HintPath>..\packages\LiveCharts.Wpf.0.9.7\lib\net45\LiveCharts.Wpf.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.31\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism, Version=8.1.97.5141, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
+      <HintPath>..\packages\Prism.Core.8.1.97\lib\net461\Prism.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism.Unity.Wpf, Version=8.1.97.5141, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
+      <HintPath>..\packages\Prism.Unity.8.1.97\lib\net461\Prism.Unity.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism.Wpf, Version=8.1.97.5141, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
+      <HintPath>..\packages\Prism.Wpf.8.1.97\lib\net461\Prism.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Annotations, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ComponentModel.Annotations.4.4.1\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
@@ -87,8 +99,17 @@
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.2\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity">
@@ -100,6 +121,12 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="Unity.Abstractions, Version=5.11.7.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.Abstractions.5.11.7\lib\net46\Unity.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Container, Version=5.11.11.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.Container.5.11.11\lib\net46\Unity.Container.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -113,8 +140,11 @@
     <Compile Include="Converters\AlbumCountConverter.cs" />
     <Compile Include="Converters\PerformerImageConverter.cs" />
     <Compile Include="Converters\TruncateTextConverter.cs" />
+    <Compile Include="CustomDialogService.cs" />
+    <Compile Include="Events\AlbumRateUpdatedEvent.cs" />
+    <Compile Include="Mappings.cs" />
     <Compile Include="Util\WebBrowserHelper.cs" />
-    <Compile Include="ViewModels\AlbumPlaybackViewModel.cs" />
+    <Compile Include="ViewModels\AlbumWindowViewModel.cs" />
     <Compile Include="Util\CircularCollection.cs" />
     <Compile Include="ViewModels\Entities\AlbumViewModel.cs" />
     <Compile Include="Util\DialogResultHelper.cs" />
@@ -122,14 +152,15 @@
     <Compile Include="ViewModels\Entities\CountryViewModel.cs" />
     <Compile Include="ViewModels\Entities\SongViewModel.cs" />
     <Compile Include="ViewModels\IndexViewModel.cs" />
+    <Compile Include="ViewModels\MdlConstants.cs" />
     <Compile Include="ViewModels\PerformerFilters.cs" />
     <Compile Include="Util\RelayCommand.cs" />
     <Compile Include="ViewModels\EditAlbumViewModel.cs" />
     <Compile Include="ViewModels\EditPerformerViewModel.cs" />
-    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\Entities\PerformerViewModel.cs" />
     <Compile Include="ViewModels\RadioSongViewModel.cs" />
-    <Compile Include="ViewModels\RadioViewModel.cs" />
+    <Compile Include="ViewModels\RadioWindowViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\StatsViewModel.cs" />
     <Compile Include="ViewModels\VideosViewModel.cs" />
@@ -153,8 +184,8 @@
       <DependentUpon>PerformerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\AlbumImageConverter.cs" />
-    <Compile Include="Views\RadioPlayerWindow.xaml.cs">
-      <DependentUpon>RadioPlayerWindow.xaml</DependentUpon>
+    <Compile Include="Views\RadioWindow.xaml.cs">
+      <DependentUpon>RadioWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\RateConverter.cs" />
     <Compile Include="Views\AlbumWindow.xaml.cs">
@@ -217,7 +248,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\RadioPlayerWindow.xaml">
+    <Page Include="Views\RadioWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
