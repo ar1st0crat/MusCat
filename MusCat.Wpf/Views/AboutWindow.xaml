@@ -1,7 +1,6 @@
-﻿<Window x:Class="MusCat.Views.HelpWindow"
+﻿<UserControl x:Class="MusCat.Views.AboutWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MusCat Help"
         Height="160" Width="300">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -14,7 +13,7 @@
                Margin="10,0,0,0" />
         <StackPanel Grid.Column="1" 
                     VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="(c) 2017 ar1st0crat" 
+            <TextBlock Text="(c) 2017-2021 ar1st0crat" 
                        Margin="20,20,20,0"
                        HorizontalAlignment="Center"/>
             <TextBlock Text="Please visit MusCat website:"
@@ -26,4 +25,4 @@
             </TextBlock>
         </StackPanel>
     </Grid>
-</Window>
+</UserControl>

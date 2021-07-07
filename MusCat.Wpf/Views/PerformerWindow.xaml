@@ -1,23 +1,29 @@
-﻿<Window x:Class="MusCat.Views.PerformerWindow"
+﻿<UserControl x:Class="MusCat.Views.PerformerWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:converters="clr-namespace:MusCat.Converters"
-        Title="Performer Info"
-        Height="700"
-        SizeToContent="Width">
+        xmlns:prism="http://prismlibrary.com/">
+
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window">
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
+            <Setter Property="ShowInTaskbar" Value="True"/>
+            <Setter Property="SizeToContent" Value="Width"/>
+        </Style>
+    </prism:Dialog.WindowStyle>
     
-    <Window.Background>
+    <UserControl.Background>
         <LinearGradientBrush>
             <GradientStop Color="#001122" Offset="0" />
             <GradientStop Color="#ff77bb" Offset="2.5" />
         </LinearGradientBrush>
-    </Window.Background>
+    </UserControl.Background>
     
-    <Window.Resources>
+    <UserControl.Resources>
         <sys:Double x:Key="PerformerPhotoWidth">400</sys:Double>
         <converters:PerformerImageConverter x:Key="PerformerPhotoConverter" />
-    </Window.Resources>
+    </UserControl.Resources>
     
     <Grid>
         <Grid.ColumnDefinitions>
@@ -28,33 +34,34 @@
         <ScrollViewer Grid.Column="0" Grid.Row="0"
                       HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <StackPanel >
-                <Image Source="{Binding ImagePath, Converter={StaticResource PerformerPhotoConverter}, 
-                                                   ConverterParameter={StaticResource PerformerPhotoWidth}}"
+                <Image Source="{Binding Performer.ImagePath,
+                                        Converter={StaticResource PerformerPhotoConverter}, 
+                                        ConverterParameter={StaticResource PerformerPhotoWidth}}"
                        HorizontalAlignment="Left" VerticalAlignment="Top"
                        Margin="10,20,0,0"
                        Width="{StaticResource PerformerPhotoWidth}"/>
-                <Label Content="{Binding Name}"
+                <Label Content="{Binding Performer.Name}"
                        Foreground="White"
                        FontFamily="Stencil" FontSize="28"
                        HorizontalAlignment="Center"/>
-                <Label Content="{Binding Country.Name}"
+                <Label Content="{Binding Performer.Country.Name}"
                        Foreground="White"
                        FontSize="16"
                        HorizontalAlignment="Center" Margin="0,15,0,15"/>
-                <ListBox ItemsSource="{Binding Styles}"
+                <ListBox ItemsSource="{Binding Performer.Styles}"
                          Background="Transparent" BorderBrush="Transparent">
                 </ListBox>
                 <Label Content="Lineup:"
                        Foreground="White"
                        FontSize="16"
                        HorizontalAlignment="Center" Margin="0,15,0,15"/>
-                <ListBox ItemsSource="{Binding Lineups}"
+                <ListBox ItemsSource="{Binding Performer.Lineups}"
                          Background="Transparent" BorderBrush="Transparent">
                 </ListBox>
             </StackPanel>
         </ScrollViewer>
         <StackPanel Grid.Column="1">
-            <TextBox Text="{Binding Info}"
+            <TextBox Text="{Binding Performer.Info}"
                      TextWrapping="Wrap" AcceptsReturn="True" 
                      Width="auto" Height="650" MaxWidth="500"
                      Margin="15" 
@@ -62,4 +69,4 @@
                      VerticalScrollBarVisibility="Auto" />
         </StackPanel>
     </Grid>
-</Window>
+</UserControl>

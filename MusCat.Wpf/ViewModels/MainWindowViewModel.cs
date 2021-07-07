@@ -141,7 +141,6 @@ namespace MusCat.ViewModels
                 .GetEvent<AlbumRateUpdatedEvent>()
                 .Subscribe(UpdateRate, ThreadOption.UIThread);
 
-
             // setting up all commands (quite a lot of them)
 
             GeneralViewCommand = new DelegateCommand(() =>
@@ -345,7 +344,6 @@ namespace MusCat.ViewModels
             {
                 var performerViewModel = Mapper.Map<PerformerViewModel>(performer);
 
-                // Fill performer's albumlist
                 var albums = await _performerService.GetPerformerAlbumsAsync(performer.Id, AlbumPattern);
                 
                 performerViewModel.Albums = Mapper.Map<ObservableCollection<AlbumViewModel>>(albums);
@@ -353,7 +351,6 @@ namespace MusCat.ViewModels
                 // Recalculate total rate and number of albums of performer
                 UpdatePerformerRate(performerViewModel);
 
-                // Finally, add fully created performer view model to the list
                 Performers.Add(performerViewModel);
 
                 // some animation effect )))
@@ -406,69 +403,35 @@ namespace MusCat.ViewModels
 
         private void ViewSelectedPerformer()
         {
-            if (SelectedPerformer == null)
+            if (SelectedPerformer is null)
             {
                 MessageBox.Show("Please select performer to show!");
                 return;
             }
 
-            var performerWindow = new PerformerWindow
+            var parameters = new DialogParameters
             {
-                DataContext = SelectedPerformer
+                { "performer", SelectedPerformer }
             };
 
-            performerWindow.Show();
+            _dialogService.Show("PerformerWindow", parameters, null);
         }
 
         private void EditPerformer()
         {
-            //if (SelectedPerformer == null)
-            //{
-            //    MessageBox.Show("Please select performer to edit!");
-            //    return;
-            //}
-
-            //using (var scope = App.DiContainer.BeginLifetimeScope())
-            //{
-            //    var editPerformerViewModel = scope.Resolve<EditPerformerViewModel>();
-
-            //    editPerformerViewModel.Performer = SelectedPerformer;
-            //    editPerformerViewModel.Countries = new ObservableCollection<Country>(_unitOfWork.CountryRepository.GetAll());
-
-            //    var performerWindow = new EditPerformerWindow
-            //    {
-            //        DataContext = editPerformerViewModel
-            //    };
-
-            //    performerWindow.ShowDialog();
-            //}
-        }
-
-        /// <summary>
-        /// This is the handler of AlbumRateUpdated event 
-        /// (that can be raised in various different windows)
-        /// </summary>
-        /// <param name="album"></param>
-        private void UpdateRate(AlbumViewModel album)
-        {
-            var performerOnScreen = Performers.FirstOrDefault(p => p.Id == album.PerformerId);
-
-            if (performerOnScreen is null)
+            if (SelectedPerformer is null)
             {
+                MessageBox.Show("Please select performer to edit!");
                 return;
             }
 
-            var albumOnScreen = performerOnScreen.Albums.FirstOrDefault(a => a.Id == album.Id);
+            var parameters = new DialogParameters
+            {
+                { "performer", SelectedPerformer },
+                { "countries", _unitOfWork.CountryRepository.GetAll() }
+            };
 
-            albumOnScreen.Rate = album.Rate;
-            
-            UpdatePerformerRate(performerOnScreen);
-        }
-
-        private void UpdatePerformerRate(PerformerViewModel performer)
-        {
-            var rates = performer.Albums.Select(a => a.Rate);
-            performer.AlbumCollectionRate = _rateCalculator.Calculate(rates);
+            _dialogService.ShowDialog("EditPerformerWindow", parameters, null);
         }
 
         public void ViewAlbum(AlbumViewModel album)
@@ -494,61 +457,48 @@ namespace MusCat.ViewModels
 
         private void EditAlbum()
         {
-            ////if (SelectedAlbum == null)
-            ////{
-            ////    MessageBox.Show("Please select album to edit!");
-            ////    return;
-            ////}
+            if (SelectedAlbum == null)
+            {
+                MessageBox.Show("Please select album to edit!");
+                return;
+            }
 
-            ////using (var scope = App.DiContainer.BeginLifetimeScope())
-            ////{
-            ////    var albumViewModel = scope.Resolve<EditAlbumViewModel>();
-            ////    albumViewModel.Album = SelectedAlbum;
-            ////    albumViewModel.LoadSongsAsync();
+            var parameters = new DialogParameters
+            {
+                { "album", SelectedAlbum }
+            };
 
-            ////    var albumWindow = new EditAlbumWindow { DataContext = albumViewModel };
+            _dialogService.ShowDialog("EditAlbumWindow", parameters, null);
 
-            ////    albumWindow.ShowDialog();
-            ////}
-
-            ////UpdatePerformerPanelAsync();
+            UpdatePerformerPanelAsync();
         }
 
         private async void AddPerformerAsync()
         {
-            //// set initial information of a newly added performer
-            //var performer = (
-            //        await _performerService.AddPerformerAsync(new Performer { Name = "Unknown" })
-            //    ).Data;
+            // set initial information of a newly added performer
+            var performer = (
+                    await _performerService.AddPerformerAsync(new Performer { Name = "Unknown" })
+                ).Data;
 
-            //var performerViewModel = Mapper.Map<PerformerViewModel>(performer);
+            var performerViewModel = Mapper.Map<PerformerViewModel>(performer);
 
-            //using (var scope = App.DiContainer.BeginLifetimeScope())
-            //{
-            //    var editPerformerViewModel = scope.Resolve<EditPerformerViewModel>();
+            var parameters = new DialogParameters
+            {
+                { "performer", performerViewModel },
+                { "countries", await _unitOfWork.CountryRepository.GetAllAsync() }
+            };
 
-            //    editPerformerViewModel.Performer = performerViewModel;
-            //    editPerformerViewModel.Countries = new ObservableCollection<Country>(
-            //                                                await _unitOfWork.CountryRepository.GetAllAsync());
+            _dialogService.ShowDialog("EditPerformerWindow", parameters, null);
 
-            //    var performerWindow = new EditPerformerWindow
-            //    {
-            //        DataContext = editPerformerViewModel
-            //    };
+            // and show only newly added performer (to focus user's attention on said performer)
 
-            //    performerWindow.ShowDialog();
-            //}
+            Performers.Clear();
+            PageCollection.Clear();
 
-            //// clear all performers shown in the main window
-            //Performers.Clear();
-            //PageCollection.Clear();
-
-            //ActivateUpperPanel(false);
-
-            //_selectedPage = 0;
-
-            //// and show only newly added performer (to focus user's attention on said performer)
-            //Performers.Add(performerViewModel);
+            ActivateUpperPanel(false);
+            _selectedPage = 0;
+            
+            Performers.Add(performerViewModel);
         }
 
         private async void RemoveSelectedPerformerAsync()
@@ -571,40 +521,34 @@ namespace MusCat.ViewModels
 
         private async void AddAlbumAsync()
         {
-            //if (SelectedPerformer == null)
-            //{
-            //    MessageBox.Show("Please select performer!");
-            //    return;
-            //}
+            if (SelectedPerformer == null)
+            {
+                MessageBox.Show("Please select performer!");
+                return;
+            }
 
-            //var albumToAdd = new Album
-            //{
-            //    Id = SelectedPerformer.Id,
-            //    Name = "New Album",
-            //    ReleaseYear = (short)DateTime.Now.Year,
-            //    TotalTime = "0:00"
-            //};
+            var albumToAdd = new Album
+            {
+                Id = SelectedPerformer.Id,
+                Name = "New Album",
+                ReleaseYear = (short)DateTime.Now.Year,
+                TotalTime = "0:00"
+            };
 
-            //var album = (
-            //        await _performerService.AddAlbumAsync(SelectedPerformer.Id, albumToAdd)
-            //    ).Data;
+            var album = (
+                    await _performerService.AddAlbumAsync(SelectedPerformer.Id, albumToAdd)
+                ).Data;
 
-            //var albumViewModel = Mapper.Map<AlbumViewModel>(album);
+            var albumViewModel = Mapper.Map<AlbumViewModel>(album);
 
-            //using (var scope = App.DiContainer.BeginLifetimeScope())
-            //{
-            //    var editAlbumViewModel = scope.Resolve<EditAlbumViewModel>();
-            //    editAlbumViewModel.Album = albumViewModel;
-                
-            //    var editAlbumWindow = new EditAlbumWindow
-            //    {
-            //        DataContext = editAlbumViewModel
-            //    };
+            var parameters = new DialogParameters
+            {
+                { "album", albumViewModel }
+            };
 
-            //    editAlbumWindow.ShowDialog();
-            //}
+            _dialogService.ShowDialog("EditAlbumWindow", parameters, null);
 
-            //await InsertAlbumToCollectionAsync(albumViewModel);
+            await InsertAlbumToCollectionAsync(albumViewModel);
         }
 
         /// <summary>
@@ -672,6 +616,34 @@ namespace MusCat.ViewModels
 
             await UpdatePerformerPanelAsync();
         }
+
+        /// <summary>
+        /// This is the handler of AlbumRateUpdated event 
+        /// (that can be raised in various different windows)
+        /// </summary>
+        /// <param name="album"></param>
+        private void UpdateRate(AlbumViewModel album)
+        {
+            var performerOnScreen = Performers.FirstOrDefault(p => p.Id == album.PerformerId);
+
+            if (performerOnScreen is null)
+            {
+                return;
+            }
+
+            var albumOnScreen = performerOnScreen.Albums.FirstOrDefault(a => a.Id == album.Id);
+
+            albumOnScreen.Rate = album.Rate;
+
+            UpdatePerformerRate(performerOnScreen);
+        }
+
+        private void UpdatePerformerRate(PerformerViewModel performer)
+        {
+            var rates = performer.Albums.Select(a => a.Rate);
+            performer.AlbumCollectionRate = _rateCalculator.Calculate(rates);
+        }
+
 
         private void BeginMoveAlbum()
         {
@@ -781,6 +753,7 @@ namespace MusCat.ViewModels
             _albumToMovePerformer = null;
         }
 
+
         private async Task UpdatePerformerPanelAsync()
         {
             await UpdateSongCountAsync();
@@ -799,31 +772,18 @@ namespace MusCat.ViewModels
 
         #endregion
 
+
         #region main menu
 
-        private void EditCountries()
-        {
-            //using (var scope = App.DiContainer.BeginLifetimeScope())
-            //{
-            //    var countryViewModel = scope.Resolve<EditCountryViewModel>();
-            //    countryViewModel.LoadCountriesAsync();
-
-            //    var countriesWindow = new EditCountryWindow
-            //    {
-            //        DataContext = countryViewModel
-            //    };
-
-            //    countriesWindow.ShowDialog();
-            //}
-        }
+        private void EditCountries() => _dialogService.ShowDialog("EditCountriesWindow");
 
         private void StartRadio() => _dialogService.Show("RadioWindow");
 
         private void ShowStats() => _dialogService.Show("StatsWindow");
 
-        private void ShowSettings() => new SettingsWindow().ShowDialog();
+        private void ShowSettings() => _dialogService.ShowDialog("SettingsWindow");
 
-        private void ShowHelp() => new HelpWindow().ShowDialog();
+        private void ShowHelp() => _dialogService.Show("AboutWindow");
 
         #endregion
     }

@@ -2,9 +2,9 @@
 
 namespace MusCat.Views
 {
-    public partial class SettingsWindow : UserControl
+    public partial class EditCountriesWindow : UserControl
     {
-        public SettingsWindow()
+        public EditCountriesWindow()
         {
             InitializeComponent();
         }

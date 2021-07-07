@@ -17,49 +17,41 @@ namespace MusCat.ViewModels
     class StatsViewModel : BindableBase, IDialogAware
     {
         private readonly IStatsService _stats;
+        
+        private static readonly Random _randomizer = new Random();
+
+        private const int ItemsPerRow = 3;
+        private const int OffsetRandomness = 60;
+        private const int ItemWidth = 90;
+        private const int ItemHeight = 120;
+
 
         private int _performerCount;
         public int PerformerCount
         {
             get { return _performerCount; }
-            set
-            {
-                _performerCount = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _performerCount, value); }
         }
 
         private int _albumCount;
         public int AlbumCount
         {
             get { return _albumCount; }
-            set
-            {
-                _albumCount = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _albumCount, value); }
         }
 
         private int _songCount;
         public int SongCount
         {
             get { return _songCount; }
-            set
-            {
-                _songCount = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _songCount, value); }
         }
 
         public string _country;
         public string Country
         {
             get { return _country; }
-            set
-            {
-                _country = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _country, value); }
         }
 
         public const int TopPerformersCount = 12;
@@ -68,47 +60,32 @@ namespace MusCat.ViewModels
         public ObservableCollection<CanvasPerformerViewModel> TopPerformers
         {
             get { return _topPerformers; }
-            set
-            {
-                _topPerformers = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _topPerformers, value); }
         }
 
         private SeriesCollection _decades;
         public SeriesCollection Decades
         {
             get { return _decades; }
-            set
-            {
-                _decades = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _decades, value); }
         }
 
         private SeriesCollection _countries;
         public SeriesCollection Countries
         {
             get { return _countries; }
-            set
-            {
-                _countries = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _countries, value); }
         }
 
         private string[] _labels;
         public string[] Labels
         {
             get { return _labels; }
-            set
-            {
-                _labels = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _labels, value); }
         }
 
         public Func<double, string> Formatter { get; set; }
+        
         public ColorsCollection SeriesColor { get; set; } =
             new ColorsCollection
             {
@@ -218,8 +195,6 @@ namespace MusCat.ViewModels
             Country = country;
         }
 
-        #region place items on canvas
-
         public void AddPerformerToCanvas(PerformerViewModel performerViewModel)
         {
             var pos = TopPerformers.Count;
@@ -234,22 +209,6 @@ namespace MusCat.ViewModels
                 Top = top
             });
         }
-
-        public class CanvasPerformerViewModel
-        {
-            public PerformerViewModel Performer { get; set; }
-            public int Left { get; set; }
-            public int Top { get; set; }
-        }
-
-        private static readonly Random _randomizer = new Random();
-
-        private const int ItemsPerRow = 3;
-        private const int OffsetRandomness = 60;
-        private const int ItemWidth = 90;
-        private const int ItemHeight = 120;
-
-        #endregion
 
 
         #region IDialogAware implementation
@@ -270,5 +229,13 @@ namespace MusCat.ViewModels
         }
 
         #endregion
+
+        
+        public class CanvasPerformerViewModel
+        {
+            public PerformerViewModel Performer { get; set; }
+            public int Left { get; set; }
+            public int Top { get; set; }
+        }
     }
 }

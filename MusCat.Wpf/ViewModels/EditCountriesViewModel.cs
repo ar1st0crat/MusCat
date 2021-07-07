@@ -1,19 +1,21 @@
-﻿using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
-using AutoMapper;
+﻿using AutoMapper;
 using MusCat.Application.Dto;
 using MusCat.Application.Interfaces;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Util;
-using MusCat.Util;
 using MusCat.ViewModels.Entities;
+using Prism.Commands;
+using Prism.Mvvm;
+using Prism.Services.Dialogs;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace MusCat.ViewModels
 {
-    class EditCountryViewModel : ViewModelBase
+    class EditCountriesViewModel : BindableBase, IDialogAware
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICountryService _countryService;
@@ -22,44 +24,25 @@ namespace MusCat.ViewModels
         public ObservableCollection<CountryViewModel> Countrylist
         {
             get { return _countrylist; }
-            set
-            {
-                _countrylist = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _countrylist, value); }
         }
 
         private string _countryInput;
         public string CountryInput
         {
             get { return _countryInput; }
-            set
-            {
-                _countryInput = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _countryInput, value); }
         }
 
         public int SelectedCountryIndex { get; set; }
         
-        public ICommand AddCommand { get; private set; }
-        public ICommand RemoveCommand { get; private set; }
-        public ICommand ReplaceCommand { get; private set; }
-        public ICommand OkCommand { get; private set; }
-
-        private bool? _dialogResult;
-        public bool? DialogResult
-        {
-            get { return _dialogResult; }
-            set
-            {
-                _dialogResult = value;
-                RaisePropertyChanged();
-            }
-        }
+        public DelegateCommand AddCommand { get; }
+        public DelegateCommand RemoveCommand { get; }
+        public DelegateCommand ReplaceCommand { get; }
+        public DelegateCommand OkCommand { get; }
 
 
-        public EditCountryViewModel(ICountryService countryService, IUnitOfWork unitOfWork)
+        public EditCountriesViewModel(ICountryService countryService, IUnitOfWork unitOfWork)
         {
             Guard.AgainstNull(countryService);
             Guard.AgainstNull(unitOfWork);
@@ -67,10 +50,10 @@ namespace MusCat.ViewModels
             _countryService = countryService;
             _unitOfWork = unitOfWork;
             
-            AddCommand = new RelayCommand(async () => await AddCountryAsync());
-            RemoveCommand = new RelayCommand(async () => await RemoveCountryAsync());
-            ReplaceCommand = new RelayCommand(async () => await UpdateCountryAsync());
-            OkCommand = new RelayCommand(() => { DialogResult = true; });
+            AddCommand = new DelegateCommand(async () => await AddCountryAsync());
+            RemoveCommand = new DelegateCommand(async () => await RemoveCountryAsync());
+            ReplaceCommand = new DelegateCommand(async () => await UpdateCountryAsync());
+            OkCommand = new DelegateCommand(() => RequestClose.Invoke(new DialogResult(ButtonResult.OK)));
         }
 
         public async Task LoadCountriesAsync()
@@ -138,5 +121,25 @@ namespace MusCat.ViewModels
 
             Countrylist[SelectedCountryIndex] = updatedCountry;
         }
+
+
+        #region IDialogAware implementation
+
+        public string Title => "Countries";
+
+        public event Action<IDialogResult> RequestClose;
+
+        public bool CanCloseDialog() => true;
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+            LoadCountriesAsync();
+        }
+
+        public void OnDialogClosed()
+        {
+        }
+
+        #endregion
     }
 }

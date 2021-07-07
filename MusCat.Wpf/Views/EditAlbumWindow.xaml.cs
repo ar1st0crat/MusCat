@@ -1,8 +1,8 @@
-﻿using System.Windows;
+﻿using System.Windows.Controls;
 
 namespace MusCat.Views
 {
-    public partial class EditAlbumWindow : Window
+    public partial class EditAlbumWindow : UserControl
     {
         public EditAlbumWindow()
         {

@@ -1,9 +1,10 @@
 ﻿using MusCat.Core.Entities;
 using MusCat.Infrastructure.Services;
+using Prism.Mvvm;
 
 namespace MusCat.ViewModels
 {
-    public class RadioSongViewModel : ViewModelBase
+    public class RadioSongViewModel : BindableBase
     {
         public string Name { get; set; }
         public string TimeLength { get; set; }

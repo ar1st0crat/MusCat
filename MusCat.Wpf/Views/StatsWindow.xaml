@@ -7,9 +7,17 @@
         xmlns:converters="clr-namespace:MusCat.Converters"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
-        xmlns:viewModels="clr-namespace:MusCat.ViewModels"
-        Height="720" Width="900">
+        xmlns:prism="http://prismlibrary.com/"
+        MinHeight="720" MinWidth="900">
 
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window">
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
+            <Setter Property="ShowInTaskbar" Value="True"/>
+            <Setter Property="SizeToContent" Value="WidthAndHeight"/>
+        </Style>
+    </prism:Dialog.WindowStyle>
+    
     <UserControl.Background>
         <LinearGradientBrush>
             <GradientStopCollection>

@@ -1,25 +1,27 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using System.IO;
-using System.Linq;
-using System.Windows;
-using System.Windows.Media.Imaging;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.Win32;
+using MusCat.Application.Interfaces;
 using MusCat.Core.Entities;
+using MusCat.Core.Interfaces.Networking;
 using MusCat.Core.Interfaces.Tracklist;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
-using MusCat.Util;
 using MusCat.ViewModels.Entities;
 using MusCat.Views;
-using MusCat.Core.Interfaces.Networking;
-using MusCat.Application.Interfaces;
+using Prism.Commands;
+using Prism.Mvvm;
+using Prism.Services.Dialogs;
+using System;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace MusCat.ViewModels
 {
-    class EditAlbumViewModel : ViewModelBase
+    class EditAlbumViewModel : BindableBase, IDialogAware
     {
         private readonly IAlbumService _albumService;
         private readonly ISongService _songService;
@@ -32,11 +34,7 @@ namespace MusCat.ViewModels
         public ObservableCollection<SongViewModel> Songs
         {
             get { return _songs; }
-            set
-            {
-                _songs = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _songs, value); }
         }
 
         public SongViewModel SelectedSong { get; set; }
@@ -49,18 +47,18 @@ namespace MusCat.ViewModels
 
         #region Commands
 
-        public RelayCommand LoadTracklistCommand { get; private set; }
-        public RelayCommand ParseMp3Command { get; private set; }
-        public RelayCommand FixTitlesCommand { get; private set; }
-        public RelayCommand FixTimesCommand { get; private set; }
-        public RelayCommand ClearAllSongsCommand { get; private set; }
-        public RelayCommand SaveAllSongsCommand { get; private set; }
-        public RelayCommand AddSongCommand { get; private set; }
-        public RelayCommand SaveSongCommand { get; private set; }
-        public RelayCommand DeleteSongCommand { get; private set; }
-        public RelayCommand SaveAlbumInformationCommand { get; private set; }
-        public RelayCommand LoadAlbumImageFromFileCommand { get; private set; }
-        public RelayCommand LoadAlbumImageFromClipboardCommand { get; private set; }
+        public DelegateCommand LoadTracklistCommand { get; }
+        public DelegateCommand ParseMp3Command { get; }
+        public DelegateCommand FixTitlesCommand { get; }
+        public DelegateCommand FixTimesCommand { get; }
+        public DelegateCommand ClearAllSongsCommand { get; }
+        public DelegateCommand SaveAllSongsCommand { get; }
+        public DelegateCommand AddSongCommand { get; }
+        public DelegateCommand SaveSongCommand { get; }
+        public DelegateCommand DeleteSongCommand { get; }
+        public DelegateCommand SaveAlbumInformationCommand { get; }
+        public DelegateCommand LoadAlbumImageFromFileCommand { get; }
+        public DelegateCommand LoadAlbumImageFromClipboardCommand { get; }
 
         #endregion
 
@@ -81,18 +79,18 @@ namespace MusCat.ViewModels
 
             // setting up commands
 
-            LoadTracklistCommand = new RelayCommand(LoadTracklistAsync);
-            ParseMp3Command = new RelayCommand(ParseMp3);
-            FixTitlesCommand = new RelayCommand(FixTitles);
-            FixTimesCommand = new RelayCommand(FixDurations);
-            AddSongCommand = new RelayCommand(AddSong);
-            ClearAllSongsCommand = new RelayCommand(async () => await ClearAllAsync());
-            SaveAllSongsCommand = new RelayCommand(async () => await SaveAllAsync());
-            SaveSongCommand = new RelayCommand(async() => await SaveSongAsync());
-            DeleteSongCommand = new RelayCommand(async() => await RemoveSongAsync());
-            SaveAlbumInformationCommand = new RelayCommand(async () => await SaveAlbumInformationAsync());
-            LoadAlbumImageFromFileCommand = new RelayCommand(LoadAlbumImageFromFile);
-            LoadAlbumImageFromClipboardCommand = new RelayCommand(LoadAlbumImageFromClipboard);
+            LoadTracklistCommand = new DelegateCommand(LoadTracklistAsync);
+            ParseMp3Command = new DelegateCommand(ParseMp3);
+            FixTitlesCommand = new DelegateCommand(FixTitles);
+            FixTimesCommand = new DelegateCommand(FixDurations);
+            AddSongCommand = new DelegateCommand(AddSong);
+            ClearAllSongsCommand = new DelegateCommand(async () => await ClearAllAsync());
+            SaveAllSongsCommand = new DelegateCommand(async () => await SaveAllAsync());
+            SaveSongCommand = new DelegateCommand(async() => await SaveSongAsync());
+            DeleteSongCommand = new DelegateCommand(async() => await RemoveSongAsync());
+            SaveAlbumInformationCommand = new DelegateCommand(async () => await SaveAlbumInformationAsync());
+            LoadAlbumImageFromFileCommand = new DelegateCommand(LoadAlbumImageFromFile);
+            LoadAlbumImageFromClipboardCommand = new DelegateCommand(LoadAlbumImageFromClipboard);
 
             // fill combobox with release years from given range
 
@@ -305,6 +303,7 @@ namespace MusCat.ViewModels
             }
         }
 
+
         #region working with images
 
         private string ChooseImageSavePath()
@@ -399,6 +398,28 @@ namespace MusCat.ViewModels
             Album.ImagePath = filepath;
 
             RaisePropertyChanged("Album");
+        }
+
+        #endregion
+
+
+        #region IDialogAware implementation
+
+        public string Title => $"Edit album: {Album.Performer.Name} - {Album.Name}";
+
+        public event Action<IDialogResult> RequestClose;
+
+        public bool CanCloseDialog() => true;
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+            Album = parameters.GetValue<AlbumViewModel>("album");
+
+            LoadSongsAsync();
+        }
+
+        public void OnDialogClosed()
+        {
         }
 
         #endregion

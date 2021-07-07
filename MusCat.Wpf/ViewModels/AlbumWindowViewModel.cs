@@ -7,7 +7,6 @@ using MusCat.Core.Util;
 using MusCat.Events;
 using MusCat.Infrastructure.Services;
 using MusCat.ViewModels.Entities;
-using MusCat.Views;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -23,11 +22,11 @@ namespace MusCat.ViewModels
     class AlbumWindowViewModel : BindableBase, IDialogAware
     {
         private readonly IEventAggregator _eventAggregator;
+        private readonly IDialogService _dialogService;
         private readonly IAudioPlayer _player;
         private readonly IAlbumService _albumService;
         private readonly ILyricsWebLoader _lyricsWebLoader;
-        private readonly IVideoLinkWebLoader _videoLinkWebLoader;
-
+        
         private AlbumViewModel _album;
         public AlbumViewModel Album
         {
@@ -122,8 +121,6 @@ namespace MusCat.ViewModels
             }
         }
 
-        private int _performerId;
-
         private bool _isLoading;
         private bool _isStopped;
 
@@ -153,22 +150,22 @@ namespace MusCat.ViewModels
 
         
         public AlbumWindowViewModel(IEventAggregator eventAggregator,
+                                    IDialogService dialogService,
                                     IAlbumService albumService,
                                     IAudioPlayer player,
-                                    ILyricsWebLoader lyricsWebLoader,
-                                    IVideoLinkWebLoader videoLinkWebLoader)
+                                    ILyricsWebLoader lyricsWebLoader)
         {
             Guard.AgainstNull(eventAggregator);
+            Guard.AgainstNull(dialogService);
             Guard.AgainstNull(albumService);
             Guard.AgainstNull(player);
             Guard.AgainstNull(lyricsWebLoader);
-            Guard.AgainstNull(videoLinkWebLoader);
 
             _eventAggregator = eventAggregator;
+            _dialogService = dialogService;
             _albumService = albumService;
             _player = player;
             _lyricsWebLoader = lyricsWebLoader;
-            _videoLinkWebLoader = videoLinkWebLoader;
 
             // setting up commands
 
@@ -351,6 +348,18 @@ namespace MusCat.ViewModels
 
         #endregion
 
+        
+        private async void UpdateSongRate()
+        {
+            try
+            {
+                await _albumService.UpdateSongRateAsync(SelectedSong.Id, SelectedSong.Rate);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
         /// <summary>
         /// Just an additional feature of the AlbumWindow:
@@ -362,18 +371,6 @@ namespace MusCat.ViewModels
             _eventAggregator.GetEvent<AlbumRateUpdatedEvent>().Publish(Album);
 
             await _albumService.UpdateAlbumRateAsync(Album.Id, Album.Rate);
-        }
-
-        private async void UpdateSongRate()
-        {
-            try
-            {
-                await _albumService.UpdateSongRateAsync(SelectedSong.Id, SelectedSong.Rate);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
         }
 
 
@@ -406,24 +403,18 @@ namespace MusCat.ViewModels
             }
         }
         
-        private async void ShowYoutube()
+        private void ShowYoutube()
         {
             var performer = SelectedSong.Album.Performer.Name;
             var song = SelectedSong.Name;
 
-            var videosViewModel = new VideosViewModel 
+            var parameters = new DialogParameters
             {
-                Title = $"{performer} - {song}"
+                { "performer", performer },
+                { "song", song }
             };
 
-            var videosWindow = new VideosWindow 
-            {
-                DataContext = videosViewModel
-            };
-
-            videosWindow.Show();
-
-            videosViewModel.VideoLinks = await _videoLinkWebLoader.LoadVideoLinksAsync(performer, song);
+            _dialogService.Show("VideosWindow", parameters, null);
         }
 
 

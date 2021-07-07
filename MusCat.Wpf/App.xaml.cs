@@ -18,7 +18,6 @@ using MusCat.Infrastructure.Services.Stats;
 using MusCat.Infrastructure.Services.Tracklist;
 using MusCat.ViewModels;
 using MusCat.Views;
-using Prism.Events;
 using Prism.Ioc;
 using Prism.Services.Dialogs;
 using Prism.Unity;
@@ -54,12 +53,19 @@ namespace MusCat
             containerRegistry.Register<StatsViewModel>();
             containerRegistry.Register<EditPerformerViewModel>();
             containerRegistry.Register<EditAlbumViewModel>();
-            containerRegistry.Register<EditCountryViewModel>();
+            containerRegistry.Register<EditCountriesViewModel>();
 
             containerRegistry.Register<IDialogService, CustomDialogService>();
             containerRegistry.RegisterDialog<RadioWindow, RadioWindowViewModel>();
             containerRegistry.RegisterDialog<AlbumWindow, AlbumWindowViewModel>();
+            containerRegistry.RegisterDialog<EditAlbumWindow, EditAlbumViewModel>();
+            containerRegistry.RegisterDialog<PerformerWindow, EditPerformerViewModel>();
+            containerRegistry.RegisterDialog<EditPerformerWindow, EditPerformerViewModel>();
+            containerRegistry.RegisterDialog<EditCountriesWindow, EditCountriesViewModel>();
             containerRegistry.RegisterDialog<StatsWindow, StatsViewModel>();
+            containerRegistry.RegisterDialog<VideosWindow, VideosViewModel>();
+            containerRegistry.RegisterDialog<SettingsWindow, SettingsViewModel>();
+            containerRegistry.RegisterDialog<AboutWindow, AboutViewModel>();
         }
 
         protected override Window CreateShell()
@@ -75,11 +81,15 @@ namespace MusCat
                 // Disable shutdown when the dialog is closed
                 Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-                var settingsWindow = new SettingsWindow();
-                if (settingsWindow.ShowDialog() == false)
+                var dialogService = Container.Resolve<IDialogService>();
+
+                dialogService.ShowDialog("SettingsWindow", r =>
                 {
-                    MessageBox.Show("Default path will be used: " + FileLocator.Pathlist.FirstOrDefault());
-                }
+                    if (r.Result != ButtonResult.OK)
+                    {
+                        MessageBox.Show("Default path will be used: " + FileLocator.Pathlist.FirstOrDefault());
+                    }
+                });
             }
 
             FileLocator.LoadConfiguration();

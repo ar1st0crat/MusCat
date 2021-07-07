@@ -1,72 +1,73 @@
-﻿using MusCat.Util;
-using System.Windows.Input;
+﻿using MusCat.Core.Interfaces.Networking;
+using MusCat.Core.Util;
+using MusCat.Util;
+using Prism.Commands;
+using Prism.Mvvm;
+using Prism.Services.Dialogs;
+using System;
 
 namespace MusCat.ViewModels
 {
-    class VideosViewModel : ViewModelBase
+    class VideosViewModel : BindableBase, IDialogAware
     {
-        public string Title { get; set; }
+        private readonly IVideoLinkWebLoader _videoLinkWebLoader;
+
+        private string _performer;
+        private string _song;
 
         private CircularCollection<string> _circularLinks;
 
-        private string[] _videoLinks;
-        public string[] VideoLinks
-        {
-            get => _videoLinks;
-            set
-            {
-                _videoLinks = value;
-                _circularLinks = new CircularCollection<string>(_videoLinks);
-                UpdateLinks();
-            }
-        }
-
         private string _currentLink;
         public string CurrentLink
-        { 
-            get => _currentLink;
-            set
-            {
-                _currentLink = value;
-                RaisePropertyChanged("CurrentLink");
-            }
+        {
+            get { return _currentLink; }
+            set { SetProperty(ref _currentLink, value); }
         }
 
         private string _nextLink;
         public string NextLink
         {
-            get => _nextLink;
-            set
-            {
-                _nextLink = value;
-                RaisePropertyChanged("NextLink");
-            }
+            get { return _nextLink; }
+            set { SetProperty(ref _nextLink, value); }
         }
 
         private string _prevLink;
         public string PrevLink
         {
-            get => _prevLink;
+            get { return _prevLink; }
+            set { SetProperty(ref _prevLink, value); }
+        }
+
+        private string[] _videoLinks;
+        public string[] VideoLinks
+        {
+            get { return _videoLinks; }
             set
             {
-                _prevLink = value;
-                RaisePropertyChanged("PrevLink");
+                SetProperty(ref _videoLinks, value);
+
+                _circularLinks = new CircularCollection<string>(_videoLinks);
+
+                UpdateLinks();
             }
         }
 
-        public ICommand PrevLinkCommand { get; private set; }
-        public ICommand NextLinkCommand { get; private set; }
+        public DelegateCommand PrevLinkCommand { get; }
+        public DelegateCommand NextLinkCommand { get; }
 
 
-        public VideosViewModel()
+        public VideosViewModel(IVideoLinkWebLoader videoLinkWebLoader)
         {
-            PrevLinkCommand = new RelayCommand(() =>
+            Guard.AgainstNull(videoLinkWebLoader);
+            _videoLinkWebLoader = videoLinkWebLoader;
+
+            PrevLinkCommand = new DelegateCommand(() =>
             {
                 _circularLinks.Prev();
                 UpdateLinks();
             });
 
-            NextLinkCommand = new RelayCommand(() =>
+            NextLinkCommand = new DelegateCommand(() =>
             {
                 _circularLinks.Next();
                 UpdateLinks();
@@ -79,5 +80,30 @@ namespace MusCat.ViewModels
             CurrentLink = _circularLinks.GetCurrent();
             NextLink = _circularLinks.GetNext();
         }
+
+
+        #region IDialogAware implementation
+
+        public string Title => $"{_performer} - {_song}";
+
+        public event Action<IDialogResult> RequestClose;
+
+        public bool CanCloseDialog() => true;
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+            _performer = parameters.GetValue<string>("performer");
+            _song = parameters.GetValue<string>("song");
+
+            _videoLinkWebLoader
+                .LoadVideoLinksAsync(_performer, _song)
+                .ContinueWith(v => VideoLinks = v.Result);
+        }
+
+        public void OnDialogClosed()
+        {
+        }
+
+        #endregion
     }
 }

@@ -1,28 +1,32 @@
-﻿using System;
-using System.IO;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
-using AutoMapper;
+﻿using AutoMapper;
+using MusCat.Application.Interfaces;
 using MusCat.Core.Entities;
+using MusCat.Core.Interfaces.Networking;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
-using MusCat.Util;
 using MusCat.ViewModels.Entities;
 using MusCat.Views;
-using MusCat.Core.Interfaces.Networking;
-using MusCat.Application.Interfaces;
+using Prism.Commands;
+using Prism.Mvvm;
+using Prism.Services.Dialogs;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using Clipboard = System.Windows.Clipboard;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
-
 namespace MusCat.ViewModels
 {
-    class EditPerformerViewModel : ViewModelBase
+    class EditPerformerViewModel : BindableBase, IDialogAware
     {
         private readonly IPerformerService _performerService;
         private readonly IBioWebLoader _bioWebLoader;
+        
+        private string _initialName;
 
         private PerformerViewModel _performer;
         public PerformerViewModel Performer
@@ -30,10 +34,10 @@ namespace MusCat.ViewModels
             get { return _performer; }
             set
             {
-                _performer = value;
-                _prevName = Performer.Name;
-                SelectedCountryId = Performer.Country?.Id;
-                RaisePropertyChanged();
+                SetProperty(ref _performer, value);
+
+                _initialName = _performer.Name;
+                SelectedCountryId = _performer.Country?.Id;
             }
         }
 
@@ -41,24 +45,19 @@ namespace MusCat.ViewModels
         public ObservableCollection<Country> Countries
         {
             get { return _countries; }
-            set
-            {
-                _countries = value;
-                RaisePropertyChanged();
-            }
+            set { SetProperty(ref _countries, value); }
         }
 
         public int? SelectedCountryId { get; set; }
 
-        private string _prevName;
-
         public ObservableCollection<Genre> Genres { get; set; }
         
         // commands
-        public RelayCommand LoadImageFromFileCommand { get; private set; }
-        public RelayCommand LoadImageFromClipboardCommand { get; private set; }
-        public RelayCommand LoadBioCommand { get; private set; }
-        public RelayCommand SavePerformerCommand { get; private set; }
+
+        public DelegateCommand LoadImageFromFileCommand { get; }
+        public DelegateCommand LoadImageFromClipboardCommand { get; }
+        public DelegateCommand LoadBioCommand { get; }
+        public DelegateCommand SavePerformerCommand { get; }
 
 
         public EditPerformerViewModel(IPerformerService performerService, IBioWebLoader bioWebLoader)
@@ -69,10 +68,10 @@ namespace MusCat.ViewModels
             _performerService = performerService;
             _bioWebLoader = bioWebLoader;
 
-            LoadImageFromFileCommand = new RelayCommand(LoadPerformerImageFromFile);
-            LoadImageFromClipboardCommand = new RelayCommand(LoadPerformerImageFromClipboard);
-            LoadBioCommand = new RelayCommand(async() => await LoadBioAsync());
-            SavePerformerCommand = new RelayCommand(async() => await SavePerformerAsync());
+            LoadImageFromFileCommand = new DelegateCommand(LoadPerformerImageFromFile);
+            LoadImageFromClipboardCommand = new DelegateCommand(LoadPerformerImageFromClipboard);
+            LoadBioCommand = new DelegateCommand(async() => await LoadBioAsync());
+            SavePerformerCommand = new DelegateCommand(async() => await SavePerformerAsync());
         }
 
         private async Task SavePerformerAsync()
@@ -80,17 +79,17 @@ namespace MusCat.ViewModels
             var performer = Mapper.Map<Performer>(Performer);
             performer.CountryId = SelectedCountryId;
 
-            var result = await _performerService.UpdatePerformerAsync(Performer.Id, performer);
+            var result = await _performerService.UpdatePerformerAsync(_performer.Id, performer);
 
             if (result.Type != ResultType.Ok)
             {
                 MessageBox.Show(result.Error);
-                Performer.Name = _prevName;
+                _performer.Name = _initialName;
                 return;
             }
 
-            Performer.Country = Mapper.Map<Country>(result.Data.Country);
-            Performer.ImagePath = FileLocator.GetPerformerImagePath(performer);
+            _performer.Country = Mapper.Map<Country>(result.Data.Country);
+            _performer.ImagePath = FileLocator.GetPerformerImagePath(performer);
             RaisePropertyChanged("Performer");
         }
 
@@ -98,7 +97,7 @@ namespace MusCat.ViewModels
         {
             try
             {
-                Performer.Info = await _bioWebLoader.LoadBioAsync(Performer.Name);
+                _performer.Info = await _bioWebLoader.LoadBioAsync(_performer.Name);
                 RaisePropertyChanged("Performer");
             }
             catch (Exception ex)
@@ -106,6 +105,7 @@ namespace MusCat.ViewModels
                 MessageBox.Show(ex.Message);
             }
         }
+
 
         #region working with images
 
@@ -163,7 +163,7 @@ namespace MusCat.ViewModels
                 MessageBox.Show(ex.Message);
             }
 
-            Performer.ImagePath = filepath;
+            _performer.ImagePath = filepath;
 
             RaisePropertyChanged("Performer");
         }
@@ -200,9 +200,35 @@ namespace MusCat.ViewModels
                 MessageBox.Show(ex.Message);
             }
 
-            Performer.ImagePath = filepath;
+            _performer.ImagePath = filepath;
 
             RaisePropertyChanged("Performer");
+        }
+
+        #endregion
+
+
+        #region IDialogAware implementation
+
+        public string Title => $"{Performer?.Name} info";
+
+        public event Action<IDialogResult> RequestClose;
+
+        public bool CanCloseDialog() => true;
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+            Performer = parameters.GetValue<PerformerViewModel>("performer");
+
+            if (parameters.ContainsKey("countries"))
+            {
+                var countries = parameters.GetValue<IEnumerable<Country>>("countries");
+                Countries = new ObservableCollection<Country>(countries);
+            }
+        }
+
+        public void OnDialogClosed()
+        {
         }
 
         #endregion

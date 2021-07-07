@@ -1,27 +1,34 @@
-﻿<Window x:Class="MusCat.Views.EditAlbumWindow"
+﻿<UserControl x:Class="MusCat.Views.EditAlbumWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:converters="clr-namespace:MusCat.Converters"
         xmlns:controls="clr-namespace:MusCat.Controls"
-        Title="Edit Album"
-        SizeToContent="WidthAndHeight"
-        BorderBrush="AliceBlue">
-    <Window.Background>
+        xmlns:prism="http://prismlibrary.com/">
+
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window">
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
+            <Setter Property="ShowInTaskbar" Value="True"/>
+            <Setter Property="SizeToContent" Value="WidthAndHeight"/>
+        </Style>
+    </prism:Dialog.WindowStyle>
+
+    <UserControl.Background>
         <LinearGradientBrush>
             <GradientStop Color="#001122" Offset="0" />
             <GradientStop Color="#ffffff" Offset="3"/>
         </LinearGradientBrush>
-    </Window.Background>
+    </UserControl.Background>
     
-    <Window.Resources>
+    <UserControl.Resources>
         <!-- GUI parameters -->
         <sys:Double x:Key="AlbumImageWidth">300</sys:Double>
         <sys:Double x:Key="AlbumImageHeight">300</sys:Double>
         <!-- Converters -->
         <converters:AlbumImageConverter x:Key="AlbumImageConverter"/>
         <converters:RateConverter x:Key="AlbumRateConverter"/>
-    </Window.Resources>
+    </UserControl.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -191,4 +198,4 @@
             </ScrollViewer>
         </StackPanel>
     </Grid>
-</Window>
+</UserControl>
