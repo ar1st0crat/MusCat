@@ -64,6 +64,7 @@ namespace MusCat
             containerRegistry.RegisterDialog<EditCountriesWindow, EditCountriesViewModel>();
             containerRegistry.RegisterDialog<StatsWindow, StatsViewModel>();
             containerRegistry.RegisterDialog<VideosWindow, VideosViewModel>();
+            containerRegistry.RegisterDialog<ChoiceWindow, ChoiceWindowViewModel>();
             containerRegistry.RegisterDialog<SettingsWindow, SettingsViewModel>();
             containerRegistry.RegisterDialog<AboutWindow, AboutViewModel>();
         }

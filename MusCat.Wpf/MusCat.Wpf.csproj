@@ -144,12 +144,14 @@
     <Compile Include="ViewModels\AboutViewModel.cs" />
     <Compile Include="ViewModels\AlbumWindowViewModel.cs" />
     <Compile Include="Util\CircularCollection.cs" />
+    <Compile Include="ViewModels\ChoiceWindowViewModel.cs" />
     <Compile Include="ViewModels\Entities\AlbumViewModel.cs" />
     <Compile Include="ViewModels\EditCountriesViewModel.cs" />
     <Compile Include="ViewModels\Entities\CountryViewModel.cs" />
     <Compile Include="ViewModels\Entities\SongViewModel.cs" />
     <Compile Include="ViewModels\IndexViewModel.cs" />
     <Compile Include="ViewModels\MdlConstants.cs" />
+    <Compile Include="Util\MoveAlbumService.cs" />
     <Compile Include="ViewModels\PerformerFilters.cs" />
     <Compile Include="ViewModels\EditAlbumViewModel.cs" />
     <Compile Include="ViewModels\EditPerformerViewModel.cs" />

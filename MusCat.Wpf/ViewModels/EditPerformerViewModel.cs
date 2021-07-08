@@ -5,7 +5,6 @@ using MusCat.Core.Interfaces.Networking;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
 using MusCat.ViewModels.Entities;
-using MusCat.Views;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -25,7 +24,8 @@ namespace MusCat.ViewModels
     {
         private readonly IPerformerService _performerService;
         private readonly IBioWebLoader _bioWebLoader;
-        
+        private readonly IDialogService _dialogService;
+
         private string _initialName;
 
         private PerformerViewModel _performer;
@@ -60,13 +60,17 @@ namespace MusCat.ViewModels
         public DelegateCommand SavePerformerCommand { get; }
 
 
-        public EditPerformerViewModel(IPerformerService performerService, IBioWebLoader bioWebLoader)
+        public EditPerformerViewModel(IPerformerService performerService,
+                                      IBioWebLoader bioWebLoader,
+                                      IDialogService dialogService)
         {
             Guard.AgainstNull(performerService);
             Guard.AgainstNull(bioWebLoader);
+            Guard.AgainstNull(dialogService);
 
             _performerService = performerService;
             _bioWebLoader = bioWebLoader;
+            _dialogService = dialogService;
 
             LoadImageFromFileCommand = new DelegateCommand(LoadPerformerImageFromFile);
             LoadImageFromClipboardCommand = new DelegateCommand(LoadPerformerImageFromClipboard);
@@ -118,11 +122,19 @@ namespace MusCat.ViewModels
                 return filepaths[0];
             }
 
-            var choice = new ChoiceWindow();
-            choice.SetChoiceList(filepaths);
-            choice.ShowDialog();
+            var parameters = new DialogParameters
+            {
+                { "options", filepaths }
+            };
 
-            return choice.ChoiceResult;
+            string path = null;
+
+            _dialogService.ShowDialog("ChoiceWindow", parameters, r =>
+            {
+                path = r.Parameters.GetValue<string>("choice");
+            });
+
+            return path;
         }
         
         private void PrepareFileForSaving(string filepath)
@@ -148,7 +160,7 @@ namespace MusCat.ViewModels
 
             var filepath = ChooseImageSavePath();
 
-            if (filepath == null)
+            if (filepath is null)
             {
                 return;
             }
@@ -178,7 +190,7 @@ namespace MusCat.ViewModels
 
             var filepath = ChooseImageSavePath();
 
-            if (filepath == null)
+            if (filepath is null)
             {
                 return;
             }

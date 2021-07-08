@@ -7,7 +7,6 @@ using MusCat.Core.Interfaces.Tracklist;
 using MusCat.Core.Util;
 using MusCat.Infrastructure.Services;
 using MusCat.ViewModels.Entities;
-using MusCat.Views;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -27,6 +26,7 @@ namespace MusCat.ViewModels
         private readonly ISongService _songService;
         private readonly ITracklistHelper _tracklist;
         private readonly ITracklistWebLoader _tracklistWebLoader;
+        private readonly IDialogService _dialogService;
 
         public AlbumViewModel Album { get; set; }
 
@@ -65,17 +65,20 @@ namespace MusCat.ViewModels
         public EditAlbumViewModel(IAlbumService albumService,
                                   ISongService songService,
                                   ITracklistHelper tracklist,
-                                  ITracklistWebLoader tracklistWebLoader)
+                                  ITracklistWebLoader tracklistWebLoader,
+                                  IDialogService dialogService)
         {
             Guard.AgainstNull(albumService);
             Guard.AgainstNull(songService);
             Guard.AgainstNull(tracklist);
             Guard.AgainstNull(tracklistWebLoader);
+            Guard.AgainstNull(dialogService);
 
             _albumService = albumService;
             _songService = songService;
             _tracklist = tracklist;
             _tracklistWebLoader = tracklistWebLoader;
+            _dialogService = dialogService;
 
             // setting up commands
 
@@ -111,7 +114,7 @@ namespace MusCat.ViewModels
 
         public async Task SaveSongAsync()
         {
-            if (SelectedSong == null)
+            if (SelectedSong is null)
             {
                 return;
             }
@@ -315,11 +318,19 @@ namespace MusCat.ViewModels
                 return filepaths[0];
             }
 
-            var choice = new ChoiceWindow();
-            choice.SetChoiceList(filepaths);
-            choice.ShowDialog();
+            var parameters = new DialogParameters
+            {
+                { "options", filepaths }
+            };
 
-            return choice.ChoiceResult;
+            string path = null;
+
+            _dialogService.ShowDialog("ChoiceWindow", parameters, r =>
+            {
+                path = r.Parameters.GetValue<string>("choice");
+            });
+
+            return path;
         }
 
         private void PrepareFileForSaving(string filepath)
@@ -343,7 +354,7 @@ namespace MusCat.ViewModels
             }
 
             var filepath = ChooseImageSavePath();
-            if (filepath == null)
+            if (filepath is null)
             {
                 return;
             }
@@ -380,7 +391,7 @@ namespace MusCat.ViewModels
             }
 
             var filepath = ChooseImageSavePath();
-            if (filepath == null)
+            if (filepath is null)
             {
                 return;
             }

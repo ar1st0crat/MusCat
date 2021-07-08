@@ -6,16 +6,14 @@ using MusCat.Core.Interfaces;
 using MusCat.Core.Interfaces.Data;
 using MusCat.Core.Util;
 using MusCat.Events;
-using MusCat.Infrastructure.Services;
+using MusCat.Util;
 using MusCat.ViewModels.Entities;
-using MusCat.Views;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using System;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,11 +23,11 @@ namespace MusCat.ViewModels
     class MainWindowViewModel : BindableBase
     {
         private readonly IEventAggregator _eventAggregator;
+        private readonly IDialogService _dialogService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPerformerService _performerService;
         private readonly IAlbumService _albumService;
         private readonly IRateCalculator _rateCalculator;
-        private readonly IDialogService _dialogService;
 
         public ObservableCollection<PerformerViewModel> Performers { get; } = new ObservableCollection<PerformerViewModel>();
 
@@ -77,13 +75,10 @@ namespace MusCat.ViewModels
             }
         }
 
-        public int AlbumCount => SelectedPerformer.Albums.Count;
+        public int AlbumCount => _selectedPerformer.Albums.Count;
 
         private PerformerFilters _filter = PerformerFilters.FilterByFirstLetter;
         private string _filterCriterion;
-
-        private AlbumViewModel _albumToMove;
-        private PerformerViewModel _albumToMovePerformer;
 
 
         #region Commands
@@ -141,6 +136,9 @@ namespace MusCat.ViewModels
                 .GetEvent<AlbumRateUpdatedEvent>()
                 .Subscribe(UpdateRate, ThreadOption.UIThread);
 
+            _moveAlbumService = new MoveAlbumService(_dialogService);
+
+
             // setting up all commands (quite a lot of them)
 
             GeneralViewCommand = new DelegateCommand(() =>
@@ -189,7 +187,7 @@ namespace MusCat.ViewModels
             DeletePerformerCommand = new DelegateCommand(RemoveSelectedPerformerAsync);
             DeleteAlbumCommand = new DelegateCommand(RemoveSelectedAlbumAsync);
             BeginMoveAlbumCommand = new DelegateCommand(BeginMoveAlbum);
-            MoveAlbumCommand = new DelegateCommand(MoveAlbum);
+            MoveAlbumCommand = new DelegateCommand(async () => await MoveAlbumAsync());
             PerformerSearchCommand = new DelegateCommand(async () => await SelectPerformersByPatternAsync());
             StartRadioCommand = new DelegateCommand(StartRadio);
             StatsCommand = new DelegateCommand(ShowStats);
@@ -325,7 +323,7 @@ namespace MusCat.ViewModels
         #endregion
         
 
-        #region CRUD
+        #region CRUD performers
 
         /// <summary>
         /// Create Performer View Models for each performer
@@ -403,7 +401,7 @@ namespace MusCat.ViewModels
 
         private void ViewSelectedPerformer()
         {
-            if (SelectedPerformer is null)
+            if (_selectedPerformer is null)
             {
                 MessageBox.Show("Please select performer to show!");
                 return;
@@ -411,7 +409,7 @@ namespace MusCat.ViewModels
 
             var parameters = new DialogParameters
             {
-                { "performer", SelectedPerformer }
+                { "performer", _selectedPerformer }
             };
 
             _dialogService.Show("PerformerWindow", parameters, null);
@@ -419,7 +417,7 @@ namespace MusCat.ViewModels
 
         private void EditPerformer()
         {
-            if (SelectedPerformer is null)
+            if (_selectedPerformer is null)
             {
                 MessageBox.Show("Please select performer to edit!");
                 return;
@@ -427,50 +425,11 @@ namespace MusCat.ViewModels
 
             var parameters = new DialogParameters
             {
-                { "performer", SelectedPerformer },
+                { "performer", _selectedPerformer },
                 { "countries", _unitOfWork.CountryRepository.GetAll() }
             };
 
             _dialogService.ShowDialog("EditPerformerWindow", parameters, null);
-        }
-
-        public void ViewAlbum(AlbumViewModel album)
-        {
-            var parameters = new DialogParameters
-            {
-                { "album", album }
-            };
-
-            _dialogService.Show("AlbumWindow", parameters, null);
-        }
-
-        private void ViewSelectedAlbum()
-        {
-            if (SelectedAlbum == null)
-            {
-                MessageBox.Show("Please select album to show!");
-                return;
-            }
-
-            ViewAlbum(SelectedAlbum);
-        }
-
-        private void EditAlbum()
-        {
-            if (SelectedAlbum == null)
-            {
-                MessageBox.Show("Please select album to edit!");
-                return;
-            }
-
-            var parameters = new DialogParameters
-            {
-                { "album", SelectedAlbum }
-            };
-
-            _dialogService.ShowDialog("EditAlbumWindow", parameters, null);
-
-            UpdatePerformerPanelAsync();
         }
 
         private async void AddPerformerAsync()
@@ -497,31 +456,75 @@ namespace MusCat.ViewModels
 
             ActivateUpperPanel(false);
             _selectedPage = 0;
-            
+
             Performers.Add(performerViewModel);
         }
 
         private async void RemoveSelectedPerformerAsync()
         {
-            if (SelectedPerformer == null)
+            if (_selectedPerformer is null)
             {
                 MessageBox.Show("Please select performer to remove");
                 return;
             }
 
-            var message = $"Are you sure you want to delete '{SelectedPerformer.Name}' " +
+            var message = $"Are you sure you want to delete '{_selectedPerformer.Name}' " +
                           $"including an entire discography?";
 
             if (MessageBox.Show(message, "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                await _performerService.RemovePerformerAsync(SelectedPerformer.Id);
-                Performers.Remove(SelectedPerformer);
+                await _performerService.RemovePerformerAsync(_selectedPerformer.Id);
+                Performers.Remove(_selectedPerformer);
             }
+        }
+
+        #endregion
+
+
+        #region CRUD albums
+
+        public void ViewAlbum(AlbumViewModel album)
+        {
+            var parameters = new DialogParameters
+            {
+                { "album", album }
+            };
+
+            _dialogService.Show("AlbumWindow", parameters, null);
+        }
+
+        private void ViewSelectedAlbum()
+        {
+            if (_selectedAlbum is null)
+            {
+                MessageBox.Show("Please select album to show!");
+                return;
+            }
+
+            ViewAlbum(_selectedAlbum);
+        }
+
+        private void EditAlbum()
+        {
+            if (_selectedAlbum is null)
+            {
+                MessageBox.Show("Please select album to edit!");
+                return;
+            }
+
+            var parameters = new DialogParameters
+            {
+                { "album", _selectedAlbum }
+            };
+
+            _dialogService.ShowDialog("EditAlbumWindow", parameters, null);
+
+            UpdatePerformerPanelAsync();
         }
 
         private async void AddAlbumAsync()
         {
-            if (SelectedPerformer == null)
+            if (_selectedPerformer is null)
             {
                 MessageBox.Show("Please select performer!");
                 return;
@@ -529,14 +532,14 @@ namespace MusCat.ViewModels
 
             var albumToAdd = new Album
             {
-                Id = SelectedPerformer.Id,
+                Id = _selectedPerformer.Id,
                 Name = "New Album",
                 ReleaseYear = (short)DateTime.Now.Year,
                 TotalTime = "0:00"
             };
 
             var album = (
-                    await _performerService.AddAlbumAsync(SelectedPerformer.Id, albumToAdd)
+                    await _performerService.AddAlbumAsync(_selectedPerformer.Id, albumToAdd)
                 ).Data;
 
             var albumViewModel = Mapper.Map<AlbumViewModel>(album);
@@ -557,7 +560,7 @@ namespace MusCat.ViewModels
         /// <param name="album">Album view model</param>
         private async Task InsertAlbumToCollectionAsync(AlbumViewModel album)
         {
-            var albums = SelectedPerformer.Albums;
+            var albums = _selectedPerformer.Albums;
             var albumPos = albums.Count;
 
             for (var i = 0; i < albums.Count; i++)
@@ -581,41 +584,44 @@ namespace MusCat.ViewModels
                 break;
             }
 
-            SelectedPerformer.Albums.Insert(albumPos, album);
+            _selectedPerformer.Albums.Insert(albumPos, album);
 
             await UpdatePerformerPanelAsync();
         }
 
         private async void RemoveSelectedAlbumAsync()
         {
-            if (SelectedPerformer == null)
+            if (_selectedPerformer is null)
             {
                 MessageBox.Show("Please select performer first!");
                 return;
             }
 
-            if (SelectedAlbum == null)
+            if (_selectedAlbum is null)
             {
                 MessageBox.Show("Please select album to remove");
                 return;
             }
 
             var message = $"Are you sure you want to delete album " +
-                          $"'{SelectedAlbum.Name}' " +
-                          $"by '{SelectedPerformer.Name}'?";
+                          $"'{_selectedAlbum.Name}' " +
+                          $"by '{_selectedPerformer.Name}'?";
 
             if (MessageBox.Show(message, "Confirmation", MessageBoxButton.YesNo) != MessageBoxResult.Yes)
             {
                 return;
             }
 
-            await _albumService.RemoveAlbumAsync(SelectedAlbum.Id);
+            await _albumService.RemoveAlbumAsync(_selectedAlbum.Id);
 
             // to update view
-            SelectedPerformer.Albums.Remove(SelectedAlbum);
+            _selectedPerformer.Albums.Remove(_selectedAlbum);
 
             await UpdatePerformerPanelAsync();
         }
+
+        #endregion
+
 
         /// <summary>
         /// This is the handler of AlbumRateUpdated event 
@@ -644,133 +650,58 @@ namespace MusCat.ViewModels
             performer.AlbumCollectionRate = _rateCalculator.Calculate(rates);
         }
 
-
-        private void BeginMoveAlbum()
+        private async Task UpdatePerformerPanelAsync()
         {
-            if (SelectedAlbum == null)
-            {
-                return;
-            }
+            await UpdateSongCountAsync();
 
-            _albumToMove = SelectedAlbum;
-            _albumToMovePerformer = SelectedPerformer;
-
-            MessageBox.Show("Now select the performer and click the 'Move album here' button");
+            UpdatePerformerRate(_selectedPerformer);
         }
 
-        private async void MoveAlbum()
+        public async Task UpdateSongCountAsync()
         {
-            if (_albumToMove == null)
+            if (_selectedPerformer is null) return;
+
+            SongCount = await _performerService.SongCountAsync(_selectedPerformer.Id);
+        }
+
+
+        private readonly MoveAlbumService _moveAlbumService;
+
+        private void BeginMoveAlbum() => _moveAlbumService.BeginMoveAlbum(_selectedAlbum, _selectedPerformer);
+
+        private async Task MoveAlbumAsync()
+        {
+            var album = _moveAlbumService.AlbumToMove;
+            
+            if (album is null)
             {
                 MessageBox.Show("Please select album to move");
                 return;
             }
 
-            await _albumService.MoveAlbumToPerformerAsync(_albumToMove.Id, SelectedPerformer.Id);
-
-            var album = Mapper.Map<Album>(_albumToMove);
-            var performer = Mapper.Map<Performer>(_selectedPerformer);
-
-            _albumToMovePerformer.Albums.Remove(_albumToMove);
-            
-            UpdatePerformerRate(_albumToMovePerformer);
-
-
-            _albumToMove.Performer = performer;
-            _albumToMove.LocateImagePath();
-            
-            if (MessageBox.Show("Do you want to move all corresponding files as well?",
-                                "Confirmation",
-                                MessageBoxButton.YesNoCancel) != MessageBoxResult.Yes)
+            if (_selectedPerformer.Id == _moveAlbumService.InitialPerformer.Id)
             {
-                await InsertAlbumToCollectionAsync(_albumToMove);
+                _moveAlbumService.EndMoveAlbum();   // it's already here
                 return;
             }
 
-            var pathlist = FileLocator.MakePerformerImagePathlist(performer);
-            var path = string.Empty;
+            await _albumService.MoveAlbumToPerformerAsync(album.Id, _selectedPerformer.Id);
 
-            if (pathlist.Count == 1)
+            _moveAlbumService.MoveAlbum(_selectedPerformer);
+
+            UpdatePerformerRate(_moveAlbumService.InitialPerformer);
+
+            if (MessageBox.Show("Do you want to move all corresponding files as well?",
+                                "Confirmation",
+                                MessageBoxButton.YesNoCancel) == MessageBoxResult.Yes)
             {
-                path = Path.GetDirectoryName(pathlist.First());
-            }
-            else
-            {
-                var choice = new ChoiceWindow();
-                choice.SetChoiceList(pathlist.Select(p => Path.GetDirectoryName(p)));
-                choice.ShowDialog();
-
-                path = choice.ChoiceResult;
-
-                Directory.CreateDirectory(path);
+                _moveAlbumService.MoveAlbumFiles(_selectedPerformer);
             }
 
-            // move album cover image file
+            await InsertAlbumToCollectionAsync(album);
 
-            var albumPath = FileLocator.GetAlbumImagePath(album);
-            if (albumPath != string.Empty)
-            {
-                File.Move(albumPath, $"{path}\\{Path.GetFileName(albumPath)}");
-
-                _albumToMove.LocateImagePath();
-            }
-
-            // move folder with song files
-
-            var albumFolder = FileLocator.FindAlbumPath(album);
-            if (albumFolder != string.Empty)
-            {
-                var destinationFolder = $"{Path.GetDirectoryName(path)}\\{new DirectoryInfo(albumFolder).Name}";
-
-                if (Path.GetPathRoot(albumFolder) == Path.GetPathRoot(path))
-                {
-                    Directory.Move(albumFolder, destinationFolder);
-                }
-
-                // !!!!! .NET, are you kidding me? ((( 
-
-                else
-                {
-                    Directory.CreateDirectory(destinationFolder);
-
-                    foreach (string dir in Directory.GetDirectories(albumFolder, "*", SearchOption.AllDirectories))
-                    {
-                        Directory.CreateDirectory(Path.Combine(destinationFolder, dir.Substring(albumFolder.Length + 1)));
-                    }
-
-                    foreach (string file in Directory.GetFiles(albumFolder, "*", SearchOption.AllDirectories))
-                    {
-                        File.Copy(file, Path.Combine(destinationFolder, file.Substring(albumFolder.Length + 1)));
-                    }
-
-                    Directory.Delete(albumFolder, true);
-                }
-            }
-
-            await InsertAlbumToCollectionAsync(_albumToMove);
-
-            _albumToMove = null;
-            _albumToMovePerformer = null;
+            _moveAlbumService.EndMoveAlbum();
         }
-
-
-        private async Task UpdatePerformerPanelAsync()
-        {
-            await UpdateSongCountAsync();
-
-            UpdatePerformerRate(SelectedPerformer);
-            //RaisePropertyChanged("SelectedPerformer");
-        }
-
-        public async Task UpdateSongCountAsync()
-        {
-            if (SelectedPerformer != null)
-            {
-                SongCount = await _performerService.SongCountAsync(SelectedPerformer.Id);
-            }
-        }
-
-        #endregion
 
 
         #region main menu
