@@ -407,11 +407,33 @@
                     <MenuItem Command="{Binding DeletePerformerCommand}" Header="Remove" HorizontalAlignment="Left"/>
                     <MenuItem Command="{Binding EditMusiciansCommand}" Header="Musicians..." HorizontalAlignment="Left"/>
                     <MenuItem Command="{Binding EditCountriesCommand}" Header="Countries..." HorizontalAlignment="Left"/>
+                    <Separator/>
+                    <MenuItem Header="Find">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding PerformerPattern}" Width="100"/>
+                            <Button Command="{Binding PerformerSearchCommand}" 
+                                    Content="Go!"
+                                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
+                                    BorderBrush="Transparent" Background="Transparent" 
+                                    Margin="0,0,10,0" />
+                        </StackPanel>
+                    </MenuItem>
                 </MenuItem>
                 <MenuItem Template="{StaticResource MusCatMenuItem}" Header="Albums" Tag="&#xEA69;">
                     <MenuItem Command="{Binding AddAlbumCommand}" Header="Add..." HorizontalAlignment="Left"/>
                     <MenuItem Command="{Binding EditAlbumCommand}" Header="Edit..." HorizontalAlignment="Left"/>
                     <MenuItem Command="{Binding DeleteAlbumCommand}" Header="Remove" HorizontalAlignment="Left"/>
+                    <!--<Separator/>
+                    <MenuItem Header="Find">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding AlbumPattern}" Width="100"/>
+                            <Button Command="{Binding AlbumSearchCommand}" 
+                                    Content="Go!"
+                                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
+                                    BorderBrush="Transparent" Background="Transparent" 
+                                    Margin="0,0,10,0" />
+                        </StackPanel>
+                    </MenuItem>-->
                 </MenuItem>
                 <MenuItem Template="{StaticResource MusCatMenuItem}" Command="{Binding StatsCommand}" Header="Stats" Tag="&#xE9D2;"/>
                 <MenuItem Template="{StaticResource MusCatMenuItem}" Command="{Binding StartRadioCommand}" Header="Radio" Tag="&#xE7F6;"/>
@@ -561,34 +583,6 @@
                    HorizontalAlignment="Right"
                    VerticalAlignment="Center"
                    Margin="0,0,25,10">
-            <!--includes panel of search filters...
-            <Expander ExpandDirection="Right">
-                <WrapPanel>
-                    <Label Content="Find performer" Foreground="White" FontSize="14" />
-                    <TextBox Text="{Binding PerformerPattern, UpdateSourceTrigger=PropertyChanged}"
-                             Width="120" Height="20"
-                             Margin="10,0,3,0" 
-                             FontSize="14" />
-                    <Button Command="{Binding PerformerSearchCommand}" 
-                            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
-                            BorderBrush="Transparent" Background="Transparent" 
-                            Margin="0,0,10,0">
-                        <Image Source="{StaticResource ImagePlayButton}" Height="25"/>
-                    </Button>
-                    <Label Content="Find album" Foreground="White" FontSize="14" />
-                    <TextBox Text="{Binding AlbumPattern, UpdateSourceTrigger=PropertyChanged}"
-                             Width="120" Height="20"
-                             Margin="10,0,3,0" 
-                             FontSize="14" />
-                    <Button Command="{Binding AlbumSearchCommand}" 
-                            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" 
-                            BorderBrush="Transparent" Background="Transparent" 
-                            Margin="0,0,10,0">
-                        <Image Source="{StaticResource ImagePlayButton}" Height="25"/>
-                    </Button>
-                </WrapPanel>
-            </Expander>
-
             <ItemsControl ItemsSource="{Binding PageCollection}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -612,7 +606,7 @@
                                 </TextBlock>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
-            </ItemsControl>-->
+            </ItemsControl>
         </WrapPanel>
     </Grid>
 </Window>
