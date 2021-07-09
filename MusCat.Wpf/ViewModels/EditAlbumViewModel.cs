@@ -38,12 +38,7 @@ namespace MusCat.ViewModels
         }
 
         public SongViewModel SelectedSong { get; set; }
-
-        public ObservableCollection<string> ReleaseYearsCollection { get; set; }
-
-        // starting year is 1900
-        private const int StartingYear = 1900;
-        // ending year will be defined at run-time as current year + 1
+                
 
         #region Commands
 
@@ -52,7 +47,7 @@ namespace MusCat.ViewModels
         public DelegateCommand FixTitlesCommand { get; }
         public DelegateCommand FixTimesCommand { get; }
         public DelegateCommand ClearAllSongsCommand { get; }
-        public DelegateCommand SaveAllSongsCommand { get; }
+        public DelegateCommand SaveAlbumCommand { get; }
         public DelegateCommand AddSongCommand { get; }
         public DelegateCommand SaveSongCommand { get; }
         public DelegateCommand DeleteSongCommand { get; }
@@ -88,22 +83,11 @@ namespace MusCat.ViewModels
             FixTimesCommand = new DelegateCommand(FixDurations);
             AddSongCommand = new DelegateCommand(AddSong);
             ClearAllSongsCommand = new DelegateCommand(async () => await ClearAllAsync());
-            SaveAllSongsCommand = new DelegateCommand(async () => await SaveAllAsync());
+            SaveAlbumCommand = new DelegateCommand(async () => await SaveAllAsync());
             SaveSongCommand = new DelegateCommand(async() => await SaveSongAsync());
             DeleteSongCommand = new DelegateCommand(async() => await RemoveSongAsync());
-            SaveAlbumInformationCommand = new DelegateCommand(async () => await SaveAlbumInformationAsync());
             LoadAlbumImageFromFileCommand = new DelegateCommand(LoadAlbumImageFromFile);
             LoadAlbumImageFromClipboardCommand = new DelegateCommand(LoadAlbumImageFromClipboard);
-
-            // fill combobox with release years from given range
-
-            var endingYear = DateTime.Now.Year + 1;
-
-            ReleaseYearsCollection = new ObservableCollection<string>();
-            for (var i = StartingYear; i < endingYear; i++)
-            {
-                ReleaseYearsCollection.Add(i.ToString());
-            }
         }
 
         public async Task LoadSongsAsync()
@@ -338,7 +322,6 @@ namespace MusCat.ViewModels
             // ensure that target directory exists
             Directory.CreateDirectory(Path.GetDirectoryName(filepath) ?? filepath);
 
-            // first check if file already exists
             if (File.Exists(filepath))
             {
                 File.Delete(filepath);

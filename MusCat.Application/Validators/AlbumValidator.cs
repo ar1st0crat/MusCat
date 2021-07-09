@@ -18,6 +18,10 @@ namespace MusCat.Application.Validators
             RuleFor(album => album.TotalTime)
                 .Matches(@"^\d+:\d{2}$")
                 .WithMessage("Total time should be in the format mm:ss");
+
+            RuleFor(album => album.ReleaseYear)
+                .Must(x => x >= 1000 && x <= 9999)
+                .WithMessage($"The year of release must contain four digits!");
         }
     }
 }

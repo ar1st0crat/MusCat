@@ -469,21 +469,13 @@
                                           Foreground="White"
                                           Background="#111111"
                                           BorderThickness="0"
-                                          Command="{Binding ChangeSongCommand}">
-                                    <MenuItem.Icon>
-                                        <Image Source="{StaticResource ImageReplaceButton}" Margin="2"/>
-                                    </MenuItem.Icon>
-                                </MenuItem>
+                                          Command="{Binding ChangeSongCommand}"/>
                                 <MenuItem Header="Remove" 
                                           Height="30"
                                           Foreground="White"
                                           Background="#111111"
                                           BorderThickness="0"
-                                          Command="{Binding RemoveSongCommand}">
-                                    <MenuItem.Icon>
-                                        <Image Source="{StaticResource ImageRemoveButton}" Margin="2"/>
-                                    </MenuItem.Icon>
-                                </MenuItem>
+                                          Command="{Binding RemoveSongCommand}"/>
                             </ContextMenu>
                         </ListBox.ContextMenu>
                         <ListBox.ItemTemplate>

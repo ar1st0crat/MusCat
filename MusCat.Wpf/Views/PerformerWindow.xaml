@@ -3,13 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:converters="clr-namespace:MusCat.Converters"
-        xmlns:prism="http://prismlibrary.com/">
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
 
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
             <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
             <Setter Property="ShowInTaskbar" Value="True"/>
-            <Setter Property="SizeToContent" Value="Width"/>
+            <Setter Property="WindowState" Value="Maximized"/>
         </Style>
     </prism:Dialog.WindowStyle>
     
@@ -19,21 +20,39 @@
             <GradientStop Color="#ff77bb" Offset="2.5" />
         </LinearGradientBrush>
     </UserControl.Background>
-    
+
     <UserControl.Resources>
-        <sys:Double x:Key="PerformerPhotoWidth">400</sys:Double>
-        <converters:PerformerImageConverter x:Key="PerformerPhotoConverter" />
+        <ResourceDictionary>
+            <Style x:Key="FlatButton" TargetType="{x:Type Button}" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                <Setter Property="Height" Value="35"/>
+                <Setter Property="Width" Value="186"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="Margin" Value="2,5,2,5"/>
+            </Style>
+            <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
+                <Setter Property="materialDesign:ValidationAssist.Background" Value="#ff5858" />
+            </Style>
+            <!-- GUI parameters -->
+            <sys:Double x:Key="PerformerPhotoWidth">400</sys:Double>
+            <!-- Converters -->
+            <converters:PerformerImageConverter x:Key="PerformerPhotoConverter" />
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:CustomColorTheme BaseTheme="Dark" PrimaryColor="White" SecondaryColor="Lime" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="/MusCat;component/Controls/ScrollBar.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
-    
+
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="420" />
-            <ColumnDefinition />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <ScrollViewer Grid.Column="0" Grid.Row="0"
                       HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-            <StackPanel >
+            <StackPanel Margin="20,20,10,10" HorizontalAlignment="Right">
                 <Image Source="{Binding Performer.ImagePath,
                                         Converter={StaticResource PerformerPhotoConverter}, 
                                         ConverterParameter={StaticResource PerformerPhotoWidth}}"
@@ -42,31 +61,29 @@
                        Width="{StaticResource PerformerPhotoWidth}"/>
                 <Label Content="{Binding Performer.Name}"
                        Foreground="White"
-                       FontFamily="Stencil" FontSize="28"
+                       FontSize="28"
                        HorizontalAlignment="Center"/>
                 <Label Content="{Binding Performer.Country.Name}"
                        Foreground="White"
                        FontSize="16"
-                       HorizontalAlignment="Center" Margin="0,15,0,15"/>
+                       HorizontalAlignment="Center"
+                       Margin="0,15,0,15"/>
                 <ListBox ItemsSource="{Binding Performer.Styles}"
-                         Background="Transparent" BorderBrush="Transparent">
-                </ListBox>
-                <Label Content="Lineup:"
-                       Foreground="White"
-                       FontSize="16"
-                       HorizontalAlignment="Center" Margin="0,15,0,15"/>
-                <ListBox ItemsSource="{Binding Performer.Lineups}"
                          Background="Transparent" BorderBrush="Transparent">
                 </ListBox>
             </StackPanel>
         </ScrollViewer>
-        <StackPanel Grid.Column="1">
-            <TextBox Text="{Binding Performer.Info}"
-                     TextWrapping="Wrap" AcceptsReturn="True" 
-                     Width="auto" Height="650" MaxWidth="500"
-                     Margin="15" 
-                     Foreground="White" Background="Transparent" BorderBrush="Transparent"
+        <ScrollViewer Grid.Column="1" Grid.Row="0"
+                      HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="10,10,30,20" HorizontalAlignment="Left">
+                <TextBox Text="{Binding Performer.Info}"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"
+                     MaxWidth="450"
+                     Margin="15"
+                     Foreground="White"
                      VerticalScrollBarVisibility="Auto" />
-        </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>

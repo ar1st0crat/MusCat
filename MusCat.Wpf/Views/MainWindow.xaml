@@ -517,23 +517,14 @@
                         <MenuItem Header="View..."
                                   Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
                                                     Path=PlacementTarget.Tag.ViewAlbumCommand}">
-                            <MenuItem.Icon>
-                                <Image Source="{StaticResource ImagePlayButton}" Width="20" />
-                            </MenuItem.Icon>
                         </MenuItem>
                         <MenuItem Header="Edit..."
                                   Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
                                                     Path=PlacementTarget.Tag.EditAlbumCommand}">
-                            <MenuItem.Icon>
-                                <Image Source="{StaticResource ImagePlayButton}" Width="20" />
-                            </MenuItem.Icon>
                         </MenuItem>
                         <MenuItem Header="Remove"
                                   Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},
                                                     Path=PlacementTarget.Tag.DeleteAlbumCommand}">
-                            <MenuItem.Icon>
-                                <Image Source="{StaticResource ImagePlayButton}" Width="20" />
-                            </MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
                         <MenuItem Header="Move to"
@@ -552,11 +543,7 @@
                      BorderThickness="0" Background="Transparent">
                 <ListBox.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="View..." Command="{Binding ViewPerformerCommand}">
-                            <MenuItem.Icon>
-                                <Image Source="{StaticResource ImagePlayButton}" Width="20" />
-                            </MenuItem.Icon>
-                        </MenuItem>
+                        <MenuItem Header="View..." Command="{Binding ViewPerformerCommand}"/>
                         <MenuItem Header="Edit..." Command="{Binding EditPerformerCommand}"/>
                         <MenuItem Header="Remove" Command="{Binding DeletePerformerCommand}"/>
                         <Separator/>
@@ -574,7 +561,7 @@
                    HorizontalAlignment="Right"
                    VerticalAlignment="Center"
                    Margin="0,0,25,10">
-            <!-- includes panel of search filters... 
+            <!--includes panel of search filters...
             <Expander ExpandDirection="Right">
                 <WrapPanel>
                     <Label Content="Find performer" Foreground="White" FontSize="14" />
@@ -600,7 +587,7 @@
                         <Image Source="{StaticResource ImagePlayButton}" Height="25"/>
                     </Button>
                 </WrapPanel>
-            </Expander>-->
+            </Expander>
 
             <ItemsControl ItemsSource="{Binding PageCollection}">
                 <ItemsControl.ItemsPanel>
@@ -625,7 +612,7 @@
                                 </TextBlock>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            </ItemsControl>-->
         </WrapPanel>
     </Grid>
 </Window>

@@ -6,9 +6,11 @@ The **MusCat** app (short for **Mus**ic **Cat**alog) is intended for all users w
 
 ![pic1](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/1.png)
 
-Examples of an album window
+Album window:
 
 ![pic3](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/3.png)
+
+![pic4](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/4.png)
 
 
 ### Main features:
@@ -94,7 +96,7 @@ MusCat Radio
 
 Stats window
 
-![pic4](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/5.png)
+![pic5](https://github.com/ar1st0crat/MusCat/blob/master/Screenshots/5.png)
 
 Web Radio
 
@@ -109,9 +111,11 @@ Some screenshots from Angular client:
 
 ## Used libraries:
 
+- [Prism](https://github.com/PrismLibrary/Prism)
 - [EntityFramework](https://www.nuget.org/packages/EntityFramework)
 - [AutoMapper](http://automapper.org/)
-- [Autofac](https://autofac.org/)
+- [FluentValidation](https://github.com/FluentValidation/FluentValidation)
 - [LiveCharts](https://lvcharts.net)
 - [NAudio](https://naudio.codeplex.com)
 - [TagLib](http://taglib.org)
+- [MaterialDesignInXamlToolkit](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit)

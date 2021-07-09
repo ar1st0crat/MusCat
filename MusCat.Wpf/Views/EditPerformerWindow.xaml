@@ -3,13 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:converters="clr-namespace:MusCat.Converters"
-        xmlns:prism="http://prismlibrary.com/">
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
 
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
             <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
             <Setter Property="ShowInTaskbar" Value="True"/>
-            <Setter Property="SizeToContent" Value="WidthAndHeight"/>
+            <Setter Property="WindowState" Value="Maximized"/>
         </Style>
     </prism:Dialog.WindowStyle>
     
@@ -21,54 +22,76 @@
     </UserControl.Background>
     
     <UserControl.Resources>
-        <!-- GUI parameters -->
-        <sys:Double x:Key="PerformerPhotoWidth">400</sys:Double>
-        <!-- Converters -->
-        <converters:PerformerImageConverter x:Key="PerformerPhotoConverter" />
+        <ResourceDictionary>
+            <Style x:Key="FlatButton" TargetType="{x:Type Button}" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                <Setter Property="Height" Value="35"/>
+                <Setter Property="Width" Value="186"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="Margin" Value="2,5,2,5"/>
+            </Style>
+            <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
+                <Setter Property="materialDesign:ValidationAssist.Background" Value="#ff5858" />
+            </Style>
+            <!-- GUI parameters -->
+            <sys:Double x:Key="PerformerPhotoWidth">400</sys:Double>
+            <!-- Converters -->
+            <converters:PerformerImageConverter x:Key="PerformerPhotoConverter" />
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:CustomColorTheme BaseTheme="Dark" PrimaryColor="White" SecondaryColor="Lime" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="/MusCat;component/Controls/ScrollBar.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="420" />
-            <ColumnDefinition />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <ScrollViewer Grid.Column="0" Grid.Row="0"
                       HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="10">
+            <StackPanel Margin="10,20,30,20" HorizontalAlignment="Right">
                 <WrapPanel HorizontalAlignment="Center">
-                    <Button Command="{Binding Path=LoadImageFromFileCommand}"
-                            Style="{StaticResource MusCatButton}"
-                            Content="Load from file..."
-                            Margin="15,10,3,10" Padding="5"/>
                     <Button Command="{Binding Path=LoadImageFromClipboardCommand}"
-                            Style="{StaticResource MusCatButton}"
-                            Content="Load from clipboard"
-                            Margin="0,10,3,10"/>
+                            Style="{StaticResource FlatButton}"
+                            Margin="0,10,3,10">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Clipboard" Margin="0,0,5,0"/>
+                            <TextBlock Text="LOAD FROM CLIPBOARD"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding Path=LoadImageFromFileCommand}"
+                            Style="{StaticResource FlatButton}"
+                            Margin="15,10,3,10" Padding="5">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="FileImage" Margin="0,0,5,0"/>
+                            <TextBlock Text="LOAD FROM FILE..."/>
+                        </StackPanel>
+                    </Button>
                 </WrapPanel>
                 <Image Source="{Binding Path=Performer.ImagePath, Converter={StaticResource PerformerPhotoConverter},
                                                                   ConverterParameter={StaticResource PerformerPhotoWidth}}"
                        HorizontalAlignment="Left" VerticalAlignment="Top"
-                       Width="{StaticResource PerformerPhotoWidth}"/>
-                <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Margin="10">
-                    <Label Content="Name: " Foreground="WhiteSmoke"/>
-                    <TextBox Text="{Binding Performer.Name}"
-                             Width="300"
-                             FontFamily="Stencil" FontSize="20"
-                             HorizontalAlignment="Center"/>
-                </WrapPanel>
-                <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Label Content="Country: " Foreground="WhiteSmoke"/>
-                    <ComboBox ItemsSource="{Binding Countries}"
-                              SelectedValue="{Binding SelectedCountryId}"
-                              Width="290"
-                              FontSize="16"
-                              HorizontalAlignment="Center"
-                              DisplayMemberPath="Name"
-                              SelectedValuePath="Id" 
-                              IsSynchronizedWithCurrentItem="False"/>
-                </WrapPanel>
+                       Width="{StaticResource PerformerPhotoWidth}"
+                       Margin="0,15,0,15"/>
+                <Label Content="Name: " Foreground="WhiteSmoke"/>
+                <TextBox Text="{Binding Performer.Name}"
+                         MinWidth="390"
+                         Foreground="White"
+                         FontSize="16"
+                         HorizontalAlignment="Center"/>
+                <Label Content="Country: " Foreground="WhiteSmoke"/>
+                <ComboBox ItemsSource="{Binding Countries}"
+                          SelectedValue="{Binding SelectedCountryId}"
+                          Width="390"
+                          FontSize="16"
+                          Foreground="White"
+                          HorizontalAlignment="Center"
+                          DisplayMemberPath="Name"
+                          SelectedValuePath="Id" 
+                          IsSynchronizedWithCurrentItem="False"/>
                 <ListBox ItemsSource="{Binding Genres}"
                          Background="Transparent" BorderBrush="Transparent">
                     <ListBox.ItemTemplate>
@@ -79,30 +102,37 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-                <Label Content="Lineup:"
-                       Foreground="White"
-                       FontSize="16"
-                       HorizontalAlignment="Center" Margin="0,15,0,15"/>
-                <ListBox ItemsSource="{Binding Performer.Lineups}"
-                         Background="Transparent" BorderBrush="Transparent">
-                </ListBox>
                 <Button Command="{Binding SavePerformerCommand}"
-                        Style="{StaticResource MusCatButton}"
-                        Content="Save performer information"
-                        Margin="10" Padding="5"/>
+                        Style="{StaticResource FlatButton}"
+                        Margin="20"
+                        Padding="5">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ContentSave" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="SAVE PERFORMER" />
+                    </StackPanel>
+                </Button>
             </StackPanel>
         </ScrollViewer>
-        <StackPanel Grid.Column="1">
-            <Button Command="{Binding LoadBioCommand}"
-                    Style="{StaticResource MusCatButton}"
-                    Content ="Load bio from last.fm..."
-                    Margin="15,20,15,0" Padding="5"/>
-            <TextBox Text="{Binding Performer.Info}"
-                     TextWrapping="Wrap" AcceptsReturn="True"
-                     Width="350" Height="600"
+        <ScrollViewer Grid.Column="1" Grid.Row="0"
+                      HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="10,10,30,20" HorizontalAlignment="Left">
+                <Button Command="{Binding LoadBioCommand}"
+                    Style="{StaticResource FlatButton}"
+                    Margin="15,20,15,0"
+                    Width="175">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Web" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="LOAD BIO FROM WEB"/>
+                    </StackPanel>
+                </Button>
+                <TextBox Text="{Binding Performer.Info}"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"
+                     MaxWidth="450"
                      Margin="15"
-                     Background="Black" Foreground="White" Opacity=".35"
+                     Foreground="White"
                      VerticalScrollBarVisibility="Auto" />
-         </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>

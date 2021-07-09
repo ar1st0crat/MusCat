@@ -4,13 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        xmlns:prism="http://prismlibrary.com/">
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
 
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
             <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
             <Setter Property="ShowInTaskbar" Value="True"/>
-            <Setter Property="SizeToContent" Value="WidthAndHeight"/>
+            <Setter Property="WindowState" Value="Maximized"/>
         </Style>
     </prism:Dialog.WindowStyle>
     
@@ -21,44 +22,63 @@
         </LinearGradientBrush>
     </UserControl.Background>
 
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <Style x:Key="FlatButton" TargetType="{x:Type Button}" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                <Setter Property="Height" Value="35"/>
+                <Setter Property="Width" Value="95"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="Margin" Value="8,5,2,5"/>
+            </Style>
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:CustomColorTheme BaseTheme="Dark" PrimaryColor="White" SecondaryColor="Lime" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="/MusCat;component/Controls/ScrollBar.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+        </ResourceDictionary>
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
+            <RowDefinition Height="65" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="50" />
+            <RowDefinition Height="100" />
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
                     Margin="10">
             <TextBox Text="{Binding CountryInput}" 
-                     Width="180" Margin="0,5,0,5" />
-            <Button Style="{StaticResource MusCatButton}" 
-                    Command="{Binding AddCommand}"
-                    Margin="8,5,2,5">
-                <Image Source="../Images/remove.png" Height="10">
-                    <Image.LayoutTransform>
-                        <RotateTransform Angle="45" />
-                    </Image.LayoutTransform>
-                </Image>
+                     Foreground="White"
+                     FontSize="15"
+                     Width="220" 
+                     VerticalContentAlignment="Center"/>
+            <Button Command="{Binding AddCommand}"
+                    Style="{StaticResource FlatButton}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Add" Height="25" Width="25" />
+                    <TextBlock Text=" ADD" VerticalAlignment="Center"/>
+                </StackPanel>
             </Button>
-            <Button Style="{StaticResource MusCatButton}"
-                    Command="{Binding ReplaceCommand}"
-                    Margin="2,5,2,5">
-                <Image Source="../Images/replace.png" Height="10" />
+            <Button Command="{Binding ReplaceCommand}"
+                    Style="{StaticResource FlatButton}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="FileReplaceOutline"  Height="25" Width="25"/>
+                    <TextBlock Text=" REPLACE" VerticalAlignment="Center"/>
+                </StackPanel>
             </Button>
-            <Button Style="{StaticResource MusCatButton}"
-                    Command="{Binding RemoveCommand}"
-                    Margin="2,5,2,5">
-                <Image Source="../Images/remove.png" Height="10" />
+            <Button Command="{Binding RemoveCommand}"
+                    Style="{StaticResource FlatButton}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Delete"  Height="25" Width="25"/>
+                    <TextBlock Text=" REMOVE" VerticalAlignment="Center"/>
+                </StackPanel>
             </Button>
         </StackPanel>
         <ListBox Grid.Row="1"
                  ItemsSource="{Binding Countrylist}"
                  SelectedIndex="{Binding SelectedCountryIndex}"
-                 Foreground="White"
-                 Background="Transparent"
-                 BorderBrush="Transparent"
                  MinWidth="220"
                  Margin="10">
             <ListBox.ItemTemplate>
@@ -69,9 +89,13 @@
         </ListBox>
         <Button Grid.Row="2"
                 Command="{Binding OkCommand}"
-                Style="{StaticResource MusCatButton}"
-                Margin="10">
-            OK
+                Style="{StaticResource MaterialDesignFlatButton}"
+                Width="100"
+                Margin="20">
+            <StackPanel Orientation="Horizontal">
+                <materialDesign:PackIcon Kind="Tick" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                <TextBlock Text="OK" />
+            </StackPanel>
         </Button>
     </Grid>
 </UserControl>
