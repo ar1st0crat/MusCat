@@ -61,8 +61,8 @@ namespace MusCat.Infrastructure.Services.Networking
                 html = html.Replace("itemprop=\"name\"", "");       // remove this occasional substring
 
 
-                const string trackClass = "<span class=\"tracklist_track_title\">";
-                var offset = trackClass.Length;
+                const string trackClass = "<span class=\"trackTitle";
+                var offset = trackClass.Length + 8;
 
 
                 var startPos = html.IndexOf(trackClass);
@@ -82,7 +82,7 @@ namespace MusCat.Infrastructure.Services.Networking
                 }
 
 
-                const string durationClass = "class=\"tracklist_track_duration\"";
+                const string durationClass = "class=\"duration";
                 const string spanTag = "<span>";
                 offset = spanTag.Length;
 
