@@ -1,4 +1,5 @@
 ﻿using MusCat.Core.Interfaces.Networking;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
@@ -23,7 +24,7 @@ namespace MusCat.Infrastructure.Services.Networking
 
             if (!response.IsSuccessStatusCode)
             {
-                return null;
+                return Array.Empty<string>();
             }
 
             var html = await response.Content.ReadAsStringAsync().ConfigureAwait(false);

@@ -19,13 +19,13 @@ namespace MusCat.Infrastructure.Services.Networking
 
         public async Task<Track[]> LoadTracksAsync(string performer, string album)
         {
-            var url = $@"https://www.google.com/search?q={performer}+{album}+discogs";
+            var url = $@"https://www.google.com/search?q={performer}+{album}+discogs+cd";
 
             var response = await _httpClient.GetAsync(url).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception("Bio could not be loaded! Error " + response.StatusCode);
+                throw new Exception("List of albums could not be loaded! Error " + response.StatusCode);
             }
 
             var html = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -55,7 +55,7 @@ namespace MusCat.Infrastructure.Services.Networking
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception("Bio could not be loaded! Error " + response.StatusCode);
+                throw new Exception("Tracklist could not be loaded! Error " + response.StatusCode);
             }
 
             html = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -87,7 +87,7 @@ namespace MusCat.Infrastructure.Services.Networking
             }
 
 
-            const string durationClass = "class=\"duration";
+            const string durationClass = "<td class=\"duration";
             const string spanTag = "<span>";
             offset = spanTag.Length;
 

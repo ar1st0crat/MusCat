@@ -395,9 +395,16 @@ namespace MusCat.ViewModels
             {
                 var performerName = SelectedSong.Album.Performer.Name;
 
-                var lyricsText = await _lyricsWebLoader.LoadLyricsAsync(performerName, SelectedSong.Name);
+                try
+                {
+                    var lyricsText = await _lyricsWebLoader.LoadLyricsAsync(performerName, SelectedSong.Name);
+                    Lyrics = $"{SelectedSong.Name.ToUpperInvariant()}\r\n\r\n{lyricsText}";
+                }
+                catch (Exception ex)
+                {
+                    Lyrics = ex.Message;
+                }
 
-                Lyrics = $"{SelectedSong.Name.ToUpperInvariant()}\r\n\r\n{lyricsText}";
                 IsLyricsVisible = Visibility.Visible;
                 SwitchViewMode();
             }
