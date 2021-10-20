@@ -7,7 +7,12 @@ namespace MusCat.Infrastructure.Services.Networking
 {
     public class VideoLinkWebLoader : IVideoLinkWebLoader
     {
-        private static readonly HttpClient _httpClient = new HttpClient();
+        private readonly HttpClient _httpClient;
+
+        public VideoLinkWebLoader(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
 
         public async Task<string[]> LoadVideoLinksAsync(string performer, string song, int linkCount = 5)
         {

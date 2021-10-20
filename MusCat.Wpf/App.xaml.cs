@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Win32;
 using MusCat.Application.Interfaces;
 using MusCat.Application.Services;
 using MusCat.Core.Interfaces;
@@ -33,6 +34,8 @@ namespace MusCat
         {
             var connectionString = ConfigurationManager.ConnectionStrings["MusCatDbContext"].ConnectionString;
 
+            containerRegistry.RegisterServices(s => s.AddHttpClient());
+
             containerRegistry.RegisterSingleton<IUnitOfWork>(() => new UnitOfWork(connectionString));
             containerRegistry.Register<IPerformerService, PerformerService>();
             containerRegistry.Register<IAlbumService, AlbumService>();
@@ -54,7 +57,7 @@ namespace MusCat
             containerRegistry.Register<EditPerformerViewModel>();
             containerRegistry.Register<EditAlbumViewModel>();
             containerRegistry.Register<EditCountriesViewModel>();
-
+            
             containerRegistry.Register<IDialogService, CustomDialogService>();
             containerRegistry.RegisterDialog<RadioWindow, RadioWindowViewModel>();
             containerRegistry.RegisterDialog<AlbumWindow, AlbumWindowViewModel>();
@@ -67,6 +70,14 @@ namespace MusCat
             containerRegistry.RegisterDialog<ChoiceWindow, ChoiceWindowViewModel>();
             containerRegistry.RegisterDialog<SettingsWindow, SettingsViewModel>();
             containerRegistry.RegisterDialog<AboutWindow, AboutViewModel>();
+        }
+
+        protected override IContainerExtension CreateContainerExtension() => PrismContainerExtension.Current;
+
+        protected override void OnStartup(StartupEventArgs e) 
+        { 
+            PrismContainerExtension.Init();
+            base.OnStartup(e);
         }
 
         protected override Window CreateShell()

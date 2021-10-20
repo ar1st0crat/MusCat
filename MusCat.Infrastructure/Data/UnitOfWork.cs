@@ -64,11 +64,6 @@ namespace MusCat.Infrastructure.Data
             GC.SuppressFinalize(this);
         }
 
-        ~UnitOfWork()
-        {
-            Dispose(false);
-        }
-
         #endregion
     }
 }
